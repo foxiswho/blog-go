@@ -1,0 +1,13 @@
+/.idea
+/node_modules/*
+.DS_Store
+/Uploads/xml/*
+/Uploads/Excel/*
+/Uploads/IdCard/*
+/Uploads/back_excel/*
+/.vscode/*
+/logs
+*.rej
+.project
+/bin/*
+/pkg/*
