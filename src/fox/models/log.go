@@ -22,7 +22,7 @@ type Log struct {
 	TypeLogin  int       `orm:"column(type_login)"`
 	TypeClient int       `orm:"column(type_client)"`
 	Ip         string    `orm:"column(ip);size(20)"`
-	Str        string    `orm:"column(str);size(255);null"`
+	Msg        string    `orm:"column(msg);size(255);null"`
 }
 
 func (t *Log) TableName() string {

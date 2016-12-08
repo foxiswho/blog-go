@@ -1,15 +1,14 @@
 package admin
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
 	"fox/models"
 
 	"github.com/astaxie/beego"
-	"fox/util/str"
 	"fox/util/crypt"
+	"fox/service"
 )
 
 const (
@@ -100,7 +99,6 @@ func (this *BaseController) isOpenPerm() bool {
 token 校验，判断是否登录
 */
 func x(token, currentIp string) *models.Admin {
-
 	Dtoken, err := crypt.DeCrypt(token)
 	if err != nil {
 		beego.Debug("token 解密失败")
@@ -111,14 +109,14 @@ func x(token, currentIp string) *models.Admin {
 		beego.Debug("token 校验失败")
 		return nil
 	}
-	userid := array[0]
+	uid := array[0]
 	ip := array[2]
 	if !strings.EqualFold(ip, currentIp) {
 		//IP发生变化 强制重新登录
 		beego.Debug("ip chenged")
 		return nil
 	}
-	intid, _ := strconv.ParseInt(userid, 10, 64)
+	intid, _ := strconv.ParseInt(uid, 10, 64)
 	admuser, err := service.AdmUserService.GetUserById(intid)
 	if err != nil || admuser.Id < 0 {
 		beego.Debug("ID error")
@@ -183,4 +181,34 @@ func (this *BaseController) jsonResultPager(count int, roles interface{}) {
 	this.Data["json"] = resultMap
 	this.ServeJSON()
 	this.StopRun()
+}
+/**
+token 校验，判断是否登录
+*/
+func validateToken(token, currentIp string) *model.Admuser {
+
+	Dtoken, err := crypt.DeCrypt(token)
+	if err != nil {
+		beego.Debug("token 解密失败")
+		return nil
+	}
+	array := strings.Split(Dtoken, "|")
+	if len(array) != 3 {
+		beego.Debug("token 校验失败")
+		return nil
+	}
+	userid := array[0]
+	ip := array[2]
+	if !strings.EqualFold(ip, currentIp) {
+		//IP发生变化 强制重新登录
+		beego.Debug("ip chenged")
+		return nil
+	}
+	intid, _ := strconv.ParseInt(userid, 10, 64)
+	admuser, err := service.AdmUserService.GetUserById(intid)
+	if err != nil || admuser.Id < 0 {
+		beego.Debug("ID error")
+		return nil
+	}
+	return admuser
 }

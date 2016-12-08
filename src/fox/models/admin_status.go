@@ -11,7 +11,8 @@ import (
 )
 
 type AdminStatus struct {
-	Id         int       `orm:"column(aid);auto"`
+	Id         int       `orm:"column(status_id);auto"`
+	Aid        int       `orm:"column(aid)"`
 	LoginTime  time.Time `orm:"column(login_time);type(timestamp);null"`
 	LoginIp    string    `orm:"column(login_ip);size(20)"`
 	Login      int       `orm:"column(login)"`

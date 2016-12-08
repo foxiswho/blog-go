@@ -14,14 +14,15 @@ type Member struct {
 	Id       int       `orm:"column(uid);auto"`
 	Mobile   string    `orm:"column(mobile);size(11)"`
 	Username string    `orm:"column(username);size(30)"`
-	Email    string    `orm:"column(email);size(32)"`
+	Mail     string    `orm:"column(mail);size(32)"`
 	Password string    `orm:"column(password);size(32)"`
 	Salt     string    `orm:"column(salt);size(6)"`
 	RegIp    string    `orm:"column(reg_ip);size(15)"`
 	RegTime  time.Time `orm:"column(reg_time);type(timestamp);auto_now_add"`
 	IsDel    uint8     `orm:"column(is_del)"`
-	GroupId  uint8     `orm:"column(group_id)"`
+	GroupId  uint      `orm:"column(group_id)"`
 	TrueName string    `orm:"column(true_name);size(32)"`
+	Name     string    `orm:"column(name);size(100)"`
 }
 
 func (t *Member) TableName() string {

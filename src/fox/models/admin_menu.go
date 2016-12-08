@@ -16,13 +16,13 @@ type AdminMenu struct {
 	S        string `orm:"column(s);size(60)"`
 	Data     string `orm:"column(data);size(100)"`
 	Sort     uint   `orm:"column(sort)"`
-	IsShow   int8   `orm:"column(is_show)"`
-	IsUnique int8   `orm:"column(is_unique)"`
 	Remark   string `orm:"column(remark);size(255)"`
 	Type     string `orm:"column(type);size(32)"`
 	Level    uint8  `orm:"column(level)"`
 	Level1Id uint   `orm:"column(level1_id)"`
 	Md5      string `orm:"column(md5);size(32)"`
+	IsShow   int8   `orm:"column(is_show)"`
+	IsUnique int8   `orm:"column(is_unique)"`
 }
 
 func (t *AdminMenu) TableName() string {

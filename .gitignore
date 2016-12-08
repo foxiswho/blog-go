@@ -11,3 +11,4 @@
 .project
 /bin/*
 /pkg/*
+/src/fox/fox
