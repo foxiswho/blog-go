@@ -7,5 +7,5 @@ import "fmt"
  */
 func main() {
 	fmt.Println("薇薇你好，我喜欢你，做我女朋友吧！")
-	fmt.Println("考察期哦")
+	fmt.Println("女神给我回复，考察期哦")
 }
