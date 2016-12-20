@@ -2,12 +2,10 @@ package admin
 
 import (
 	"github.com/astaxie/beego"
-	"fox/models"
 )
 
 type BaseController struct {
-	beego.Controller
-	adminUser *models.Admin //当前登录用户信息
+	BaseNoLoginController
 }
 
 func (this *BaseController) Prepare() {
