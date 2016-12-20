@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fox/models"
+	"github.com/foxiswho/blog-go/models"
 	"strconv"
 	"strings"
 

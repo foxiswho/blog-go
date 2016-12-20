@@ -8,114 +8,109 @@
 package routers
 
 import (
-	"fox/controllers"
-
 	"github.com/astaxie/beego"
 	"fox/controllers/admin"
 )
 
 func init() {
-	beego.Router("/", &controllers.MainController{})
 	beego.Router("/admin/login", &admin.LoginController{})
-		//ns := beego.NewNamespace("/v1",
-		//
-		//	beego.NSNamespace("/admin",
-		//		beego.NSInclude(
-		//			&controllers.AdminController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/admin_menu",
-		//		beego.NSInclude(
-		//			&controllers.AdminMenuController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/admin_role_priv",
-		//		beego.NSInclude(
-		//			&controllers.AdminRolePrivController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/admin_status",
-		//		beego.NSInclude(
-		//			&controllers.AdminStatusController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/area",
-		//		beego.NSInclude(
-		//			&controllers.AreaController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/area_ext",
-		//		beego.NSInclude(
-		//			&controllers.AreaExtController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/attachment",
-		//		beego.NSInclude(
-		//			&controllers.AttachmentController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/connect",
-		//		beego.NSInclude(
-		//			&controllers.ConnectController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/log",
-		//		beego.NSInclude(
-		//			&controllers.LogController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/member",
-		//		beego.NSInclude(
-		//			&controllers.MemberController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/member_group_ext",
-		//		beego.NSInclude(
-		//			&controllers.MemberGroupExtController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/member_profile",
-		//		beego.NSInclude(
-		//			&controllers.MemberProfileController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/member_status",
-		//		beego.NSInclude(
-		//			&controllers.MemberStatusController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/session",
-		//		beego.NSInclude(
-		//			&controllers.SessionController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/template",
-		//		beego.NSInclude(
-		//			&controllers.TemplateController{},
-		//		),
-		//	),
-		//
-		//	beego.NSNamespace("/type",
-		//		beego.NSInclude(
-		//			&controllers.TypeController{},
-		//		),
-		//	),
-		//)
-		//beego.AddNamespace(ns)
-
-
+	//ns := beego.NewNamespace("/v1",
+	//
+	//	beego.NSNamespace("/admin",
+	//		beego.NSInclude(
+	//			&controllers.AdminController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/admin_menu",
+	//		beego.NSInclude(
+	//			&controllers.AdminMenuController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/admin_role_priv",
+	//		beego.NSInclude(
+	//			&controllers.AdminRolePrivController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/admin_status",
+	//		beego.NSInclude(
+	//			&controllers.AdminStatusController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/area",
+	//		beego.NSInclude(
+	//			&controllers.AreaController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/area_ext",
+	//		beego.NSInclude(
+	//			&controllers.AreaExtController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/attachment",
+	//		beego.NSInclude(
+	//			&controllers.AttachmentController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/connect",
+	//		beego.NSInclude(
+	//			&controllers.ConnectController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/log",
+	//		beego.NSInclude(
+	//			&controllers.LogController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/member",
+	//		beego.NSInclude(
+	//			&controllers.MemberController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/member_group_ext",
+	//		beego.NSInclude(
+	//			&controllers.MemberGroupExtController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/member_profile",
+	//		beego.NSInclude(
+	//			&controllers.MemberProfileController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/member_status",
+	//		beego.NSInclude(
+	//			&controllers.MemberStatusController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/session",
+	//		beego.NSInclude(
+	//			&controllers.SessionController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/template",
+	//		beego.NSInclude(
+	//			&controllers.TemplateController{},
+	//		),
+	//	),
+	//
+	//	beego.NSNamespace("/type",
+	//		beego.NSInclude(
+	//			&controllers.TypeController{},
+	//		),
+	//	),
+	//)
+	//beego.AddNamespace(ns)
 }
