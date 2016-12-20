@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"fox/service"
 	"fox/util/Response"
+	"fmt"
 )
 
 type LoginController struct {
@@ -18,17 +19,19 @@ func (this *LoginController)Get() {
 func (this *LoginController)Post() {
 	username := this.GetString("username")
 	password := this.GetString("password")
+	fmt.Println("username:",username)
 	rsp := Response.NewResponse()
-	var u *service.AdminUser
-
-	admin, err := u.Auth(username, password)
+	defer rsp.WriteJson(this.Ctx.ResponseWriter)
+	var adminUser *service.AdminUser
+	admin, err := adminUser.Auth(username, password)
 	if err != nil {
-		rsp.Tips(err.Error(), "INFO")
-		rsp.WriteJson(this.Ctx.ResponseWriter)
+		rsp.Error(err.Error())
 		return
 	} else {
 		SESSION_NAME := beego.AppConfig.String("session_name")
 		this.SetSession(SESSION_NAME, admin.Username)
+		rsp.Success("")
+		return
 	}
 
 }

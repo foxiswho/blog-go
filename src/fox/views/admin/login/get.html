@@ -31,12 +31,12 @@
         </div>
         <h3>欢迎使用 H+</h3>
 
-        <form class="m-t" role="form" action="index.html">
+        <form class="m-t" role="form" action="?" method="post">
             <div class="form-group">
-                <input type="email" class="form-control" placeholder="用户名" required="">
+                <input type="text" name="username" class="form-control" placeholder="用户名" required="">
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" placeholder="密码" required="">
+                <input type="password" name="password" class="form-control" placeholder="密码" required="">
             </div>
             <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
 
@@ -51,9 +51,30 @@
 <!-- 全局js -->
 <script src="{{.__theme__}}js/jquery.min.js?v=2.1.4"></script>
 <script src="{{.__theme__}}js/bootstrap.min.js?v=3.3.6"></script>
+<script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
+<script>
+    $('form').submit(function (e) {
+        e.preventDefault();
+        var btn=$('.btn');
+        btn.attr('disabled',true);
+        var $this=$(this);
+        $this.serialize();
+        //加载层
+        var loading = parent.layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
+        $.post($this.attr('action'),$this.serialize(),function (data) {
+            parent.layer.close(loading);
+            console.log(data)
+            if(data.Code==1){
+                layer.tips('登录成功！正在跳转……', '.btn');
+                window.location.href='/admin/index'
+            }else{
+                btn.attr('disabled',false);
+            }
+        },'json')
+        return false;
+    })
 
-<script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
-<!--统计代码，可删除-->
+</script>
 
 </body>
 

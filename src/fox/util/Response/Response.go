@@ -5,17 +5,19 @@ import (
 	"encoding/json"
 	"net/http"
 )
+
 const (
 	WARNING = "warning"
 	SUCCESS = "success"
-	ALERT   = "alert"
-	INFO    = "info"
+	ALERT = "alert"
+	INFO = "info"
 )
 
 type Response struct {
 	Code int
-	Data   interface{}
-	Err    Error
+	Info string
+	Data interface{}
+	Err  Error
 }
 type Error struct {
 	Level string
@@ -29,8 +31,9 @@ type Success struct {
 func NewResponse() *Response {
 	return &Response{Code: 1}
 }
-func (resp *Response) Tips(msg,level string) {
-	resp.Err = Error{level, msg}
+func (resp *Response) Tips(msg, level string) {
+	resp.Info = msg
+	resp.Err = Error{Level:level, Msg:msg}
 }
 func (resp *Response) WriteJson(w http.ResponseWriter) {
 	b, err := json.Marshal(resp)
@@ -41,7 +44,25 @@ func (resp *Response) WriteJson(w http.ResponseWriter) {
 		w.Write(b)
 	}
 }
-func (resp *Response) Success() {
+//成功
+func (resp *Response) Success(msg string) {
+	if msg == "" {
+		msg = "操作成功"
+	}
 	resp.Code = 1
-	resp.Data = Success{Level: SUCCESS, Msg: "恭喜(●'◡'●)|操作成功。"}
+	resp.Info = msg
+	resp.Data = Success{Level: SUCCESS, Msg: msg}
+}
+//错误信息
+func (resp *Response) Error(msg string) {
+	if msg == "" {
+		msg = "操作失败"
+	}
+	resp.Code = 0
+	resp.Info = msg
+	resp.Err = Error{Msg:msg}
+}
+//扩展数据
+func (resp *Response) SetData(Data interface{}) {
+	resp.Data = Data
 }
