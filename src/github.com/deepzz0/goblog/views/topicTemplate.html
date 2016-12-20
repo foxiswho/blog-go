@@ -1,0 +1,58 @@
+{{if .IsFalse}}
+  索引错误.
+{{else}}
+{{with .Topic}}
+<div class="row">
+  <div class="col-md-12" role="main">
+    <div class="post-container">
+      <h2 class="post-title"><a href="{{.URL}}" rel="bookmark">{{.Title}}</a></h2>
+      <div class="meta-box">
+        <span class="m-post-date"><i class="fa fa-calendar"></i>{{.Time}}</span>
+        <span class="comments-link"><i class="fa fa-comments"></i><a href="{{.URL}}#respond" class="ds-thread-count" data-thread-key="{{.ID}}" title="Comment on {{.Title}}" target="_self"></a></span>
+      </div>
+      <!-- content -->
+      <!-- 放入在文章页内容前面 -->
+      <div class="BlogAnchor">
+        <p>
+          <b id="AnchorContentToggle" title="收起" style="cursor:pointer;">目录[+]</b>
+        </p>
+        <div class="AnchorContent" id="AnchorContent"></div>
+      </div>
+      <div class="markdown-body post-content">{{str2html .Content}}</div>
+      <!-- /content -->
+      <div class="meta-box">
+        <span class="cat-links"><i class="fa fa-reorder"></i><b>分类:</b>
+          {{with .PCategory}}
+            <a href="{{.Extra}}" rel='category tag'>{{.Text}}</a>
+          {{end}}
+        </span>
+        <span class="tag-links"><i class="fa fa-tags"></i><b>标签:</b>
+          {{range $index, $elem := .PTags}}
+            {{if eq $index 0}}
+              <a href="{{.Extra}}" rel="tag" title="{{.Count}} topic">{{.Text}}</a>
+            {{else}}
+              <a href="{{.Extra}}" rel="tag" title="{{.Count}} topic">,{{.Text}}</a>
+            {{end}}
+          {{end}}
+         </span>
+      </div>
+    </div>
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-order="desc" data-limit="20" data-form-position="top" data-thread-key="{{.ID}}" data-title="{{.Title}}" data-url="{{$.Domain}}{{.URL}}"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+      var duoshuoQuery = {short_name:"deepzz"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//o7msui8ho.qnssl.com/js/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+    </script>
+    <!-- 多说公共JS代码 end -->
+  </div>   
+</div>
+{{end}}
+{{end}}

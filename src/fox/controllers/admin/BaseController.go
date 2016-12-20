@@ -8,7 +8,9 @@ import (
 
 	"github.com/astaxie/beego"
 	"fox/util/crypt"
-	"fox/service"
+	//"fox/service"
+	"fmt"
+	"fox/util/str"
 )
 
 const (
@@ -116,22 +118,22 @@ func x(token, currentIp string) *models.Admin {
 		beego.Debug("ip chenged")
 		return nil
 	}
-	intid, _ := strconv.ParseInt(uid, 10, 64)
-	admuser, err := service.AdmUserService.GetUserById(intid)
-	if err != nil || admuser.Id < 0 {
+	int_id, _ := strconv.ParseInt(uid, 10, 64)
+	admin, err := models.GetAdminById(int_id)
+	if err != nil || admin.Id < 0 {
 		beego.Debug("ID error")
 		return nil
 	}
-	return admuser
+	return admin
 }
 
 /**
 校验权限
 */
 func (this *BaseController) validateRole() (bool, error) {
-	if err := service.RoleService.ValidateRole(this.controllerName, this.actionName, this.admUser.Id); err != nil {
-		return false, err
-	}
+	//if err := service.RoleService.ValidateRole(this.controllerName, this.actionName, this.admUser.Id); err != nil {
+	//	return false, err
+	//}
 	return true, nil
 }
 
@@ -185,7 +187,7 @@ func (this *BaseController) jsonResultPager(count int, roles interface{}) {
 /**
 token 校验，判断是否登录
 */
-func validateToken(token, currentIp string) *model.Admuser {
+func validateToken(token, currentIp string) *models.Admin {
 
 	Dtoken, err := crypt.DeCrypt(token)
 	if err != nil {
@@ -205,10 +207,25 @@ func validateToken(token, currentIp string) *model.Admuser {
 		return nil
 	}
 	intid, _ := strconv.ParseInt(userid, 10, 64)
-	admuser, err := service.AdmUserService.GetUserById(intid)
+	admuser, err := models.GetAdminById(intid)
 	if err != nil || admuser.Id < 0 {
 		beego.Debug("ID error")
 		return nil
 	}
 	return admuser
+}
+/**
+获取IP
+*/
+func (this *BaseController) getClientIp() string {
+	ip := this.Ctx.Request.Header.Get("Remote_addr")
+	if ip == "" {
+		ip = this.Ctx.Request.RemoteAddr
+	}
+	fmt.Println(ip)
+	if strings.Contains(ip, ":") {
+		ip = str.Substr(ip, 0, strings.Index(ip, ":"))
+	}
+	fmt.Println(ip)
+	return ip
 }

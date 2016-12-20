@@ -1,0 +1,132 @@
+<form class="form-inline">
+  <div class="form-group">
+    <div class="btn-group" role="group" style="margin-left: 10px;">   
+      <button type="button" data-toggle="modal" data-target="#categoryModal" id="newcategory" class="btn btn-sm btn-info">新增分类</button>
+    </div>
+  </div>
+</form>
+<div class="manage-table">
+  <table class="table">
+    <caption>分类信息</caption>
+    <thead>
+      <tr>
+        <th><a>全选</a></th>
+        <th>排序</th>
+        <th>索引</th>
+        <th>超链接</th>
+        <th>显示信息</th>
+        <th>文章数量</th>
+        <th>创建时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Categories}}
+      <tr>
+        <th scope="row"><input id="{{.ID}}" type="checkbox"></th>
+        <td>{{.SortID}}</td>
+        <td>{{.ID}}</td>
+        <td><a href="{{.Extra}}" target="_black">{{.Extra}}</a></td>
+        <td>{{.Text}}</td>
+        <td>{{.Count}}</td>
+        <td>{{dateformat .CreateTime "2006-01-02 15:04"}}</td>
+        <td>
+          <button type="button" data-toggle="modal" data-target="#categoryModal" class="btn btn-info btn-xs modifyCategory">修改</button>
+          <button type="button" class="btn btn-warning btn-xs deleteCategory">删除</button>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <div id="categoryModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <!-- title -->
+          <h5 class="modal-title" id="categoryModalLabel"></h5>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <!-- content -->
+            <div class="row">
+              <textarea class="form-control" id="categoryContent" rows="10"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <!-- button -->
+          <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button><button type="button" id="saveCategory" class="btn btn-primary btn-sm">Save changes</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <table class="table">
+    <caption>标签信息</caption>
+    <thead>
+      <tr>
+        <th><a>全选</a></th>
+        <th>索引</th>
+        <th>超链接</th>
+        <th>显示信息</th>
+        <th>文章数量</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{range .Tags}}
+      <tr>
+        <th scope="row"><input id="{{.ID}}" type="checkbox"></th>
+        <td>{{.ID}}</td>
+        <td><a href="{{.Extra}}" target="_black">{{.Extra}}</a></td>
+        <td>{{.Text}}</td>
+        <td>{{.Count}}</td>
+        <td>
+          <button type="button" class="btn btn-warning btn-xs deleteTag">删除</button>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <script>
+    $('#newcategory').on('click', function(){
+      $('#categoryModalLabel').text('新增分类');
+      var example = '{\n        "ID": "TEST",\n        "Count": 0,\n        "IsCat": true,\n        "SortID": 3,\n        "Title": "默认分类",\n        "Extra": "/cat/default",\n        "Text": "默认分类",\n        "CreateTime": "2016-02-03T21:35:11.28+08:00"\n}';
+      $('#categoryContent').val(example);
+    });
+    $('#saveCategory').on('click', function(){
+      var content = $('#categoryContent').val();
+      var resp = get('post', location.pathname, {flag:'save',json:content}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      location.reload();
+    });   
+    $('.modifyCategory').on('click',function(){
+      $('#categoryModalLabel').text('修改分类');
+      var id = $(this).parent().parent().find('th input').attr('id');
+      if (id==""){pushMessage('info', '对不起|系统错误。');}
+      var resp = get('post', location.pathname, {flag:'modify', id:id}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      $('#categoryContent').val(JSONFormat(resp.Data));
+    });
+    $('.deleteCategory').on('click', function(){
+      var node = $(this).parent().parent()
+      var id = node.find('th input').attr('id');
+      if (id==""){pushMessage('info', '对不起|系统错误。');}
+      if (!confirm('确定要删除该分类吗？')){return;}
+      var resp = get('post', location.pathname, {flag:'deletecat', id:id}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      node.remove();
+      pushMessage('success', '恭喜|操作成功。');
+    }); 
+    $('.deleteTag').on('click', function(){
+      var node = $(this).parent().parent()
+      var id = node.find('th input').attr('id');
+      if (id==""){pushMessage('info', '对不起|系统错误。');}
+      if (!confirm('确定要删除该标签吗？')){return;}
+      var resp = get('post', location.pathname, {flag:'deletetag', id:id}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      node.remove();
+      pushMessage('success', '恭喜|操作成功。');
+    });
+  </script>
+</div>

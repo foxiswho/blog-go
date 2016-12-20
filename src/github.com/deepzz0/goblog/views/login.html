@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- saved from url=(0033)http://www.bootcss.com/p/flat-ui/ -->
+<html lang="en" class="dk_fouc has-js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>博客后台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Loading Bootstrap -->
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/blog.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+  <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.6.2/html5shiv.js"></script>
+  <![endif]-->
+  <style type="text/css">
+    *{margin:0;padding: 0;}
+    body{
+      /*background: #444 url(http://sandbox.runjs.cn/uploads/rs/418/nkls38xx/carbon_fibre_big.png);*/
+      font-family:"宋体";
+      background-image: url(https://o7msui8ho.qnssl.com/img/background.png);
+      background-repeat:no-repeat;
+    }
+    .loginBox{
+      width:330px;
+      height:270px;
+      padding:0 20px;
+      border:0px solid #fff; 
+      color:#000;
+      margin-top:40px; 
+      border-radius:4px;
+      opacity: 0.7;
+      background: white;
+      background: -moz-linear-gradient(top, #fff, #efefef 8%);
+      background: -webkit-gradient(linear, 0 0, 0 100%, from(#f6f6f6), to(#f4f4f4));
+      font:11px/1.5em 'Microsoft YaHei' ;
+      position: absolute;
+      left:50%;
+      top:45%;
+      margin-left:-165px;
+      margin-top:-185px;
+    }
+    .loginBox h2{
+      height:35px;
+      font-size:20px;
+      font-weight:normal;
+    }
+    .copyright{
+      position: absolute;
+      width:330px;
+      height:20px;
+      text-align: center;
+      left:50%;
+      top:45%;
+      margin-left:-165px;
+      margin-top:90px;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="https://o7msui8ho.qnssl.com/js/jquery-1.11.3.min.js"></script>
+  <script type="text/javascript" src="/static/js/blog.js"></script>
+  <div class="loginBox">
+    <h2>后台登录|<small>Goblog 管理中心</small></h2>
+    <form class="form-horizontal">
+      <div class="form-group has-success">
+        <div class="col-sm-12 col-md-12">
+          <label for="login-name" class="control-label">用户名</label>
+          <input type="text" class="form-control" autofocus id="login-name" placeholder="用户名" value="">
+        </div>
+      </div>
+      <div class="form-group has-success">
+        <div class="col-sm-12 col-md-12">
+          <label for="login-passwd" class="control-label">密码</label>
+          <input type="password" class="form-control" id="login-passwd" placeholder="密码">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-12 col-md-12">
+          <button class="btn btn-info" id="login" type="button" style="width:100%">登 录</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <p class="copyright"><a href="{{.URL}}" target="_blank">返回首页</a> &copy; 2016 Powered by <a href="{{.URL}}" target="_blank">{{.Name}}</a></p>
+  <script type="text/javascript">
+    $("#login").on("click", function(){
+      console.log("enter login")
+      siginIn();
+    });
+    function siginIn(){
+      username = $("#login-name").val();
+      password = $("#login-passwd").val();
+      if (username == "" || password == ""){
+          pushMessage(config.INFO, "参数错误|请补充完整！");
+          return
+      }
+      var resp = get("post", "/login", {username:username,password:password},false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      pushMessage(config.SUCCESS, "登录成功|即将跳转到管理面板！")
+      setTimeout(function(){location.assign(resp.Data);},600);
+    }
+    document.onkeydown = function (e) {
+        if (e.keyCode == 13 &&location.pathname=="/login"){
+            siginIn();
+        }
+    };
+  </script>
+</body>
+</html>

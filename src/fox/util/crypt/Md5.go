@@ -6,7 +6,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-func EnCode(msg string) string {
+func EnCodeMD5(msg string) string {
 	h := md5.New()
 	coding := base64.NewEncoding(beego.AppConfig.String("base64key"))
 	h.Write([]byte(msg)) // 需要加密的字符串为 123456

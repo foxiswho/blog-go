@@ -1,10 +1,9 @@
 package admin
 
 import (
-	"fox/models"
 	"strconv"
-
-	"github.com/astaxie/beego"
+	"fox/service"
+	"fox/util/crypt"
 )
 
 type LoginController struct {
@@ -23,13 +22,13 @@ func (this *LoginController) Tologin() {
 func (this *LoginController) Login() {
 	accout := this.GetString("accout")
 	password := this.GetString("password")
-	encodePwd := common.EncodeMessageMd5(password)
+	encodePwd := crypt.EnCodeMD5(password)
 
-	if admusers, err := service.AdmUserService.Authentication(accout, encodePwd); err != nil {
+	if admUser, err := service.adminService.Authentication(accout, encodePwd); err != nil {
 		this.jsonResult(err.Error())
 	} else {
-		token := strconv.FormatInt(admusers.Id, 10) + "|" + accout + "|" + this.getClientIp()
-		token = common.EncryptAes(token)
+		token := strconv.FormatInt(admUser.Id, 10) + "|" + accout + "|" + this.getClientIp()
+		token = crypt.EnCodeMD5(token)
 		this.Ctx.SetCookie("token", token, 0)
 		this.jsonResult(SUCCESS)
 	}

@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+  <meta name="description" content="Deepzz的个人博客，golang爱好者，服务器架构，高并发。">
+  <meta name="author" content="deepzz">
+  <link rel="icon" href="/favicon.ico">
+  <title>{{.Title}}</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://o7msui8ho.qnssl.com/css/bootstrap.min.css">
+  <!-- sns font -->
+  <link rel="stylesheet" href="https://o7msui8ho.qnssl.com/css/font-awesome.min.css">
+  <!-- docs -->
+  <!-- <link rel="stylesheet" href="/static/css/docs.min.css"> -->
+  <!-- highlight theme -->
+  <link rel="stylesheet" href="https://o7msui8ho.qnssl.com/css/user-content.min.css">
+  <link rel="stylesheet" href="/static/css/blog.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <style type="text/css">
+    .leftbar{
+      float: none;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <!--[if lt IE 9]>
+  <div class="alert alert-danger topframe" role="alert">你的浏览器实在<strong>太太太太太太旧了</strong>，放学别走，升级完浏览器再说 <a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a>
+  </div>
+  <![endif]-->
+  <!--loading-->
+  <!-- <div class="preloader">
+    <div id="status">
+      <p class="center-text">Loading the content...
+      <em>Loading depends on your connection speed!</em>
+    </p></div>
+  </div> -->
+  <!--loading end-->
+  <script src="https://o7msui8ho.qnssl.com/js/jquery-1.11.3.min.js"></script>
+  <script src="https://o7msui8ho.qnssl.com/js/bootstrap.min.js"></script>
+  <script src="https://o7msui8ho.qnssl.com/js/marked.min.js"></script>
+  <script src="/static/js/blog.js"></script>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/admin/data">博客管理</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-static-top" id="bs-example-navbar-collapse-1">
+        <!-- <ul class="nav navbar-nav">
+        </ul> -->
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/" target="_black">博客首页 <span class="sr-only">(current)</span></a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user">个人设置</i> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li id="user-info" data-toggle="modal" data-target="#gridSystemModal"><a href="javascript:;">个人信息</a></li>
+              <li id="modify-passwd" data-toggle="modal" data-target="#gridSystemModal"><a href="javascript:;">修改密码</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="/login?logout=now">退出登录</a></li>
+              <script type="text/javascript">
+                $('#user-info').on('click', function(){
+                  var resp = get('post', "/admin/user", {flag:"info"}, false);
+                  if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+                  $('#gridModalLabel').text('个人信息');
+                  $('#gridSystemModal .modal-body .container-fluid').html(resp.Data);
+                });
+                $('#modify-passwd').on('click', function(){
+                  var resp = get('post', "/admin/user", {flag:"modpasswd"}, false);
+                  if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+                  $('#gridModalLabel').text('修改密码');
+                  $('#gridSystemModal .modal-body .container-fluid').html(resp.Data);
+                });
+              </script>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+  <div id="gridSystemModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSysModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <!-- title -->
+            <h5 class="modal-title" id="gridModalLabel"></h5>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <!-- content -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <!-- button -->
+            <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="button" class="btn btn-primary change">Save changes</button> -->
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+  </div>
+  <!-- <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#gridSystemModal">
+      Launch demo modal
+    </button> -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 col-xs-2" style="border: 1px solid #eee;border-radius: 4px;">
+        <ul class="nav nav-stacked" id="nav-category">
+          {{range .LeftBar}}
+            {{if .ID}}
+              {{if eq .ID $.Choose}}
+                <li class="active"><a href="{{.Extra}}" target="_self" title="{{.Title}}">{{.Text}}</a></li>
+              {{else}}
+                <li><a href="{{.Extra}}" target="_self" title="{{.Title}}">{{.Text}}</a></li>
+              {{end}}
+            {{else}}
+              <li class="tq">{{.Text}}</li>
+            {{end}}
+          {{end}}
+        </ul>
+      </div>
+      <div class="col-md-10 col-xs-10">
+        {{.LayoutContent}}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

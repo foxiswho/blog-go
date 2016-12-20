@@ -11,10 +11,12 @@ import (
 	"fox/controllers"
 
 	"github.com/astaxie/beego"
+	"fox/controllers/admin"
 )
 
 func init() {
 	beego.Router("/", &controllers.MainController{})
+	beego.Router("/admin/login", &admin.LoginController{})
 		//ns := beego.NewNamespace("/v1",
 		//
 		//	beego.NSNamespace("/admin",

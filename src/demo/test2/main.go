@@ -83,4 +83,11 @@ func main() {
 	fmt.Printf("%s\n", contents)
 
 	fmt.Println("这是我的女神，不是你的，所以你知道得太多了");
+
+	//字符串判断 是否有值 是否为空
+	//实际查看的是字符串个数是否为 0
+	n := len(str)
+	if n == 0 {
+		return 0
+	}
 }

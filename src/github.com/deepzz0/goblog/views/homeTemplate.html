@@ -1,0 +1,88 @@
+<div class="row">
+  <div class="col-md-9 col-xs-10" id="home-content">
+    <h1 class="hide page-title">首页</h1>
+    <h3 class="tq">最新文章</h3>
+    <div id="topiclist">
+      <!-- 最新文章列表 -->
+      <!-- data -->
+      {{range .ListTopics}}
+        <div class="row">
+          <div class="col-md-12 post-container">
+            <h3 class="post-title"><a href="{{.URL}}" rel="bookmark">{{.Title}}</a></h3>
+            <div class="meta-box">
+              <span class="m-post-date"><i class="fa fa-calendar"></i>{{.Time}}</span>
+              <span class="comments-link"><i class="fa fa-comments"></i><a href="{{.URL}}#respond" class="ds-thread-count" data-thread-key="{{.ID}}" title="Comment on {{.Title}}" target="_self"> </a></span>
+            </div>
+            <div class="post-content post-expect">
+                <div class="markdown-body">{{str2html .Preview}}<a href="{{.URL}}" class="more-link btn btn-primary btn-xs">阅读全文</a></div>
+            </div>
+            <div class="meta-box">
+              <span class="cat-links"><i class="fa fa-reorder"></i><b>分类:</b>
+                {{with .PCategory}}
+                  <a href="{{.Extra}}" rel='category tag'>{{.Text}}</a>
+                {{end}}
+              </span>
+              <span class="tag-links"><i class="fa fa-tags"></i><b>标签:</b>
+                {{range $index, $elem := .PTags}}
+                  {{if eq $index 0}}
+                    <a href="{{.Extra}}" rel="tag" title="{{.Count}} topic">{{.Text}}</a>
+                  {{else}}
+                    <a href="{{.Extra}}" rel="tag" title="{{.Count}} topic">,{{.Text}}</a>
+                  {{end}}
+                {{end}}
+              </span>
+            </div>
+          </div>
+        </div>
+      {{end}}
+    </div>
+    <nav>
+      <ul class="pager">
+        <li class="previous {{.StyleOlder}}" id="previous"><a href="{{.UrlOlder}}"><span aria-hidden="true">←</span> Older</a></li>
+        <li class="next {{.StyleNewer}}" id="next"><a href="{{.UrlNewer}}">Newer <span aria-hidden="true">→</span></a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="col-md-3 col-xs-2" id="home-right">
+    <!-- <h3 class="tq">最新评论</h3> -->
+    <!-- 多说最新评论 start -->
+    <!-- <div class="ds-recent-comments" data-num-items="5" data-show-avatars="1" data-show-time="1" data-show-title="1" data-show-admin="1" data-excerpt-length="70"></div> -->
+    <!-- 多说最新评论 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"deepzz"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//o7msui8ho.qnssl.com/js/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+    </script>
+    <!-- 多说公共JS代码 end -->
+    <h3 class="tq">云标签</h3>
+    <div class="tagcloud">
+    <!-- <a href="http://hessian.cn/tag/4741" class="tag-link-10">4741</a> -->
+      {{range .Tags}}
+        {{if lt .Count 23}}
+          <a class="tag-link-{{.Count}}" href="{{.Extra}}" target="_self" title="{{.Count}} topic">{{.Text}}</a>
+        {{else}}
+          <a class="tag-link-22" href="{{.Extra}}" target="_self" title="{{.Count}} topic">{{.Text}}</a>
+        {{end}}
+      {{end}}
+    </div>
+    <h3 class="tq">归档</h3>
+    <ul class="blogroll">
+      {{range $key, $val := .Archives}}
+      <li><a href="/archives/{{$key}}" target="_self" title="归档：{{$key}}">{{$key}} ({{$val|len}})</a></li>
+      {{end}}
+    </ul>
+    <h3 class="tq">友情连接</h3>
+    <ul class="blogroll">
+      <!-- <li><a href="http://songda.me" title="好哥们宋达的博客" target="_blank">SongDa's Blog</a></li> -->
+      {{range .Blogrolls}}
+        <li><a href="{{.Extra}}" target="_blank" title="{{.Title}}">{{.Text}}</a></li>
+      {{end}}
+    </ul>
+  </div>
+</div>

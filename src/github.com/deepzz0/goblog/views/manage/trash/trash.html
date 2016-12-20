@@ -1,0 +1,46 @@
+<div class="manage-table">
+  <table class="table">
+    <caption>回收箱</caption>
+    <thead>
+      <tr>
+        <th><a>全选</a></th>
+        <th>ID</th>
+        <th>标题</th>
+        <th>删除时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .DelTopics}}
+      <tr>
+        <th scope="row"><input id="{{.ID}}" type="checkbox"></th>
+        <td>{{.ID}}</td>
+        <td>{{.Title}}</td>
+        <td>{{dateformat .NeedDelete "2006-01-02 15:04"}}</td>
+        <td>
+          <button type="button" class="btn btn-info btn-xs restore">恢复</button>
+          <button type="button" class="btn btn-warning btn-xs deletenow">删除</button>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <script>
+  $('.restore').on('click', function(){
+    var node = $(this).parent().parent();
+    var id = node.find('th input').attr('id');
+    var resp = get('post', location.pathname, {flag:'restore', id:id}, false);
+    if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+    pushMessage('success', '恭喜|操作成功。');
+    node.remove();
+  });
+  $('.deletenow').on('click',function(){
+    var node = $(this).parent().parent();
+    var id = node.find('th input').attr('id');
+    var resp = get('post', location.pathname, {flag:'delete', id:id}, false);
+    if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+    pushMessage('success', '恭喜|操作成功。');
+    node.remove();
+  });
+  </script>
+</div>

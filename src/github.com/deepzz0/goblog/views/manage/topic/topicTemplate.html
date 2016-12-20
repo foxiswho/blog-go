@@ -1,0 +1,245 @@
+<form class="form-inline">
+  <div class="form-group">
+    <div class="btn-group" role="group" style="margin-left: 10px;">   
+      <button type="button" id="newTopic" data-toggle="modal" data-target="#topicsModal" class="btn btn-sm btn-info">新增文章</button>
+      <button type="button" id="deleteall" class="btn btn-sm btn-danger">批量删除</button>
+    </div>
+  </div>
+  <div class="form-group" style="float:right">
+    <div class="input-group">
+      <input type="text" class="form-control input-sm" style="z-index:0;" placeholder="Search for...">
+      <span class="input-group-btn">
+        <button class="btn btn-default btn-sm" id="search" type="button">Go!</button>
+            </span>
+    </div><!-- /input-group -->
+  </div>
+  <div class="input-group" style="float: right!important;">
+    <span class="input-group-addon input-sm">选择分类</span>
+    <select class="form-control input-sm" id="selectCategory" style="width:auto;z-index:0;">
+      <option value="all">全部</option>
+      {{range .Categories}}
+        {{if eq $.ChooseCat .ID}}
+          <option selected value='{{.ID}}'>{{.Text}}</option>
+        {{else}}
+          <option value='{{.ID}}'>{{.Text}}</option>
+        {{end}}
+      {{end}}
+    </select>
+  </div>
+</form>
+<div class="manage-table">
+  <table class="table">
+    <caption>博文管理</caption>
+    <thead>
+      <tr>
+        <th><a>全选</a></th>
+        <th>ID</th>
+        <th>标题</th>
+        <th>分类</th>
+        <th>标签</th>
+        <th>作者</th>
+        <th>PV</th>
+        <th>创建时间</th>
+        <th>编辑时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Topics}}
+      <tr>
+        <th scope="row"><input type="checkbox" id="{{.ID}}"></th>
+        <td>{{.ID}}</td>
+        <td><a href="{{.URL}}" target="_black">{{.Title}}</a></td>
+        <td>{{.CategoryID}}</td>
+        <td>{{.TagIDs}}</td>
+        <td>{{.Author}}</td>
+        <td>{{.PV}}</td>
+        <td>{{dateformat .CreateTime "2006-01-02 15:04"}}</td>
+        <td>{{dateformat .EditTime "2006-01-02 15:04"}}</td>
+        <td>
+          <button type="button" data-toggle="modal" data-target="#topicsModal" class="btn btn-info btn-xs modifyTopic">修改</button>
+          <button type="button" class="btn btn-warning btn-xs deleteTopic">删除</button>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <nav>
+    <ul class="pager">
+      <li class="previous {{.ClassOlder}}"><a href="{{.UrlOlder}}"><span aria-hidden="true">←</span>Older </a></li>
+      <li class="next {{.ClassNewer}}"><a href="{{.UrlNewer}}">Newer <span aria-hidden="true">→</span></a></li>
+    </ul>
+  </nav>
+  <div id="topicsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridTopicsModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <!-- title -->
+          <h5 class="modal-title" id="topicModalLabel"></h5>
+          <h6><div id='newTag'></div></h6>
+          <div class="btn-group chooseTag">
+            <button type="button" id="choose-tag" class="btn btn-sm btn-success" aria-haspopup="true" aria-expanded="false">选择TAG <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu" id="dropdown-tag" style="width:210px;">
+              <div class="input-group input-group-sm" style="margin-bottom:2px;">
+                <input type="text" class="form-control" id='tag-content' placeholder="Add a tag">
+                <button class="btn btn-info btn-sm" id='add-tag' type="button">Add</button>
+              </div><!-- /input-group -->
+              {{str2html .TagStyle}}
+            </div>
+          </div>
+          <select id="selecetCategory" class="form-control input-sm">
+            {{range .Categories}}
+              <option value='{{.ID}}'>{{.Text}}</option>
+            {{end}}
+          </select>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <!-- content -->
+            <div class="row">
+              <!-- editor -->
+              <link rel="stylesheet" href="/static/css/editor.css">
+              <div id="markdown-editor">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-addon">标题</span>
+                  <input id="editor-title" type="text" class="form-control" aria-describedby="sizing-addon2">
+                </div>
+                <div id="tool-bar">
+                  <span id="btn-marked" title="change model" class="fa fa-eye" aria-hidden="true"></span>|
+                  <span class="fa fa-arrows-alt" aria-hidden="true"></span>|
+                </div>
+                <textarea id="editor-area" class="form-control"></textarea>
+                <div id="editor-view" class="markdown-body"></div>
+              </div>
+              <script type="text/javascript" src="/static/js/editor.js"></script>
+              <!-- /editor -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <!-- button -->
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="button" id="saveTopic" class="btn btn-primary">Save changes</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <script>
+    $('#topicsModal').modal({backdrop:false,keyboard:false,show:false});
+    var flagNew = "";
+    var tags = new Array();
+    $('#selectCategory').on('change', function(){
+      location.href = "/admin/topics?cat="+$(this).val();
+    });
+    $('#newTopic').on('click', function(){
+      flagNew = "";
+      $('#topicModalLabel').text("新增文章");
+      $("#selecetCategory").val("default");
+      $('#editor-title').val("");
+      $('#editor-area').val("");
+      $('#editor-view').text("");
+      $('#newTag').text("");
+      tags.length = 0;
+    });
+    $('#deleteall').on('click', function(){
+      var checkedID = new Array();
+      $('input:checkbox:checked').each(function(i){
+        checkedID.push($(this).attr("id"));
+      });
+      if (checkedID.length==0){
+        pushMessage('info', '错误|请选择要删除的文章。');
+        return;
+      }
+      if (!confirm('确定要删除所选的文章吗？')){return;}
+      var resp = get('post', location.pathname, {flag:'deleteall', ids:checkedID.toString()},false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      $('input:checkbox:checked').each(function(i){
+        $(this).parent().parent().remove();
+      });
+      pushMessage('success', '恭喜|操作成功。');
+    });   
+    $('.deleteTopic').on('click', function(){
+      var node = $(this).parent().parent()
+      var id = node.find('th input').attr('id');
+      if (id==""){pushMessage('info', '对不起|系统错误。');return;}
+      if (!confirm('确定要删除该文章吗？')){return;}
+      var resp = get('post', location.pathname, {flag:'delete', id:id}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      pushMessage('success', '恭喜|操作成功。');
+      node.remove();
+    });
+    $('.modifyTopic').on('click', function(){
+      $('#topicModalLabel').text("修改文章");
+      var id = $(this).parent().parent().find('th input').attr('id');
+      flagNew = id;
+      var resp = get('post', location.pathname, {flag:'modify', id:id}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      $("#selecetCategory").val(resp.Data.CategoryID);
+      $('#editor-title').val(resp.Data.Title);
+      $('#editor-area').val(resp.Data.Content);
+      $('#editor-view').text("");
+      var html = "";
+      tags = new Array();
+      if (resp.Data.TagIDs != null){
+        for (var i = 0; i < resp.Data.TagIDs.length; i++){
+          var tag = resp.Data.TagIDs[i]
+          tags.push(tag);
+          html += '<span class="label label-primary">'+ tag +'<span aria-hidden="true" class="removeTag" onclick="removetag(this);">×</span></span>';
+        }
+      }
+      $('#newTag').html(html);
+    });
+    $('#saveTopic').on('click', function(){
+      var title = $('#editor-title').val();
+      var content = $('#editor-area').val();
+      var category = $('#selecetCategory').val();
+      if (title == "" || content == ""){
+        pushMessage('info', '错误|请填写完整。');
+        return;
+      }
+      var op = "new";
+      if (flagNew != ""){
+        op = flagNew;
+      }
+      var resp = get('post', location.pathname, {flag:'save',operate:op, title:title, content:content, cat:category, tags: tags.toString()}, false);
+      if (resp.Status != success){pushMessage(resp.Err.Level, resp.Err.Msg);return;}
+      location.reload();
+    });
+    // tag
+    $('#dropdown-tag span.label').each(function(i){
+      $(this).on('click', function(){
+        var tag = $(this).text();
+        if (tags.indexOf(tag) != -1){
+          return;
+        }
+        tags.push(tag);
+        var classname = $(this).attr('class')
+        var html = '<span class="'+ classname +'">'+ tag +'<span aria-hidden="true" class="removeTag" onclick="removetag(this);">×</span></span>';
+        $('#newTag').append(html);
+      });
+    });
+    $('#add-tag').on('click', function(){
+      var tag = $('#tag-content').val();
+      if (tag == ''|| tags.indexOf(tag)!=-1){
+        pushMessage('info', '错误|你需要填写新tag。');
+        return;
+      }
+      tags.push(tag);
+      $('#newTag').append('<span class="label label-primary">'+ tag +'<span aria-hidden="true" class="removeTag" onclick="removetag(this);">×</span></span>');
+    });
+    $("#choose-tag").on('click', function(){
+      if($("#dropdown-tag").is(":hidden")){
+        $('#dropdown-tag').fadeIn();
+      }else{
+        $('#dropdown-tag').fadeOut();
+      }
+    });
+    function removetag(e){
+      var parent = e.parentElement;
+      var tag = parent.innerText.substring(0,parent.innerText.length-1);
+      tags.remove(tag);
+      parent.remove();
+    };
+  </script>
+</div>

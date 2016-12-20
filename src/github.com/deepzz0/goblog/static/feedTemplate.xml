@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+>
+
+<channel>
+  <title>{{.Title}}</title>
+  <atom:link href="{{.Domain}}/feed" rel="self" type="application/rss+xml" />
+  <link>{{.Domain}}</link>
+  <description>{{.Desc}}</description>
+  <language>zh-CN</language>
+  <pubDate>{{.PubDate}}</pubDate>
+  <lastBuildDate>{{.BuildDate}}</lastBuildDate>
+  <sy:updatePeriod>hourly</sy:updatePeriod>
+  <sy:updateFrequency>1</sy:updateFrequency>
+  <copyright>{{.Year}} deepzz.com. All rights reserved.</copyright>
+  <generator>{{.Domain}}/feed?v={{.Version}}</generator>
+  <ttl>1440</ttl>
+  
+  {{range .Topics}}
+  <item>
+    <title>{{.Title}}</title>
+    <link>{{.URL}}</link>
+    <comments>{{.URL}}#comments</comments>
+    <pubDate>{{.PubDate}}</pubDate>
+    <dc:creator><![CDATA[{{.Author}}]]></dc:creator>
+    <category><![CDATA[{{.Category}}]]></category>
+	  <guid isPermaLink="false">{{.URL}}</guid>
+    <description><![CDATA[{{.Desc}}]]>
+    </description>
+  </item>
+  {{end}}
+</channel>
+
+</rss>
