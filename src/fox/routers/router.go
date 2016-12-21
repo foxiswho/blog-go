@@ -21,6 +21,8 @@ func init() {
 		beego.NSRouter("/index", &admin.IndexController{}),
 		beego.NSRouter("/index_v2", &admin.IndexV2Controller{}),
 		beego.NSRouter("/my_password", &admin.MyPasswordController{}),
+		beego.NSRouter("/blog", &admin.BlogController{}),
+		beego.NSRouter("/blog/:id", &admin.BlogController{}, "get:Detail"),
 	)
 	beego.AddNamespace(ns)
 	//ns := beego.NewNamespace("/v1",

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>H+ 后台主题UI框架 - 文章列表</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="{{.__theme__}}favicon.ico">
+    <link href="{{.__theme__}}css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="{{.__theme__}}css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="{{.__theme__}}css/animate.css" rel="stylesheet">
+    <link href="{{.__theme__}}css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight blog">
+        <div class="row">
+            <div class="col-lg-12">
+                {{range .data}}
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <a href="blog/{{.Id}}" class="btn-link" target="_blank">
+                            <h2>
+                                {{.Title}}
+                                </h2>
+                        </a>
+                        <div class="small m-b-xs">
+                            <strong>高 晨</strong> <span class="text-muted"><i class="fa fa-clock-o"></i> 3 小时前</span>
+                            <span class="text-muted"><i class="fa fa-comments-o"></i> 56 评论</span>
+                            <span class="text-muted"><i class="fa fa-eye"></i> 144 浏览</span>
+                        </div>
+                        <p>
+                            {{.Description}}
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>标签：</h5>
+                                <button class="btn btn-primary btn-xs" type="button">Apple Watch</button>
+                                <button class="btn btn-white btn-xs" type="button">速比涛</button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class=" text-right">
+                                    <h5>操作</h5>
+                                    <a href="edit/{{.Id}}" class="btn btn-info btn-xs"><i class="fa fa-paste"></i> 编辑</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="{{.__theme__}}js/jquery.min.js?v=2.1.4"></script>
+    <script src="{{.__theme__}}js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="{{.__theme__}}js/content.js?v=1.0.0"></script>
+
+
+
+    <!--统计代码，可删除-->
+
+</body>
+
+</html>
