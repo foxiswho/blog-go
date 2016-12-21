@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"github.com/astaxie/beego"
 	"fox/service"
 	"fox/util/Response"
 	"fmt"
@@ -13,8 +12,6 @@ type LoginController struct {
 
 func (this *LoginController)Get() {
 	this.TplName = "admin/login/get.html"
-	this.Data["blog_name"] = beego.AppConfig.String("blog_name")
-	this.Data["URL"] = "/"
 }
 func (this *LoginController)Post() {
 	username := this.GetString("username")
@@ -28,8 +25,9 @@ func (this *LoginController)Post() {
 		rsp.Error(err.Error())
 		return
 	} else {
-		SESSION_NAME := beego.AppConfig.String("session_name")
-		this.SetSession(SESSION_NAME, admin.Username)
+		fmt.Println("登录成功：",admin)
+		//设置Session
+		this.SessionSet(admin)
 		rsp.Success("")
 		return
 	}

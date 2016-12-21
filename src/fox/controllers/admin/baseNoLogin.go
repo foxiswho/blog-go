@@ -2,22 +2,28 @@ package admin
 
 import (
 	"github.com/astaxie/beego"
-	"fox/models"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type BaseNoLoginController struct {
-	beego.Controller
-	adminUser *models.Admin //当前登录用户信息
+	AdminSession
+	//beego.Controller
+	//Session *service.AdminSession //当前登录用户信息
 }
 
+//  框架中的扩展函数
 func (this *BaseNoLoginController) Prepare() {
+	this.Initialization()
+}
+// 初始化数据
+func (this *BaseNoLoginController) Initialization()  {
 	this.Data["__public__"] = "/"
 	this.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
-
+	this.Data["blog_name"] = beego.AppConfig.String("blog_name")
 	//orm.RunSyncdb("default", false, true)
 }
+//初始化数据库
 func init() {
 	beego.Info("init orm start...")
 	db_user := beego.AppConfig.String("db_user")
