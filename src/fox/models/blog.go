@@ -16,9 +16,9 @@ type Blog struct {
 	IsDel       int8      `orm:"column(is_del)"`
 	IsOpen      int8      `orm:"column(is_open)"`
 	Status      int       `orm:"column(status)"`
-	TimeAdd     time.Time `orm:"column(time_add);type(timestamp);null"`
+	TimeSystem  time.Time `orm:"column(time_system);type(timestamp);null"`
 	TimeUpdate  time.Time `orm:"column(time_update);type(timestamp);null;auto_now"`
-	TimeMake    time.Time `orm:"column(time_make);type(timestamp);null;auto_now_add"`
+	TimeAdd     time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"`
 	Title       string    `orm:"column(title);size(255)"`
 	Author      string    `orm:"column(author);size(255)"`
 	Url         string    `orm:"column(url);size(255)"`

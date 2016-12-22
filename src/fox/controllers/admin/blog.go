@@ -4,6 +4,8 @@ import (
 	"fox/service"
 	"fox/util/Response"
 	"strconv"
+	"fox/util"
+	"fox/util/time"
 )
 
 type BlogController struct {
@@ -35,4 +37,9 @@ func (this *BlogController)Detail() {
 		//this.Data["title"]=
 		this.TplName = "admin/blog/detail.html"
 	}
+}
+//编辑
+func (this *BlogController)Edit() {
+	this.Detail()
+	this.TplName = "admin/blog/edit.html"
 }

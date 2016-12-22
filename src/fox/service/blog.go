@@ -4,10 +4,12 @@ import (
 	"fox/models"
 	"fmt"
 	"fox/util"
+	"fox/util/time"
 )
 
 type Blog struct {
-
+	models.Blog
+	models.BlogStatistics
 }
 
 func (this *Blog)Get() (data []interface{}, err error) {
@@ -25,7 +27,7 @@ func (this *Blog)Get() (data []interface{}, err error) {
 	return data, err
 }
 //详情
-func (this *Blog)Detail(id int) (data interface{}, err error) {
+func (this *Blog)Detail(id int) (data *Blog, err error) {
 	if id < 1 {
 		return nil, &util.Error{Msg:"ID 错误"}
 	}
@@ -33,6 +35,7 @@ func (this *Blog)Detail(id int) (data interface{}, err error) {
 	if err != nil {
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
+	data.TimeAdd=time.Format(data.TimeAdd,time.Y_M_D_H_I_S)
 	//var Statistics *models.BlogStatistics
 	//Statistics, err = models.GetBlogStatisticsById(id)
 	//data["Comment"] = Statistics.Comment

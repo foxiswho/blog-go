@@ -5,7 +5,14 @@ import (
 	"time"
 	"math"
 )
-
+const (
+	Y_M = "2006-01"
+	Y_M_D = "2006-01-02"
+	Y_M_D_2 = "2006年01月02日"
+	Y_M_D_H_I_S = "2006-01-02 15:04:05"
+	Y_M_D_H_I_S_2 = "2006年01月02日 15:04:05"
+	H_I_S = "15:04:05"
+)
 func main() {
 	/**
 	先考察一下，女神个性爱好等等都要了解清楚
@@ -88,6 +95,39 @@ func main() {
 	//实际查看的是字符串个数是否为 0
 	n := len(str)
 	if n == 0 {
-		return 0
+		//return 0
 	}
+	//now:=time.Now()
+	t,_ := time.Parse(Y_M_D_H_I_S, now.Format(Y_M_D_H_I_S))
+	//tmp:=time.Time(t).Format(Y_M_D_H_I_S)
+	fmt.Println(t)
+	n1:=DateTime.DateTime()
+	fmt.Println(n1)
+}
+type DateTime time.Time
+
+func (t DateTime) MarshalJSON() ([]byte, error) {
+	//do your serializing here
+	stamp := fmt.Sprintf("\"%s\"", t.DateTime())
+	return []byte(stamp), nil
+}
+//日期时间
+func (t DateTime) DateTime() string {
+	return t.Format(Y_M_D_H_I_S)
+}
+//日期
+func (t DateTime) Date() string {
+	return t.Format(Y_M_D)
+}
+//时间
+func (t DateTime) Time() string {
+	return t.Format(H_I_S)
+}
+//格式
+func (t DateTime) Format(layout string) string {
+	//date1,_ := time.Parse("2006-01-02", birthday)
+	return time.Time(t).Format(layout)
+}
+func Now() time.Time{
+	return time.Now()
 }

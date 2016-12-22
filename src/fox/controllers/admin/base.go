@@ -2,6 +2,8 @@ package admin
 
 import (
 	"fmt"
+	"fox/service"
+	"github.com/astaxie/beego"
 )
 
 type BaseController struct {
@@ -12,7 +14,14 @@ func (this *BaseController) Prepare() {
 	//this.BaseNoLoginController.Prepare()
 	this.Initialization()
 	////session 判断
-	//var adminSession *AdminSession
+	ok,_ :=beego.AppConfig.Bool("admin_load")
+	if ok {
+		var AdminAuth service.AdminAuth
+		sess:=AdminAuth.Validate("admin")
+		this.SessionSet(sess)
+		this.Session=sess
+		return
+	}
 	session, err := this.SessionGet()
 	fmt.Println("session:", session)
 	fmt.Println("err", err)
@@ -34,6 +43,4 @@ func (this *BaseController) Prepare() {
 	//
 	//session2, ok := this.GetSession(SESSION_NAME+"_JSON").(string)
 	//fmt.Println("session:? => ?", session2, ok)
-
-
 }

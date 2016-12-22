@@ -64,12 +64,12 @@
         $.post($this.attr('action'),$this.serialize(),function (data) {
             layer.close(loading);
 
-            if(data.Code==1){
+            if(data.code==1){
                 layer.tips('登录成功！正在跳转……', '.btn');
                 window.location.href='/admin/index'
             }else{
                 console.log(data)
-                layer.alert(data.Info,{ icon:2});
+                layer.alert(data.info,{ icon:2});
                 btn.attr('disabled',false);
             }
         },'json')
