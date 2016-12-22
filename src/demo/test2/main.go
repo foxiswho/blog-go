@@ -101,33 +101,37 @@ func main() {
 	t,_ := time.Parse(Y_M_D_H_I_S, now.Format(Y_M_D_H_I_S))
 	//tmp:=time.Time(t).Format(Y_M_D_H_I_S)
 	fmt.Println(t)
-	n1:=DateTime.DateTime()
+
+	n1:=Format(time.Now(),Y_M_D_H_I_S)
 	fmt.Println(n1)
 }
-type DateTime time.Time
+func Format(str interface{}, layout string) string {
+	var date time.Time
+	var err error
+	//判断变量类型
+	switch str.(type) {
+	case time.Time:
+		date = str.(time.Time)
+	case string:
+		//如果是字符串则转换成 标准日期时间格式
+		fmt.Println(str)
+		date, err = time.Parse(layout, str.(string))
+		if err != nil {
+			return ""
+		}
+	}
 
-func (t DateTime) MarshalJSON() ([]byte, error) {
-	//do your serializing here
-	stamp := fmt.Sprintf("\"%s\"", t.DateTime())
-	return []byte(stamp), nil
+	return date.Format(layout)
 }
-//日期时间
-func (t DateTime) DateTime() string {
-	return t.Format(Y_M_D_H_I_S)
+//当前日期时间
+func Now() string {
+	return Format(time.Now(), Y_M_D_H_I_S)
 }
-//日期
-func (t DateTime) Date() string {
-	return t.Format(Y_M_D)
+//当前日期
+func Date() string {
+	return Format(time.Now(), Y_M_D)
 }
-//时间
-func (t DateTime) Time() string {
-	return t.Format(H_I_S)
-}
-//格式
-func (t DateTime) Format(layout string) string {
-	//date1,_ := time.Parse("2006-01-02", birthday)
-	return time.Time(t).Format(layout)
-}
-func Now() time.Time{
-	return time.Now()
+//当前时间
+func Time() string {
+	return Format(time.Now(), H_I_S)
 }

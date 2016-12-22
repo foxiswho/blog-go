@@ -21,9 +21,13 @@ func init() {
 		beego.NSRouter("/index", &admin.IndexController{}),
 		beego.NSRouter("/index_v2", &admin.IndexV2Controller{}),
 		beego.NSRouter("/my_password", &admin.MyPasswordController{}),
+		//blog
+		beego.NSRouter("/blogs", &admin.BlogController{},"get:List"),
 		beego.NSRouter("/blog", &admin.BlogController{}),
-		beego.NSRouter("/blog/:id", &admin.BlogController{}, "get:Detail"),
+		beego.NSRouter("/blog/:id", &admin.BlogController{}),//, "get:Get"
+		beego.NSRouter("/blog/:id", &admin.BlogController{}),//, "put:Put"
 		beego.NSRouter("/blog/edit/:id", &admin.BlogController{}, "get:Edit"),
+		beego.NSRouter("/blog/add", &admin.BlogController{}, "get:Add"),
 	)
 	beego.AddNamespace(ns)
 	//ns := beego.NewNamespace("/v1",

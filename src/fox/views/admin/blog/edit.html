@@ -18,16 +18,17 @@
 
 <body class="gray-bg">
     <div class="wrapper wrapper-content">
-                <form action="?" method="post" class="form-horizontal">
+                <form action="/admin/blog{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
+                    <input type="hidden" name="_method" value="{{._method}}" />
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
                                 <h5>Markdown文本编辑器</h5>
                                 <div class="ibox-tools">
-                                    <button class="btn btn-primary btn-xs" type="submit">保存发布</button>
+                                    <button class="btn btn-primary btn-xs saveRelease" type="submit">保存发布</button>
                                     <button class="btn btn-white btn-xs" type="reset">取消</button>
-                                    <button class="btn btn-success btn-xs" type="submit">保存草稿</button>
+                                    <button class="btn btn-success btn-xs save" type="submit">保存草稿</button>
                                     <a class="collapse-link">
                                         <i class="fa fa-chevron-up"></i>
                                     </a>
@@ -52,6 +53,9 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div class="input-group" style="width: 100%">
+                                    <input type="text" name="tag" value="{{.info.Tag}}" data-role="tagsinput" placeholder="TAGS" id="tag"/>
+                                </div>
                             </div>
                             <div class="ibox-content">
                                 <div class="tabs-container">
@@ -60,7 +64,9 @@
                                         </li>
                                         <li class=""><a data-toggle="tab" href="#tab-status" aria-expanded="false">基本</a>
                                         </li>
-                                        <li class=""><a data-toggle="tab" href="#tab-seo" aria-expanded="false">SEO</a>
+                                        <li class=""><a data-toggle="tab" href="#tab-seo" aria-expanded="false">摘要 & SEO</a>
+                                        </li>
+                                        <li class=""><a data-toggle="tab" href="#tab-statistics" aria-expanded="false">统计</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content">
@@ -71,7 +77,7 @@
                                         </div>
                                         <div id="tab-status" class="tab-pane">
                                             <div class="panel-body">
-                                                <div class="form-group">
+                                                <div class="form-group c_status">
                                                     <label class="col-sm-2 control-label">状态</label>
 
                                                     <div class="col-sm-10">
@@ -79,8 +85,25 @@
                                                             <input type="radio" name="status" value="0">草稿
                                                         </label>
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="status" value="99">发布
+                                                            <input type="radio" name="status" value="99" checked>发布
                                                         </label>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">允许评论
+                                                    </label>
+
+                                                    <div class="col-sm-10">
+                                                        <div class="switch">
+                                                            <div class="onoffswitch">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_comment" value="1" id="is_comment">
+                                                                <label class="onoffswitch-label" for="is_comment">
+                                                                    <span class="onoffswitch-inner"></span>
+                                                                    <span class="onoffswitch-switch"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="hr-line-dashed"></div>
@@ -121,12 +144,87 @@
                                                 <div class="form-group">
                                                     <label class="col-sm-2 control-label">时间
                                                     </label>
-
                                                     <div class="col-sm-10">
                                                         <div class="switch">
-                                                            <input class="form-control layer-date" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" name="time_add" value="{{.info.TimeAdd}}">
+                                                            <input class="form-control layer-date" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" name="time_add" value="{{.TimeAdd}}">
                                                             <label class="laydate-icon"></label>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">更新时间
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <div class="switch">
+                                                            {{.info.TimeUpdate}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">作者
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="author" value="{{.info.Author}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">来源
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="url_source" value="{{.info.UrlSource}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">跳转
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <div class="switch">
+                                                            <div class="onoffswitch">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_jump" value="1" id="is_jump">
+                                                                <label class="onoffswitch-label" for="is_jump">
+                                                                    <span class="onoffswitch-inner"></span>
+                                                                    <span class="onoffswitch-switch"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">url
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="url" value="{{.info.Url}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">自定义伪静态
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="url_rewrite" value="{{.info.UrlRewrite}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">缩略图
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <div class="switch">
+                                                            <input type="text" class="form-control" name="thumb" value="{{.info.Thumb}}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">排序
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="sort" value="{{.info.Sort}}">
                                                     </div>
                                                 </div>
                                                 <div class="hr-line-dashed"></div>
@@ -134,9 +232,57 @@
                                         </div>
                                         <div id="tab-seo" class="tab-pane">
                                             <div class="panel-body">
-                                                <strong>移动设备优先</strong>
-                                                <p>在 Bootstrap 2 中，我们对框架中的某些关键部分增加了对移动设备友好的样式。而在 Bootstrap 3 中，我们重写了整个框架，使其一开始就是对移动设备友好的。这次不是简单的增加一些可选的针对移动设备的样式，而是直接融合进了框架的内核中。也就是说，Bootstrap 是移动设备优先的。针对移动设备的样式融合进了框架的每个角落，而不是增加一个额外的文件。</p>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">摘要：</label>
+                                                    <div class="col-sm-10">
+                                                        <textarea id="description" name="description" class="form-control" style="min-height: 200px">{{.info.Description}}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">SEO标题
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="seo_title" value="{{.statistics.SeoTitle}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">SEO关键词
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <textarea id="seo_keyword" name="seo_keyword" class="form-control" >{{.statistics.SeoKeyword}}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">SEO摘要
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <textarea id="seo_description" name="seo_description" class="form-control" style="min-height: 100px">{{.statistics.SeoDescription}}</textarea>
+                                                    </div>
+                                                </div>
                                             </div>
+
+                                        </div>
+                                        <div id="tab-statistics" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">评论数</label>
+                                                    <div class="col-sm-10">
+                                                        {{.statistics.Comment}}
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">浏览数</label>
+                                                    <div class="col-sm-10">
+                                                        {{.statistics.Read}}
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -184,17 +330,82 @@
     <script src="{{.__theme__}}js/plugins/switchery/switchery.js"></script>
     <!-- iCheck -->
     <script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
+    <script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
+    <!-- 日期时间 -->
+    <script src="{{.__theme__}}js/plugins/layer/laydate/laydate.js"></script>
+    <!-- Tags -->
+    <script src="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
+    <link href="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" rel="stylesheet">
+    <style>
+        .bootstrap-tagsinput{width:100%}
+    </style>
+
+    <!-- 私有 -->
+    <script src="{{.__static__}}js/common.js"></script>
     <script>
+        document.getElementsByTagName('form')[0].onkeydown = function(e){
+            var e = e || event;
+            var keyNum = e.which || e.keyCode;
+            return keyNum==13 ? false : true;
+        };
         $(document).ready(function () {
             $('.i-checks').iCheck({
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
             });
+            //保存发布
+            $('.saveRelease').click(function () {
+                $(".c_status input[value='99']").iCheck('check');
+            });
+            //保存
+            $('.save').click(function () {
+                $(".c_status input[value='0']").iCheck('check');
+            });
+            //保存
+            $('form').submit(function (e) {
+                e.preventDefault();
+                var btn=$('.btn');
+                btn.attr('disabled',true);
+                var $this=$(this);
+                $this.serialize();
+                //加载层
+                var loading = layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
+                $.ajax({
+                    url:$this.attr('action'),
+                    data:$this.serialize(),
+                    dataType:'json',
+                    method:"{{._method}}"
+                }).done(function (data) {
+                    layer.close(loading);
+                    console.log(data)
+                    if(data.code==1){
+                        layer.alert(data.info,{ icon:1});
+                        setTimeout(function () {
+                            window.location.reload()
+                        },3000)
+                    }else{
+                        layer.alert(data.info,{ icon:2});
+                        btn.attr('disabled',false);
+                    }
+                }).fail(function(){ alert("系统错误"); });
+                return false;
+            });
+            $('.bootstrap-tagsinput > input').on('change', function (event) {
+                var $element = $(event.target),
+                    $container = $element.closest('.bootstrap-tagsinput');
+
+                if (!$element.data('tagsinput'))
+                    return;
+
+                var val = $element.val();
+                if (val === null)
+                    val = "null";
+                str=($.isArray(val) ? JSON.stringify(val) : val.replace('"', '\\"'));
+                $("#tag").val(str);
+            }).trigger('change');
         });
     </script>
-    <!-- 日期时间 -->
-    <script src="{{.__theme__}}js/plugins/layer/laydate/laydate.js"></script>
-    <!--统计代码，可删除-->
+
 </body>
 
 </html>

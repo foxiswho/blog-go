@@ -11,29 +11,29 @@ import (
 )
 
 type Blog struct {
-	Id          int       `orm:"column(blog_id);auto"`
-	Aid         int       `orm:"column(aid)"`
-	IsDel       int8      `orm:"column(is_del)"`
-	IsOpen      int8      `orm:"column(is_open)"`
-	Status      int       `orm:"column(status)"`
-	TimeSystem  time.Time `orm:"column(time_system);type(timestamp);null"`
-	TimeUpdate  time.Time `orm:"column(time_update);type(timestamp);null;auto_now"`
-	TimeAdd     time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"`
-	Title       string    `orm:"column(title);size(255)"`
-	Author      string    `orm:"column(author);size(255)"`
-	Url         string    `orm:"column(url);size(255)"`
-	UrlSource   string    `orm:"column(url_source);size(255)"`
-	UrlRewrite  string    `orm:"column(url_rewrite);size(255)"`
-	Description string    `orm:"column(description);size(255)"`
-	Content     string    `orm:"column(content);null"`
-	TypeId      int       `orm:"column(type_id)"`
-	CatId       int       `orm:"column(cat_id)"`
-	Tag         string    `orm:"column(tag);size(255)"`
-	Thumb       string    `orm:"column(thumb);size(255)"`
-	IsRelevant  int8      `orm:"column(is_relevant)"`
-	IsJump      int8      `orm:"column(is_jump)"`
-	IsComment   int8      `orm:"column(is_comment)"`
-	Sort        int       `orm:"column(sort)"`
+	Id          int       `orm:"column(blog_id);auto"  json:"blog_id" form:"-"`
+	Aid         int       `orm:"column(aid)"  json:"aid" form:"-"`
+	IsDel       int8      `orm:"column(is_del)"  json:"is_del" form:"is_del"`
+	IsOpen      int8      `orm:"column(is_open)"  json:"is_open" form:"is_open"`
+	Status      int       `orm:"column(status)"  json:"status" form:"status"`
+	TimeSystem  time.Time `orm:"column(time_system);type(timestamp);null"  json:"time_system" form:"-"`
+	TimeUpdate  time.Time `orm:"column(time_update);type(timestamp);null;auto_now"  json:"time_update" form:"-"`
+	TimeAdd     time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"  json:"time_add" form:"-"`
+	Title       string    `orm:"column(title);size(255)"  json:"title" form:"title"`
+	Author      string    `orm:"column(author);size(255)"  json:"author" form:"author"`
+	Url         string    `orm:"column(url);size(255)"  json:"url" form:"url"`
+	UrlSource   string    `orm:"column(url_source);size(255)"  json:"url_source" form:"url_source"`
+	UrlRewrite  string    `orm:"column(url_rewrite);size(255)"  json:"url_rewrite" form:"url_rewrite"`
+	Description string    `orm:"column(description);size(255)"  json:"description" form:"description"`
+	Content     string    `orm:"column(content);null"  json:"content" form:"content"`
+	TypeId      int       `orm:"column(type_id)"  json:"type_id" form:"type_id"`
+	CatId       int       `orm:"column(cat_id)"  json:"cat_id" form:"cat_id"`
+	Tag         string    `orm:"column(tag);size(255)"  json:"tag" form:"tag"`
+	Thumb       string    `orm:"column(thumb);size(255)"  json:"thumb" form:"thumb"`
+	IsRelevant  int8      `orm:"column(is_relevant)"  json:"is_relevant" form:"is_relevant"`
+	IsJump      int8      `orm:"column(is_jump)"  json:"is_jump" form:"is_jump"`
+	IsComment   int8      `orm:"column(is_comment)"  json:"is_comment" form:"is_comment"`
+	Sort        int       `orm:"column(sort)"  json:"sort" form:"sort"`
 }
 
 func (t *Blog) TableName() string {

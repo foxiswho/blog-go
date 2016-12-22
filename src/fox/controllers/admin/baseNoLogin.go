@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
+	"fox/util/datetime"
 )
 
 type BaseNoLoginController struct {
@@ -18,12 +19,23 @@ func (this *BaseNoLoginController) Prepare() {
 	this.Initialization()
 }
 // 初始化数据
-func (this *BaseNoLoginController) Initialization()  {
+func (this *BaseNoLoginController) Initialization() {
 	this.Data["__public__"] = "/"
 	this.Data["__static__"] = "/static/"
 	this.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
 	this.Data["blog_name"] = beego.AppConfig.String("blog_name")
 	//orm.RunSyncdb("default", false, true)
+}
+//表单日期时间
+func (this *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
+	date := this.GetString(key)
+	if len(date) > 0 {
+		date, err := datetime.FormatTimeStructLocation(date, datetime.Y_M_D_H_I_S)
+		if err == nil {
+			return date, true
+		}
+	}
+	return time.Time{}, false
 }
 //初始化数据库
 func init() {
@@ -37,7 +49,7 @@ func init() {
 	db_port := beego.AppConfig.String("db_port")
 	db_name := beego.AppConfig.String("db_name")
 	db_type := beego.AppConfig.String("db_type")
-	dsn:=db_user+":"+db_pass+"@tcp("+db_host+":"+db_port+")/"+db_name+"?charset=utf8&loc=Asia%2FShanghai"
+	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8&loc=Asia%2FShanghai"
 	// set default database
-	orm.RegisterDataBase("default", db_type,dsn , 30)
+	orm.RegisterDataBase("default", db_type, dsn, 30)
 }
