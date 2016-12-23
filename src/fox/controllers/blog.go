@@ -7,6 +7,7 @@ import (
 
 	"fox/models"
 	"fox/service"
+	"regexp"
 )
 
 type BlogController struct {
@@ -23,18 +24,25 @@ type BlogController struct {
 // @router /:id [get]
 func (c *BlogController) Get() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
 	var ser *service.Blog
-	v, err := ser.Read(id)
-	if err != nil {
-		c.Data["info"] = err.Error()
+	var err error
+	var read map[string]interface{}
+	if ok, _ := regexp.Match(`^\\d+$`, []byte(idStr)); ok {
+		id, _ := strconv.Atoi(idStr)
+		read, err = ser.Read(id)
 	} else {
-		c.Data["info"] = v["Blog"]
-		c.Data["statistics"] = v["Statistics"]
-		c.Data["TimeAdd"] = v["TimeAdd"]
-		c.Data["Content"] = v["Content"]
+		read, err = ser.ReadByUrlRewrite(idStr)
 	}
-	c.TplName = "blog/detail.html"
+	if err != nil {
+		c.Error(err.Error())
+		return
+	} else {
+		c.Data["info"] = read["Blog"]
+		c.Data["statistics"] = read["Statistics"]
+		c.Data["TimeAdd"] = read["TimeAdd"]
+		c.Data["Content"] = read["Content"]
+	}
+	c.TplName = "blog/get.html"
 }
 
 // GetAll ...

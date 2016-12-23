@@ -19,7 +19,7 @@ func (this *BlogController)List() {
 	println(err)
 	this.Data["data"] = data
 	//this.Data["title"]=
-	this.TplName = "admin/blog/get.html"
+	this.TplName = "admin/blog/list.html"
 }
 //详情
 func (this *BlogController)Get() {
@@ -37,7 +37,7 @@ func (this *BlogController)Get() {
 		this.Data["statistics"] = data["Statistics"]
 		this.Data["TimeAdd"] = data["TimeAdd"]
 		//this.Data["title"]=
-		this.TplName = "admin/blog/detail.html"
+		this.TplName = "admin/blog/get.html"
 	}
 }
 //添加

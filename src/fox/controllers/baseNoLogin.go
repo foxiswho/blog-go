@@ -36,6 +36,11 @@ func (this *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
 	}
 	return time.Time{}, false
 }
+//表单日期时间
+func (this *BaseNoLoginController) Error(key string) {
+	this.Data["content"] = key
+	this.TplName = "error/404.html"
+}
 //初始化数据库
 func init() {
 	beego.Info("init orm start...")
