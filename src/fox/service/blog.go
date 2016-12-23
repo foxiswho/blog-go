@@ -7,6 +7,7 @@ import (
 	"fox/util/datetime"
 	"time"
 	"github.com/astaxie/beego/orm"
+	"github.com/russross/blackfriday"
 )
 
 type Blog struct {
@@ -40,6 +41,7 @@ func (this *Blog)Read(id int) (map[string]interface{}, error) {
 	//整合
 	m := make(map[string]interface{})
 	m["Blog"] = *data
+	m["Content"]=string(blackfriday.MarkdownBasic([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
 

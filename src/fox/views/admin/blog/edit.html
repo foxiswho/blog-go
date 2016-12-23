@@ -343,6 +343,7 @@
     <!-- 私有 -->
     <script src="{{.__static__}}js/common.js"></script>
     <script>
+        //禁止 回车 表单保存
         document.getElementsByTagName('form')[0].onkeydown = function(e){
             var e = e || event;
             var keyNum = e.which || e.keyCode;

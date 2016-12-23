@@ -10,9 +10,13 @@ package routers
 import (
 	"github.com/astaxie/beego"
 	"fox/controllers/admin"
+	"fox/controllers"
 )
 
 func init() {
+	beego.Router("/", &controllers.BlogController{},"get:GetAll")
+	beego.Router("/:id", &controllers.BlogController{},"get:Get")
+	beego.Router("/page/:page", &controllers.BlogController{},"get:GetAll")
 	//beego.Router("/admin/login", &admin.LoginController{})
 	//beego.Router("/admin/index", &admin.IndexController{})
 	ns := beego.NewNamespace("/admin",
