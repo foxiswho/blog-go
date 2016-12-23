@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H+ 后台主题UI框架 - Bootstrap3 Markdown编辑器</title>
-    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
-    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
-
-    <link rel="shortcut icon" href="{{.__theme__}}favicon.ico">
-    <link href="{{.__theme__}}css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="{{.__theme__}}css/font-awesome.css?v=4.4.0" rel="stylesheet">
-    <link href="{{.__theme__}}css/animate.css" rel="stylesheet">
-    <link href="{{.__theme__}}css/style.css?v=4.1.0" rel="stylesheet">
-    <link href="{{.__static__}}plugin/bootstrap-markdown/css/bootstrap-markdown.min.css" rel="stylesheet" />
-    <link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
-</head>
-
-<body class="gray-bg">
+{{template "admin/public/header.html" .}}
     <div class="wrapper wrapper-content">
                 <form action="/admin/blog{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
                     <input type="hidden" name="_method" value="{{._method}}" />
@@ -313,100 +295,7 @@
                 </div>
             </div>
     </div>
-
-    <!-- 全局js -->
-    <script src="{{.__theme__}}js/jquery.min.js?v=2.1.4"></script>
-    <script src="{{.__theme__}}js/bootstrap.min.js?v=3.3.6"></script>
-
-    <!-- 自定义js -->
-
-    <!-- simditor -->
-    <script src="{{.__static__}}plugin/bootstrap-markdown/markdown.js"></script>
-    <script src="{{.__static__}}plugin/bootstrap-markdown/to-markdown.js"></script>
-    <script src="{{.__static__}}plugin/bootstrap-markdown/js/bootstrap-markdown.js"></script>
-    <script src="{{.__static__}}plugin/bootstrap-markdown/locale/bootstrap-markdown.zh.js"></script>
-
-    <link href="{{.__theme__}}css/plugins/switchery/switchery.css" rel="stylesheet">
-    <script src="{{.__theme__}}js/plugins/switchery/switchery.js"></script>
-    <!-- iCheck -->
-    <script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
-    <script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
-    <!-- 日期时间 -->
-    <script src="{{.__theme__}}js/plugins/layer/laydate/laydate.js"></script>
-    <!-- Tags -->
-    <script src="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
-    <link href="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" rel="stylesheet">
-    <style>
-        .bootstrap-tagsinput{width:100%}
-    </style>
-
-    <!-- 私有 -->
-    <script src="{{.__static__}}js/common.js"></script>
-    <script>
-        //禁止 回车 表单保存
-        document.getElementsByTagName('form')[0].onkeydown = function(e){
-            var e = e || event;
-            var keyNum = e.which || e.keyCode;
-            return keyNum==13 ? false : true;
-        };
-        $(document).ready(function () {
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-            });
-            //保存发布
-            $('.saveRelease').click(function () {
-                $(".c_status input[value='99']").iCheck('check');
-            });
-            //保存
-            $('.save').click(function () {
-                $(".c_status input[value='0']").iCheck('check');
-            });
-            //保存
-            $('form').submit(function (e) {
-                e.preventDefault();
-                var btn=$('.btn');
-                btn.attr('disabled',true);
-                var $this=$(this);
-                $this.serialize();
-                //加载层
-                var loading = layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
-                $.ajax({
-                    url:$this.attr('action'),
-                    data:$this.serialize(),
-                    dataType:'json',
-                    method:"{{._method}}"
-                }).done(function (data) {
-                    layer.close(loading);
-                    console.log(data)
-                    if(data.code==1){
-                        layer.alert(data.info,{ icon:1});
-                        setTimeout(function () {
-                            window.location.reload()
-                        },3000)
-                    }else{
-                        layer.alert(data.info,{ icon:2});
-                        btn.attr('disabled',false);
-                    }
-                }).fail(function(){ alert("系统错误"); });
-                return false;
-            });
-            $('.bootstrap-tagsinput > input').on('change', function (event) {
-                var $element = $(event.target),
-                    $container = $element.closest('.bootstrap-tagsinput');
-
-                if (!$element.data('tagsinput'))
-                    return;
-
-                var val = $element.val();
-                if (val === null)
-                    val = "null";
-                str=($.isArray(val) ? JSON.stringify(val) : val.replace('"', '\\"'));
-                $("#tag").val(str);
-            }).trigger('change');
-        });
-    </script>
-
+{{template "admin/public/footer.html" .}}
+{{template "admin/blog/edit_body_end.html" .}}
 </body>
-
 </html>

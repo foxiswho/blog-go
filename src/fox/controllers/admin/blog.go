@@ -12,52 +12,53 @@ type BlogController struct {
 	BaseController
 }
 //列表
-func (this *BlogController)List() {
+func (c *BlogController)List() {
 	var blog *service.Blog
 	data, err := blog.Query()
 	//println(data)
 	println(err)
-	this.Data["data"] = data
-	//this.Data["title"]=
-	this.TplName = "admin/blog/list.html"
+	c.Data["data"] = data
+	c.Data["title"]= "博客-列表"
+	c.TplName = "admin/blog/list.html"
 }
 //详情
-func (this *BlogController)Get() {
-	id := this.Ctx.Input.Param(":id")
+func (c *BlogController)Get() {
+	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	var blog *service.Blog
 	data, err := blog.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
 		rsp := Response.NewResponse()
-		defer rsp.WriteJson(this.Ctx.ResponseWriter)
+		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
-		this.Data["info"] = data["Blog"]
-		this.Data["statistics"] = data["Statistics"]
-		this.Data["TimeAdd"] = data["TimeAdd"]
-		//this.Data["title"]=
-		this.TplName = "admin/blog/get.html"
+		c.Data["info"] = data["Blog"]
+		c.Data["statistics"] = data["Statistics"]
+		c.Data["TimeAdd"] = data["TimeAdd"]
+		c.Data["title"]= "博客-查看"
+		c.TplName = "admin/blog/get.html"
 	}
 }
 //添加
-func (this *BlogController)Add() {
-	this.Data["_method"] = "post"
-	this.TplName = "admin/blog/edit.html"
+func (c *BlogController)Add() {
+	c.Data["_method"] = "post"
+	c.Data["title"]= "博客-添加"
+	c.TplName = "admin/blog/edit.html"
 }
 //保存
-func (this *BlogController)Post() {
+func (c *BlogController)Post() {
 
 	rsp := Response.NewResponse()
-	defer rsp.WriteJson(this.Ctx.ResponseWriter)
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blog := models.Blog{}
-	//blog.Title=this.GetString("title")
-	//blog.Content=this.GetString("content")
-	//tmp,_:=this.GetInt("status")
+	//blog.Title=c.GetString("title")
+	//blog.Content=c.GetString("content")
+	//tmp,_:=c.GetInt("status")
 	//blog.Status=tmp
-	//tmp2,_:=this.GetInt8("is_open")
+	//tmp2,_:=c.GetInt8("is_open")
 	//blog.IsOpen=tmp2
-	//this.GetString("time_add")
+	//c.GetString("time_add")
 	//time_add:
 	//author:
 	//url_source:
@@ -72,16 +73,16 @@ func (this *BlogController)Post() {
 
 	//参数传递
 	blog_statistics := models.BlogStatistics{}
-	if err := this.ParseForm(&blog); err != nil {
+	if err := c.ParseForm(&blog); err != nil {
 		rsp.Error(err.Error())
-		this.StopRun()
+		c.StopRun()
 	}
-	if err := this.ParseForm(&blog_statistics); err != nil {
+	if err := c.ParseForm(&blog_statistics); err != nil {
 		rsp.Error(err.Error())
-		this.StopRun()
+		c.StopRun()
 	}
 	//日期
-	date,ok:=this.GetDateTime("time_add")
+	date,ok:=c.GetDateTime("time_add")
 	if ok {
 		blog.TimeAdd = date
 	}
@@ -96,30 +97,31 @@ func (this *BlogController)Post() {
 	}
 }
 //编辑
-func (this *BlogController)Edit() {
-	this.Get()
-	this.Data["_method"] = "put"
-	this.Data["is_put"] = true
-	this.TplName = "admin/blog/edit.html"
+func (c *BlogController)Edit() {
+	c.Get()
+	c.Data["_method"] = "put"
+	c.Data["is_put"] = true
+	c.Data["title"]= "博客-修改"
+	c.TplName = "admin/blog/edit.html"
 }
 //更新
-func (this *BlogController)Put() {
+func (c *BlogController)Put() {
 	rsp := Response.NewResponse()
-	defer rsp.WriteJson(this.Ctx.ResponseWriter)
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
-	id := this.Ctx.Input.Param(":id")
+	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
 	blog := models.Blog{}
 	blog_statistics := models.BlogStatistics{}
-	if err := this.ParseForm(&blog); err != nil {
+	if err := c.ParseForm(&blog); err != nil {
 		rsp.Error(err.Error())
 	}
-	if err := this.ParseForm(&blog_statistics); err != nil {
+	if err := c.ParseForm(&blog_statistics); err != nil {
 		rsp.Error(err.Error())
 	}
 	//日期
-	date,ok:=this.GetDateTime("time_add")
+	date,ok:=c.GetDateTime("time_add")
 	if ok {
 		blog.TimeAdd = date
 	}

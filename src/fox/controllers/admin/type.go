@@ -5,7 +5,5 @@ type TypeController struct {
 }
 
 func (c *TypeController)List() {
-	c.Data["username"] = c.Session.Username
-	c.Data["true_name"] = c.Session.TrueName
-	c.TplName = "admin/type/index.html"
+	c.TplName = "admin/type/list.html"
 }
