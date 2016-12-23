@@ -2,8 +2,8 @@ package admin
 
 import (
 	"fmt"
-	"fox/service"
 	"github.com/astaxie/beego"
+	"fox/service/admin"
 )
 
 type BaseController struct {
@@ -16,7 +16,7 @@ func (this *BaseController) Prepare() {
 	////session 判断
 	ok,_ :=beego.AppConfig.Bool("admin_load")
 	if ok {
-		var AdminAuth service.AdminAuth
+		var AdminAuth admin.AdminAuth
 		sess:=AdminAuth.Validate("admin")
 		this.SessionSet(sess)
 		this.Session=sess

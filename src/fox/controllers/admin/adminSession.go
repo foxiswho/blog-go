@@ -6,15 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"fox/util"
-	"fox/service"
+	"fox/service/admin"
 )
 
 type AdminSession struct {
 	beego.Controller
-	Session *service.AdminSession //当前登录用户信息
+	Session *admin.AdminSession //当前登录用户信息
 }
 // session 填充
-func (this *AdminSession) SessionSet(session *service.AdminSession) {
+func (this *AdminSession) SessionSet(session *admin.AdminSession) {
 	SESSION_NAME := beego.AppConfig.String("session_name")
 	//存入 Session
 	str2 := str.JsonEnCode(session)
@@ -22,7 +22,7 @@ func (this *AdminSession) SessionSet(session *service.AdminSession) {
 	this.SetSession(SESSION_NAME, str2)
 }
 //获取
-func (this *AdminSession) SessionGet() (*service.AdminSession, error) {
+func (this *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	SESSION_NAME := beego.AppConfig.String("session_name")
 	session, ok := this.GetSession(SESSION_NAME).(string)
 	fmt.Println("session:", session)
@@ -33,7 +33,7 @@ func (this *AdminSession) SessionGet() (*service.AdminSession, error) {
 	if ok && session == "" {
 		return nil, &util.Error{Msg:"Session 为空"}
 	}
-	var Sess *service.AdminSession
+	var Sess *admin.AdminSession
 	err := json.Unmarshal([]byte(session), &Sess)
 	if err != nil {
 		return nil, &util.Error{Msg:"Session 序列号转换错误. " + err.Error()}

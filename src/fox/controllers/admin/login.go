@@ -1,9 +1,9 @@
 package admin
 
 import (
-	"fox/service"
 	"fox/util/Response"
 	"fmt"
+	"fox/service/admin"
 )
 
 type LoginController struct {
@@ -19,15 +19,15 @@ func (this *LoginController)Post() {
 	fmt.Println("username:",username)
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
-	var adminUser *service.AdminUser
-	admin, err := adminUser.Auth(username, password)
+	var adminUser *admin.AdminUser
+	adm, err := adminUser.Auth(username, password)
 	if err != nil {
 		rsp.Error(err.Error())
 		return
 	} else {
-		fmt.Println("登录成功：",admin)
+		fmt.Println("登录成功：",adm)
 		//设置Session
-		this.SessionSet(admin)
+		this.SessionSet(adm)
 		rsp.Success("")
 		return
 	}

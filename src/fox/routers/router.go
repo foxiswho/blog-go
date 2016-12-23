@@ -14,9 +14,7 @@ import (
 )
 
 func init() {
-	beego.Router("/", &controllers.BlogController{},"get:GetAll")
-	beego.Router("/:id", &controllers.BlogController{},"get:Get")
-	beego.Router("/page/:page", &controllers.BlogController{},"get:GetAll")
+
 	//beego.Router("/admin/login", &admin.LoginController{})
 	//beego.Router("/admin/index", &admin.IndexController{})
 	ns := beego.NewNamespace("/admin",
@@ -32,6 +30,8 @@ func init() {
 		beego.NSRouter("/blog/:id", &admin.BlogController{}),//, "put:Put"
 		beego.NSRouter("/blog/edit/:id", &admin.BlogController{}, "get:Edit"),
 		beego.NSRouter("/blog/add", &admin.BlogController{}, "get:Add"),
+		//type
+		beego.NSRouter("/types", &admin.TypeController{},"get:List"),
 	)
 	beego.AddNamespace(ns)
 	//ns := beego.NewNamespace("/v1",
@@ -43,4 +43,9 @@ func init() {
 	//	),
 	//)
 	//beego.AddNamespace(ns)
+
+	beego.Router("/", &controllers.BlogController{},"get:GetAll")
+	beego.Router("/page/:page", &controllers.BlogController{},"get:GetAll")
+	beego.Router("/:id", &controllers.BlogController{},"get:Get")
+
 }

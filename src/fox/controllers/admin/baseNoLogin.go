@@ -19,6 +19,7 @@ func (c *BaseNoLoginController) Prepare() {
 }
 // 初始化数据
 func (c *BaseNoLoginController) Initialization() {
+	c.Data["HtmlHead"] = ""
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/Hplus-v.4.1.0/"

@@ -3,7 +3,7 @@ package admin
 import (
 	"fmt"
 	"fox/util/Response"
-	"fox/service"
+	"fox/service/admin"
 )
 
 type MyPasswordController struct {
@@ -20,7 +20,7 @@ func (this *MyPasswordController)Post() {
 	fmt.Println("password:",password)
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
-	var adminUser *service.AdminUser
+	var adminUser *admin.AdminUser
 	ok, err := adminUser.UpdatePassword(password,this.Session.Id)
 	if !ok {
 		rsp.Error(err.Error())
