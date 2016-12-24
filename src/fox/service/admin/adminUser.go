@@ -14,9 +14,9 @@ type AdminUser  struct {
 
 }
 //登录验证
-func (this *AdminUser) Auth(account, password string) (*AdminSession, error) {
+func (c *AdminUser) Auth(account, password string) (*AdminSession, error) {
 	//登录验证
-	admUser, err := this.Login(account, password)
+	admUser, err := c.Login(account, password)
 	//登录成功
 	if err == nil {
 		//转换为session
@@ -27,14 +27,14 @@ func (this *AdminUser) Auth(account, password string) (*AdminSession, error) {
 	return nil, err
 }
 //登录验证
-func (this *AdminUser) Login(account, password string) (admUser *models.Admin, err error) {
+func (c *AdminUser) Login(account, password string) (admUser *models.Admin, err error) {
 	if len(account) == 0 {
 		return nil, &util.Error{Msg:"账号 不能为空"}
 	}
 	if len(password) == 0 {
 		return nil, &util.Error{Msg:"密码 不能为空"}
 	}
-	admUser, err = this.GetAdminByUserName(account)
+	admUser, err = c.GetAdminByUserName(account)
 	if err == nil {
 		if admUser.Id != 0 {
 			password := UtilAuth.PasswordSalt(password, admUser.Salt)
@@ -53,7 +53,7 @@ func (this *AdminUser) Login(account, password string) (admUser *models.Admin, e
 	return nil, &util.Error{Msg:"登陆失败，请稍后重试.."}
 }
 //根据用户名查找
-func (this *AdminUser) GetAdminByUserName(account string) (v *models.Admin, err error) {
+func (c *AdminUser) GetAdminByUserName(account string) (v *models.Admin, err error) {
 	o := orm.NewOrm()
 	v = &models.Admin{Username: account}
 
@@ -64,7 +64,7 @@ func (this *AdminUser) GetAdminByUserName(account string) (v *models.Admin, err 
 	return nil, err
 }
 //根据ID查找
-func (this *AdminUser) GetAdminById(id int) (admUser *models.Admin, err error) {
+func (c *AdminUser) GetAdminById(id int) (admUser *models.Admin, err error) {
 	if id <= 0 {
 		return nil, &util.Error{Msg:"id 错误"}
 	}
@@ -82,15 +82,15 @@ func (this *AdminUser) GetAdminById(id int) (admUser *models.Admin, err error) {
 	return nil, &util.Error{Msg:"获取失败，请稍后重试.."}
 }
 //密码更新
-func (this *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
-	c := len(pwd)
-	if c < 1 {
+func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
+	t := len(pwd)
+	if t < 1 {
 		return false, &util.Error{Msg:"密码不能为空"}
 	}
-	if c < 6 {
+	if t < 6 {
 		return false, &util.Error{Msg:"密码 最小长度为 6 个字符"}
 	}
-	if c >= 32 {
+	if t >= 32 {
 		return false, &util.Error{Msg:"密码 不能超过32个字符"}
 	}
 	if uid < 1 {
@@ -104,7 +104,7 @@ func (this *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 				return false, &util.Error{Msg:"新密码与旧密码相同"}
 			}
 			admin := &models.Admin{Id: uid, Password:pwd}
-			this.UpdateAdminById(admin,"password")
+			c.UpdateAdminById(admin,"password")
 			return true, nil
 		} else {
 			return false, &util.Error{Msg:"账号 不存在"}
@@ -113,7 +113,7 @@ func (this *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 	return false, &util.Error{Msg:"账号 不存在"}
 }
 //更新
-func (this *AdminUser)UpdateAdminById(m *models.Admin, cols ...string) (num int64,err error) {
+func (c *AdminUser)UpdateAdminById(m *models.Admin, cols ...string) (num int64,err error) {
 	o := orm.NewOrm()
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)

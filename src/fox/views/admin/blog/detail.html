@@ -1,0 +1,25 @@
+{{template "admin/public/header.html" .}}
+    <div class="wrapper wrapper-content  animated fadeInRight article">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="pull-right">
+                            <button class="btn btn-white btn-xs" type="button">700BIKE</button>
+                            <button class="btn btn-white btn-xs" type="button">BeginOne</button>
+                            <button class="btn btn-white btn-xs" type="button">乐视超级自行车</button>
+                        </div>
+                        <div class="text-center article-title">
+                            <h1>
+                                {{.info.Title}}
+                                </h1>
+                        </div>
+                        {{.info.Content}}
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{{template "admin/public/footer.html" .}}

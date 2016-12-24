@@ -57,7 +57,7 @@ func (this *AdminSession) Del(){
 	admin.DelSession(SESSION_NAME)
 }*/
 //转换
-func (this *AdminSession) Convert(admUser *models.Admin) *AdminSession {
+func (c *AdminSession) Convert(admUser *models.Admin) *AdminSession {
 	//赋值
 	Session := &AdminSession{}
 	Session.Username = admUser.Username

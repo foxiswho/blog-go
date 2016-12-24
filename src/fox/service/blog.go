@@ -14,7 +14,7 @@ type Blog struct {
 
 }
 
-func (this *Blog)Query() (data []interface{}, err error) {
+func (c *Blog)Query() (data []interface{}, err error) {
 	var query map[string]string
 	var fields []string
 	sortby := []string{"Id"}
@@ -29,7 +29,7 @@ func (this *Blog)Query() (data []interface{}, err error) {
 	return data, err
 }
 //详情
-func (this *Blog)Read(id int) (map[string]interface{}, error) {
+func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
 		return nil, &util.Error{Msg:"ID 错误"}
 	}
@@ -60,7 +60,7 @@ func (this *Blog)Read(id int) (map[string]interface{}, error) {
 	return m, err
 }
 //详情
-func (this *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
+func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	if id == "" {
 		return nil, &util.Error{Msg:"URL 错误"}
 	}
@@ -92,30 +92,30 @@ func (this *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 }
 
 //创建
-func (this *Blog)Create(blog *models.Blog, stat *models.BlogStatistics) (int64, error) {
+func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error) {
 
-	fmt.Println("BLOG DATA:", blog)
-	if len(blog.Title) < 1 {
+	fmt.Println("DATA:", m)
+	if len(m.Title) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
 	}
-	if len(blog.Content) < 1 {
+	if len(m.Content) < 1 {
 		return 0, &util.Error{Msg:"内容 不能为空"}
 	}
 
 	//时间
-	if blog.TimeAdd.IsZero() {
-		blog.TimeAdd = time.Now()
+	if m.TimeAdd.IsZero() {
+		m.TimeAdd = time.Now()
 	}
-	blog.TimeSystem = blog.TimeAdd
+	m.TimeSystem = m.TimeAdd
 
 	//状态
-	if blog.Status < 0 {
-		blog.Status = 0
+	if m.Status < 0 {
+		m.Status = 0
 	}
-	if blog.Status > 99 {
-		blog.Status = 99
+	if m.Status > 99 {
+		m.Status = 99
 	}
-	id, err := models.AddBlog(blog)
+	id, err := models.AddBlog(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
@@ -126,13 +126,13 @@ func (this *Blog)Create(blog *models.Blog, stat *models.BlogStatistics) (int64, 
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
-	fmt.Println("BLOG DATA:", blog)
-	fmt.Println("BlogId:", id)
-	fmt.Println("BlogStatistics:", id2)
+	fmt.Println("DATA:", m)
+	fmt.Println("Id:", id)
+	fmt.Println("Statistics:", id2)
 	return id, nil
 }
-//创建
-func (this *Blog)Update(id int, blog *models.Blog, stat *models.BlogStatistics) (int, error) {
+//更新
+func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, error) {
 	if id < 1 {
 		return 0, &util.Error{Msg:"ID 错误"}
 	}
@@ -141,45 +141,45 @@ func (this *Blog)Update(id int, blog *models.Blog, stat *models.BlogStatistics) 
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
-	if len(blog.Title) < 1 {
+	if len(m.Title) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
 	}
-	if len(blog.Content) < 1 {
+	if len(m.Content) < 1 {
 		return 0, &util.Error{Msg:"内容 不能为空"}
 	}
-	fmt.Println("BLOG DATA:", blog)
+	fmt.Println("DATA:", m)
 	//时间
-	if blog.TimeAdd.IsZero() {
-		blog.TimeAdd = time.Now()
+	if m.TimeAdd.IsZero() {
+		m.TimeAdd = time.Now()
 	}
-	blog.TimeSystem = blog.TimeAdd
+	m.TimeSystem = m.TimeAdd
 
 	//状态
-	if blog.Status < 0 {
-		blog.Status = 0
+	if m.Status < 0 {
+		m.Status = 0
 	}
-	if blog.Status > 99 {
-		blog.Status = 99
+	if m.Status > 99 {
+		m.Status = 99
 	}
 
-	blog.Id = id
-	_, err = this.UpdateBlogById(blog, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
+	m.Id = id
+	_, err = c.UpdateById(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
 
 	stat.BlogId = int(id)
 	stat.Id = stat.BlogId
-	_, err = this.UpdateBlogStatisticsById(stat, "seo_title", "seo_keyword", "seo_description")
+	_, err = c.UpdateBlogStatisticsById(stat, "seo_title", "seo_keyword", "seo_description")
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
-	fmt.Println("BLOG DATA:", blog)
-	fmt.Println("BlogId:", id)
+	fmt.Println("DATA:", m)
+	fmt.Println("Id:", id)
 	return id, nil
 }
 //更新
-func (this *Blog)UpdateBlogById(m *models.Blog, cols ...string) (num int64, err error) {
+func (c *Blog)UpdateById(m *models.Blog, cols ...string) (num int64, err error) {
 	o := orm.NewOrm()
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
@@ -188,19 +188,46 @@ func (this *Blog)UpdateBlogById(m *models.Blog, cols ...string) (num int64, err 
 	return 0, err
 }
 //更新
-func (this *Blog)UpdateBlogStatisticsById(m *models.BlogStatistics, cols ...string) (num int64, err error) {
+func (c *Blog)UpdateBlogStatisticsById(m *models.BlogStatistics, cols ...string) (num int64, err error) {
 	o := orm.NewOrm()
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil
 	}
 	return 0, err
+}
+//删除
+func (c *Blog)Delete(id int) (bool, error) {
+	if id < 1 {
+		return false, &util.Error{Msg:"ID 错误"}
+	}
+	err := models.DeleteBlog(id)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	err = c.DeleteBlogStatisticsByBlogId(id)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	return true, nil
+}
+func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (err error) {
+	o := orm.NewOrm()
+	v := models.BlogStatistics{BlogId: id}
+	// ascertain id exists in the database
+	if err = o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Delete(&models.BlogStatistics{BlogId: id}); err == nil {
+			fmt.Println("Number of records deleted in database:", num)
+		}
+	}
+	return
 }
 //根据自定义伪静态查询
 func GetBlogByUrlRewrite(id string) (v *models.Blog, err error) {
 	o := orm.NewOrm()
 	v = &models.Blog{UrlRewrite: id}
-	if err = o.Read(v,"url_rewrite"); err == nil {
+	if err = o.Read(v, "url_rewrite"); err == nil {
 		return v, nil
 	}
 	return nil, err

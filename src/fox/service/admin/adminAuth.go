@@ -11,7 +11,7 @@ type AdminAuth struct {
 
 }
 //验证Session
-func (this *AdminAuth)Validate(account string) (*AdminSession) {
+func (c *AdminAuth)Validate(account string) (*AdminSession) {
 	//查询用户
 	var admin *AdminUser
 	admUser, err := admin.GetAdminByUserName(account)
@@ -29,7 +29,7 @@ func (this *AdminAuth)Validate(account string) (*AdminSession) {
 /**
 token 校验，判断是否登录
 */
-func (this *AdminAuth)ValidateToken(token, currentIp string) (*models.Admin) {
+func (c *AdminAuth)ValidateToken(token, currentIp string) (*models.Admin) {
 	//解密
 	//aes :=crypt.Aes{}
 	//Dtoken, err := aes.Decrypt(token)
@@ -63,14 +63,14 @@ func (this *AdminAuth)ValidateToken(token, currentIp string) (*models.Admin) {
 /**
 校验角色权限
 */
-func (this *AdminAuth) ValidateRole() (bool, error) {
+func (c *AdminAuth) ValidateRole() (bool, error) {
 	//TODO 待开发
 	return true, nil
 }
 /**
 校验 菜单权限
 */
-func (this *AdminAuth) ValidateMenu() (bool, error) {
+func (c *AdminAuth) ValidateMenu() (bool, error) {
 	//TODO 待开发
 	return true, nil
 }

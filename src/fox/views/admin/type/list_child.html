@@ -4,9 +4,9 @@
             <div class="col-sm-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>基本 <small>分类，查找</small></h5>
+                        <h5>{{.info.Name}} <small>列表</small></h5>
                         <div class="ibox-tools">
-                            <a href="type/add" class="btn btn-primary btn-xs" target="_blank">添加</a>
+                            <a href="/admin/type/add/{{.id}}" class="btn btn-primary btn-xs" target="_blank">添加子类</a>
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
                             </a>
@@ -14,10 +14,6 @@
                                 <i class="fa fa-wrench"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-user">
-                                <li><a href="table_data_tables.html#">选项1</a>
-                                </li>
-                                <li><a href="table_data_tables.html#">选项2</a>
-                                </li>
                             </ul>
                             <a class="close-link">
                                 <i class="fa fa-times"></i>
@@ -63,15 +59,11 @@
                                             <button data-toggle="dropdown" class="btn btn-primary btn-xs dropdown-toggle">操作 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li><a href="type/list_child/{{.Id}}" class="font-bold">子类查看</a>
+                                                <li><a href="/admin/type/{{.Id}}" class="font-bold">修改</a>
                                                 </li>
-                                                <li><a href="type/add/{{.Id}}" class="font-bold" target="_blank">子类添加</a>
+                                                <li class="divider"></li>
+                                                <li><a href="/admin/type/{{.Id}}" class="del">删除</a>
                                                 </li>
-                                                <li><a href="type/{{.Id}}" class="font-bold" target="_blank">修改</a>
-                                                </li>
-                                                <!--<li class="divider"></li>-->
-                                                <!--<li><a href="#">删除</a>-->
-                                                <!--</li>-->
                                             </ul>
                                         </div>
                                     </td>
@@ -92,6 +84,9 @@
     <script>
         $(document).ready(function () {
             $('.dataTables-example').dataTable({iDisplayLength:50});
+//            $('button.add').click(function () {
+//                win
+//            });
         });
     </script>
 </body>

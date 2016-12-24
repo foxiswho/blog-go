@@ -1,0 +1,295 @@
+{{template "admin/public/header.html" .}}
+    <div class="wrapper wrapper-content">
+                <form action="/admin/type{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
+                    <input type="hidden" name="_method" value="{{._method}}" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>Look</h5>
+                                <div class="ibox-tools">
+                                    <button class="btn btn-primary btn-xs btn-w-m" type="submit">保存</button>
+                                    <button class="btn btn-white btn-xs" type="reset">取消</button>
+
+                                    <a class="collapse-link">
+                                        <i class="fa fa-chevron-up"></i>
+                                    </a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="form_editors.html#">
+                                        <i class="fa fa-wrench"></i>更多
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-user">
+                                        <li><a>选项2</a>
+                                        </li>
+                                    </ul>
+                                    <a class="close-link">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">名称</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" placeholder="名称" name="name" class="form-control input-lg" value="{{.info.Name}}">
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-lg btn-default" type="button">
+                                                    检测重复
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">代码</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" placeholder="" name="code" class="form-control" value="{{.info.Code}}">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">标志</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" placeholder="" name="mark" class="form-control" value="{{.info.Mark}}">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">所属类别</label>
+                                    <div class="col-sm-10">
+                                        <input type="hidden" placeholder="" name="type_id" class="form-control" value="{{.info.TypeId}}">
+                                        <div class="input-group">
+                                        <input type="text" name="type_id_name" value="{{.type_id_name}}" style="width: 100px;" readonly class="form-control">
+                                            <button type="button" class="btn btn-primary btn-sm type btn-rounded" data-type_name="type_id">选择</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">上级</label>
+                                    <div class="col-sm-10">
+                                        <input type="hidden" placeholder="" name="parent_id" class="form-control" value="{{.info.ParentId}}">
+                                        <div class="input-group">
+                                            <input type="text" name="parent_id_name" value="{{.parent_id_name}}" style="width: 100px;" readonly class="form-control">
+                                            <button type="button" class="btn btn-primary btn-sm type btn-rounded" data-type_name="parent_id">选择</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">值</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" placeholder="" name="value" class="form-control" value="{{.info.Value}}">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group c_status">
+                                    <label class="col-sm-2 control-label">默认</label>
+
+                                    <div class="col-sm-10">
+                                        <label class="checkbox-inline i-checks">
+                                            <input type="radio" name="is_default" value="1">是
+                                        </label>
+                                        <label class="checkbox-inline i-checks">
+                                            <input type="radio" name="is_default" value="0" checked>否
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否有子类
+                                    </label>
+
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_child" value="1" id="is_child">
+                                                <label class="onoffswitch-label" for="is_child">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">系统参数
+                                    </label>
+
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_system" value="1" id="is_system">
+                                                <label class="onoffswitch-label" for="is_system">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">否显示
+                                    </label>
+
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_show" value="1" checked id="is_show">
+                                                <label class="onoffswitch-label" for="is_show">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">删除
+                                    </label>
+
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del">
+                                                <label class="onoffswitch-label" for="is_del">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">添加时间
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            {{.info.TimeAdd}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">排序
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control" name="sort" value="{{.info.Sort}}" min="0" step="1">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">备注
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <textarea name="remark" class="form-control">{{.info.Remark}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">备注
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <textarea name="setting" class="form-control">{{.info.Setting}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">模块
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" name="module" value="{{.info.Module}}" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+    </div>
+{{template "admin/public/footer.html" .}}
+
+<link href="{{.__theme__}}css/plugins/switchery/switchery.css" rel="stylesheet">
+<script src="{{.__theme__}}js/plugins/switchery/switchery.js"></script>
+<!-- iCheck -->
+<link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
+<script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
+<script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
+<script>
+    //禁止 回车 表单保存
+    document.getElementsByTagName('form')[0].onkeydown = function(e){
+        var e = e || event;
+        var keyNum = e.which || e.keyCode;
+        return keyNum==13 ? false : true;
+    };
+    $(document).ready(function () {
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+        //保存
+        $('form').submit(function (e) {
+            e.preventDefault();
+            var btn=$('.btn');
+            btn.attr('disabled',true);
+            var $this=$(this);
+            $this.serialize();
+            //加载层
+            var loading = layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
+            $.ajax({
+                url:$this.attr('action'),
+                data:$this.serialize(),
+                dataType:'json',
+                method:"{{._method}}"
+            }).done(function (data) {
+                layer.close(loading);
+                console.log(data)
+                if(data.code==1){
+                    layer.alert(data.info,{ icon:1});
+                    setTimeout(function () {
+                        window.location.reload()
+                    },3000)
+                }else{
+                    layer.alert(data.info,{ icon:2});
+                    btn.attr('disabled',false);
+                }
+            }).fail(function(){ alert("系统错误"); });
+            return false;
+        });
+        //所属类别
+        $('button.type').click(function () {
+            selectTypeID=$(this).data('type_name');
+            if(selectTypeID==""){
+                alert("类别参数错误")
+                return false;
+            }
+
+            //iframe层
+            layerID=layer.open({
+                type: 2,
+                title: '参数',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['680px', '400px'],
+                content: '/admin/select/type' //iframe的url
+            });
+
+        });
+    });
+    var selectTypeID="";
+    var layerID;
+    function selectType(row) {
+        $(selectTypeID).value(row.id);
+        $(selectTypeID+"_name").value(row.name);
+        return true;
+    }
+</script>
+</body>
+</html>

@@ -11,24 +11,24 @@ import (
 )
 
 type Type struct {
-	Id        int       `orm:"column(id);auto"`
-	Name      string    `orm:"column(name);size(100)"`
-	Code      string    `orm:"column(code);size(32)"`
-	Mark      string    `orm:"column(mark);size(32)"`
-	TypeId    int       `orm:"column(type_id)"`
-	ParentId  int       `orm:"column(parent_id)"`
-	Value     int       `orm:"column(value)"`
-	IsDel     int       `orm:"column(is_del)"`
-	Sort      int       `orm:"column(sort)"`
-	Remark    string    `orm:"column(remark);size(255);null"`
-	TimeAdd   time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"`
-	Aid       uint      `orm:"column(aid)"`
-	Module    string    `orm:"column(module);size(50)"`
-	IsDefault int8      `orm:"column(is_default)"`
-	Setting   string    `orm:"column(setting);size(255);null"`
-	IsChild   int8      `orm:"column(is_child)"`
-	IsSystem  int8      `orm:"column(is_system)"`
-	IsShow    int8      `orm:"column(is_show)"`
+	Id        int       `orm:"column(id);auto"  json:"id" form:"-"`
+	Name      string    `orm:"column(name);size(100)"  json:"name" form:"name"`
+	Code      string    `orm:"column(code);size(32)"  json:"code" form:"code"`
+	Mark      string    `orm:"column(mark);size(32)"  json:"mark" form:"mark"`
+	TypeId    int       `orm:"column(type_id)"  json:"type_id" form:"type_id"`
+	ParentId  int       `orm:"column(parent_id)"  json:"parent_id" form:"parent_id"`
+	Value     int       `orm:"column(value)"  json:"value" form:"value"`
+	IsDel     int       `orm:"column(is_del)"  json:"is_del" form:"is_del"`
+	Sort      int       `orm:"column(sort)"  json:"sort" form:"sort"`
+	Remark    string    `orm:"column(remark);size(255);null"  json:"remark" form:"remark"`
+	TimeAdd   time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"  json:"time_add" form:"-"`
+	Aid       uint      `orm:"column(aid)"  json:"aid" form:"aid"`
+	Module    string    `orm:"column(module);size(50)"  json:"module" form:"module"`
+	IsDefault int8      `orm:"column(is_default)"  json:"is_default" form:"is_default"`
+	Setting   string    `orm:"column(setting);size(255);null"  json:"setting" form:"setting"`
+	IsChild   int8      `orm:"column(is_child)"  json:"is_child" form:"is_child"`
+	IsSystem  int8      `orm:"column(is_system)"  json:"is_system" form:"is_system"`
+	IsShow    int8      `orm:"column(is_show)"  json:"is_show" form:"is_show"`
 }
 
 func (t *Type) TableName() string {

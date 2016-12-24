@@ -11,17 +11,27 @@ import (
 type BlogController struct {
 	BaseController
 }
+func (c *BlogController) URLMapping() {
+	c.Mapping("List", c.List)
+	c.Mapping("Add", c.Add)
+	c.Mapping("Post", c.Post)
+	c.Mapping("Get", c.Get)
+	c.Mapping("Put", c.Put)
+	c.Mapping("Detail", c.Detail)
+}
 //列表
+// @router /blog [get]
 func (c *BlogController)List() {
 	var blog *service.Blog
 	data, err := blog.Query()
 	//println(data)
 	println(err)
 	c.Data["data"] = data
-	c.Data["title"]= "博客-列表"
+	c.Data["title"] = "博客-列表"
 	c.TplName = "admin/blog/list.html"
 }
-//详情
+//编辑
+// @router /blog/:id [get]
 func (c *BlogController)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
@@ -36,40 +46,25 @@ func (c *BlogController)Get() {
 		c.Data["info"] = data["Blog"]
 		c.Data["statistics"] = data["Statistics"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
-		c.Data["title"]= "博客-查看"
+		c.Data["title"] = "博客-编辑"
+		c.Data["_method"] = "put"
+		c.Data["is_put"] = true
 		c.TplName = "admin/blog/get.html"
 	}
 }
 //添加
+// @router /blog/add [get]
 func (c *BlogController)Add() {
 	c.Data["_method"] = "post"
-	c.Data["title"]= "博客-添加"
-	c.TplName = "admin/blog/edit.html"
+	c.Data["title"] = "博客-添加"
+	c.TplName = "admin/blog/get.html"
 }
 //保存
+// @router /blog [post]
 func (c *BlogController)Post() {
-
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blog := models.Blog{}
-	//blog.Title=c.GetString("title")
-	//blog.Content=c.GetString("content")
-	//tmp,_:=c.GetInt("status")
-	//blog.Status=tmp
-	//tmp2,_:=c.GetInt8("is_open")
-	//blog.IsOpen=tmp2
-	//c.GetString("time_add")
-	//time_add:
-	//author:
-	//url_source:
-	//url:
-	//url:
-	//thumb:
-	//sort:
-	//description:
-	//seo_title:
-	//seo_keyword:
-	//seo_description:
 
 	//参数传递
 	blog_statistics := models.BlogStatistics{}
@@ -82,7 +77,7 @@ func (c *BlogController)Post() {
 		c.StopRun()
 	}
 	//日期
-	date,ok:=c.GetDateTime("time_add")
+	date, ok := c.GetDateTime("time_add")
 	if ok {
 		blog.TimeAdd = date
 	}
@@ -96,15 +91,15 @@ func (c *BlogController)Post() {
 		rsp.Success("")
 	}
 }
-//编辑
-func (c *BlogController)Edit() {
+//查看
+// @router /blog/detail/:id [get]
+func (c *BlogController)Detail() {
 	c.Get()
-	c.Data["_method"] = "put"
-	c.Data["is_put"] = true
-	c.Data["title"]= "博客-修改"
-	c.TplName = "admin/blog/edit.html"
+	c.Data["title"] = "博客-查看"
+	c.TplName = "admin/blog/detail.html"
 }
 //更新
+// @router /blog/:id [put]
 func (c *BlogController)Put() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
@@ -121,13 +116,30 @@ func (c *BlogController)Put() {
 		rsp.Error(err.Error())
 	}
 	//日期
-	date,ok:=c.GetDateTime("time_add")
+	date, ok := c.GetDateTime("time_add")
 	if ok {
 		blog.TimeAdd = date
 	}
 	//更新
 	var ser *service.Blog
 	_, err := ser.Update(int_id, &blog, &blog_statistics)
+	if err != nil {
+		rsp.Error(err.Error())
+	} else {
+		rsp.Success("")
+	}
+}
+//删除
+// @router /blog/:id [delete]
+func (c *BlogController)Delete() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	//ID 获取 格式化
+	id := c.Ctx.Input.Param(":id")
+	int_id, _ := strconv.Atoi(id)
+	//更新
+	var ser *service.Blog
+	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {

@@ -24,28 +24,31 @@ func init() {
 		beego.NSRouter("/index_v2", &admin.IndexV2Controller{}),
 		beego.NSRouter("/my_password", &admin.MyPasswordController{}),
 		//blog
-		beego.NSRouter("/blogs", &admin.BlogController{},"get:List"),
-		beego.NSRouter("/blog", &admin.BlogController{}),
-		beego.NSRouter("/blog/:id", &admin.BlogController{}),//, "get:Get"
-		beego.NSRouter("/blog/:id", &admin.BlogController{}),//, "put:Put"
-		beego.NSRouter("/blog/edit/:id", &admin.BlogController{}, "get:Edit"),
-		beego.NSRouter("/blog/add", &admin.BlogController{}, "get:Add"),
+		//使用注解路由
+		//beego.NSRouter("/blog", &admin.BlogController{}, "get:List"),
+		//beego.NSRouter("/blog", &admin.BlogController{}, ),
+		//beego.NSRouter("/blog/detail/:id", &admin.BlogController{}, "get:Detail"),
+		//beego.NSRouter("/blog/:id", &admin.BlogController{}, "put:Put"), //, "put:Put"
+		//beego.NSRouter("/blog/:id", &admin.BlogController{}, "get:Get"),
+		//beego.NSRouter("/blog/add", &admin.BlogController{}, "get:Add"),
 		//type
-		beego.NSRouter("/types", &admin.TypeController{},"get:List"),
+		//使用注解路由
+		//beego.NSRouter("/types", &admin.TypeController{},"get:List"),
+		//beego.NSRouter("/types/add", &admin.TypeController{},"get:Add"),
+		//beego.NSRouter("/types/add/:id", &admin.TypeController{},"get:Add"),
+		//beego.NSRouter("/types/:id", &admin.TypeController{},"get:ListChild"),
+		//beego.NSRouter("/type/:id", &admin.TypeController{},"get:Get"),// "get:Get"
+		//beego.NSRouter("/type", &admin.TypeController{}),
+		beego.NSInclude(
+			&admin.TypeController{},
+			&admin.BlogController{},
+			&admin.Select{},
+		),
 	)
 	beego.AddNamespace(ns)
-	//ns := beego.NewNamespace("/v1",
-	//
-	//	beego.NSNamespace("/admin",
-	//		beego.NSInclude(
-	//			&controllers.AdminController{},
-	//		),
-	//	),
-	//)
-	//beego.AddNamespace(ns)
-
-	beego.Router("/", &controllers.BlogController{},"get:GetAll")
-	beego.Router("/page/:page", &controllers.BlogController{},"get:GetAll")
-	beego.Router("/:id", &controllers.BlogController{},"get:Get")
+	//首页
+	beego.Router("/", &controllers.BlogController{}, "get:GetAll")
+	beego.Router("/page/:page", &controllers.BlogController{}, "get:GetAll")
+	beego.Router("/:id", &controllers.BlogController{}, "get:Get")
 
 }
