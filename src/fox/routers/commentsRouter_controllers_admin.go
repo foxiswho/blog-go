@@ -104,6 +104,13 @@ func init() {
 			AllowHTTPMethods: []string{"delete"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogTag"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogTag"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/blog/tag`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:Index"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Index"],
 		beego.ControllerComments{
 			Method: "Get",

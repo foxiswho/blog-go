@@ -16,8 +16,8 @@ type Blog struct {
 }
 
 func (c *Blog)Query(cat_id int) (data []interface{}, err error) {
-	query:=map[string]string{}
-	query["cat_id"]=strconv.Itoa(cat_id)
+	query := map[string]string{}
+	query["cat_id"] = strconv.Itoa(cat_id)
 	var fields []string
 	sortby := []string{"Id"}
 	order := []string{"desc"}
@@ -128,6 +128,12 @@ func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
+	if m.Tag != "" {
+		var tagSer *BlogTag
+		_, err := tagSer.CreateFromTags(int(id),m.Tag, "")
+		fmt.Println("TAG:", err)
+	}
+
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
 	fmt.Println("Statistics:", id2)
@@ -139,7 +145,7 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 		return 0, &util.Error{Msg:"ID 错误"}
 	}
 
-	_, err := models.GetBlogById(id)
+	info, err := models.GetBlogById(id)
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
@@ -170,12 +176,16 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
 
-	stat.BlogId = int(id)
+	stat.BlogId = id
 	stat.Id = stat.BlogId
 	_, err = c.UpdateBlogStatisticsById(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
+	//标签 创建和删除
+	var tagSer *BlogTag
+	_, err = tagSer.CreateFromTags(id,m.Tag, info.Tag)
+	fmt.Println("TAG:", err)
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
 	return id, nil
@@ -235,7 +245,7 @@ func GetBlogByUrlRewrite(id string) (v *models.Blog, err error) {
 	return nil, err
 }
 //详情
-func (c *Blog)CheckTitleById(cat_id int, str string,id int) (bool, error) {
+func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
@@ -244,7 +254,7 @@ func (c *Blog)CheckTitleById(cat_id int, str string,id int) (bool, error) {
 	qs := o.QueryTable(new(models.Blog))
 	qs = qs.Filter("cat_id", cat_id)
 	qs = qs.Filter("title", str)
-	if id>0 {
+	if id > 0 {
 		qs = qs.Filter("blog_id__nq", id)
 	}
 	count, err := qs.Count()
@@ -257,5 +267,4 @@ func (c *Blog)CheckTitleById(cat_id int, str string,id int) (bool, error) {
 		return true, nil
 	}
 	return false, &util.Error{Msg:"已存在"}
-
 }

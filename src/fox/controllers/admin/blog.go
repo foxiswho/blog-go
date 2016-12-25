@@ -85,7 +85,6 @@ func (c *BlogController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blogModel := models.Blog{}
-
 	//参数传递
 	blog_statistics := models.BlogStatistics{}
 	if err := c.ParseForm(&blogModel); err != nil {
