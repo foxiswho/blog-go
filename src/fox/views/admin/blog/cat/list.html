@@ -4,9 +4,9 @@
             <div class="col-sm-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>基本 <small>分类，查找</small></h5>
+                        <h5>栏目 <small>分类，查找</small></h5>
                         <div class="ibox-tools">
-                            <a href="type/add" class="btn btn-primary btn-xs" target="_blank">添加</a>
+                            <a href="cat/add" class="btn btn-primary btn-xs" target="_blank">添加</a>
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
                             </a>
@@ -30,16 +30,8 @@
                                 <tr>
                                     <th>id</th>
                                     <th>名称</th>
-                                    <th>代码</th>
-                                    <th>标志</th>
-                                    <th>所属</th>
-                                    <th>上级</th>
-                                    <th>值</th>
                                     <th>备注</th>
                                     <th>删除</th>
-                                    <th>默认</th>
-                                    <th>系统</th>
-                                    <th>显示</th>
                                     <th>操作</th>
                                 </tr>
                             </thead>
@@ -47,31 +39,19 @@
                             {{range .data}}
                                 <tr class="">
                                     <td>{{.Id}}</td>
-                                    <td><a href="type/list_child/{{.Id}}" class="font-bold">{{.Name}}</a></td>
-                                    <td>{{.Code}}</td>
-                                    <td>{{.Mark}}</td>
-                                    <td>{{.TypeId}}</td>
-                                    <td>{{.ParentId}}</td>
-                                    <td>{{.Value}}</td>
+                                    <td>{{.Title}}</td>
                                     <td>{{.Remark}}</td>
                                     <td>{{.IsDel}}</td>
-                                    <td>{{.IsDefault}}</td>
-                                    <td>{{.IsSystem}}</td>
-                                    <td>{{.IsShow}}</td>
                                     <td>
                                         <div class="btn-group">
                                             <button data-toggle="dropdown" class="btn btn-primary btn-xs dropdown-toggle">操作 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li><a href="type/list_child/{{.Id}}" class="font-bold">子类查看</a>
+                                                <li><a href="cat/{{.Id}}" class="font-bold" target="_blank">修改</a>
                                                 </li>
-                                                <li><a href="type/add/{{.Id}}" class="font-bold" target="_blank">子类添加</a>
+                                                <li class="divider"></li>
+                                                <li><a href="cat/{{.Id}}">删除</a>
                                                 </li>
-                                                <li><a href="type/{{.Id}}" class="font-bold" target="_blank">修改</a>
-                                                </li>
-                                                <!--<li class="divider"></li>-->
-                                                <!--<li><a href="#">删除</a>-->
-                                                <!--</li>-->
                                             </ul>
                                         </div>
                                     </td>

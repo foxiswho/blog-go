@@ -20,8 +20,6 @@ func init() {
 	ns := beego.NewNamespace("/admin",
 		beego.NSRouter("/login", &admin.LoginController{}),
 		beego.NSRouter("/logout", &admin.LogoutController{}),
-		beego.NSRouter("/index", &admin.IndexController{}),
-		beego.NSRouter("/index_v2", &admin.IndexV2Controller{}),
 		beego.NSRouter("/my_password", &admin.MyPasswordController{}),
 		//blog
 		//使用注解路由
@@ -40,7 +38,9 @@ func init() {
 		//beego.NSRouter("/type/:id", &admin.TypeController{},"get:Get"),// "get:Get"
 		//beego.NSRouter("/type", &admin.TypeController{}),
 		beego.NSInclude(
+			&admin.Index{},
 			&admin.TypeController{},
+			&admin.BlogCat{},
 			&admin.BlogController{},
 			&admin.Select{},
 		),

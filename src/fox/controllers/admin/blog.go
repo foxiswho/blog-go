@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"fox/service"
 	"fox/util/Response"
 	"strconv"
 	"fox/models"
+	"fox/service/blog"
 	"fmt"
 )
 
@@ -12,6 +12,7 @@ type BlogController struct {
 	BaseController
 }
 func (c *BlogController) URLMapping() {
+	c.Mapping("CheckTitle", c.CheckTitle)
 	c.Mapping("List", c.List)
 	c.Mapping("Add", c.Add)
 	c.Mapping("Post", c.Post)
@@ -19,11 +20,30 @@ func (c *BlogController) URLMapping() {
 	c.Mapping("Put", c.Put)
 	c.Mapping("Detail", c.Detail)
 }
+//检测名称重复
+// @router /blog/check_title [post]
+func (c *BlogController)CheckTitle() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	//ID 获取 格式化
+	int_id,_  := c.GetInt("cat_id")
+	id,_  := c.GetInt("id")
+	name := c.GetString("title")
+	//创建
+	var serv blog.Blog
+	ok, err := serv.CheckTitleById(int_id,name,id)
+	if err != nil {
+		rsp.Error(err.Error())
+	} else {
+		fmt.Println("成功！:", ok)
+		rsp.Success("")
+	}
+}
 //列表
 // @router /blog [get]
 func (c *BlogController)List() {
-	var blog *service.Blog
-	data, err := blog.Query()
+	var ser *blog.Blog
+	data, err := ser.Query(0)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
@@ -35,8 +55,8 @@ func (c *BlogController)List() {
 func (c *BlogController)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var blog *service.Blog
-	data, err := blog.Read(int_id)
+	var ser *blog.Blog
+	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
 		rsp := Response.NewResponse()
@@ -64,11 +84,11 @@ func (c *BlogController)Add() {
 func (c *BlogController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	blog := models.Blog{}
+	blogModel := models.Blog{}
 
 	//参数传递
 	blog_statistics := models.BlogStatistics{}
-	if err := c.ParseForm(&blog); err != nil {
+	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
@@ -79,11 +99,11 @@ func (c *BlogController)Post() {
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
-		blog.TimeAdd = date
+		blogModel.TimeAdd = date
 	}
 	//创建
-	var serv service.Blog
-	id, err := serv.Create(&blog, &blog_statistics)
+	var serv blog.Blog
+	id, err := serv.Create(&blogModel, &blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -107,9 +127,9 @@ func (c *BlogController)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blog := models.Blog{}
+	blogMoel := models.Blog{}
 	blog_statistics := models.BlogStatistics{}
-	if err := c.ParseForm(&blog); err != nil {
+	if err := c.ParseForm(&blogMoel); err != nil {
 		rsp.Error(err.Error())
 	}
 	if err := c.ParseForm(&blog_statistics); err != nil {
@@ -118,11 +138,11 @@ func (c *BlogController)Put() {
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
-		blog.TimeAdd = date
+		blogMoel.TimeAdd = date
 	}
 	//更新
-	var ser *service.Blog
-	_, err := ser.Update(int_id, &blog, &blog_statistics)
+	var ser *blog.Blog
+	_, err := ser.Update(int_id, &blogMoel, &blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -138,7 +158,7 @@ func (c *BlogController)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	var ser *service.Blog
+	var ser *blog.Blog
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())

@@ -93,7 +93,7 @@ func (c *Type)Update(id int, m *models.Type) (int, error) {
 	}
 
 	m.Id = id
-	num, err := c.UpdateById(m, "name", "code", "mark", "type_id", "parent_id", "value", "is_del", "sort", "module", "is_default", "setting", "is_child", "is_system", "is_show")
+	num, err := c.UpdateById(m, "name", "code", "mark", "type_id", "parent_id", "value", "is_del", "sort", "module", "is_default", "remark","setting", "is_child", "is_system", "is_show")
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -160,4 +160,29 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	}
 	//fmt.Println(m)
 	return m, err
+}
+//详情
+func (c *Type)CheckNameTypeId(type_id int, str string,id int) (bool, error) {
+	if str == "" {
+		return false, &util.Error{Msg:"名称 不能为空"}
+	}
+
+	o := orm.NewOrm()
+	qs := o.QueryTable(new(models.Type))
+	qs = qs.Filter("type_id", type_id)
+	qs = qs.Filter("name", str)
+	if id>0 {
+		qs = qs.Filter("id__nq", id)
+	}
+	count, err := qs.Count()
+	fmt.Println(count)
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	if count == 0 {
+		return true, nil
+	}
+	return false, &util.Error{Msg:"已存在"}
+
 }

@@ -59,18 +59,20 @@ func (c *TypeController)ListChild() {
 func (c *TypeController)Add() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-
 	c.Data["type_id"] = id
 	c.Data["type_id_name"] = "无"
 	c.Data["parent_id_name"] = "无"
+	c.Data["info"] = &models.Type{TypeId:int_id,IsDefault:0,IsDel:0,IsSystem:0,IsShow:1,IsChild:0}
 	if int_id > 0 {
 		var model *admin.Type
 		data, err := model.Read(int_id)
 		if err == nil {
 			var t models.Type
 			t = data["info"].(models.Type)
-			c.Data["info"] = &models.Type{TypeId:int_id}
 			c.Data["type_id_name"] = t.Name
+		}else{
+			c.Data["info"] = &models.Type{TypeId:0,IsDefault:0,IsDel:0,IsSystem:0,IsShow:1,IsChild:0}
+			c.Data["type_id"] = 0
 		}
 	}
 	c.Data["_method"] = "post"
@@ -139,6 +141,25 @@ func (c *TypeController)Put() {
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
+		rsp.Success("")
+	}
+}
+//检测名称重复
+// @router /type/check_name [post]
+func (c *TypeController)CheckName() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	//ID 获取 格式化
+	int_id,_  := c.GetInt("type_id")
+	id,_  := c.GetInt("id")
+	name := c.GetString("name")
+	//创建
+	var serv admin.Type
+	ok, err := serv.CheckNameTypeId(int_id,name,id)
+	if err != nil {
+		rsp.Error(err.Error())
+	} else {
+		fmt.Println("成功！:", ok)
 		rsp.Success("")
 	}
 }

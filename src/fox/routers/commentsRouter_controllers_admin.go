@@ -6,6 +6,55 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/blog/cat`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "Get",
+			Router: `/blog/cat/:id`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "Add",
+			Router: `/blog/cat/add`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "Post",
+			Router: `/blog/cat`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "Put",
+			Router: `/blog/cat/:id`,
+			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
+		beego.ControllerComments{
+			Method: "Delete",
+			Router: `/blog/cat/:id`,
+			AllowHTTPMethods: []string{"delete"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:BlogController"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogController"],
+		beego.ControllerComments{
+			Method: "CheckTitle",
+			Router: `/blog/check_title`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:BlogController"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogController"],
 		beego.ControllerComments{
 			Method: "List",
@@ -53,6 +102,20 @@ func init() {
 			Method: "Delete",
 			Router: `/blog/:id`,
 			AllowHTTPMethods: []string{"delete"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:Index"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Index"],
+		beego.ControllerComments{
+			Method: "Get",
+			Router: `/index`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:Index"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Index"],
+		beego.ControllerComments{
+			Method: "V2",
+			Router: `/index/v2`,
+			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
 	beego.GlobalControllerRouter["fox/controllers/admin:Select"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Select"],
@@ -116,6 +179,13 @@ func init() {
 			Method: "Put",
 			Router: `/type/:id`,
 			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:TypeController"] = append(beego.GlobalControllerRouter["fox/controllers/admin:TypeController"],
+		beego.ControllerComments{
+			Method: "CheckName",
+			Router: `/type/check_name`,
+			AllowHTTPMethods: []string{"post"},
 			Params: nil})
 
 }

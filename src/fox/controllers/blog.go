@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"fox/models"
-	"fox/service"
 	"regexp"
+	"fox/service/blog"
 )
 
 type BlogController struct {
@@ -24,7 +24,7 @@ type BlogController struct {
 // @router /:id [get]
 func (c *BlogController) Get() {
 	idStr := c.Ctx.Input.Param(":id")
-	var ser *service.Blog
+	var ser *blog.Blog
 	var err error
 	var read map[string]interface{}
 	if ok, _ := regexp.Match(`^\\d+$`, []byte(idStr)); ok {

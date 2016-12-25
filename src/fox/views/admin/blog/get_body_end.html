@@ -1,5 +1,5 @@
 <link href="{{.__static__}}plugin/bootstrap-markdown/css/bootstrap-markdown.min.css" rel="stylesheet" />
-<link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
+
 <style>
     .bootstrap-tagsinput{width:100%}
 </style>
@@ -12,18 +12,17 @@
     <link href="{{.__theme__}}css/plugins/switchery/switchery.css" rel="stylesheet">
     <script src="{{.__theme__}}js/plugins/switchery/switchery.js"></script>
     <!-- iCheck -->
+<link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
     <script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
-    <script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
+
     <!-- 日期时间 -->
     <script src="{{.__theme__}}js/plugins/layer/laydate/laydate.js"></script>
     <!-- Tags -->
     <script src="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
     <link href="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" rel="stylesheet">
 
-
-    <!-- 私有 -->
-    <script src="{{.__static__}}js/common.js"></script>
     <script>
+        var blog_id="{{if .is_put}}/{{.info.Id}}{{else}}0{{end}}";
         //禁止 回车 表单保存
         document.getElementsByTagName('form')[0].onkeydown = function(e){
             var e = e || event;
@@ -72,6 +71,7 @@
                 }).fail(function(){ alert("系统错误"); });
                 return false;
             });
+            //标签
             $('.bootstrap-tagsinput > input').on('change', function (event) {
                 var $element = $(event.target),
                     $container = $element.closest('.bootstrap-tagsinput');
@@ -85,5 +85,38 @@
                 str=($.isArray(val) ? JSON.stringify(val) : val.replace('"', '\\"'));
                 $("#tag").val(str);
             }).trigger('change');
+            //检测是否存在
+            $('button.check_title').click(function () {
+                var $this=$(this),$name=$('#title');
+                if($name.val()==""||$name.val()==null){
+                    var t=layer.tips('标题不能为空', $name);
+                    setTimeout(function () {
+                        layer.close(t);
+                    },2000)
+                    return false;
+                }
+                var data={"title":$name.value(),"cat_id":0,"id":blog_id};
+                {{if .is_put}}
+                data.id="{{.info.Id}}";
+                {{end}}
+                $.ajax({
+                    url:'/admin/blog/check_title',
+                    data:data,
+                    dataType:'json',
+                    method:"post"
+                }).done(function (data) {
+                    console.log(data);
+                    $this.removeClass("btn-default")
+                    if(data.code==1){
+                        $this.removeClass("btn-danger");
+                        $this.addClass("btn-primary");
+                        layer.tips('检测通过', $name);
+                    }else{
+                        layer.tips('检测失败，有重复', $name);
+                        $this.removeClass("btn-primary");
+                        $this.addClass("btn-danger");
+                    }
+                }).fail(function(){ alert("系统错误"); });
+            });
         });
     </script>

@@ -31,9 +31,9 @@
                                     <label class="col-sm-2 control-label">名称</label>
                                     <div class="col-sm-10">
                                         <div class="input-group">
-                                            <input type="text" placeholder="名称" name="name" class="form-control input-lg" value="{{.info.Name}}">
+                                            <input type="text" placeholder="名称" name="name" class="form-control input-lg" value="{{.info.Name}}" id="name">
                                             <div class="input-group-btn">
-                                                <button class="btn btn-lg btn-default" type="button">
+                                                <button class="btn btn-lg btn-default check_name" type="button">
                                                     检测重复
                                                 </button>
                                             </div>
@@ -61,7 +61,7 @@
                                     <div class="col-sm-10">
                                         <input type="hidden" placeholder="" name="type_id" class="form-control" value="{{.info.TypeId}}">
                                         <div class="input-group">
-                                        <input type="text" name="type_id_name" value="{{.type_id_name}}" style="width: 100px;" readonly class="form-control">
+                                        <input type="text" name="type_id_name" value="{{.type_id_name}}" style="width: 200px;" readonly class="form-control">
                                             <button type="button" class="btn btn-primary btn-sm type btn-rounded" data-type_name="type_id">选择</button>
                                         </div>
                                     </div>
@@ -72,7 +72,7 @@
                                     <div class="col-sm-10">
                                         <input type="hidden" placeholder="" name="parent_id" class="form-control" value="{{.info.ParentId}}">
                                         <div class="input-group">
-                                            <input type="text" name="parent_id_name" value="{{.parent_id_name}}" style="width: 100px;" readonly class="form-control">
+                                            <input type="text" name="parent_id_name" value="{{.parent_id_name}}" style="width: 200px;" readonly class="form-control">
                                             <button type="button" class="btn btn-primary btn-sm type btn-rounded" data-type_name="parent_id">选择</button>
                                         </div>
                                     </div>
@@ -85,27 +85,29 @@
                                     </div>
                                 </div>
                                 <div class="hr-line-dashed"></div>
-                                <div class="form-group c_status">
-                                    <label class="col-sm-2 control-label">默认</label>
-
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否有子类
+                                    </label>
                                     <div class="col-sm-10">
-                                        <label class="checkbox-inline i-checks">
-                                            <input type="radio" name="is_default" value="1">是
-                                        </label>
-                                        <label class="checkbox-inline i-checks">
-                                            <input type="radio" name="is_default" value="0" checked>否
-                                        </label>
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_default" value="1" id="is_default" {{if eq .info.IsDefault 1}}checked{{end}}>
+                                                <label class="onoffswitch-label" for="is_default">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="hr-line-dashed"></div>
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">是否有子类
                                     </label>
-
                                     <div class="col-sm-10">
                                         <div class="switch">
                                             <div class="onoffswitch">
-                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_child" value="1" id="is_child">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_child" value="1" id="is_child" {{if eq .info.IsChild 1}}checked{{end}}>
                                                 <label class="onoffswitch-label" for="is_child">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -122,7 +124,7 @@
                                     <div class="col-sm-10">
                                         <div class="switch">
                                             <div class="onoffswitch">
-                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_system" value="1" id="is_system">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_system" value="1" id="is_system" {{if eq .info.IsSystem 1}}checked{{end}}>
                                                 <label class="onoffswitch-label" for="is_system">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -139,7 +141,7 @@
                                     <div class="col-sm-10">
                                         <div class="switch">
                                             <div class="onoffswitch">
-                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_show" value="1" checked id="is_show">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_show" value="1" checked id="is_show" {{if eq .info.IsShow 1}}checked{{end}}>
                                                 <label class="onoffswitch-label" for="is_show">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -156,7 +158,7 @@
                                     <div class="col-sm-10">
                                         <div class="switch">
                                             <div class="onoffswitch">
-                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del" {{if eq .info.IsDel 1}}checked{{end}}>
                                                 <label class="onoffswitch-label" for="is_del">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -193,7 +195,7 @@
                                 </div>
                                 <div class="hr-line-dashed"></div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label">备注
+                                    <label class="col-sm-2 control-label">扩展参数
                                     </label>
                                     <div class="col-sm-10">
                                         <textarea name="setting" class="form-control">{{.info.Setting}}</textarea>
@@ -221,8 +223,8 @@
 <!-- iCheck -->
 <link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
 <script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
-<script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
 <script>
+    var type_id="{{.info.TypeId}}";
     //禁止 回车 表单保存
     document.getElementsByTagName('form')[0].onkeydown = function(e){
         var e = e || event;
@@ -281,6 +283,39 @@
                 content: '/admin/select/type' //iframe的url
             });
 
+        });
+        //检测是否存在
+        $('button.check_name').click(function () {
+            var $this=$(this),$name=$('#name');
+            if($name.val()==""||$name.val()==null){
+                var t=layer.tips('名称不能为空', $name);
+                setTimeout(function () {
+                    layer.close(t);
+                },2000)
+                return false;
+            }
+            var data={"name":$name.value(),"type_id":type_id,"id":0};
+            {{if .is_put}}
+            data.id="{{.info.Id}}";
+            {{end}}
+            $.ajax({
+                url:'/admin/type/check_name',
+                data:data,
+                dataType:'json',
+                method:"post"
+            }).done(function (data) {
+                console.log(data);
+                $this.removeClass("btn-default")
+                if(data.code==1){
+                    $this.removeClass("btn-danger");
+                    $this.addClass("btn-primary");
+                    layer.tips('检测通过', $name);
+                }else{
+                    layer.tips('检测失败，有重复名字', $name);
+                    $this.removeClass("btn-primary");
+                    $this.addClass("btn-danger");
+                }
+            }).fail(function(){ alert("系统错误"); });
         });
     });
     var selectTypeID="";

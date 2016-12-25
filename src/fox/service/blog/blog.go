@@ -1,4 +1,4 @@
-package service
+package blog
 
 import (
 	"fox/models"
@@ -8,14 +8,16 @@ import (
 	"time"
 	"github.com/astaxie/beego/orm"
 	"github.com/russross/blackfriday"
+	"strconv"
 )
 
 type Blog struct {
 
 }
 
-func (c *Blog)Query() (data []interface{}, err error) {
-	var query map[string]string
+func (c *Blog)Query(cat_id int) (data []interface{}, err error) {
+	query:=map[string]string{}
+	query["cat_id"]=strconv.Itoa(cat_id)
 	var fields []string
 	sortby := []string{"Id"}
 	order := []string{"desc"}
@@ -170,7 +172,7 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 
 	stat.BlogId = int(id)
 	stat.Id = stat.BlogId
-	_, err = c.UpdateBlogStatisticsById(stat, "seo_title", "seo_keyword", "seo_description")
+	_, err = c.UpdateBlogStatisticsById(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -231,4 +233,29 @@ func GetBlogByUrlRewrite(id string) (v *models.Blog, err error) {
 		return v, nil
 	}
 	return nil, err
+}
+//详情
+func (c *Blog)CheckTitleById(cat_id int, str string,id int) (bool, error) {
+	if str == "" {
+		return false, &util.Error{Msg:"名称 不能为空"}
+	}
+
+	o := orm.NewOrm()
+	qs := o.QueryTable(new(models.Blog))
+	qs = qs.Filter("cat_id", cat_id)
+	qs = qs.Filter("title", str)
+	if id>0 {
+		qs = qs.Filter("blog_id__nq", id)
+	}
+	count, err := qs.Count()
+	fmt.Println(count)
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	if count == 0 {
+		return true, nil
+	}
+	return false, &util.Error{Msg:"已存在"}
+
 }

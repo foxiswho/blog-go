@@ -34,6 +34,7 @@ type Blog struct {
 	IsJump      int8      `orm:"column(is_jump)"  json:"is_jump" form:"is_jump"`
 	IsComment   int8      `orm:"column(is_comment)"  json:"is_comment" form:"is_comment"`
 	Sort        int       `orm:"column(sort)"  json:"sort" form:"sort"`
+	Remark      string    `orm:"column(remark);size(255)"  json:"remark" form:"remark"`
 }
 
 func (t *Blog) TableName() string {

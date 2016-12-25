@@ -28,9 +28,9 @@
                             </div>
                             <div class="ibox-content">
                                 <div class="input-group">
-                                    <input type="text" placeholder="标题" name="title" class="form-control input-lg" value="{{.info.Title}}">
+                                    <input type="text" placeholder="标题" name="title" class="form-control input-lg" value="{{.info.Title}}" id="title">
                                     <div class="input-group-btn">
-                                        <button class="btn btn-lg btn-default" type="button">
+                                        <button class="btn btn-lg btn-default check_title" type="button">
                                             检测重复
                                         </button>
                                     </div>
@@ -49,6 +49,8 @@
                                         <li class=""><a data-toggle="tab" href="#tab-seo" aria-expanded="false">摘要 & SEO</a>
                                         </li>
                                         <li class=""><a data-toggle="tab" href="#tab-statistics" aria-expanded="false">统计</a>
+                                        </li>
+                                        <li class=""><a data-toggle="tab" href="#tab-remark" aria-expanded="false">备注</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content">
@@ -263,6 +265,17 @@
                                                     </div>
                                                 </div>
                                                 <div class="hr-line-dashed"></div>
+                                            </div>
+
+                                        </div>
+                                        <div id="tab-remark" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">备注：</label>
+                                                    <div class="col-sm-10">
+                                                        <textarea name="remark" class="form-control" style="min-height: 200px">{{.info.Remark}}</textarea>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                         </div>
