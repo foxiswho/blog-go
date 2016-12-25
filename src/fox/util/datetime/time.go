@@ -99,3 +99,7 @@ func Date() string {
 func Time() string {
 	return Format(time.Now(), H_I_S)
 }
+//当前年月
+func YearMonth() string {
+	return Format(time.Now(), Y_M)
+}

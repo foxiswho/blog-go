@@ -6,11 +6,13 @@ import (
 	"fox/models"
 	"fox/service/blog"
 	"fmt"
+	"fox/util/file"
 )
 
 type BlogController struct {
 	BaseController
 }
+
 func (c *BlogController) URLMapping() {
 	c.Mapping("CheckTitle", c.CheckTitle)
 	c.Mapping("List", c.List)
@@ -19,6 +21,7 @@ func (c *BlogController) URLMapping() {
 	c.Mapping("Get", c.Get)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Detail", c.Detail)
+	c.Mapping("Image", c.Image)
 }
 //检测名称重复
 // @router /blog/check_title [post]
@@ -26,12 +29,12 @@ func (c *BlogController)CheckTitle() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
-	int_id,_  := c.GetInt("cat_id")
-	id,_  := c.GetInt("id")
+	int_id, _ := c.GetInt("cat_id")
+	id, _ := c.GetInt("id")
 	name := c.GetString("title")
 	//创建
 	var serv blog.Blog
-	ok, err := serv.CheckTitleById(int_id,name,id)
+	ok, err := serv.CheckTitleById(int_id, name, id)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -165,3 +168,14 @@ func (c *BlogController)Delete() {
 		rsp.Success("")
 	}
 }
+//上传图片
+// @router /blog/upload/image [post]
+func (c *BlogController)Image() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	ok, err := file.Upload("upload", c.Ctx.Request)
+	fmt.Println(ok)
+	fmt.Println(err)
+	rsp.Success("")
+}
+

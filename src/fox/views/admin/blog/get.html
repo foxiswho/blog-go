@@ -1,6 +1,6 @@
 {{template "admin/public/header.html" .}}
     <div class="wrapper wrapper-content">
-                <form action="/admin/blog{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
+                <form action="/admin/blog{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal" id="thatForm">
                     <input type="hidden" name="_method" value="{{._method}}" />
                 <div class="row">
                     <div class="col-lg-12">
@@ -308,6 +308,96 @@
                 </div>
             </div>
     </div>
+<form id="uploadForm" action="/admin/blog/upload/image" method="post" enctype="multipart/form-data">
+    <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">文件一</span>
+        <input name="upload" type="file" class="form-control upload" aria-describedby="basic-addon1">
+    </div>
+    <p></p>
+    <p></p>
+    <div class="progress">
+        <div class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+            0%
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary" autocomplete="off">
+        上传
+    </button>
+</form>
+<div style="text-align: center;">
+    <button type="button" onclick="upload()" class="btn btn-primary ajaxUp" autocomplete="off">
+        上传
+    </button>
+    <button type="button" onclick="test()" class="btn btn-primary" autocomplete="off">
+        重置
+    </button>
+</div>
+<script type="text/javascript">
+    function upload(){
+        if(!window.FormData){
+            $("#msg").html("你的浏览器不支持。");
+            $(".alert").show();
+        }
+        //获得原生的form表单对象，等价于document.forms[0]
+        var form = document.getElementById("uploadForm");
+        //单个文件超过400MB就不再上传
+        var hasError = false;
+        $("input[type='file']", form).each(function(index,file){
+            if(file.files.length > 0){
+                if(file.files[0].size > 400*1024*1024){
+                    $("#msg").html("单个文件不能超过400MB。");
+                    $(".alert").show();
+                    hasError = true;
+                    return;
+                }
+            }
+        });
+        if(hasError){
+            return;
+        }
+        //构造FormData对象用于发送数据
+        var formData = new FormData(form);
+        var xhr = new XMLHttpRequest();
+        xhr.open("post", form.action, true);
+        //设置请求超时
+        xhr.upload.timeout = 2000;
+        xhr.upload.ontimeout = function (event){
+            $("#msg").html("请求超时！");
+            $(".alert").show();
+        };
+        //添加progress事件
+        xhr.upload.addEventListener("progress",function(e){
+            $(".progress-bar").addClass("active");
+            var howMuch = e.loaded / e.total;
+            var p = parseFloat((howMuch * 100).toFixed(2))+"%";
+            $(".progress-bar").css("width",p).html(p);
+        }, false);
+        //上传完成
+        xhr.upload.addEventListener("load", function(event){
+            $(".progress-bar").removeClass("active");
+            $("#msg").html("上传完成！");
+            $(".alert").show();
+        }, false);
+        xhr.upload.addEventListener("error", function(event){
+            $(".progress-bar").removeClass("active");
+            $("#msg").html("上传出错！");
+            $(".alert").show();
+        }, false);
+        xhr.upload.addEventListener("abort", function(event){
+            $(".progress-bar").removeClass("active");
+            $("#msg").html("您取消了本次上传。");
+            $(".alert").show();
+        }, false);
+        xhr.send(formData);
+    }
+
+    //重置
+    function test(){
+        $("input[type='file']", document.forms[0]).each(function(index,file){
+            file.value = null;
+        });
+    }
+</script>
 {{template "admin/public/footer.html" .}}
 {{template "admin/blog/get_body_end.html" .}}
 </body>
