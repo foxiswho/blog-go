@@ -107,7 +107,7 @@ func init() {
 	beego.GlobalControllerRouter["fox/controllers/admin:BlogController"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogController"],
 		beego.ControllerComments{
 			Method: "Image",
-			Router: `/blog/upload/image`,
+			Router: `/upload/image`,
 			AllowHTTPMethods: []string{"post"},
 			Params: nil})
 
@@ -200,6 +200,20 @@ func init() {
 			Method: "CheckName",
 			Router: `/type/check_name`,
 			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:Upload"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Upload"],
+		beego.ControllerComments{
+			Method: "Image",
+			Router: `/upload/image`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:Upload"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Upload"],
+		beego.ControllerComments{
+			Method: "File",
+			Router: `/upload/file`,
+			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
 }

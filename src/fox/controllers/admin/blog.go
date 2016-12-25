@@ -6,7 +6,6 @@ import (
 	"fox/models"
 	"fox/service/blog"
 	"fmt"
-	"fox/util/file"
 )
 
 type BlogController struct {
@@ -168,14 +167,5 @@ func (c *BlogController)Delete() {
 		rsp.Success("")
 	}
 }
-//上传图片
-// @router /blog/upload/image [post]
-func (c *BlogController)Image() {
-	rsp := Response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	ok, err := file.Upload("upload", c.Ctx.Request)
-	fmt.Println(ok)
-	fmt.Println(err)
-	rsp.Success("")
-}
+
 

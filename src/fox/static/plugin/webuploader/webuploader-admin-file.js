@@ -64,15 +64,13 @@ jQuery(function() {
     uploader = WebUploader.create({
         pick: {
             id: '#filePicker',
-            label: '点击选择图片'
+            label: '点击选择文件'
         },
         dnd: '#uploader .queueList',
         paste: document.body,
 
         accept: {
-            title: 'Images',
-            extensions: 'gif,jpg,jpeg,bmp,png',
-            mimeTypes: 'image/*'
+            extensions: 'jpg,gif,png,jpeg,zip,rar,tar,gz,7z,doc,docx,txt,xml,xlsx,xls',
         },
 
         // swf文件路径
@@ -82,16 +80,16 @@ jQuery(function() {
 
         chunked: true,
         server: UPLOAD_URL,
-        fileNumLimit: 300,
+        fileNumLimit: 1,
         fileSizeLimit: 5 * 1024 * 1024,    // 200 M
         fileSingleSizeLimit: 1 * 1024 * 1024    // 50 M
     });
 
     // 添加“添加文件”的按钮，
-    uploader.addButton({
-        id: '#filePicker2',
-        label: '继续添加'
-    });
+    // uploader.addButton({
+    //     id: '#filePicker2',
+    //     label: '继续添加'
+    // });
 
     // 当有文件添加进来时执行，负责view的创建
     function addFile( file ) {
@@ -103,8 +101,7 @@ jQuery(function() {
 
             $btns = $('<div class="file-panel">' +
                 '<span class="cancel">删除</span>' +
-                '<span class="rotateRight">向右旋转</span>' +
-                '<span class="rotateLeft">向左旋转</span></div>').appendTo( $li ),
+                '</div>').appendTo( $li ),
             $prgress = $li.find('p.progress span'),
             $wrap = $li.find( 'p.imgWrap' ),
             $info = $('<p class="error"></p>'),
@@ -264,23 +261,23 @@ jQuery(function() {
         var text = '', stats;
 
         if ( state === 'ready' ) {
-            text = '选中' + fileCount + '张图片，共' +
+            text = '选中' + fileCount + '个文件，共' +
                     WebUploader.formatSize( fileSize ) + '。';
         } else if ( state === 'confirm' ) {
             stats = uploader.getStats();
             if ( stats.uploadFailNum ) {
-                text = '已成功上传' + stats.successNum+ '张照片至XX相册，'+
-                    stats.uploadFailNum + '张照片上传失败，<a class="retry" href="#">重新上传</a>失败图片或<a class="ignore" href="#">忽略</a>'
+                text = '已成功上传' + stats.successNum+ '个文件，'+
+                    stats.uploadFailNum + '个文件上传失败，<a class="retry" href="#">重新上传</a>失败或<a class="ignore" href="#">忽略</a>'
             }
 
         } else {
             stats = uploader.getStats();
-            text = '共' + fileCount + '张（' +
+            text = '共' + fileCount + '个（' +
                     WebUploader.formatSize( fileSize )  +
-                    '），已上传' + stats.successNum + '张';
+                    '），已上传' + stats.successNum + '个';
 
             if ( stats.uploadFailNum ) {
-                text += '，失败' + stats.uploadFailNum + '张';
+                text += '，失败' + stats.uploadFailNum + '个';
             }
         }
 
@@ -309,7 +306,7 @@ jQuery(function() {
 
             case 'ready':
                 $placeHolder.addClass( 'element-invisible' );
-                $( '#filePicker2' ).removeClass( 'element-invisible');
+                // $( '#filePicker2' ).removeClass( 'element-invisible');
                 $queue.parent().addClass('filled');
                 $queue.show();
                 $statusBar.removeClass('element-invisible');
@@ -317,7 +314,7 @@ jQuery(function() {
                 break;
 
             case 'uploading':
-                $( '#filePicker2' ).addClass( 'element-invisible' );
+                // $( '#filePicker2' ).addClass( 'element-invisible' );
                 $progress.show();
                 $upload.text( '暂停上传' );
                 break;
@@ -340,7 +337,12 @@ jQuery(function() {
             case 'finish':
                 stats = uploader.getStats();
                 if ( stats.successNum ) {
-                    alert( '上传成功' );
+                    $upload.text( '开始上传' ).hide();
+                    $('button.ok').show();
+                    var t=layer.msg('上传成功！');
+                    setTimeout(function () {
+                        layer.close(t);
+                    },3000)
                 } else {
                     // 没有成功的图片，重设
                     state = 'done';
@@ -407,7 +409,15 @@ jQuery(function() {
     });
 
     uploader.onError = function( code ) {
-        alert( 'Eroor: ' + code );
+        var str="";
+        switch (code){
+            case "Q_TYPE_DENIED":
+                code="文件类型不正确";
+                break;
+            default:
+                str=code;
+        }
+        alert( 'Eroor: ' + str );
     };
 
     $upload.on('click', function() {

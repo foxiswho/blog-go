@@ -82,16 +82,16 @@ jQuery(function() {
 
         chunked: true,
         server: UPLOAD_URL,
-        fileNumLimit: 300,
+        fileNumLimit: 1,
         fileSizeLimit: 5 * 1024 * 1024,    // 200 M
         fileSingleSizeLimit: 1 * 1024 * 1024    // 50 M
     });
 
     // 添加“添加文件”的按钮，
-    uploader.addButton({
-        id: '#filePicker2',
-        label: '继续添加'
-    });
+    // uploader.addButton({
+    //     id: '#filePicker2',
+    //     label: '继续添加'
+    // });
 
     // 当有文件添加进来时执行，负责view的创建
     function addFile( file ) {
@@ -309,7 +309,7 @@ jQuery(function() {
 
             case 'ready':
                 $placeHolder.addClass( 'element-invisible' );
-                $( '#filePicker2' ).removeClass( 'element-invisible');
+                // $( '#filePicker2' ).removeClass( 'element-invisible');
                 $queue.parent().addClass('filled');
                 $queue.show();
                 $statusBar.removeClass('element-invisible');
@@ -317,7 +317,7 @@ jQuery(function() {
                 break;
 
             case 'uploading':
-                $( '#filePicker2' ).addClass( 'element-invisible' );
+                // $( '#filePicker2' ).addClass( 'element-invisible' );
                 $progress.show();
                 $upload.text( '暂停上传' );
                 break;
@@ -340,7 +340,12 @@ jQuery(function() {
             case 'finish':
                 stats = uploader.getStats();
                 if ( stats.successNum ) {
-                    alert( '上传成功' );
+                    $upload.text( '开始上传' ).hide();
+                    $('button.ok').show();
+                    var t=layer.msg('上传成功！');
+                    setTimeout(function () {
+                        layer.close(t);
+                    },3000)
                 } else {
                     // 没有成功的图片，重设
                     state = 'done';
