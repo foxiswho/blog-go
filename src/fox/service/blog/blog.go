@@ -39,6 +39,7 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 
 	data, err := models.GetBlogById(id)
 	if err != nil {
+		fmt.Println(err)
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
 	//整合

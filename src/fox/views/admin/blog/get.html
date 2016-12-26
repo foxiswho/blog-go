@@ -46,6 +46,8 @@
                                         </li>
                                         <li class=""><a data-toggle="tab" href="#tab-status" aria-expanded="false">基本</a>
                                         </li>
+                                        <li class=""><a data-toggle="tab" href="#tab-url" aria-expanded="false">类型</a>
+                                        </li>
                                         <li class=""><a data-toggle="tab" href="#tab-seo" aria-expanded="false">摘要 & SEO</a>
                                         </li>
                                         <li class=""><a data-toggle="tab" href="#tab-statistics" aria-expanded="false">统计</a>
@@ -150,6 +152,58 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">缩略图
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <div class="switch">
+                                                            <input type="text" class="form-control" name="thumb" value="{{.info.Thumb}}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">排序
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" name="sort" value="{{.info.Sort}}">
+                                                    </div>
+                                                </div>
+                                                <div class="hr-line-dashed"></div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-url" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="form-group c_type_id">
+                                                    <label class="col-sm-2 control-label">类别</label>
+
+                                                    <div class="col-sm-10">
+                                                        <label class="checkbox-inline i-checks">
+                                                            <input type="radio" name="type_id" value="10003" {{if eq .info.TypeId 1003}}checked{{end}}>原创
+                                                        </label>
+                                                        <label class="checkbox-inline i-checks">
+                                                            <input type="radio" name="type_id" value="10004" {{if eq .info.TypeId 1004}}checked{{end}}>翻译
+                                                        </label>
+                                                        <label class="checkbox-inline i-checks">
+                                                            <input type="radio" name="type_id" value="10005" {{if eq .info.TypeId 1005}}checked{{end}}>转载
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <!--<div class="hr-line-dashed"></div>-->
+                                                <!--<div class="form-group">-->
+                                                    <!--<label class="col-sm-2 control-label">分类-->
+                                                    <!--</label>-->
+                                                    <!--<div class="col-sm-10">-->
+                                                        <!--<select class="form-control m-b" name="account">-->
+                                                            <!--<option>选项 1</option>-->
+                                                            <!--<option>选项 2</option>-->
+                                                            <!--<option>选项 3</option>-->
+                                                            <!--<option>选项 4</option>-->
+                                                        <!--</select>-->
+                                                    <!--</div>-->
+                                                <!--</div>-->
                                                 <div class="hr-line-dashed"></div>
                                                 <div class="form-group">
                                                     <label class="col-sm-2 control-label">作者
@@ -198,25 +252,6 @@
                                                         <input type="text" class="form-control" name="url_rewrite" value="{{.info.UrlRewrite}}">
                                                     </div>
                                                 </div>
-                                                <div class="hr-line-dashed"></div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-2 control-label">缩略图
-                                                    </label>
-                                                    <div class="col-sm-10">
-                                                        <div class="switch">
-                                                            <input type="text" class="form-control" name="thumb" value="{{.info.Thumb}}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="hr-line-dashed"></div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-2 control-label">排序
-                                                    </label>
-                                                    <div class="col-sm-10">
-                                                        <input type="text" class="form-control" name="sort" value="{{.info.Sort}}">
-                                                    </div>
-                                                </div>
-                                                <div class="hr-line-dashed"></div>
                                             </div>
                                         </div>
                                         <div id="tab-seo" class="tab-pane">
@@ -313,96 +348,6 @@
                 </div>
             </div>
     </div>
-<form id="uploadForm" action="/admin/blog/upload/image" method="post" enctype="multipart/form-data">
-    <div class="input-group">
-        <span class="input-group-addon" id="basic-addon1">文件一</span>
-        <input name="upload" type="file" class="form-control upload" aria-describedby="basic-addon1">
-    </div>
-    <p></p>
-    <p></p>
-    <div class="progress">
-        <div class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-            0%
-        </div>
-    </div>
-    <button type="submit" class="btn btn-primary" autocomplete="off">
-        上传
-    </button>
-</form>
-<div style="text-align: center;">
-    <button type="button" onclick="upload()" class="btn btn-primary ajaxUp" autocomplete="off">
-        上传
-    </button>
-    <button type="button" onclick="test()" class="btn btn-primary" autocomplete="off">
-        重置
-    </button>
-</div>
-<script type="text/javascript">
-    function upload(){
-        if(!window.FormData){
-            $("#msg").html("你的浏览器不支持。");
-            $(".alert").show();
-        }
-        //获得原生的form表单对象，等价于document.forms[0]
-        var form = document.getElementById("uploadForm");
-        //单个文件超过400MB就不再上传
-        var hasError = false;
-        $("input[type='file']", form).each(function(index,file){
-            if(file.files.length > 0){
-                if(file.files[0].size > 400*1024*1024){
-                    $("#msg").html("单个文件不能超过400MB。");
-                    $(".alert").show();
-                    hasError = true;
-                    return;
-                }
-            }
-        });
-        if(hasError){
-            return;
-        }
-        //构造FormData对象用于发送数据
-        var formData = new FormData(form);
-        var xhr = new XMLHttpRequest();
-        xhr.open("post", form.action, true);
-        //设置请求超时
-        xhr.upload.timeout = 2000;
-        xhr.upload.ontimeout = function (event){
-            $("#msg").html("请求超时！");
-            $(".alert").show();
-        };
-        //添加progress事件
-        xhr.upload.addEventListener("progress",function(e){
-            $(".progress-bar").addClass("active");
-            var howMuch = e.loaded / e.total;
-            var p = parseFloat((howMuch * 100).toFixed(2))+"%";
-            $(".progress-bar").css("width",p).html(p);
-        }, false);
-        //上传完成
-        xhr.upload.addEventListener("load", function(event){
-            $(".progress-bar").removeClass("active");
-            $("#msg").html("上传完成！");
-            $(".alert").show();
-        }, false);
-        xhr.upload.addEventListener("error", function(event){
-            $(".progress-bar").removeClass("active");
-            $("#msg").html("上传出错！");
-            $(".alert").show();
-        }, false);
-        xhr.upload.addEventListener("abort", function(event){
-            $(".progress-bar").removeClass("active");
-            $("#msg").html("您取消了本次上传。");
-            $(".alert").show();
-        }, false);
-        xhr.send(formData);
-    }
-
-    //重置
-    function test(){
-        $("input[type='file']", document.forms[0]).each(function(index,file){
-            file.value = null;
-        });
-    }
-</script>
 {{template "admin/public/footer.html" .}}
 {{template "admin/blog/get_body_end.html" .}}
 </body>

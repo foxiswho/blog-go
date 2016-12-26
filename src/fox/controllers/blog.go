@@ -27,7 +27,7 @@ func (c *BlogController) Get() {
 	var ser *blog.Blog
 	var err error
 	var read map[string]interface{}
-	if ok, _ := regexp.Match(`^\\d+$`, []byte(idStr)); ok {
+	if ok, _ := regexp.Match(`^\d+$`, []byte(idStr)); ok {
 		id, _ := strconv.Atoi(idStr)
 		read, err = ser.Read(id)
 	} else {
