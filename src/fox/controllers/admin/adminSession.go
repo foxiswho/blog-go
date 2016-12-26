@@ -14,17 +14,17 @@ type AdminSession struct {
 	Session *admin.AdminSession //当前登录用户信息
 }
 // session 填充
-func (this *AdminSession) SessionSet(session *admin.AdminSession) {
+func (c *AdminSession) SessionSet(session *admin.AdminSession) {
 	SESSION_NAME := beego.AppConfig.String("session_name")
 	//存入 Session
 	str2 := str.JsonEnCode(session)
 	//fmt.Println("str => ?", str2)
-	this.SetSession(SESSION_NAME, str2)
+	c.SetSession(SESSION_NAME, str2)
 }
 //获取
-func (this *AdminSession) SessionGet() (*admin.AdminSession, error) {
+func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	SESSION_NAME := beego.AppConfig.String("session_name")
-	session, ok := this.GetSession(SESSION_NAME).(string)
+	session, ok := c.GetSession(SESSION_NAME).(string)
 	fmt.Println("session:", session)
 	fmt.Println("ok bool:", ok)
 	if !ok {
@@ -41,7 +41,16 @@ func (this *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	return Sess, nil
 }
 //删除
-func (this *AdminSession) SessionDel(){
+func (c *AdminSession) SessionDel(){
 	SESSION_NAME := beego.AppConfig.String("session_name")
-	this.DelSession(SESSION_NAME)
+	c.DelSession(SESSION_NAME)
+}
+//表单日期时间
+func (c *AdminSession) Error(key string) {
+	c.Data["content"] = key
+	if c.IsAjax() {
+		c.ServeJSON()
+	}else{
+		c.TplName = "error/404.html"
+	}
 }

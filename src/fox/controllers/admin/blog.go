@@ -45,8 +45,8 @@ func (c *BlogController)CheckTitle() {
 // @router /blog [get]
 func (c *BlogController)List() {
 	var ser *blog.Blog
-	data, err := ser.Query(0)
-	//println(data)
+	page,_:=c.GetInt("page")
+	data, err := ser.Query(0,page)
 	println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "博客-列表"

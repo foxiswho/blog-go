@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"fox/models"
 	"regexp"
 	"fox/service/blog"
+	"fmt"
 )
 
 type BlogController struct {
@@ -62,20 +62,15 @@ func (c *BlogController) GetAll() {
 	var sortby []string
 	var order []string
 	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
+	var limit int = 20
 
 	// fields: col1,col2,entity.col3
 	if v := c.GetString("fields"); v != "" {
 		fields = strings.Split(v, ",")
 	}
 	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
+	if v, err := c.GetInt("limit"); err == nil {
 		limit = v
-	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
 	}
 	// sortby: col1,col2
 	if v := c.GetString("sortby"); v != "" {
@@ -98,12 +93,13 @@ func (c *BlogController) GetAll() {
 			query[k] = v
 		}
 	}
-
-	l, err := models.GetAllBlog(query, fields, sortby, order, offset, limit)
+	page,_:=c.GetInt("page")
+	data,err:=blog.GetAllBlog(query, fields, sortby, order, page, limit)
 	if err != nil {
-		c.Data["data"] = err.Error()
+		//c.Data["data"] = err.Error()
+		fmt.Println(err.Error())
 	} else {
-		c.Data["data"] = l
+		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"
 }

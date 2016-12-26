@@ -4,32 +4,36 @@ import (
 	"fox/models"
 	"fmt"
 	"fox/util"
+	UtilOrm "fox/util/orm"
 	"fox/util/datetime"
 	"time"
 	"github.com/astaxie/beego/orm"
 	"github.com/russross/blackfriday"
 	"strconv"
+	"errors"
+	"reflect"
+	"strings"
 )
 //博客模块ID
-const TYPE_ID  = 10006
+const TYPE_ID = 10006
+
 type Blog struct {
 
 }
 
-func (c *Blog)Query(cat_id int) (data []interface{}, err error) {
+func (c *Blog)Query(cat_id, page int) (*UtilOrm.Page, error) {
 	query := map[string]string{}
 	query["cat_id"] = strconv.Itoa(cat_id)
 	var fields []string
 	sortby := []string{"Id"}
 	order := []string{"desc"}
-	var offset int64
-	var limit int64
-	offset = 0
+	var limit int
 	limit = 20
-	data, err = models.GetAllBlog(query, fields, sortby, order, offset, limit)
-	//fmt.Println(data)
-	fmt.Println(err)
-	return data, err
+	data, err := GetAllBlog(query, fields, sortby, order, page, limit)
+	if err == nil {
+		return data, nil
+	}
+	return nil, err
 }
 //详情
 func (c *Blog)Read(id int) (map[string]interface{}, error) {
@@ -132,7 +136,7 @@ func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error)
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
-		_, err := tagSer.CreateFromTags(int(id),m.Tag, "")
+		_, err := tagSer.CreateFromTags(int(id), m.Tag, "")
 		fmt.Println("TAG:", err)
 	}
 
@@ -186,7 +190,7 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 	}
 	//标签 创建和删除
 	var tagSer *BlogTag
-	_, err = tagSer.CreateFromTags(id,m.Tag, info.Tag)
+	_, err = tagSer.CreateFromTags(id, m.Tag, info.Tag)
 	fmt.Println("TAG:", err)
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
@@ -269,4 +273,94 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 		return true, nil
 	}
 	return false, &util.Error{Msg:"已存在"}
+}
+
+// GetAllBlog retrieves all Blog matches certain condition. Returns empty list if
+// no records exist
+func GetAllBlog(query map[string]string, fields []string, sortby []string, order []string,
+page int, limit int) (*UtilOrm.Page, error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable(new(models.Blog))
+	var l []models.Blog
+	// query k=v
+	for k, v := range query {
+		// rewrite dot-notation to Object__Attribute
+		k = strings.Replace(k, ".", "__", -1)
+		qs = qs.Filter(k, v)
+	}
+	count, err := qs.Count()
+	if err != nil {
+		fmt.Println(err)
+	}
+	if page < 1 {
+		page = 1
+	}
+	Query := UtilOrm.PageUtil(int(count), page, limit)
+	if count == 0 {
+		return Query, nil
+	}
+	//fmt.Println("Query",Query)
+	// order by:
+	var sortFields []string
+	if len(sortby) != 0 {
+		if len(sortby) == len(order) {
+			// 1) for each sort field, there is an associated order
+			for i, v := range sortby {
+				orderby := ""
+				if order[i] == "desc" {
+					orderby = "-" + v
+				} else if order[i] == "asc" {
+					orderby = v
+				} else {
+					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
+				}
+				sortFields = append(sortFields, orderby)
+			}
+			qs = qs.OrderBy(sortFields...)
+		} else if len(sortby) != len(order) && len(order) == 1 {
+			// 2) there is exactly one order, all the sorted fields will be sorted by this order
+			for _, v := range sortby {
+				orderby := ""
+				if order[0] == "desc" {
+					orderby = "-" + v
+				} else if order[0] == "asc" {
+					orderby = v
+				} else {
+					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
+				}
+				sortFields = append(sortFields, orderby)
+			}
+		} else if len(sortby) != len(order) && len(order) != 1 {
+			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
+		}
+	} else {
+		if len(order) != 0 {
+			return nil, errors.New("Error: unused 'order' fields")
+		}
+	}
+	fmt.Println("Offset", Query)
+	fmt.Println("Offset", Query.Offset)
+
+	var ml []interface{}
+	qs = qs.OrderBy(sortFields...)
+	if _, err = qs.Limit(limit, int64(Query.Offset)).All(&l, fields...); err == nil {
+		if len(fields) == 0 {
+			for _, v := range l {
+				ml = append(ml, v)
+			}
+		} else {
+			// trim unused fields
+			for _, v := range l {
+				m := make(map[string]interface{})
+				val := reflect.ValueOf(v)
+				for _, fname := range fields {
+					m[fname] = val.FieldByName(fname).Interface()
+				}
+				ml = append(ml, m)
+			}
+		}
+		Query.Data = ml
+		return Query, nil
+	}
+	return nil, err
 }

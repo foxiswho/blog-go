@@ -8,7 +8,7 @@
             <div class="col-lg-8">
 
                 <!-- Blog Post -->
-                {{range .data}}
+                {{range .data.Data}}
                 <div>
                 <!-- Title -->
                     <a href="/article/{{.Id}}">
@@ -25,6 +25,10 @@
                     <hr>
                 </div>
                 {{end}}
+                <div id="page">
+                    <ul class="pagination" id="pageUl">
+                    </ul>
+                </div>
             </div>
 
             {{template "blog/right.html" .}}
@@ -35,3 +39,28 @@
     </div>
     <!-- /.container -->
 {{template "blog/footer.html" .}}
+<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
+<script>
+    $(function () {
+        $("#pageUl").bootstrapPaginator({
+            currentPage: '{{.data.PageNo}}',
+            totalPages: '{{.data.TotalPage}}',
+            bootstrapMajorVersion: 3,
+            size: "small",
+            itemTexts: function (type, page, current) {
+                switch (type) {
+                    case "first": return "首页";
+                    case "prev": return "上一页";
+                    case "next": return "下一页";
+                    case "last": return "末页";
+                    case "page": return page;
+                }
+            },
+            onPageClicked: function(e,originalEvent,type,page){
+                window.location.href = "?page=" + page
+            }
+        });
+    });
+</script>
+</body>
+</html>

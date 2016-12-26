@@ -22,7 +22,8 @@ func (c *BlogCat) URLMapping() {
 // @router /blog/cat [get]
 func (c *BlogCat)List() {
 	var blogSer *blog.Blog
-	data, err := blogSer.Query(10001)
+	page,_:=c.GetInt("page")
+	data, err := blogSer.Query(10001,page)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
