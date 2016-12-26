@@ -1,3 +1,37 @@
+
+#GO语言博客
+基本功能已 实现
+
+但是在使用过程发现 beego 框架自带的 orm 让 我欲仙欲死。
+
+#未来
+ * 用其他的 orm 重新完善一下
+ * 其他模块继续完善
+    * 省市区
+    * 角色和权限
+    * 管理员
+    * 菜单
+    * 缓存
+    * 标签
+    * 。。。。。。
+
+
+#后台用户
+用户名：admin
+
+密码：111111
+
+登陆地址 : /admin/login
+
+数据库文件在:src/fox/db/blog-go.sql.zip中
+
+#用到组件
+后台框架：Bootstrap
+
+编辑器 ：Markdown
+
+上传   ：webuploader
+
 #后台说明
 ## RESTFUL
 detail :查看页面

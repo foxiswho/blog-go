@@ -3,10 +3,8 @@
 src/github.com/deepzz0/goblog/.idea
 /node_modules/*
 .DS_Store
-/Uploads/xml/*
-/Uploads/Excel/*
-/Uploads/IdCard/*
-/Uploads/back_excel/*
+!/src/fox/uploads/image/index.html
+/src/fox/uploads/image/*
 /.vscode/*
 /logs
 *.rej
