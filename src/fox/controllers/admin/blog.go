@@ -78,6 +78,7 @@ func (c *BlogController)Get() {
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
+	c.Data["info"]=&models.Blog{TypeId:blog.ORIGINAL}
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"

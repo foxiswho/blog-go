@@ -31,6 +31,16 @@
 //            var keyNum = e.which || e.keyCode;
 //            return keyNum==13 ? false : true;
 //        };
+        var MarkDown=$("#content").markdown({
+            autofocus:true,
+            savable:true
+//            ,
+//            onSave:function (e) {
+////            $('.save').click();
+//                return false;
+//        }
+        });
+
         $(document).ready(function () {
             $('.i-checks').iCheck({
                 checkboxClass: 'icheckbox_square-green',
@@ -136,7 +146,12 @@
                 });
             });
 
-
+            $('button.descriptionCut').click(function () {
+                var str=$('#content').data('markdown').parseContent();
+                if(str){
+                    $('#description').value(str.replace(/<[^>]+>/g,""));
+                }
+            });
         });
         //图片插入到编辑器中
         function uploadImage(row) {

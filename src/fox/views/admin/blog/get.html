@@ -63,7 +63,7 @@
                                             </div>
 
                                             <div class="panel-body">
-                                                <textarea name="content" id="content" data-provide="markdown" rows="30">{{.info.Content}}</textarea>
+                                                <textarea name="content" id="content"  rows="30">{{.info.Content}}</textarea>
                                             </div>
                                         </div>
                                         <div id="tab-status" class="tab-pane">
@@ -181,13 +181,13 @@
 
                                                     <div class="col-sm-10">
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10003" {{if eq .info.TypeId 1003}}checked{{end}}>原创
+                                                            <input type="radio" name="type_id" value="10003" {{if eq .info.TypeId 10003 }}checked{{end}}>原创
                                                         </label>
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10004" {{if eq .info.TypeId 1004}}checked{{end}}>翻译
+                                                            <input type="radio" name="type_id" value="10004" {{if eq .info.TypeId 10004}}checked{{end}}>翻译
                                                         </label>
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10005" {{if eq .info.TypeId 1005}}checked{{end}}>转载
+                                                            <input type="radio" name="type_id" value="10005" {{if eq .info.TypeId 10005}}checked{{end}}>转载
                                                         </label>
                                                     </div>
                                                 </div>
@@ -257,7 +257,10 @@
                                         <div id="tab-seo" class="tab-pane">
                                             <div class="panel-body">
                                                 <div class="form-group">
-                                                    <label class="col-sm-2 control-label">摘要：</label>
+                                                    <label class="col-sm-2 control-label">摘要：<br/>
+<button class="btn btn-primary btn-xs descriptionCut" type="button"><i class="fa fa-paste">获取摘要</i>
+                                                        </button>
+                                                    </label>
                                                     <div class="col-sm-10">
                                                         <textarea id="description" name="description" class="form-control" style="min-height: 200px">{{.info.Description}}</textarea>
                                                     </div>

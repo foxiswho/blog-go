@@ -7,6 +7,13 @@
                     <div class="ibox-content">
                         <a href="/article/{{.Id}}" class="btn-link" target="_blank">
                             <h2>
+                                {{if eq .TypeId 10003}}
+                                <label class="label label-primary">原</label>
+                                {{else if eq .TypeId 10004}}
+                                <label class="label label-info">议</label>
+                                {{else if eq .TypeId 10005}}
+                                <label class="label">转</label>
+                                {{end}}
                                 {{.Title}}
                                 </h2>
                         </a>
@@ -21,8 +28,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h5>标签：</h5>
-                                <button class="btn btn-primary btn-xs" type="button">Apple Watch</button>
-                                <button class="btn btn-white btn-xs" type="button">速比涛</button>
+                                <button class="btn btn-primary btn-xs" type="button">{{.Tag}}</button>
                             </div>
                             <div class="col-md-6">
                                 <div class=" text-right">

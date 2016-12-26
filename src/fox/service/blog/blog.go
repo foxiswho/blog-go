@@ -16,6 +16,7 @@ import (
 )
 //博客模块ID
 const TYPE_ID = 10006
+const ORIGINAL = 10003
 
 type Blog struct {
 
@@ -109,7 +110,12 @@ func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error)
 	if len(m.Content) < 1 {
 		return 0, &util.Error{Msg:"内容 不能为空"}
 	}
-
+	if m.TypeId < 10003 {
+		return 0, &util.Error{Msg:"请选择类别"}
+	}
+	if m.TypeId > 10005 {
+		return 0, &util.Error{Msg:"类别 错误"}
+	}
 	//时间
 	if m.TimeAdd.IsZero() {
 		m.TimeAdd = time.Now()
@@ -160,6 +166,12 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 	}
 	if len(m.Content) < 1 {
 		return 0, &util.Error{Msg:"内容 不能为空"}
+	}
+	if m.TypeId < 10003 {
+		return 0, &util.Error{Msg:"请选择类别"}
+	}
+	if m.TypeId > 10005 {
+		return 0, &util.Error{Msg:"类别 错误"}
 	}
 	fmt.Println("DATA:", m)
 	//时间
