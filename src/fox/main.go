@@ -11,6 +11,7 @@ import (
 func main() {
 	orm.Debug = true
 	beego.ErrorController(&controllers.ErrorController{})
+	beego.SetStaticPath("/uploads","uploads")
 	beego.Run()
 }
 

@@ -1,17 +1,16 @@
 package admin
 
 import (
-
-)
-import (
 	"fox/util/Response"
 	"fox/util/file"
 	"fmt"
+	"encoding/json"
 )
 
 type Upload struct {
 	BaseController
 }
+
 func (c *Upload) URLMapping() {
 	c.Mapping("Image", c.Image)
 	c.Mapping("File", c.File)
@@ -19,6 +18,17 @@ func (c *Upload) URLMapping() {
 //图片
 // @router /upload/image [get]
 func (c *Upload)Image() {
+	type Option struct {
+		TypeId int
+		Id     int
+	}
+	stb := &Option{}
+	opt := c.GetString("opt")
+	err := json.Unmarshal([]byte(opt), &stb)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.Data["token"] = opt
 	c.Data["title"] = "图片上传"
 	c.TplName = "admin/upload/image.html"
 }
@@ -32,8 +42,11 @@ func (c *Upload)File() {
 func (c *BlogController)Image() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	ok, err := file.Upload("file", c.Ctx.Request)
-	fmt.Println(ok)
-	fmt.Println(err)
+	file, err := file.Upload("file", c.Ctx.Request)
+	if err != nil {
+		rsp.Error(err.Error())
+		c.StopRun()
+	}
+	rsp.SetData(file)
 	rsp.Success("")
 }

@@ -20,15 +20,17 @@
     <!-- Tags -->
     <script src="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
     <link href="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" rel="stylesheet">
-
+<script src="{{.__static__}}plugin/insertAtCaret.js"></script>
     <script>
-        var blog_id="{{if .is_put}}/{{.info.Id}}{{else}}0{{end}}";
+        var blog_id="{{if .is_put}}{{.info.Id}}{{else}}0{{end}}";
+        var upload_json={type_id:{{.TYPE_ID}},id:blog_id};
+        var layerID;
         //禁止 回车 表单保存
-        document.getElementsByTagName('form')[0].onkeydown = function(e){
-            var e = e || event;
-            var keyNum = e.which || e.keyCode;
-            return keyNum==13 ? false : true;
-        };
+//        document.getElementsByTagName('form')[0].onkeydown = function(e){
+//            var e = e || event;
+//            var keyNum = e.which || e.keyCode;
+//            return keyNum==13 ? false : true;
+//        };
         $(document).ready(function () {
             $('.i-checks').iCheck({
                 checkboxClass: 'icheckbox_square-green',
@@ -37,10 +39,12 @@
             //保存发布
             $('.saveRelease').click(function () {
                 $(".c_status input[value='99']").iCheck('check');
+                $('#thatForm').submit();
             });
             //保存
             $('.save').click(function () {
                 $(".c_status input[value='0']").iCheck('check');
+                $('#thatForm').submit();
             });
             //保存
             $('#thatForm').submit(function (e) {
@@ -121,8 +125,23 @@
                 });
             });
             $('button.upload_image').click(function () {
-
-
+                //iframe层
+                layerID=layer.open({
+                    type: 2,
+                    title: '图片上传',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['680px', '400px'],
+                    content: '/admin/upload/image?opt='+encodeURIComponent(JSON.stringify(upload_json)) //iframe的url
+                });
             });
+
+
         });
+        //图片插入到编辑器中
+        function uploadImage(row) {
+//            $("#content").insertAtCaret('![输入图片说明]('+row.url+' "在这里输入图片标题")');
+            $("#content").insertAtCaret('!['+row.name_original+']('+row.url+')');
+            return true;
+        }
     </script>

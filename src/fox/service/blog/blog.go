@@ -10,7 +10,8 @@ import (
 	"github.com/russross/blackfriday"
 	"strconv"
 )
-
+//博客模块ID
+const TYPE_ID  = 10006
 type Blog struct {
 
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//博客分类属性 栏目ID
 const CAT_ID = 10001
 
 type BlogCat struct {

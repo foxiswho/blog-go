@@ -68,7 +68,7 @@ jQuery(function() {
         },
         dnd: '#uploader .queueList',
         paste: document.body,
-
+        formData:UPLOAD_DATA,
         accept: {
             title: 'Images',
             extensions: 'gif,jpg,jpeg,bmp,png',
@@ -345,7 +345,7 @@ jQuery(function() {
                     var t=layer.msg('上传成功！');
                     setTimeout(function () {
                         layer.close(t);
-                    },3000)
+                    },3000);
                 } else {
                     // 没有成功的图片，重设
                     state = 'done';
@@ -392,8 +392,23 @@ jQuery(function() {
         updateTotalProgress();
 
     };
+    uploader.on( 'beforeFileQueued', function( file) {
+        console.log(file)
+    });
+    var Response={};
+    uploader.on( 'uploadSuccess', function( file,response ) {
+        console.log(file)
+        console.log(response)
+        if(response.code==1){
+            layer.tips('上传成功！');
+            Response=response;
+        }else if(response.code!=1){
+            layer.tips('上传失败，失败原因：'+response.info);
+        }
+    });
 
     uploader.on( 'all', function( type ) {
+        console.log(type)
         var stats;
         switch( type ) {
             case 'uploadFinished':
@@ -439,4 +454,17 @@ jQuery(function() {
 
     $upload.addClass( 'state-' + state );
     updateTotalProgress();
+    //增加提示
+    $('div').on('click','div>label',function () {
+        layer.tips('反应速度很慢，不要着急哦！',$(this),5);
+    });
+    $('button.ok').click(function () {
+        // layer.tips('反应速度很慢，不要着急哦！',$(this),5);
+        //关闭
+        if(window.parent.uploadImage(Response.data)==true){
+            window.parent.layer.close(window.parent.layerID);
+        }else {
+            alert('数据传输失败')
+        }
+    });
 });

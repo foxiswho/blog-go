@@ -21,7 +21,7 @@ type BlogController struct {
 // @Param	id		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Blog
 // @Failure 403 :id is empty
-// @router /:id [get]
+// @router /article/:id [get]
 func (c *BlogController) Get() {
 	idStr := c.Ctx.Input.Param(":id")
 	var ser *blog.Blog

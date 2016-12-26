@@ -47,7 +47,7 @@
 <script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
 <!--引入CSS-->
 <link rel="stylesheet" type="text/css" href="{{.__static__}}/plugin/webuploader/webuploader.css">
-<link rel="stylesheet" type="text/css" href="{{.__static__}}/plugin/webuploader/webuploader-setting.css">
+<link rel="stylesheet" type="text/css" href="{{.__static__}}/plugin/webuploader/webuploader-admin-image.css">
 <style>
     .ibox-title{
         border-width: 0px 0px 0;
@@ -63,17 +63,17 @@
     // 添加全局站点信息
     var BASE_URL = '{{.__static__}}js/plugin/webuploader';
     var UPLOAD_URL="/admin/upload/image";
+    var UPLOAD_DATA={{.token}};
+    UPLOAD_DATA=$.parseJSON(UPLOAD_DATA);
+    console.log(UPLOAD_DATA)
 </script>
 <script type="text/javascript" src="{{.__static__}}/plugin/webuploader/webuploader.min.js"></script>
-<script type="text/javascript" src="{{.__static__}}/plugin/webuploader/webuploader-setting.js"></script>
+<script type="text/javascript" src="{{.__static__}}/plugin/webuploader/webuploader-admin-image.js"></script>
 <script>
     var type = "";
     var select="";
     $(document).ready(function () {
         $('.gohome').hide();
-        $('button.ok').click(function () {
-
-        });
     });
 </script>
 </body>

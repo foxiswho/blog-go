@@ -51,6 +51,6 @@ func init() {
 	//首页
 	beego.Router("/", &controllers.BlogController{}, "get:GetAll")
 	beego.Router("/page/:page", &controllers.BlogController{}, "get:GetAll")
-	beego.Router("/:id", &controllers.BlogController{}, "get:Get")
+	beego.Router("/article/:id", &controllers.BlogController{}, "get:Get")
 
 }

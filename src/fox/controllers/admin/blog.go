@@ -71,12 +71,14 @@ func (c *BlogController)Get() {
 		c.Data["title"] = "博客-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
+		c.Data["TYPE_ID"] = blog.TYPE_ID
 		c.TplName = "admin/blog/get.html"
 	}
 }
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
+	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
 	c.TplName = "admin/blog/get.html"

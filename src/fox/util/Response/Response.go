@@ -51,7 +51,6 @@ func (resp *Response) Success(msg string) {
 	}
 	resp.Code = 1
 	resp.Info = msg
-	resp.Data = Success{Level: SUCCESS, Msg: msg}
 }
 //错误信息
 func (resp *Response) Error(msg string) {
@@ -60,7 +59,6 @@ func (resp *Response) Error(msg string) {
 	}
 	resp.Code = 0
 	resp.Info = msg
-	resp.Err = Error{Msg:msg}
 }
 //扩展数据
 func (resp *Response) SetData(Data interface{}) {
