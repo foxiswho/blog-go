@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"fox/util/datetime"
+	"fox/util/db"
 )
 
 type BaseNoLoginController struct {
@@ -43,6 +44,9 @@ func (this *BaseNoLoginController) Error(key string) {
 }
 //初始化数据库
 func init() {
+	//初始化
+	db.Init();
+
 	beego.Info("init orm start...")
 	// 设置为 UTC 时间
 	orm.DefaultTimeLoc = time.UTC
@@ -56,4 +60,8 @@ func init() {
 	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8&loc=Asia%2FShanghai"
 	// set default database
 	orm.RegisterDataBase("default", db_type, dsn, 30)
+}
+
+func init2() {
+
 }

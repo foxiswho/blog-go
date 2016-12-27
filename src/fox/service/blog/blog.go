@@ -13,6 +13,7 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"fox/util/db"
 )
 //博客模块ID
 const TYPE_ID = 10006
@@ -21,7 +22,20 @@ const ORIGINAL = 10003
 type Blog struct {
 
 }
-
+func (c *Blog)Query2(cat_id, page int) (*UtilOrm.Page, error) {
+	query := map[string]string{}
+	query["cat_id"] = strconv.Itoa(cat_id)
+	var fields []string
+	sortby := []string{"Id"}
+	order := []string{"desc"}
+	var limit int
+	limit = 20
+	data, err := GetAllBlog(query, fields, sortby, order, page, limit)
+	if err == nil {
+		return data, nil
+	}
+	return nil, err
+}
 func (c *Blog)Query(cat_id, page int) (*UtilOrm.Page, error) {
 	query := map[string]string{}
 	query["cat_id"] = strconv.Itoa(cat_id)
@@ -286,7 +300,18 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	}
 	return false, &util.Error{Msg:"已存在"}
 }
-
+func (c *Blog)GetAll(){
+	db:=db.NewDb()
+	session:=db.Where("user.name = ?")
+	session.And("user.name = ?")
+	fmt.Println(session)
+	where :=map[string]string{}
+	where["id=?"]="15"
+	where["id>=?"]="ddd"
+	//where["id in (?)"]=
+	//model:=new(model.Blog)
+	//db.Find(model)
+}
 // GetAllBlog retrieves all Blog matches certain condition. Returns empty list if
 // no records exist
 func GetAllBlog(query map[string]string, fields []string, sortby []string, order []string,

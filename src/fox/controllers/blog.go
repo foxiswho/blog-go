@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"fox/service/blog"
 	"fmt"
+	"fox/util/db"
+	"fox/model"
 )
 
 type BlogController struct {
@@ -102,4 +104,23 @@ func (c *BlogController) GetAll() {
 		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"
+	fmt.Println("==========")
+	db:=db.NewDb()
+	bb:=make([]model.Blog,0)
+	err=db.Where("blog_id =?",54).Find(&bb)
+	fmt.Println(err)
+	fmt.Println(bb)
+	fmt.Println("==========")
+	b2:=new(model.Blog)
+	var ok bool
+	ok,err=db.Get(b2)
+	fmt.Println(err)
+	fmt.Println(ok)
+	fmt.Println(b2)
+	fmt.Println("==========")
+	b22:=new(model.Blog)
+	err=db.Find(&b22)
+	fmt.Println(err)
+	fmt.Println(b22)
+
 }
