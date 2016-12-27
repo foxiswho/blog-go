@@ -13,7 +13,6 @@ import (
 	"errors"
 	"reflect"
 	"strings"
-	"fox/util/db"
 )
 //博客模块ID
 const TYPE_ID = 10006
@@ -300,11 +299,11 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	}
 	return false, &util.Error{Msg:"已存在"}
 }
-func (c *Blog)GetAll(){
-	db:=db.NewDb()
-	session:=db.Where("user.name = ?")
-	session.And("user.name = ?")
-	fmt.Println(session)
+func (c *Blog)GetAll(q map[string]interface{},fields []string,orderBy map[string]string,page int,limit int){
+	//db.Filter(q)
+	//session:=db.Where("user.name = ?")
+	//session.And("user.name = ?")
+	//fmt.Println(session)
 	where :=map[string]string{}
 	where["id=?"]="15"
 	where["id>=?"]="ddd"

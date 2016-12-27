@@ -104,23 +104,30 @@ func (c *BlogController) GetAll() {
 		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"
-	fmt.Println("==========")
-	db:=db.NewDb()
+	//fmt.Println("==========")
+	//db:=db.NewDb()
 	bb:=make([]model.Blog,0)
-	err=db.Where("blog_id =?",54).Find(&bb)
+	//err=db.Where("blog_id =?",54).Find(&bb)
+	//fmt.Println(err)
+	//fmt.Println(bb)
+	//fmt.Println("==========")
+	//b2:=new(model.Blog)
+	//var ok bool
+	//ok,err=db.Get(b2)
+	//fmt.Println(err)
+	//fmt.Println(ok)
+	//fmt.Println(b2)
+	//fmt.Println("==========")
+	//b22:=new(model.Blog)
+	//err=db.Find(&b22)
+	//fmt.Println(err)
+	//fmt.Println(b22)
+	where :=make(map[string]interface{})
+	where["blog_id in (?)"]=[]string{"53","54"}
+	//where["blog_id in (?)"]=[]int{53,54}
+	o:=db.Filter(where)
+	err=o.Find(&bb)
 	fmt.Println(err)
 	fmt.Println(bb)
-	fmt.Println("==========")
-	b2:=new(model.Blog)
-	var ok bool
-	ok,err=db.Get(b2)
-	fmt.Println(err)
-	fmt.Println(ok)
-	fmt.Println(b2)
-	fmt.Println("==========")
-	b22:=new(model.Blog)
-	err=db.Find(&b22)
-	fmt.Println(err)
-	fmt.Println(b22)
 
 }
