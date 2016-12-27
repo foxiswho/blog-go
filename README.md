@@ -57,3 +57,24 @@ test.com/admin/type/add         [get] 添加 页面  【添加】
 test.com/admin/type             [post] 保存 数据 【添加】
 test.com/admin/type             [get] 列表 页面  【查询】
 ```
+#ORM 使用 xorm 和xormplus
+安装（注意是2个）
+
+网址：http://www.xorm.io/
+
+网址：https://github.com/xormplus/xorm
+
+库安装
+```shell
+go get github.com/go-xorm/xorm
+go get -u github.com/xormplus/xorm
+```
+工具安装
+```shell
+go get github.com/go-xorm/cmd/xorm
+```
+#生成模型
+```shell
+xorm reverse mysql root:root@/blog_go?charset=utf8 templates/goxorm
+```
+>templates/goxorm 可以修改此模版
