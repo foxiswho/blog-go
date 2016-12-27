@@ -4,7 +4,6 @@ import (
 	"fox/models"
 	"fmt"
 	"fox/util"
-	UtilOrm "fox/util/orm"
 	"fox/util/datetime"
 	"time"
 	"github.com/astaxie/beego/orm"
@@ -13,6 +12,8 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"fox/util/db"
+	"fox/model"
 )
 //博客模块ID
 const TYPE_ID = 10006
@@ -21,7 +22,8 @@ const ORIGINAL = 10003
 type Blog struct {
 
 }
-func (c *Blog)Query2(cat_id, page int) (*UtilOrm.Page, error) {
+
+func (c *Blog)Query2(cat_id, page int) (*db.Page, error) {
 	query := map[string]string{}
 	query["cat_id"] = strconv.Itoa(cat_id)
 	var fields []string
@@ -35,7 +37,7 @@ func (c *Blog)Query2(cat_id, page int) (*UtilOrm.Page, error) {
 	}
 	return nil, err
 }
-func (c *Blog)Query(cat_id, page int) (*UtilOrm.Page, error) {
+func (c *Blog)Query(cat_id, page int) (*db.Page, error) {
 	query := map[string]string{}
 	query["cat_id"] = strconv.Itoa(cat_id)
 	var fields []string
@@ -299,22 +301,43 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	}
 	return false, &util.Error{Msg:"已存在"}
 }
-func (c *Blog)GetAll(q map[string]interface{},fields []string,orderBy map[string]string,page int,limit int){
-	//db.Filter(q)
-	//session:=db.Where("user.name = ?")
-	//session.And("user.name = ?")
-	//fmt.Println(session)
-	where :=map[string]string{}
-	where["id=?"]="15"
-	where["id>=?"]="ddd"
-	//where["id in (?)"]=
-	//model:=new(model.Blog)
-	//db.Find(model)
+func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Page, error) {
+	session := db.Filter(q)
+	count, err := session.Count(new(model.Blog))
+	if err != nil {
+		fmt.Println(err)
+		return nil, &util.Error{Msg:err.Error()}
+	}
+	Query := db.Pagination(int(count), page, limit)
+	if count == 0 {
+		return Query, nil
+	}
+
+	session = db.Filter(q)
+	if orderBy != "" {
+		session.OrderBy(orderBy)
+	}
+	session.Limit(limit, Query.Offset)
+	if len(fields) == 0 {
+		session.AllCols()
+	}
+	data := make([]model.Blog, 0)
+	err = session.Find(&data)
+	if err != nil {
+		fmt.Println(err)
+		return nil, &util.Error{Msg:err.Error()}
+	}
+	Query.Data = make([]interface{}, len(data))
+	for y, x := range data {
+		Query.Data[y] = x
+	}
+	//Query.Data = data.(interface{})
+	return Query, nil
 }
 // GetAllBlog retrieves all Blog matches certain condition. Returns empty list if
 // no records exist
 func GetAllBlog(query map[string]string, fields []string, sortby []string, order []string,
-page int, limit int) (*UtilOrm.Page, error) {
+page int, limit int) (*db.Page, error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(models.Blog))
 	var l []models.Blog
@@ -331,7 +354,7 @@ page int, limit int) (*UtilOrm.Page, error) {
 	if page < 1 {
 		page = 1
 	}
-	Query := UtilOrm.PageUtil(int(count), page, limit)
+	Query := db.Pagination(int(count), page, limit)
 	if count == 0 {
 		return Query, nil
 	}

@@ -8,8 +8,6 @@ import (
 	"regexp"
 	"fox/service/blog"
 	"fmt"
-	"fox/util/db"
-	"fox/model"
 )
 
 type BlogController struct {
@@ -106,7 +104,7 @@ func (c *BlogController) GetAll() {
 	c.TplName = "blog/index.html"
 	//fmt.Println("==========")
 	//db:=db.NewDb()
-	bb:=make([]model.Blog,0)
+	//bb:=make([]model.Blog,0)
 	//err=db.Where("blog_id =?",54).Find(&bb)
 	//fmt.Println(err)
 	//fmt.Println(bb)
@@ -122,12 +120,18 @@ func (c *BlogController) GetAll() {
 	//err=db.Find(&b22)
 	//fmt.Println(err)
 	//fmt.Println(b22)
-	where :=make(map[string]interface{})
-	where["blog_id in (?)"]=[]string{"53","54"}
-	//where["blog_id in (?)"]=[]int{53,54}
-	o:=db.Filter(where)
-	err=o.Find(&bb)
+	//where :=make(map[string]interface{})
+	//where["blog_id in (?)"]=[]string{"53","54"}
+	////where["blog_id in (?)"]=[]int{53,54}
+	//o:=db.Filter(where).OrderBy("blog_id asc")
+	//err=o.Find(&bb)
+	//fmt.Println(err)
+	//fmt.Println(bb)
+	q:=make(map[string]interface{})
+	q["content like ?"]="%jpeg%"
+	var b *blog.Blog
+	pag,err:=b.GetAll(q,[]string{},"blog_id",page,20)
 	fmt.Println(err)
-	fmt.Println(bb)
+	fmt.Println(pag)
 
 }

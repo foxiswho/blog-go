@@ -29,7 +29,7 @@ func dsn() string {
 //初始化
 func Init() {
 	var err error
-	DB = &Db{}
+	DB = new(Db)
 	DB.Db, err = xorm.NewEngine("mysql", dsn())
 	if err != nil {
 		fmt.Println("NewEngine", err)
@@ -41,14 +41,16 @@ func NewDb() *xorm.Engine {
 	return DB.Db
 }
 
-type Query struct {
+type QuerySession struct {
 	Session *xorm.Session
 }
 
+var Query *QuerySession
+
 func Filter(where map[string]interface{}) *xorm.Session {
 	db := DB.Db
+	Query=new(QuerySession)
 	i := 1
-	session:=DB.FilterSession
 	for k, v := range where {
 		//fmt.Println(k, v, reflect.TypeOf(v))
 		//fmt.Println("?号个数为", strings.Count(k, "?"))
@@ -89,19 +91,19 @@ func Filter(where map[string]interface{}) *xorm.Session {
 			}
 		}
 		if QuestionMarkCount == 0 && isEmpty {
-			session = WhereAnd(db, session, i, k, "")
+			FilterWhereAnd(db, i, k, "")
 		} else if QuestionMarkCount == 0 && !isEmpty {
 			//是数组
 			if (isMap) {
 
-				session = WhereAnd(db, session, i, k, str)
+				FilterWhereAnd(db, i, k, str)
 			} else {
 				//不是数组
-				session = WhereAnd(db, session, i, k + " = ?", v)
+				FilterWhereAnd(db, i, k + " = ?", v)
 			}
 		} else if QuestionMarkCount == 1 && isEmpty {
 			//值为空字符串,不是数组
-			session = WhereAnd(db, session, i, k, "''")
+			FilterWhereAnd(db, i, k, "''")
 		} else if QuestionMarkCount == 1 && !isEmpty {
 			//是数组
 			if isMap {
@@ -123,47 +125,46 @@ func Filter(where map[string]interface{}) *xorm.Session {
 					for y, x := range arr {
 						inter[y] = x
 					}
-					session = WhereAnd(db, session, i, str2, inter...)
+					FilterWhereAnd(db, i, str2, inter...)
 				} else {
 					fmt.Println("22222", str)
-					session = WhereAnd(db, session, i, k, str)
+					FilterWhereAnd(db, i, k, str)
 				}
 
 			} else {
 				//不是数组
 				//不是数组，有值
-				session = WhereAnd(db, session, i, k, v)
+				FilterWhereAnd(db, i, k, v)
 			}
 		} else if QuestionMarkCount > 1 && isEmpty {
 			//不是数组，空值
-			session = WhereAnd(db, session, i, k, "")
+			FilterWhereAnd(db, i, k, "")
 		} else if QuestionMarkCount > 1 && !isEmpty && isMap {
 			//问号 与  数组相同时
 			if QuestionMarkCount == arrCount {
 				//不是数组
-				session = WhereAnd(db, session, i, k, v)
+				FilterWhereAnd(db, i, k, v)
 			} else {
 				//问号 与  数组不同时
-				session = WhereAnd(db, session, i, k, str)
+				FilterWhereAnd(db, i, k, str)
 			}
 		} else {
 			fmt.Println("其他还没有收录")
 		}
 		i++
 	}
-	return session
+	return Query.Session
 }
-func WhereAnd(db *xorm.Engine, session *xorm.Session, i int, key string, value ...interface{}) *xorm.Session {
+func FilterWhereAnd(db *xorm.Engine, i int, key string, value ...interface{}) {
 	fmt.Println("key", key)
 	fmt.Println("value", value)
 	fmt.Println("TypeOf", reflect.TypeOf(value))
 	if i == 1 {
 
-		DB.FilterSession = db.Where(key, value...)
+		Query.Session = db.Where(key, value...)
 	} else {
-		DB.FilterSession = DB.FilterSession.And(key, value...)
+		Query.Session = Query.Session.And(key, value...)
 	}
-	return DB.FilterSession
 }
 func ArrToStr(val interface{}) string {
 	str, _ := json.Marshal(val)
