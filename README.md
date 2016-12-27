@@ -74,7 +74,11 @@ go get -u github.com/xormplus/xorm
 go get github.com/go-xorm/cmd/xorm
 ```
 #生成模型
+>templates/goxorm 可以修改此模版
+先把 src/github.com/go-xorm/cmd/xorm/templates 目录，复制到你的项目目录里，例如 我的项目目录为 src/fox 那么就复制到该目录下，然后执行此命令
+该目录下多余的文件夹可以删除（C++,objc,go）
+
 ```shell
 xorm reverse mysql root:root@/blog_go?charset=utf8 templates/goxorm
 ```
->templates/goxorm 可以修改此模版
+>如果要增加更多自定义tag 可以修改源码 src/github.com/go-xorm/cmd/xorm/go.go 第267行
