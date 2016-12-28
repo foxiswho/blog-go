@@ -24,7 +24,7 @@ func (c *AdminUser) Auth(account, password string) (*AdminSession, error) {
 	//登录成功
 	if err == nil {
 		//转换为session
-		var AdminSession *AdminSession
+		AdminSession:=NewAdminSessionService()
 		Session := AdminSession.Convert(admUser)
 		return Session, nil
 	}
@@ -42,7 +42,8 @@ func (c *AdminUser) Login(account, password string) (admUser *model.Admin, err e
 	if err == nil {
 		if admUser.Aid != 0 {
 			password := UtilAuth.PasswordSalt(password, admUser.Salt)
-			fmt.Println(password)
+			//fmt.Println(password)
+			//fmt.Println(admUser.Password)
 			if !strings.EqualFold(password, admUser.Password) {
 				return nil, &util.Error{Msg:"密码 错误"}
 			}
@@ -59,10 +60,13 @@ func (c *AdminUser) Login(account, password string) (admUser *model.Admin, err e
 //根据用户名查找
 func (c *AdminUser) GetAdminByUserName(account string) (*model.Admin, error) {
 	mod := model.NewAdmin()
-	mod.Username = account
+	//mod.Username = account
 	o := db.NewDb()
-	err := o.Find(mod, "username")
-	if err == nil {
+	ok,err := o.Where("username=?",account).Get(mod)
+	if err == nil && ok{
+		if mod.Aid ==0{
+			return nil,&util.Error{Msg:"用户不存在"}
+		}
 		return mod, nil
 	}
 	fmt.Println(err)

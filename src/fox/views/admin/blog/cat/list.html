@@ -38,7 +38,7 @@
                             <tbody>
                             {{range .data}}
                                 <tr class="">
-                                    <td>{{.Id}}</td>
+                                    <td>{{.BlogId}}</td>
                                     <td>{{.Title}}</td>
                                     <td>{{.Remark}}</td>
                                     <td>{{.IsDel}}</td>
@@ -47,10 +47,10 @@
                                             <button data-toggle="dropdown" class="btn btn-primary btn-xs dropdown-toggle">操作 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li><a href="cat/{{.Id}}" class="font-bold" target="_blank">修改</a>
+                                                <li><a href="cat/{{.BlogId}}" class="font-bold" target="_blank">修改</a>
                                                 </li>
                                                 <li class="divider"></li>
-                                                <li><a href="cat/{{.Id}}">删除</a>
+                                                <li><a href="cat/{{.BlogId}}">删除</a>
                                                 </li>
                                             </ul>
                                         </div>

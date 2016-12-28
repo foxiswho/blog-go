@@ -15,6 +15,7 @@ func (this *BaseController) Prepare() {
 	this.Initialization()
 	////session 判断
 	ok,_ :=beego.AppConfig.Bool("admin_load")
+	fmt.Println("admin_load",ok)
 	if ok {
 		AdminAuth:=admin.NewAdminAuthService()
 		sess:=AdminAuth.Validate("admin")

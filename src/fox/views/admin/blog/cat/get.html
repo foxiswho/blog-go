@@ -1,6 +1,6 @@
 {{template "admin/public/header.html" .}}
     <div class="wrapper wrapper-content">
-                <form action="/admin/blog/cat{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
+                <form action="/admin/blog/cat{{if .is_put}}/{{.info.BlogId}}{{end}}" method="post" class="form-horizontal">
                     <input type="hidden" name="_method" value="{{._method}}" />
                 <div class="row">
                     <div class="col-lg-12">
@@ -109,7 +109,7 @@
 <link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
 <script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
 <script>
-    var blog_id="{{if .is_put}}/{{.info.Id}}{{else}}0{{end}}";
+    var blog_id="{{if .is_put}}/{{.info.BlogId}}{{else}}0{{end}}";
     var cat_id="{{.cat_id}}";
     //禁止 回车 表单保存
     document.getElementsByTagName('form')[0].onkeydown = function(e){
@@ -163,7 +163,7 @@
             }
             var data={"title":$name.value(),"cat_id":cat_id,"id":blog_id};
             {{if .is_put}}
-            data.id="{{.info.Id}}";
+            data.id="{{.info.BlogId}}";
             {{end}}
             $.ajax({
                 url:'/admin/blog/check_title',

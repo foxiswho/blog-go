@@ -137,10 +137,10 @@ func (c *BlogController)Put() {
 	//参数传递
 	blogMoel := model.NewBlog()
 	blog_statistics := model.NewBlogStatistics()
-	if err := c.ParseForm(&blogMoel); err != nil {
+	if err := c.ParseForm(blogMoel); err != nil {
 		rsp.Error(err.Error())
 	}
-	if err := c.ParseForm(&blog_statistics); err != nil {
+	if err := c.ParseForm(blog_statistics); err != nil {
 		rsp.Error(err.Error())
 	}
 	//日期
@@ -148,6 +148,7 @@ func (c *BlogController)Put() {
 	if ok {
 		blogMoel.TimeAdd = date
 	}
+	fmt.Println("form:",blogMoel)
 	//更新
 	ser :=blog.NewBlogService()
 	_, err := ser.Update(int_id, blogMoel, blog_statistics)

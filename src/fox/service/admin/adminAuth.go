@@ -23,7 +23,7 @@ func (c *AdminAuth)Validate(account string) (*AdminSession) {
 		return nil
 	}
 	//赋值
-	var session *AdminSession
+	session :=NewAdminSessionService()
 	Session := session.Convert(admUser)
 	beego.Debug("Auth 验证通过：", Session)
 	return Session
