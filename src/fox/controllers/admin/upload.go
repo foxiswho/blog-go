@@ -42,11 +42,11 @@ func (c *Upload)File() {
 func (c *BlogController)Image() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	file, err := file.Upload("file", c.Ctx.Request)
+	f, err := file.Upload("file", c.Ctx.Request)
 	if err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	rsp.SetData(file)
+	rsp.SetData(f)
 	rsp.Success("")
 }

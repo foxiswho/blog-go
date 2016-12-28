@@ -21,7 +21,7 @@ func (this *MyPasswordController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
 	var adminUser *admin.AdminUser
-	ok, err := adminUser.UpdatePassword(password,this.Session.Id)
+	ok, err := adminUser.UpdatePassword(password,this.Session.Aid)
 	if !ok {
 		rsp.Error(err.Error())
 		return

@@ -3,7 +3,6 @@ package admin
 import (
 	"fox/util/Response"
 	"strconv"
-	"fox/models"
 	"fmt"
 	"fox/service/blog"
 	"fox/model"
@@ -12,6 +11,7 @@ import (
 type BlogCat struct {
 	BaseController
 }
+
 func (c *BlogCat) URLMapping() {
 	c.Mapping("List", c.List)
 	c.Mapping("Add", c.Add)
@@ -24,9 +24,9 @@ func (c *BlogCat) URLMapping() {
 func (c *BlogCat)List() {
 	where := make(map[string]interface{})
 	where["type=?"] = blog.TYPE_CAT
-	model := new(model.Blog)
+	mod := model.NewBlog()
 	page, _ := c.GetInt("page")
-	data, err := model.GetAll(where, []string{}, "blog_id desc", page, 20)
+	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
@@ -52,14 +52,14 @@ func (c *BlogCat)Get() {
 		c.Data["title"] = "博客-分类-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
-		c.Data["cat_id"] = blog.CAT_ID
+		c.Data["type"] = blog.TYPE_CAT
 		c.TplName = "admin/blog/cat/get.html"
 	}
 }
 //添加
 // @router /blog/cat/add [get]
 func (c *BlogCat)Add() {
-	c.Data["cat_id"] = blog.CAT_ID
+	c.Data["type"] = blog.TYPE_CAT
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-分类-添加"
 	c.TplName = "admin/blog/cat/get.html"
@@ -69,14 +69,14 @@ func (c *BlogCat)Add() {
 func (c *BlogCat)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 
 	//参数传递
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	blogModel.CatId=blog.CAT_ID
+	blogModel.Type = blog.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
@@ -101,11 +101,11 @@ func (c *BlogCat)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 	}
-	blogModel.CatId=blog.CAT_ID
+	blogModel.Type = blog.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {

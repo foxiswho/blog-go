@@ -13,6 +13,9 @@ type Type struct {
 
 }
 
+func NewTypeService() Type{
+	return new(Type)
+}
 func (this *Type)Query(type_id int) (data []interface{}, err error) {
 	fields := []string{}
 	query := make(map[string]interface{})

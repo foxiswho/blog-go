@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"fox/util/datetime"
@@ -48,20 +47,4 @@ func init() {
 	db.Init();
 
 	beego.Info("init orm start...")
-	// 设置为 UTC 时间
-	orm.DefaultTimeLoc = time.UTC
-
-	db_user := beego.AppConfig.String("db_user")
-	db_pass := beego.AppConfig.String("db_pass")
-	db_host := beego.AppConfig.String("db_host")
-	db_port := beego.AppConfig.String("db_port")
-	db_name := beego.AppConfig.String("db_name")
-	db_type := beego.AppConfig.String("db_type")
-	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8&loc=Asia%2FShanghai"
-	// set default database
-	orm.RegisterDataBase("default", db_type, dsn, 30)
-}
-
-func init2() {
-
 }

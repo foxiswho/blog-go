@@ -3,7 +3,6 @@ package admin
 import (
 	"fox/util/Response"
 	"strconv"
-	"fox/models"
 	"fox/service/blog"
 	"fmt"
 	"fox/model"
@@ -47,9 +46,9 @@ func (c *BlogController)CheckTitle() {
 func (c *BlogController)List() {
 	where := make(map[string]interface{})
 	where["type=?"] = blog.TYPE_ARTICLE
-	model := new(model.Blog)
+	mod := model.NewBlog()
 	page, _ := c.GetInt("page")
-	data, err := model.GetAll(where, []string{}, "blog_id desc", page, 20)
+	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "博客-列表"
@@ -81,7 +80,9 @@ func (c *BlogController)Get() {
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
-	c.Data["info"] = &models.Blog{TypeId:blog.ORIGINAL}
+	mod := model.NewBlog()
+	mod.TypeId = blog.ORIGINAL
+	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
@@ -92,9 +93,9 @@ func (c *BlogController)Add() {
 func (c *BlogController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 	//参数传递
-	blog_statistics := models.BlogStatistics{}
+	blog_statistics := model.NewBlogStatistics()
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
@@ -134,8 +135,8 @@ func (c *BlogController)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogMoel := models.Blog{}
-	blog_statistics := models.BlogStatistics{}
+	blogMoel := model.NewBlog()
+	blog_statistics := model.NewBlogStatistics()
 	if err := c.ParseForm(&blogMoel); err != nil {
 		rsp.Error(err.Error())
 	}
