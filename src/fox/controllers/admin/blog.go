@@ -6,6 +6,7 @@ import (
 	"fox/service/blog"
 	"fmt"
 	"fox/model"
+	"fox/util/url"
 )
 
 type BlogController struct {
@@ -137,18 +138,21 @@ func (c *BlogController)Put() {
 	//参数传递
 	blogMoel := model.NewBlog()
 	blog_statistics := model.NewBlogStatistics()
-	if err := c.ParseForm(blogMoel); err != nil {
+	if err := url.ParseForm(c.Input(),blogMoel); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
 	}
-	if err := c.ParseForm(blog_statistics); err != nil {
+	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
 	}
-	//日期
-	date, ok := c.GetDateTime("time_add")
-	if ok {
-		blogMoel.TimeAdd = date
+	if blogMoel.TimeAdd.IsZero(){
+		//日期
+		date, ok := c.GetDateTime("time_add")
+		if ok {
+			blogMoel.TimeAdd = date
+		}
 	}
-	fmt.Println("form:",blogMoel)
 	//更新
 	ser :=blog.NewBlogService()
 	_, err := ser.Update(int_id, blogMoel, blog_statistics)

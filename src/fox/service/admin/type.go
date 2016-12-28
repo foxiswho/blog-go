@@ -92,7 +92,7 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 	}
 	o := db.NewDb()
 	m.Id = id
-	num, err := o.Update(m, "name", "code", "mark", "type_id", "parent_id", "value", "is_del", "sort", "module", "is_default", "remark", "setting", "is_child", "is_system", "is_show")
+	num, err := o.Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}

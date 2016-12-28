@@ -6,6 +6,7 @@ import (
 	"time"
 	"fox/util/datetime"
 	"fox/util/db"
+	"github.com/astaxie/beego/orm"
 )
 
 type BaseNoLoginController struct {
@@ -45,6 +46,6 @@ func (this *BaseNoLoginController) Error(key string) {
 func init() {
 	//初始化
 	db.Init();
-
+	orm.DefaultTimeLoc = time.UTC
 	beego.Info("init orm start...")
 }

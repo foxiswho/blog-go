@@ -86,7 +86,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	m.Status = 99
 
 	o := db.NewDb()
-	num, err := o.Id(id).Update(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
+	num, err := o.Id(id).Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -94,7 +94,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	//
 	stat := model.NewBlogStatistics()
 	stat.BlogId = id
-	num2, err := o.Id(id).Update(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
+	num2, err := o.Id(id).Update(stat)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}

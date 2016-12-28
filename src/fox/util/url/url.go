@@ -5,20 +5,24 @@ import (
 	"strconv"
 )
 
-type Url url.Values
+type Url struct {
+	url.Values
+}
 //数值
 func (t Url)GetInt(key string, def ...int) (int) {
-	if t == nil {
+	if t.Values == nil {
 		if len(def) > 0 {
 			return def[0]
 		} else {
 			return 0
 		}
 	}
-	strv := t[key]
+
+	strv :=t.Get(key)
 	if len(strv) == 0 && len(def) > 0 {
 		return def[0]
 	}
+
 	v, _ := strconv.Atoi(strv)
 	return v
 }

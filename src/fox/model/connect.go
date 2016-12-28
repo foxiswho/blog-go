@@ -8,13 +8,13 @@ import (
 )
 
 type Connect struct {
-	ConnectId int       `json:"connect_id" xorm:"not null pk autoincr INT(11)"`
-	Uid       int       `json:"uid" xorm:"not null default 0 index INT(11)"`
-	OpenId    string    `json:"open_id" xorm:"not null default '' index VARCHAR(80)"`
-	Token     string    `json:"token" xorm:"not null default '' VARCHAR(80)"`
-	Type      int       `json:"type" xorm:"not null default 1 INT(11)"`
-	TypeLogin int       `json:"type_login" xorm:"not null default 0 INT(11)"`
-	TimeAdd   time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	ConnectId int       `json:"connect_id" xorm:"not null pk autoincr INT(11)" orm:"column(connect_id)"`
+	Uid       int       `json:"uid" xorm:"not null default 0 index INT(11)" orm:"column(uid)"`
+	OpenId    string    `json:"open_id" xorm:"not null default '' index VARCHAR(80)" orm:"column(open_id)"`
+	Token     string    `json:"token" xorm:"not null default '' VARCHAR(80)" orm:"column(token)"`
+	Type      int       `json:"type" xorm:"not null default 1 INT(11)" orm:"column(type)"`
+	TypeLogin int       `json:"type_login" xorm:"not null default 0 INT(11)" orm:"column(type_login)"`
+	TimeAdd   time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP" orm:"column(time_add)"`
 }
 
 //初始化

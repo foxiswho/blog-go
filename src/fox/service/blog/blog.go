@@ -181,14 +181,15 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	}
 
 	o := db.NewDb()
-	num, err := o.Id(id).Update(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
+	num, err := o.Id(id).Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
-	fmt.Println(num)
+	fmt.Println("============",num)
 	//
 	stat.BlogId = id
-	num2, err := o.Id(id).Update(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
+	o = db.NewDb()
+	num2, err := o.Id(id).Update(stat)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -251,7 +252,7 @@ func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {
 func (c *Blog)GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
 	o := db.NewDb()
 	v = new(model.Blog)
-	if err = o.Find(v, "url_rewrite"); err == nil {
+	if err = o.Find(v); err == nil {
 		return v, nil
 	}
 	return nil, err
