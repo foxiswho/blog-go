@@ -27,7 +27,7 @@ func (c *BlogCat)Query(cat_id int) ( *db.Page,  error) {
 	return data, err
 }
 //创建
-func (c *BlogCat)Create(m *model.Blog) (int64, error) {
+func (c *BlogCat)Create(m *model.Blog) (int, error) {
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
@@ -41,12 +41,12 @@ func (c *BlogCat)Create(m *model.Blog) (int64, error) {
 	//状态
 	m.Status = 99
 	o := db.NewDb()
-	id, err := o.Insert(m)
+	affected, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
 	stat := model.NewBlogStatistics()
-	stat.BlogId = int(id)
+	stat.BlogId = m.BlogId
 	stat.StatisticsId = stat.BlogId
 	id2, err := o.Insert(stat)
 	if err != nil {
@@ -54,13 +54,13 @@ func (c *BlogCat)Create(m *model.Blog) (int64, error) {
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
-		_, err := tagSer.CreateFromTags(int(id), m.Tag, "")
+		_, err := tagSer.CreateFromTags(m.BlogId, m.Tag, "")
 		fmt.Println("TAG:", err)
 	}
 	fmt.Println("DATA:", m)
-	fmt.Println("Id:", id)
+	fmt.Println("affected:", affected)
 	fmt.Println("Statistics:", id2)
-	return id, nil
+	return m.BlogId, nil
 }
 //更新
 func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {

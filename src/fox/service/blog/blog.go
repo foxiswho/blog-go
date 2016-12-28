@@ -94,7 +94,7 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 }
 
 //创建
-func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int64, error) {
+func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
@@ -114,7 +114,7 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int64, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-
+	m.TimeUpdate =time.Now()
 	//状态
 	if m.Status < 0 {
 		m.Status = 0
@@ -123,25 +123,26 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int64, error) {
 		m.Status = 99
 	}
 	o := db.NewDb()
-	id, err := o.Insert(m)
+	affected, err := o.Insert(m)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &util.Error{Msg:"创建错误1：" + err.Error()}
 	}
-	stat.BlogId = int(id)
+	stat.BlogId = m.BlogId
 	stat.StatisticsId = stat.BlogId
 	id2, err := o.Insert(stat)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &util.Error{Msg:"创建错误2：" + err.Error()}
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
-		_, err := tagSer.CreateFromTags(int(id), m.Tag, "")
+		_, err := tagSer.CreateFromTags(m.BlogId, m.Tag, "")
 		fmt.Println("TAG:", err)
 	}
 	fmt.Println("DATA:", m)
-	fmt.Println("Id:", id)
+	fmt.Println("affected:", affected)
+	fmt.Println("Id:", m.BlogId)
 	fmt.Println("Statistics:", id2)
-	return id, nil
+	return m.BlogId, nil
 }
 //更新
 func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, error) {

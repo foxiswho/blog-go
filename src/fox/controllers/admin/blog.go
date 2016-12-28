@@ -97,21 +97,23 @@ func (c *BlogController)Post() {
 	blogModel := model.NewBlog()
 	//参数传递
 	blog_statistics := model.NewBlogStatistics()
-	if err := c.ParseForm(&blogModel); err != nil {
+	if err := url.ParseForm(c.Input(),blogModel); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
-		c.StopRun()
 	}
-	if err := c.ParseForm(&blog_statistics); err != nil {
+	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
-		c.StopRun()
 	}
-	//日期
-	date, ok := c.GetDateTime("time_add")
-	if ok {
-		blogModel.TimeAdd = date
+	if blogModel.TimeAdd.IsZero(){
+		//日期
+		date, ok := c.GetDateTime("time_add")
+		if ok {
+			blogModel.TimeAdd = date
+		}
 	}
 	//创建
-	var serv blog.Blog
+	serv :=blog.NewBlogService()
 	id, err := serv.Create(blogModel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())

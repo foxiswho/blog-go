@@ -29,7 +29,7 @@ func (c *BlogTag)Query(str string) ( *db.Page,  error) {
 	return data, err
 }
 //创建
-func (c *BlogTag)Create(m *model.BlogTag) (int64, error) {
+func (c *BlogTag)Create(m *model.BlogTag) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
@@ -40,13 +40,14 @@ func (c *BlogTag)Create(m *model.BlogTag) (int64, error) {
 		m.TimeAdd = time.Now()
 	}
 	o := db.NewDb()
-	id, err := o.Insert(m)
+	affected, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
+	fmt.Println("affected:", affected)
 	fmt.Println("DATA:", m)
-	fmt.Println("Id:", id)
-	return id, nil
+	fmt.Println("Id:", m.TagId)
+	return m.TagId, nil
 }
 //删除
 func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {

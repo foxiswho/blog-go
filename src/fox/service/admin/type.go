@@ -27,7 +27,7 @@ func (this *Type)Query(type_id int) (*db.Page,  error) {
 	return data, err
 }
 //创建
-func (c *Type)Create(m *model.Type) (int64, error) {
+func (c *Type)Create(m *model.Type) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
@@ -52,12 +52,13 @@ func (c *Type)Create(m *model.Type) (int64, error) {
 		m.IsDel = 1
 	}
 	o := db.NewDb()
-	id, err := o.Insert(m)
+	affected, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
-	fmt.Println("Id:", id)
-	return id, nil
+	fmt.Println("affected:", affected)
+	fmt.Println("Id:", m.Id)
+	return m.Id, nil
 }
 //更新
 func (c *Type)Update(id int, m *model.Type) (int, error) {
@@ -92,7 +93,7 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 	}
 	o := db.NewDb()
 	m.Id = id
-	num, err := o.Update(m)
+	num, err := o.Id(id).Where("id>10000").Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -104,6 +105,7 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 //更新
 func (c *Type)UpdateById(m *model.Type, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
+	o.Where("id>10000")
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil

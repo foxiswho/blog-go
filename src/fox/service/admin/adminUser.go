@@ -127,7 +127,7 @@ func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 //更新
 func (c *AdminUser)UpdateAdminById(m *model.Admin, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
-	if num, err = o.Update(m, cols...); err == nil {
+	if num, err = o.Id(m.Aid).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil
 	}

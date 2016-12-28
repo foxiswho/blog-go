@@ -100,12 +100,14 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 				//if len(tags) > 1 {
 				//	format = tags[1]
 				//}
-				local, _ := time.LoadLocation("Local")
-				t, err := time.ParseInLocation("2006-01-02 15:04:05", value, local)
-				if err != nil {
-					return err
+				if value !=""{
+					local, _ := time.LoadLocation("Local")
+					t, err := time.ParseInLocation("2006-01-02 15:04:05", value, local)
+					if err != nil {
+						return err
+					}
+					fieldV.Set(reflect.ValueOf(t))
 				}
-				fieldV.Set(reflect.ValueOf(t))
 			}
 		case reflect.Slice:
 			if fieldT.Type == sliceOfInts {
