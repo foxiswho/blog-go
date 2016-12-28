@@ -2,7 +2,9 @@
 #GO语言博客
 基本功能已 实现
 
-但是在使用过程发现 beego 框架自带的 orm 让 我欲仙欲死。
+#功能改进
+ * 已去除beego orm,改用 xorm
+ * 改进where查询（我是比较懒的，弄了一个简单的where查询）
 
 #未来
  * 用其他的 orm 重新完善一下
@@ -27,11 +29,16 @@
 数据库文件在:src/fox/db/blog-go.sql.zip中
 
 #用到组件
+go 框架：Beego
+
+orm框架：xorm和xormplus
+
 后台框架：Bootstrap
 
 编辑器 ：Markdown
 
 上传   ：webuploader
+
 
 #后台说明
 ## RESTFUL
