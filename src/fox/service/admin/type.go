@@ -2,11 +2,8 @@ package admin
 
 import (
 	"fmt"
-	"fox/models"
-	"strconv"
 	"fox/util"
 	"time"
-	"github.com/astaxie/beego/orm"
 	"fox/util/datetime"
 	"fox/model"
 	"fox/util/db"
@@ -166,20 +163,20 @@ func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
-
-	o := db.NewDb()
-	qs := o.QueryTable(new(model.Type))
-	qs = qs.Filter("type_id", type_id)
-	qs = qs.Filter("name", str)
+	mod := model.NewType()
+	where := make(map[string]interface{})
+	where["type_id=?"] = type_id
+	where["name=?"] = str
 	if id > 0 {
-		qs = qs.Filter("id__nq", id)
+		where["id !=?"] = id
 	}
-	count, err := qs.Count()
-	fmt.Println(count)
+
+	count, err := db.Filter(where).Count(mod)
 	if err != nil {
 		fmt.Println(err)
 		return false, err
 	}
+	fmt.Println(count)
 	if count == 0 {
 		return true, nil
 	}
