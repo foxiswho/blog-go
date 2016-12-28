@@ -23,7 +23,7 @@ type BlogController struct {
 // @router /article/:id [get]
 func (c *BlogController) Get() {
 	idStr := c.Ctx.Input.Param(":id")
-	var ser *blog.Blog
+	ser :=blog.NewBlogService()
 	var err error
 	var read map[string]interface{}
 	if ok, _ := regexp.Match(`^\d+$`, []byte(idStr)); ok {
@@ -74,38 +74,4 @@ func (c *BlogController) GetAll() {
 		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"
-	//fmt.Println("==========")
-	//db:=db.NewDb()
-	//bb:=make([]model.Blog,0)
-	//err=db.Where("blog_id =?",54).Find(&bb)
-	//fmt.Println(err)
-	//fmt.Println(bb)
-	//fmt.Println("==========")
-	//b2:=new(model.Blog)
-	//var ok bool
-	//ok,err=db.Get(b2)
-	//fmt.Println(err)
-	//fmt.Println(ok)
-	//fmt.Println(b2)
-	//fmt.Println("==========")
-	//b22:=new(model.Blog)
-	//err=db.Find(&b22)
-	//fmt.Println(err)
-	//fmt.Println(b22)
-	//where :=make(map[string]interface{})
-	//where["blog_id in (?)"]=[]string{"53","54"}
-	////where["blog_id in (?)"]=[]int{53,54}
-	//o:=db.Filter(where).OrderBy("blog_id asc")
-	//err=o.Find(&bb)
-	//fmt.Println(err)
-	//fmt.Println(bb)
-	//q := make(map[string]interface{})
-	//q["content like ?"] = "%jpeg%"
-	//b := model.NewBlog()
-	//pag, err := b.GetAll(q, []string{}, "blog_id", 1, 20)
-	////var b *blog.Blog
-	////pag,err:=b.GetAll(q,[]string{},"blog_id",page,20)
-	//fmt.Println(err)
-	//fmt.Println(pag)
-
 }

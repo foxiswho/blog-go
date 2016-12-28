@@ -13,7 +13,7 @@ func (c *BlogTag) URLMapping() {
 //列表
 // @router /blog/tag [get]
 func (c *BlogTag)List() {
-	var blogSer *blog.BlogTag
+	blogSer :=blog.NewBlogTagService()
 	data, err := blogSer.Query("")
 	//println(data)
 	println(err)

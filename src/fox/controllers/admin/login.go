@@ -19,7 +19,7 @@ func (this *LoginController)Post() {
 	fmt.Println("username:",username)
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
-	var adminUser *admin.AdminUser
+	adminUser :=admin.NewAdminUserService()
 	adm, err := adminUser.Auth(username, password)
 	if err != nil {
 		rsp.Error(err.Error())

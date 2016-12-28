@@ -149,7 +149,7 @@ func (c *BlogController)Put() {
 		blogMoel.TimeAdd = date
 	}
 	//更新
-	var ser *blog.Blog
+	ser :=blog.NewBlogService()
 	_, err := ser.Update(int_id, &blogMoel, &blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
@@ -166,7 +166,7 @@ func (c *BlogController)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	var ser *blog.Blog
+	ser :=blog.NewBlogService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())

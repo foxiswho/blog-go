@@ -24,7 +24,7 @@ func (c *TypeController) URLMapping() {
 //列表
 // @router /type [get]
 func (c *TypeController)List() {
-	var ser admin.Type
+	ser :=admin.NewTypeService()
 	data, err := ser.Query(0)
 	fmt.Println(err)
 	c.Data["data"] = data
@@ -37,7 +37,7 @@ func (c *TypeController)List() {
 func (c *TypeController)ListChild() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var ser admin.Type
+	ser :=admin.NewTypeService()
 	data, err := ser.Query(int_id)
 	fmt.Println(err)
 	c.Data["info"] = ""

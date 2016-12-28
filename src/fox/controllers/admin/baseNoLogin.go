@@ -9,8 +9,6 @@ import (
 
 type BaseNoLoginController struct {
 	AdminSession
-	//beego.Controller
-	//Session *service.AdminSession //当前登录用户信息
 }
 
 //  框架中的扩展函数

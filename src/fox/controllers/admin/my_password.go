@@ -20,7 +20,7 @@ func (this *MyPasswordController)Post() {
 	fmt.Println("password:",password)
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
-	var adminUser *admin.AdminUser
+	adminUser :=admin.NewAdminUserService()
 	ok, err := adminUser.UpdatePassword(password,this.Session.Aid)
 	if !ok {
 		rsp.Error(err.Error())

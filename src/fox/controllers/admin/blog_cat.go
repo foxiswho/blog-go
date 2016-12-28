@@ -38,8 +38,8 @@ func (c *BlogCat)List() {
 func (c *BlogCat)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var blogSer *blog.Blog
-	data, err := blogSer.Read(int_id)
+	ser :=blog.NewBlogService()
+	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
 		rsp := Response.NewResponse()
@@ -83,7 +83,7 @@ func (c *BlogCat)Post() {
 		blogModel.TimeAdd = date
 	}
 	//创建
-	var serv blog.BlogCat
+	serv :=blog.NewBlogCatService()
 	id, err := serv.Create(&blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
@@ -112,7 +112,7 @@ func (c *BlogCat)Put() {
 		blogModel.TimeAdd = date
 	}
 	//更新
-	var ser *blog.BlogCat
+	ser :=blog.NewBlogCatService()
 	_, err := ser.Update(int_id, &blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
@@ -129,7 +129,7 @@ func (c *BlogCat)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	var ser *blog.BlogCat
+	ser :=blog.NewBlogCatService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())
