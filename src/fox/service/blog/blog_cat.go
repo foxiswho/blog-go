@@ -6,32 +6,28 @@ import (
 	"strconv"
 	"fox/util"
 	"time"
+	"fox/model"
+	"fox/util/db"
 )
 
-//博客分类属性 栏目ID
-const CAT_ID = 10001
+
 
 type BlogCat struct {
 
 }
 
 func (c *BlogCat)Query(cat_id int) (data []interface{}, err error) {
-	query := map[string]string{}
-	query["cat_id"] = strconv.Itoa(cat_id)
-	var fields []string
-	sortby := []string{"Id"}
-	order := []string{"desc"}
-	var offset int64
-	var limit int64
-	offset = 0
-	limit = 20
-	data, err = models.GetAllBlog(query, fields, sortby, order, offset, limit)
+	query := make(map[string]interface{})
+	query["cat_id"] = cat_id
+	fields := []string{}
+	mode := model.NewBlog()
+	data, err = mode.GetAll(query, fields, "blog_id desc", 1, 999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
 }
 //创建
-func (c *BlogCat)Create(m *models.Blog) (int64, error) {
+func (c *BlogCat)Create(m *model.Blog) (int64, error) {
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
@@ -41,19 +37,25 @@ func (c *BlogCat)Create(m *models.Blog) (int64, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-	m.CatId = CAT_ID
+	m.CatId = TYPE_CAT
 	//状态
 	m.Status = 99
-	id, err := models.AddBlog(m)
+	o := db.NewDb()
+	id, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
-	stat := &models.BlogStatistics{}
+	stat := model.NewBlogStatistics()
 	stat.BlogId = int(id)
-	stat.Id = stat.BlogId
-	id2, err := models.AddBlogStatistics(stat)
+	stat.StatisticsId = stat.BlogId
+	id2, err := o.Insert(stat)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+	}
+	if m.Tag != "" {
+		var tagSer *BlogTag
+		_, err := tagSer.CreateFromTags(int(id), m.Tag, "")
+		fmt.Println("TAG:", err)
 	}
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
@@ -61,11 +63,12 @@ func (c *BlogCat)Create(m *models.Blog) (int64, error) {
 	return id, nil
 }
 //更新
-func (c *BlogCat)Update(id int, m *models.Blog) (int, error) {
+func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	if id < 1 {
 		return 0, &util.Error{Msg:"ID 错误"}
 	}
-	_, err := models.GetBlogById(id)
+	mode := model.NewBlog()
+	_, err := mode.GetById(id)
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
@@ -78,23 +81,24 @@ func (c *BlogCat)Update(id int, m *models.Blog) (int, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-	m.CatId = CAT_ID
+	m.CatId = TYPE_CAT
 	//状态
 	m.Status = 99
 
-	m.Id = id
-	var blogSer *Blog
-	_, err = blogSer.UpdateById(m, "title", "remark", "status", "is_del", "time_add", "url_source", "url_rewrite", "url", "sort", )
+	o := db.NewDb()
+	num, err := o.Id(id).Update(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
+		return 0, &util.Error{Msg:"更新错误：" + err}
 	}
-	stat := &models.BlogStatistics{}
-	stat.BlogId = int(id)
-	stat.Id = stat.BlogId
-	_, err = blogSer.UpdateBlogStatisticsById(stat, "blog_id")
+	fmt.Println(num)
+	//
+	stat := model.NewBlogStatistics()
+	stat.BlogId = id
+	num2, err := o.Id(id).Update(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
+		return 0, &util.Error{Msg:"更新错误：" + err}
 	}
+	fmt.Println(num2)
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
 	return id, nil
@@ -104,21 +108,24 @@ func (c *BlogCat)Delete(id int) (bool, error) {
 	if id < 1 {
 		return false, &util.Error{Msg:"ID 错误"}
 	}
-	var blogSer *Blog
-	info, err := models.GetBlogById(id)
+	mode := model.NewBlog()
+	info, err := mode.GetById(id)
 	if err != nil {
 		return false, err
 	}
-	if info.CatId != CAT_ID {
+	if info.CatId != TYPE_CAT {
 		return false, &util.Error{Msg:"不是栏目，不能删除"}
 	}
-	err = models.DeleteBlog(id)
+	num, err := mode.Delete(id)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
-	err = blogSer.DeleteBlogStatisticsByBlogId(id)
+	fmt.Println("num:", num)
+	stat := model.NewBlogStatistics()
+	num2, err := stat.Delete(id)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+	fmt.Println("num2:", num2)
 	return true, nil
 }

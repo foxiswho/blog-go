@@ -8,30 +8,28 @@ import (
 	"time"
 	"strings"
 	"fox/util/array"
+	"fox/model"
+	"fox/util/db"
 )
 
 type BlogTag struct {
 
 }
+
 func (c *BlogTag)Query(str string) (data []interface{}, err error) {
-	query := map[string]string{}
-	if str!=""{
+	query := make(map[string]interface{})
+	fields := []string{}
+	if str != "" {
 		query["name"] = str
 	}
-	var fields []string
-	sortby := []string{"Id"}
-	order := []string{"desc"}
-	var offset int64
-	var limit int64
-	offset = 0
-	limit = 100
-	data, err = models.GetAllBlogTag(query, fields, sortby, order, offset, limit)
+	mode := model.NewBlogTag()
+	data, err = mode.GetAll(query, fields, "tag_id desc", 0, 999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
 }
 //创建
-func (c *BlogTag)Create(m *models.BlogTag) (int64, error) {
+func (c *BlogTag)Create(m *model.BlogTag) (int64, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
@@ -41,7 +39,8 @@ func (c *BlogTag)Create(m *models.BlogTag) (int64, error) {
 	if m.TimeAdd.IsZero() {
 		m.TimeAdd = time.Now()
 	}
-	id, err := models.AddBlogTag(m)
+	o := db.NewDb()
+	id, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
@@ -50,30 +49,34 @@ func (c *BlogTag)Create(m *models.BlogTag) (int64, error) {
 	return id, nil
 }
 //删除
-func (c *BlogTag)DeleteByName(id int,str string) (bool, error) {
+func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 	if str == "" {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
-	o := orm.NewOrm()
-	v := models.BlogTag{Name:str,BlogId:id}
-	if num, err := o.Delete(&v, "name","blog_id"); err == nil {
+	mode := model.NewBlogTag()
+	mode.BlogId = id
+	mode.Name = str
+	o := db.NewDb()
+
+	if num, err := o.Delete(mode); err == nil {
 		fmt.Println("Number of records deleted in database:", num)
 		return true, nil
 	}
 	return false, nil
 }
-//根据自定义伪静态查询
-func (c *BlogTag)GetBlogTagCheckName(str string) (models.BlogTag, error) {
-	o := orm.NewOrm()
-	v := models.BlogTag{Name:str}
-	err := o.Read(&v, "name")
+//根据
+func (c *BlogTag)GetBlogTagCheckName(str string) (model.BlogTag, error) {
+	mode := model.NewBlogTag()
+	mode.Name = str
+	o := db.NewDb()
+	err := o.Find(mode, "name")
 	if err == nil {
-		return v, nil
+		return mode, nil
 	}
-	return models.BlogTag{}, err
+	return nil, err
 }
 //创建 和删除
-func (c *BlogTag)CreateFromTags(id int,tag, old string) (bool, error) {
+func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 	fmt.Println("CreateFromTags:")
 	//if tag == "" {
 	//	return false, nil
@@ -84,6 +87,7 @@ func (c *BlogTag)CreateFromTags(id int,tag, old string) (bool, error) {
 	if old != "" {
 		olds = strings.Split(old, ",")
 	}
+	o := db.NewDb()
 	if tag != "" {
 		//拆分成数组
 		tags = strings.Split(tag, ",")
@@ -95,18 +99,20 @@ func (c *BlogTag)CreateFromTags(id int,tag, old string) (bool, error) {
 			}
 			//fmt.Println(k,v)
 			if old == "" {
-				model := &models.BlogTag{Name:v}
-				model.BlogId=id
-				_, _ = c.Create(model)
+				mode := model.NewBlogTag()
+				mode.Name = v
+				mode.BlogId = id
+				_, _ = o.Insert(mode)
 			} else {
 				check[v] = false
 				if array.SliceContains(olds, v) {
 					check[v] = true
 					continue
 				}
-				model := &models.BlogTag{Name:v}
-				model.BlogId=id
-				_, _ = c.Create(model)
+				mode := model.NewBlogTag()
+				mode.Name = v
+				mode.BlogId = id
+				_, _ = o.Insert(mode)
 			}
 		}
 	}
@@ -117,14 +123,14 @@ func (c *BlogTag)CreateFromTags(id int,tag, old string) (bool, error) {
 				if !check[val] {
 					//没有，从数据库里删除
 					if !array.SliceContains(tags, val) {
-						ok, err := c.DeleteByName(id,val)
+						ok, err := c.DeleteByName(id, val)
 						fmt.Println(ok)
 						fmt.Println(err)
 					}
 				}
 			} else {
 				//删除所有
-				ok, err := c.DeleteByName(id,val)
+				ok, err := c.DeleteByName(id, val)
 				fmt.Println(ok)
 				fmt.Println(err)
 			}

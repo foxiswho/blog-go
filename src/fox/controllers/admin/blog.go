@@ -6,6 +6,7 @@ import (
 	"fox/models"
 	"fox/service/blog"
 	"fmt"
+	"fox/model"
 )
 
 type BlogController struct {
@@ -44,9 +45,11 @@ func (c *BlogController)CheckTitle() {
 //列表
 // @router /blog [get]
 func (c *BlogController)List() {
-	var ser *blog.Blog
-	page,_:=c.GetInt("page")
-	data, err := ser.Query(0,page)
+	where := make(map[string]interface{})
+	where["type=?"] = blog.TYPE_ARTICLE
+	model := new(model.Blog)
+	page, _ := c.GetInt("page")
+	data, err := model.GetAll(where, []string{}, "blog_id desc", page, 20)
 	println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "博客-列表"
@@ -65,7 +68,7 @@ func (c *BlogController)Get() {
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
-		c.Data["info"] = data["Blog"]
+		c.Data["info"] = data["info"]
 		c.Data["statistics"] = data["Statistics"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
 		c.Data["title"] = "博客-编辑"
@@ -78,7 +81,7 @@ func (c *BlogController)Get() {
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
-	c.Data["info"]=&models.Blog{TypeId:blog.ORIGINAL}
+	c.Data["info"] = &models.Blog{TypeId:blog.ORIGINAL}
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"

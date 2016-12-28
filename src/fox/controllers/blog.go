@@ -1,13 +1,12 @@
 package controllers
 
 import (
-	"errors"
 	"strconv"
-	"strings"
 
 	"regexp"
 	"fox/service/blog"
 	"fmt"
+	"fox/model"
 )
 
 type BlogController struct {
@@ -37,7 +36,7 @@ func (c *BlogController) Get() {
 		c.Error(err.Error())
 		return
 	} else {
-		c.Data["info"] = read["Blog"]
+		c.Data["info"] = read["info"]
 		c.Data["statistics"] = read["Statistics"]
 		c.Data["TimeAdd"] = read["TimeAdd"]
 		c.Data["Content"] = read["Content"]
@@ -58,43 +57,16 @@ func (c *BlogController) Get() {
 // @Failure 403
 // @router / [get]
 func (c *BlogController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int = 20
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
-	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt("limit"); err == nil {
-		limit = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-	page,_:=c.GetInt("page")
-	data,err:=blog.GetAllBlog(query, fields, sortby, order, page, limit)
+	fields := []string{}
+	orderBy := "blog_id desc"
+	query := make(map[string]interface{})
+	query["type=?"] = blog.TYPE_ARTICLE
+	mode := model.NewBlog()
+	//分页
+	page, _ := c.GetInt("page")
+	data, err := mode.GetAll(query, fields, orderBy, page, 20)
+	fmt.Println("err", err)
+	fmt.Println("data", data)
 	if err != nil {
 		//c.Data["data"] = err.Error()
 		fmt.Println(err.Error())
@@ -127,11 +99,13 @@ func (c *BlogController) GetAll() {
 	//err=o.Find(&bb)
 	//fmt.Println(err)
 	//fmt.Println(bb)
-	q:=make(map[string]interface{})
-	q["content like ?"]="%jpeg%"
-	var b *blog.Blog
-	pag,err:=b.GetAll(q,[]string{},"blog_id",page,20)
-	fmt.Println(err)
-	fmt.Println(pag)
+	//q := make(map[string]interface{})
+	//q["content like ?"] = "%jpeg%"
+	//b := model.NewBlog()
+	//pag, err := b.GetAll(q, []string{}, "blog_id", 1, 20)
+	////var b *blog.Blog
+	////pag,err:=b.GetAll(q,[]string{},"blog_id",page,20)
+	//fmt.Println(err)
+	//fmt.Println(pag)
 
 }

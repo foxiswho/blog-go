@@ -6,6 +6,7 @@ import (
 	"fox/models"
 	"fmt"
 	"fox/service/blog"
+	"fox/model"
 )
 
 type BlogCat struct {
@@ -21,9 +22,11 @@ func (c *BlogCat) URLMapping() {
 //列表
 // @router /blog/cat [get]
 func (c *BlogCat)List() {
-	var blogSer *blog.Blog
-	page,_:=c.GetInt("page")
-	data, err := blogSer.Query(10001,page)
+	where := make(map[string]interface{})
+	where["type=?"] = blog.TYPE_CAT
+	model := new(model.Blog)
+	page, _ := c.GetInt("page")
+	data, err := model.GetAll(where, []string{}, "blog_id desc", page, 20)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
@@ -43,7 +46,7 @@ func (c *BlogCat)Get() {
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
-		c.Data["info"] = data["Blog"]
+		c.Data["info"] = data["info"]
 		c.Data["statistics"] = data["Statistics"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
 		c.Data["title"] = "博客-分类-编辑"
