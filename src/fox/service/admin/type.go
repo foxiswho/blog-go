@@ -16,12 +16,12 @@ type Type struct {
 func NewTypeService() *Type{
 	return new(Type)
 }
-func (this *Type)Query(type_id int) (data []interface{}, err error) {
+func (this *Type)Query(type_id int) (*db.Page,  error) {
 	fields := []string{}
 	query := make(map[string]interface{})
 	query["type_id"] = type_id
 	mod := model.NewType()
-	data, err = mod.GetAll(query, fields, "id desc", 0, 9999)
+	data, err := mod.GetAll(query, fields, "id desc", 0, 9999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
@@ -102,7 +102,7 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 	return id, nil
 }
 //更新
-func (c *Type)UpdateById(m *model.Type, cols ...string) (num int64, err error) {
+func (c *Type)UpdateById(m *model.Type, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)

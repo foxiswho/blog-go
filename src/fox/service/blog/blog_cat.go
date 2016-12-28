@@ -1,9 +1,7 @@
 package blog
 
 import (
-	"fox/models"
 	"fmt"
-	"strconv"
 	"fox/util"
 	"time"
 	"fox/model"
@@ -18,12 +16,12 @@ type BlogCat struct {
 func NewBlogCatService() *BlogCat{
 	return new(BlogCat)
 }
-func (c *BlogCat)Query(cat_id int) (data []interface{}, err error) {
+func (c *BlogCat)Query(cat_id int) ( *db.Page,  error) {
 	query := make(map[string]interface{})
 	query["cat_id"] = cat_id
 	fields := []string{}
 	mode := model.NewBlog()
-	data, err = mode.GetAll(query, fields, "blog_id desc", 1, 999)
+	data, err := mode.GetAll(query, fields, "blog_id desc", 1, 999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
@@ -90,7 +88,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	o := db.NewDb()
 	num, err := o.Id(id).Update(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err}
+		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
 	fmt.Println(num)
 	//
@@ -98,7 +96,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	stat.BlogId = id
 	num2, err := o.Id(id).Update(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err}
+		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
 	fmt.Println(num2)
 	fmt.Println("DATA:", m)

@@ -1,8 +1,6 @@
 package blog
 
 import (
-	"github.com/astaxie/beego/orm"
-	"fox/models"
 	"fmt"
 	"fox/util"
 	"time"
@@ -18,14 +16,14 @@ type BlogTag struct {
 func NewBlogTagService() *BlogTag{
 	return new(BlogTag)
 }
-func (c *BlogTag)Query(str string) (data []interface{}, err error) {
+func (c *BlogTag)Query(str string) ( *db.Page,  error) {
 	query := make(map[string]interface{})
 	fields := []string{}
 	if str != "" {
 		query["name"] = str
 	}
 	mode := model.NewBlogTag()
-	data, err = mode.GetAll(query, fields, "tag_id desc", 0, 999)
+	data, err := mode.GetAll(query, fields, "tag_id desc", 0, 999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
@@ -67,7 +65,7 @@ func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 	return false, nil
 }
 //根据
-func (c *BlogTag)GetBlogTagCheckName(str string) (model.BlogTag, error) {
+func (c *BlogTag)GetBlogTagCheckName(str string) (*model.BlogTag, error) {
 	mode := model.NewBlogTag()
 	mode.Name = str
 	o := db.NewDb()

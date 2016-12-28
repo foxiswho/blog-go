@@ -202,7 +202,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	return id, nil
 }
 //更新
-func (c *Blog)UpdateById(m *model.Blog, cols ...string) (num int64, err error) {
+func (c *Blog)UpdateById(m *model.Blog, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
 	if num, err = o.Id(m.BlogId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
@@ -211,7 +211,7 @@ func (c *Blog)UpdateById(m *model.Blog, cols ...string) (num int64, err error) {
 	return 0, err
 }
 //更新
-func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...string) (num int64, err error) {
+func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
 	if num, err = o.Id(m.StatisticsId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)

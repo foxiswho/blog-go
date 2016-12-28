@@ -111,7 +111,7 @@ func (c *BlogController)Post() {
 	}
 	//创建
 	var serv blog.Blog
-	id, err := serv.Create(&blogModel, &blog_statistics)
+	id, err := serv.Create(blogModel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -150,7 +150,7 @@ func (c *BlogController)Put() {
 	}
 	//更新
 	ser :=blog.NewBlogService()
-	_, err := ser.Update(int_id, &blogMoel, &blog_statistics)
+	_, err := ser.Update(int_id, blogMoel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {

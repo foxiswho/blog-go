@@ -84,7 +84,7 @@ func (c *BlogCat)Post() {
 	}
 	//创建
 	serv :=blog.NewBlogCatService()
-	id, err := serv.Create(&blogModel)
+	id, err := serv.Create(blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -113,7 +113,7 @@ func (c *BlogCat)Put() {
 	}
 	//更新
 	ser :=blog.NewBlogCatService()
-	_, err := ser.Update(int_id, &blogModel)
+	_, err := ser.Update(int_id, blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
