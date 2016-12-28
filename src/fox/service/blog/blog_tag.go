@@ -15,7 +15,9 @@ import (
 type BlogTag struct {
 
 }
-
+func NewBlogTagService() *BlogTag{
+	return new(BlogTag)
+}
 func (c *BlogTag)Query(str string) (data []interface{}, err error) {
 	query := make(map[string]interface{})
 	fields := []string{}

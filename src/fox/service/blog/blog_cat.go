@@ -15,7 +15,9 @@ import (
 type BlogCat struct {
 
 }
-
+func NewBlogCatService() *BlogCat{
+	return new(BlogCat)
+}
 func (c *BlogCat)Query(cat_id int) (data []interface{}, err error) {
 	query := make(map[string]interface{})
 	query["cat_id"] = cat_id

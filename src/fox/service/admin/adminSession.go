@@ -20,6 +20,9 @@ type AdminSession struct {
 	Mobile     string    `orm:"column(mobile);size(20)"`
 	Role_id    map[int]model.AdminRoleAccess //扩展角色
 }
+func NewAdminSessionService() *AdminSession{
+	return new(AdminSession)
+}
 /*
 // session 填充
 func (this *AdminSession) Set(session *AdminSession) {

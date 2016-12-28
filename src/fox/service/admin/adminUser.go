@@ -14,6 +14,9 @@ import (
 type AdminUser  struct {
 
 }
+func NewAdminUserService() *AdminUser{
+	return new(AdminUser)
+}
 //登录验证
 func (c *AdminUser) Auth(account, password string) (*AdminSession, error) {
 	//登录验证

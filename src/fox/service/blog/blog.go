@@ -26,6 +26,9 @@ const (
 type Blog struct {
 
 }
+func NewBlogService() *Blog{
+	return new(Blog)
+}
 //详情
 func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {

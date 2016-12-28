@@ -10,6 +10,9 @@ import (
 type AdminAuth struct {
 
 }
+func NewAdminAuthService() *AdminAuth{
+	return new(AdminAuth)
+}
 //验证Session
 func (c *AdminAuth)Validate(account string) (*AdminSession) {
 	//查询用户
