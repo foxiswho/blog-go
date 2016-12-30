@@ -6,6 +6,48 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/admin_role`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "Add",
+			Router: `/admin_role/add`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "Post",
+			Router: `/admin_role`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "Get",
+			Router: `/admin_role/:id`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "Put",
+			Router: `/admin_role/:id`,
+			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "CheckName",
+			Router: `/admin_role/check_name`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:AdminUser"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminUser"],
 		beego.ControllerComments{
 			Method: "CheckTitle",
