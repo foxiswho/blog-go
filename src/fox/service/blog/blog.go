@@ -5,11 +5,10 @@ import (
 	"fox/util"
 	"fox/util/datetime"
 	"time"
-	"github.com/russross/blackfriday"
 	"fox/util/db"
 	"fox/model"
-	"strconv"
 	"strings"
+	"fox/util/editor"
 )
 
 const (
@@ -34,6 +33,7 @@ type Blog struct {
 func NewBlogService() *Blog {
 	return new(Blog)
 }
+
 //详情
 func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
@@ -45,6 +45,7 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 		fmt.Println(err)
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
+	//整合
 	info := NewBlogService()
 	info.Blog = data
 	//tag
@@ -54,7 +55,7 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	}
 	//整合
 	m := make(map[string]interface{})
-	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
+	m["Content"] = string(editor.Markdown([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
 	//主键ID值和blog_id值一样所以这里直接取值
@@ -83,29 +84,30 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
 	//整合
+	info := NewBlogService()
+	info.Blog = data
+	//tag
+	info.Tags = []string{}
+	if data.Tag != "" {
+		info.Tags = strings.Split(data.Tag, ",")
+	}
+	//整合
 	m := make(map[string]interface{})
-	m["Blog"] = *data
-	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
+	m["Content"] = string(editor.Markdown([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
-	//tag
-	row := make(map[string][]string)
-	row[strconv.Itoa(data.BlogId)] = []string{}
-	if data.Tag != "" {
-		row[strconv.Itoa(data.BlogId)] = strings.Split(data.Tag, ",")
-	}
-	m["tag"] = row
+	//主键ID值和blog_id值一样所以这里直接取值
 	Statistics := model.NewBlogStatistics()
 	StatisticsData, err := Statistics.GetById(data.BlogId)
 	if err == nil {
-		m["Statistics"] = StatisticsData
+		info.BlogStatistics = StatisticsData
 	} else {
 		//错误屏蔽
 		err = nil
 		//初始化赋值
-		m["Statistics"] = Statistics
+		info.BlogStatistics = Statistics
 	}
-
+	m["info"] = info
 	//fmt.Println(m)
 	return m, err
 }
@@ -321,6 +323,8 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 	for i, x := range data.Data {
 		row := &Blog{}
 		tmp := x.(model.Blog)
+		//内容转换
+		tmp.Content=string(editor.Markdown([]byte(tmp.Content)))
 		row.Blog = &tmp
 		row.Tags = []string{}
 		if row.Tag != "" {

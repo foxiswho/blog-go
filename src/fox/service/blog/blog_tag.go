@@ -17,18 +17,6 @@ type BlogTag struct {
 func NewBlogTagService() *BlogTag {
 	return new(BlogTag)
 }
-func (c *BlogTag)Query(str string) (*db.Paginator, error) {
-	query := make(map[string]interface{})
-	fields := []string{}
-	if str != "" {
-		query["name"] = str
-	}
-	mode := model.NewBlogTag()
-	data, err := mode.GetAll(query, fields, "tag_id desc", 0, 999)
-	//fmt.Println(data)
-	fmt.Println(err)
-	return data, err
-}
 //创建
 func (c *BlogTag)Create(m *model.BlogTag) (int, error) {
 

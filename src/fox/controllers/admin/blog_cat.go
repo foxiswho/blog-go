@@ -26,7 +26,7 @@ func (c *BlogCat)List() {
 	where["type=?"] = blog.TYPE_CAT
 	mod := model.NewBlog()
 	page, _ := c.GetInt("page")
-	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
+	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 999)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
