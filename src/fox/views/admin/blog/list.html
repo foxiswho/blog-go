@@ -5,7 +5,7 @@
                 {{range .data.Data}}
                 <div class="ibox">
                     <div class="ibox-content">
-                        <a href="/article/{{.Id}}" class="btn-link" target="_blank">
+                        <a href="/article/{{.Blog.BlogId}}" class="btn-link" target="_blank">
                             <h2>
                                 {{if eq .TypeId 10003}}
                                 <label class="label label-primary">原</label>
@@ -18,9 +18,9 @@
                                 </h2>
                         </a>
                         <div class="small m-b-xs">
-                            <strong>高 晨</strong> <span class="text-muted"><i class="fa fa-clock-o"></i> 3 小时前</span>
-                            <span class="text-muted"><i class="fa fa-comments-o"></i> 56 评论</span>
-                            <span class="text-muted"><i class="fa fa-eye"></i> 144 浏览</span>
+                            <strong>{{.Author}}</strong> <span class="text-muted"><i class="fa fa-clock-o"></i> {{dateformat .TimeAdd "2006-01-02 15:04:05"}}</span>
+                            <span class="text-muted"><i class="fa fa-comments-o"></i> {{.Comment}} 评论</span>
+                            <span class="text-muted"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}} 浏览</span>
                         </div>
                         <p>
                             {{.Description}}
@@ -28,23 +28,27 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h5>标签：</h5>
-                                <button class="btn btn-primary btn-xs" type="button">{{.Tag}}</button>
+                                {{range $i,$v:=.Tags}}
+                                <button class="btn btn-primary btn-xs" type="button">{{$v}}</button>
+                                {{end}}
+
                             </div>
                             <div class="col-md-6">
                                 <div class=" text-right">
                                     <h5>操作</h5>
-                                    <a href="blog/{{.Id}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
+                                    <a href="blog/{{.Blog.BlogId}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 {{end}}
+                <div id="page">
+                    <ul class="pagination" id="pageUl">
+                    </ul>
+                </div>
             </div>
-            <div id="page">
-                <ul class="pagination" id="pageUl">
-                </ul>
-            </div>
+
         </div>
     </div>
 {{template "admin/public/footer.html" .}}
@@ -52,7 +56,7 @@
 <script>
     $(function () {
         $("#pageUl").bootstrapPaginator({
-            currentPage: '{{.data.PageNo}}',
+            currentPage: '{{.data.Page}}',
             totalPages: '{{.data.TotalPage}}',
             bootstrapMajorVersion: 3,
             size: "small",

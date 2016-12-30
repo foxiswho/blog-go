@@ -4,12 +4,13 @@ import (
 	"strconv"
 	"fox/service/admin"
 	"fmt"
-	"fox/models"
+	"fox/model"
 )
 
 type Select struct {
 	BaseController
 }
+
 func (c *Select) URLMapping() {
 	c.Mapping("Type", c.Type)
 }
@@ -19,13 +20,13 @@ func (c *Select) URLMapping() {
 func (c *Select)Type() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var ser admin.Type
+	ser :=admin.NewTypeService()
 	data, err := ser.Query(int_id)
 	fmt.Println(err)
-	c.Data["info"] = models.Type{}
+	mod := model.NewType()
+	c.Data["info"] = mod
 	if int_id > 0 {
-		var model *admin.Type
-		data, err := model.Read(int_id)
+		data, err := ser.Read(int_id)
 		if err == nil {
 			c.Data["info"] = data["info"]
 		}

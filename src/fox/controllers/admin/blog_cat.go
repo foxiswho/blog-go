@@ -3,14 +3,15 @@ package admin
 import (
 	"fox/util/Response"
 	"strconv"
-	"fox/models"
 	"fmt"
 	"fox/service/blog"
+	"fox/model"
 )
 
 type BlogCat struct {
 	BaseController
 }
+
 func (c *BlogCat) URLMapping() {
 	c.Mapping("List", c.List)
 	c.Mapping("Add", c.Add)
@@ -21,9 +22,11 @@ func (c *BlogCat) URLMapping() {
 //列表
 // @router /blog/cat [get]
 func (c *BlogCat)List() {
-	var blogSer *blog.Blog
-	page,_:=c.GetInt("page")
-	data, err := blogSer.Query(10001,page)
+	where := make(map[string]interface{})
+	where["type=?"] = blog.TYPE_CAT
+	mod := model.NewBlog()
+	page, _ := c.GetInt("page")
+	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 999)
 	//println(data)
 	println(err)
 	c.Data["data"] = data
@@ -35,28 +38,28 @@ func (c *BlogCat)List() {
 func (c *BlogCat)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var blogSer *blog.Blog
-	data, err := blogSer.Read(int_id)
+	ser :=blog.NewBlogService()
+	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
 		rsp := Response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
-		c.Data["info"] = data["Blog"]
+		c.Data["info"] = data["info"]
 		c.Data["statistics"] = data["Statistics"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
 		c.Data["title"] = "博客-分类-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
-		c.Data["cat_id"] = blog.CAT_ID
+		c.Data["type"] = blog.TYPE_CAT
 		c.TplName = "admin/blog/cat/get.html"
 	}
 }
 //添加
 // @router /blog/cat/add [get]
 func (c *BlogCat)Add() {
-	c.Data["cat_id"] = blog.CAT_ID
+	c.Data["type"] = blog.TYPE_CAT
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-分类-添加"
 	c.TplName = "admin/blog/cat/get.html"
@@ -66,22 +69,22 @@ func (c *BlogCat)Add() {
 func (c *BlogCat)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 
 	//参数传递
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	blogModel.CatId=blog.CAT_ID
+	blogModel.Type = blog.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
 		blogModel.TimeAdd = date
 	}
 	//创建
-	var serv blog.BlogCat
-	id, err := serv.Create(&blogModel)
+	serv :=blog.NewBlogCatService()
+	id, err := serv.Create(blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -98,19 +101,19 @@ func (c *BlogCat)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 	}
-	blogModel.CatId=blog.CAT_ID
+	blogModel.Type = blog.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
 		blogModel.TimeAdd = date
 	}
 	//更新
-	var ser *blog.BlogCat
-	_, err := ser.Update(int_id, &blogModel)
+	ser :=blog.NewBlogCatService()
+	_, err := ser.Update(int_id, blogModel)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -126,7 +129,7 @@ func (c *BlogCat)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	var ser *blog.BlogCat
+	ser :=blog.NewBlogCatService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())

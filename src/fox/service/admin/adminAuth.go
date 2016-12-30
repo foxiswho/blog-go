@@ -2,25 +2,28 @@ package admin
 
 import (
 	"github.com/astaxie/beego"
-	"fox/models"
 	"strings"
 	"strconv"
+	"fox/model"
 )
 
 type AdminAuth struct {
 
+}
+func NewAdminAuthService() *AdminAuth{
+	return new(AdminAuth)
 }
 //验证Session
 func (c *AdminAuth)Validate(account string) (*AdminSession) {
 	//查询用户
 	var admin *AdminUser
 	admUser, err := admin.GetAdminByUserName(account)
-	if err != nil || admUser.Id < 0 {
+	if err != nil || admUser.Aid < 0 {
 		beego.Debug("Auth 验证错误：", err.Error())
 		return nil
 	}
 	//赋值
-	var session *AdminSession
+	session :=NewAdminSessionService()
 	Session := session.Convert(admUser)
 	beego.Debug("Auth 验证通过：", Session)
 	return Session
@@ -29,7 +32,7 @@ func (c *AdminAuth)Validate(account string) (*AdminSession) {
 /**
 token 校验，判断是否登录
 */
-func (c *AdminAuth)ValidateToken(token, currentIp string) (*models.Admin) {
+func (c *AdminAuth)ValidateToken(token, currentIp string) (*model.Admin) {
 	//解密
 	//aes :=crypt.Aes{}
 	//Dtoken, err := aes.Decrypt(token)
@@ -54,7 +57,7 @@ func (c *AdminAuth)ValidateToken(token, currentIp string) (*models.Admin) {
 	//查询用户
 	var admin *AdminUser
 	admUser, err := admin.GetAdminById(int_id)
-	if err != nil || admUser.Id < 0 {
+	if err != nil || admUser.Aid < 0 {
 		beego.Debug("Auth 验证错误：", err.Error())
 		return nil
 	}

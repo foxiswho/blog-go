@@ -3,9 +3,10 @@ package admin
 import (
 	"fox/util/Response"
 	"strconv"
-	"fox/models"
 	"fox/service/blog"
 	"fmt"
+	"fox/model"
+	"fox/util/url"
 )
 
 type BlogController struct {
@@ -20,7 +21,6 @@ func (c *BlogController) URLMapping() {
 	c.Mapping("Get", c.Get)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Detail", c.Detail)
-	c.Mapping("Image", c.Image)
 }
 //检测名称重复
 // @router /blog/check_title [post]
@@ -44,9 +44,11 @@ func (c *BlogController)CheckTitle() {
 //列表
 // @router /blog [get]
 func (c *BlogController)List() {
-	var ser *blog.Blog
-	page,_:=c.GetInt("page")
-	data, err := ser.Query(0,page)
+	where := make(map[string]interface{})
+	where["type=?"] = blog.TYPE_ARTICLE
+	mod := blog.NewBlogService()
+	page, _ := c.GetInt("page")
+	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "博客-列表"
@@ -65,8 +67,7 @@ func (c *BlogController)Get() {
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
-		c.Data["info"] = data["Blog"]
-		c.Data["statistics"] = data["Statistics"]
+		c.Data["info"] = data["info"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
 		c.Data["title"] = "博客-编辑"
 		c.Data["_method"] = "put"
@@ -78,7 +79,11 @@ func (c *BlogController)Get() {
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
-	c.Data["info"]=&models.Blog{TypeId:blog.ORIGINAL}
+	mod := blog.NewBlogService()
+	mod.Blog=&model.Blog{}
+	mod.BlogStatistics=&model.BlogStatistics{}
+	mod.TypeId = blog.ORIGINAL
+	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
@@ -89,25 +94,27 @@ func (c *BlogController)Add() {
 func (c *BlogController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	blogModel := models.Blog{}
+	blogModel := model.NewBlog()
 	//参数传递
-	blog_statistics := models.BlogStatistics{}
-	if err := c.ParseForm(&blogModel); err != nil {
+	blog_statistics := model.NewBlogStatistics()
+	if err := url.ParseForm(c.Input(),blogModel); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
-		c.StopRun()
 	}
-	if err := c.ParseForm(&blog_statistics); err != nil {
+	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
-		c.StopRun()
 	}
-	//日期
-	date, ok := c.GetDateTime("time_add")
-	if ok {
-		blogModel.TimeAdd = date
+	if blogModel.TimeAdd.IsZero(){
+		//日期
+		date, ok := c.GetDateTime("time_add")
+		if ok {
+			blogModel.TimeAdd = date
+		}
 	}
 	//创建
-	var serv blog.Blog
-	id, err := serv.Create(&blogModel, &blog_statistics)
+	serv :=blog.NewBlogService()
+	id, err := serv.Create(blogModel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -131,22 +138,26 @@ func (c *BlogController)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogMoel := models.Blog{}
-	blog_statistics := models.BlogStatistics{}
-	if err := c.ParseForm(&blogMoel); err != nil {
+	blogMoel := model.NewBlog()
+	blog_statistics := model.NewBlogStatistics()
+	if err := url.ParseForm(c.Input(),blogMoel); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
 	}
-	if err := c.ParseForm(&blog_statistics); err != nil {
+	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:",err)
 		rsp.Error(err.Error())
 	}
-	//日期
-	date, ok := c.GetDateTime("time_add")
-	if ok {
-		blogMoel.TimeAdd = date
+	if blogMoel.TimeAdd.IsZero(){
+		//日期
+		date, ok := c.GetDateTime("time_add")
+		if ok {
+			blogMoel.TimeAdd = date
+		}
 	}
 	//更新
-	var ser *blog.Blog
-	_, err := ser.Update(int_id, &blogMoel, &blog_statistics)
+	ser :=blog.NewBlogService()
+	_, err := ser.Update(int_id, blogMoel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -162,7 +173,7 @@ func (c *BlogController)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	var ser *blog.Blog
+	ser :=blog.NewBlogService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())

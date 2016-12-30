@@ -1,66 +1,51 @@
 {{template "blog/header.html" .}}
-    <!-- Page Content -->
+{{template "blog/left.html" .}}
+<section id="main" class="index" style="display: block">
     <div class="container">
-
-        <div class="row">
-
-            <!-- Blog Post Content Column -->
-            <div class="col-lg-8">
-
-                <!-- Blog Post -->
-                {{range .data.Data}}
-                <div>
-                <!-- Title -->
-                    <a href="/article/{{.Id}}">
-                <h1>{{.Title}}</h1>
-                    </a>
-                <!-- Author -->
-                <p class="lead">
-                    by <a href="#">风.fox</a>
-                </p>
-                <hr>
-                <!-- Date/Time -->
-                <p><span class="glyphicon glyphicon-time"></span> Posted on {{dateformat .TimeAdd "2006-01-02 15:04:05"}}</p>
-                    {{.Content}}
-                    <hr>
+        <div id="article-list">
+            {{range .data.Data}}
+            <article class="article">
+                <div class="row">
+                    <header class="header">
+                        <h3 class="title">
+                            <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a>
+                        </h3>
+                    </header>
+                    <section class="brief">
+                        {{.Content |str2html}}
+                    </section>
+                    <aside class="aside clearfix">
+                        <span class="date">
+                            <span class="year">{{dateformat .TimeAdd "2006"}}</span>/
+                            <span class="month">{{dateformat .TimeAdd "01"}}</span>/
+                            <span class="day">{{dateformat .TimeAdd "02"}}</span>
+                        </span>
+                        <a class="day"><i class="fa fa-comments-o"></i> {{.Comment}}</a>
+                        <a class="day"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}}</a>
+                        <a class="author">{{.Author}}</a>
+                        <span class="tags">
+                            {{range $i,$v:=.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
+                             {{end}}
+                        </span>
+                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.Blog.BlogId}}">详情</a>
+                    </aside>
                 </div>
-                {{end}}
-                <div id="page">
-                    <ul class="pagination" id="pageUl">
-                    </ul>
-                </div>
+            </article>
+            {{end}}
+            <div class="article-pager">
+                {{if .data.FirstPageIs}}<a href="/page/{{.data.FirstPage}}">← 首页</a>{{end}}
+                <span class="current">
+                    {{range $i,$v:=.data.Pages}}
+                    <a href="/page/{{$v}}"> {{$v}} </a>
+                    {{end}}
+                </span>
+                {{if .data.LastPageIs}}<a href="/page/{{.data.LastPage}}">下一页 →</a>{{end}}
             </div>
-
-            {{template "blog/right.html" .}}
-
         </div>
-        <!-- /.row -->
-        <hr>
+        {{template "blog/footer.html" .}}
     </div>
-    <!-- /.container -->
-{{template "blog/footer.html" .}}
-<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
-<script>
-    $(function () {
-        $("#pageUl").bootstrapPaginator({
-            currentPage: '{{.data.PageNo}}',
-            totalPages: '{{.data.TotalPage}}',
-            bootstrapMajorVersion: 3,
-            size: "small",
-            itemTexts: function (type, page, current) {
-                switch (type) {
-                    case "first": return "首页";
-                    case "prev": return "上一页";
-                    case "next": return "下一页";
-                    case "last": return "末页";
-                    case "page": return page;
-                }
-            },
-            onPageClicked: function(e,originalEvent,type,page){
-                window.location.href = "?page=" + page
-            }
-        });
-    });
-</script>
+</section>
+{{template "blog/footer_js.html" .}}
 </body>
 </html>

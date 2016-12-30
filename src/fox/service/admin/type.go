@@ -2,35 +2,32 @@ package admin
 
 import (
 	"fmt"
-	"fox/models"
-	"strconv"
 	"fox/util"
 	"time"
-	"github.com/astaxie/beego/orm"
 	"fox/util/datetime"
+	"fox/model"
+	"fox/util/db"
 )
 
 type Type struct {
 
 }
 
-func (this *Type)Query(type_id int) (data []interface{}, err error) {
-	var fields []string
-	query := make(map[string]string)
-	sortby := []string{"Id"}
-	order := []string{"desc"}
-	var offset int64
-	var limit int64
-	offset = 0
-	limit = 2000
-	query["type_id"] = strconv.Itoa(type_id)
-	data, err = models.GetAllType(query, fields, sortby, order, offset, limit)
+func NewTypeService() *Type {
+	return new(Type)
+}
+func (this *Type)Query(type_id int) (*db.Paginator, error) {
+	fields := []string{}
+	query := make(map[string]interface{})
+	query["type_id"] = type_id
+	mod := model.NewType()
+	data, err := mod.GetAll(query, fields, "id desc", 0, 9999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
 }
 //创建
-func (c *Type)Create(m *models.Type) (int64, error) {
+func (c *Type)Create(m *model.Type) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
@@ -54,29 +51,31 @@ func (c *Type)Create(m *models.Type) (int64, error) {
 	if m.IsDefault > 1 {
 		m.IsDel = 1
 	}
-	id, err := models.AddType(m)
+	o := db.NewDb()
+	affected, err := o.Insert(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
 	}
-	fmt.Println("Id:", id)
-	return id, nil
+	fmt.Println("affected:", affected)
+	fmt.Println("Id:", m.Id)
+	return m.Id, nil
 }
 //更新
-func (c *Type)Update(id int, m *models.Type) (int, error) {
+func (c *Type)Update(id int, m *model.Type) (int, error) {
 	if id < 1 {
 		return 0, &util.Error{Msg:"ID 错误"}
 	}
 	if id < 10000 {
 		return 0, &util.Error{Msg:"系统数据 禁止修改"}
 	}
-	_, err := models.GetTypeById(id)
+	_, err := m.GetById(id)
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
 	if len(m.Name) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
 	}
-	fmt.Println("DATA:", m)
+	//fmt.Println("DATA:", m)
 	//删除状态
 	if m.IsDel < 0 {
 		m.IsDel = 0
@@ -91,9 +90,9 @@ func (c *Type)Update(id int, m *models.Type) (int, error) {
 	if m.IsDefault > 1 {
 		m.IsDel = 1
 	}
-
+	o := db.NewDb()
 	m.Id = id
-	num, err := c.UpdateById(m, "name", "code", "mark", "type_id", "parent_id", "value", "is_del", "sort", "module", "is_default", "remark","setting", "is_child", "is_system", "is_show")
+	num, err := o.Id(id).Where("id>10000").Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
@@ -103,8 +102,9 @@ func (c *Type)Update(id int, m *models.Type) (int, error) {
 	return id, nil
 }
 //更新
-func (c *Type)UpdateById(m *models.Type, cols ...string) (num int64, err error) {
-	o := orm.NewOrm()
+func (c *Type)UpdateById(m *model.Type, cols ...interface{}) (num int64, err error) {
+	o := db.NewDb()
+	o.Where("id>10000")
 	if num, err = o.Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil
@@ -119,10 +119,12 @@ func (c *Type)Delete(id int) (bool, error) {
 	if id < 10000 {
 		return false, &util.Error{Msg:"系统数据 禁止修改"}
 	}
-	err := models.DeleteType(id)
+	mod := model.NewType()
+	num, err := mod.Delete(id)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+	fmt.Println("num:", num)
 	return true, nil
 }
 //详情
@@ -130,8 +132,8 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
 		return nil, &util.Error{Msg:"ID 错误"}
 	}
-
-	data, err := models.GetTypeById(id)
+	mod := model.NewType()
+	data, err := mod.GetById(id)
 	if err != nil {
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
@@ -143,8 +145,7 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	//类别
 	m["type_id_name"] = "无"
 	if data.TypeId > 0 {
-
-		info, err := models.GetTypeById(data.TypeId)
+		info, err := mod.GetById(data.TypeId)
 		if err == nil {
 			m["type_id_name"] = info.Name
 		}
@@ -153,7 +154,7 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	m["parent_id_name"] = "无"
 	if data.ParentId > 0 {
 
-		info2, err := models.GetTypeById(data.ParentId)
+		info2, err := mod.GetById(data.ParentId)
 		if err == nil {
 			m["parent_id_name"] = info2.Name
 		}
@@ -162,27 +163,43 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	return m, err
 }
 //详情
-func (c *Type)CheckNameTypeId(type_id int, str string,id int) (bool, error) {
+func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
-
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(models.Type))
-	qs = qs.Filter("type_id", type_id)
-	qs = qs.Filter("name", str)
-	if id>0 {
-		qs = qs.Filter("id__nq", id)
+	mod := model.NewType()
+	where := make(map[string]interface{})
+	where["type_id=?"] = type_id
+	where["name=?"] = str
+	if id > 0 {
+		where["id !=?"] = id
 	}
-	count, err := qs.Count()
-	fmt.Println(count)
+
+	count, err := db.Filter(where).Count(mod)
 	if err != nil {
 		fmt.Println(err)
 		return false, err
 	}
+	fmt.Println(count)
 	if count == 0 {
 		return true, nil
 	}
 	return false, &util.Error{Msg:"已存在"}
 
+}
+func (c *Type)SiteConfig() map[string]interface{} {
+	tp := make([]model.Type, 0)
+	o := db.NewDb()
+	tps := make(map[string]interface{})
+	err := o.Where("type_id=?", 10007).Find(&tp)
+	if err != nil {
+		fmt.Println(err)
+		return tps
+	}
+	for _, v := range tp {
+		if v.Mark != "" {
+			tps[v.Mark] = v.Content
+		}
+	}
+	return tps
 }

@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"strconv"
 	"fox/util/Response"
-	"fox/models"
+	"fox/model"
+	"fox/util/url"
 )
 
 type TypeController struct {
 	BaseController
 }
+
 func (c *TypeController) URLMapping() {
 	c.Mapping("List", c.List)
 	c.Mapping("ListChild", c.ListChild)
@@ -23,7 +25,7 @@ func (c *TypeController) URLMapping() {
 //列表
 // @router /type [get]
 func (c *TypeController)List() {
-	var ser admin.Type
+	ser :=admin.NewTypeService()
 	data, err := ser.Query(0)
 	fmt.Println(err)
 	c.Data["data"] = data
@@ -36,13 +38,13 @@ func (c *TypeController)List() {
 func (c *TypeController)ListChild() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var ser admin.Type
+	ser :=admin.NewTypeService()
 	data, err := ser.Query(int_id)
 	fmt.Println(err)
 	c.Data["info"] = ""
 	if int_id > 0 {
-		var model *admin.Type
-		data, err := model.Read(int_id)
+		ser := admin.NewTypeService()
+		data, err := ser.Read(int_id)
 		if err == nil {
 			c.Data["info"] = data["info"]
 		}
@@ -59,19 +61,34 @@ func (c *TypeController)ListChild() {
 func (c *TypeController)Add() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
+	mod := model.NewType()
+	mod.TypeId = int_id
+	mod.IsDefault = 0
+	mod.IsDel = 0
+	mod.IsSystem = 0
+	mod.IsShow = 1
+	mod.IsChild = 0
 	c.Data["type_id"] = id
 	c.Data["type_id_name"] = "无"
 	c.Data["parent_id_name"] = "无"
-	c.Data["info"] = &models.Type{TypeId:int_id,IsDefault:0,IsDel:0,IsSystem:0,IsShow:1,IsChild:0}
+	c.Data["info"] = mod
 	if int_id > 0 {
-		var model *admin.Type
-		data, err := model.Read(int_id)
+
+		ser := admin.NewTypeService()
+		data, err := ser.Read(int_id)
 		if err == nil {
-			var t models.Type
-			t = data["info"].(models.Type)
+			var t model.Type
+			t = data["info"].(model.Type)
 			c.Data["type_id_name"] = t.Name
-		}else{
-			c.Data["info"] = &models.Type{TypeId:0,IsDefault:0,IsDel:0,IsSystem:0,IsShow:1,IsChild:0}
+		} else {
+			mod := model.NewType()
+			mod.TypeId = 0
+			mod.IsDefault = 0
+			mod.IsDel = 0
+			mod.IsSystem = 0
+			mod.IsShow = 1
+			mod.IsChild = 0
+			c.Data["info"] = mod
 			c.Data["type_id"] = 0
 		}
 	}
@@ -84,15 +101,15 @@ func (c *TypeController)Add() {
 func (c *TypeController)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	model := models.Type{}
+	mod := model.NewType()
 	//参数传递
-	if err := c.ParseForm(&model); err != nil {
+	if err := url.ParseForm(c.Input(),mod); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
 	//创建
-	var serv admin.Type
-	id, err := serv.Create(&model)
+	ser := admin.NewTypeService()
+	id, err := ser.Create(mod)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -105,8 +122,8 @@ func (c *TypeController)Post() {
 func (c *TypeController)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	var model *admin.Type
-	data, err := model.Read(int_id)
+	ser := admin.NewTypeService()
+	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
 		rsp := Response.NewResponse()
@@ -131,13 +148,13 @@ func (c *TypeController)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	model := models.Type{}
-	if err := c.ParseForm(&model); err != nil {
+	mod := model.NewType()
+	if err := url.ParseForm(c.Input(),mod); err != nil {
 		rsp.Error(err.Error())
 	}
 	//更新
-	var ser *admin.Type
-	_, err := ser.Update(int_id, &model)
+	ser := admin.NewTypeService()
+	_, err := ser.Update(int_id, mod)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -150,12 +167,12 @@ func (c *TypeController)CheckName() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
-	int_id,_  := c.GetInt("type_id")
-	id,_  := c.GetInt("id")
+	int_id, _ := c.GetInt("type_id")
+	id, _ := c.GetInt("id")
 	name := c.GetString("name")
 	//创建
-	var serv admin.Type
-	ok, err := serv.CheckNameTypeId(int_id,name,id)
+	ser := admin.NewTypeService()
+	ok, err := ser.CheckNameTypeId(int_id, name, id)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {

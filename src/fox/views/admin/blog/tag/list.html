@@ -34,9 +34,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {{range .data}}
+                            {{range .data.Data}}
                                 <tr class="">
-                                    <td>{{.Id}}</td>
+                                    <td>{{.TagId}}</td>
                                     <td>{{.Name}}</td>
                                     <td>{{.TimeAdd}}</td>
                                     <td>
@@ -45,7 +45,10 @@
                                 </tr>
                             {{end}}
                         </table>
-
+                        <div id="page">
+                            <ul class="pagination" id="pageUl">
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,70 +1,77 @@
 package blog
 
 import (
-	"fox/models"
 	"fmt"
 	"fox/util"
-	UtilOrm "fox/util/orm"
 	"fox/util/datetime"
 	"time"
-	"github.com/astaxie/beego/orm"
-	"github.com/russross/blackfriday"
-	"strconv"
-	"errors"
-	"reflect"
+	"fox/util/db"
+	"fox/model"
 	"strings"
+	"fox/util/editor"
+	"fox/util/str"
 )
-//博客模块ID
-const TYPE_ID = 10006
-const ORIGINAL = 10003
+
+const (
+	//博客模块ID
+	TYPE_ID = 10006
+	//原创
+	ORIGINAL = 10003
+	//栏目 博客分类属性 栏目ID
+	TYPE_CAT = 10001
+	//文章
+	TYPE_ARTICLE = 0
+)
+
+//
 
 type Blog struct {
-
+	*model.BlogStatistics
+	*model.Blog
+	Tags []string
 }
 
-func (c *Blog)Query(cat_id, page int) (*UtilOrm.Page, error) {
-	query := map[string]string{}
-	query["cat_id"] = strconv.Itoa(cat_id)
-	var fields []string
-	sortby := []string{"Id"}
-	order := []string{"desc"}
-	var limit int
-	limit = 20
-	data, err := GetAllBlog(query, fields, sortby, order, page, limit)
-	if err == nil {
-		return data, nil
-	}
-	return nil, err
+func NewBlogService() *Blog {
+	return new(Blog)
 }
+
 //详情
 func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
 		return nil, &util.Error{Msg:"ID 错误"}
 	}
-
-	data, err := models.GetBlogById(id)
+	mode := model.NewBlog()
+	data, err := mode.GetById(id)
 	if err != nil {
 		fmt.Println(err)
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
 	//整合
+	info := NewBlogService()
+	info.Blog = data
+	//tag
+	info.Tags = []string{}
+	if data.Tag != "" {
+		info.Tags = strings.Split(data.Tag, ",")
+	}
+	//整合
 	m := make(map[string]interface{})
-	m["Blog"] = *data
-	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
+	m["Content"] = string(editor.Markdown([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
-
-	var Statistics *models.BlogStatistics
-	Statistics, err = models.GetBlogStatisticsById(id)
+	//主键ID值和blog_id值一样所以这里直接取值
+	Statistics := model.NewBlogStatistics()
+	StatisticsData, err := Statistics.GetById(id)
 	if err == nil {
-		m["Statistics"] = Statistics
+		info.BlogStatistics = StatisticsData
 	} else {
 		//错误屏蔽
 		err = nil
 		//初始化赋值
-		m["Statistics"] = models.BlogStatistics{}
+		info.BlogStatistics = Statistics
 	}
-
+	m["info"] = info
+	m["title"] = info.Title
 	//fmt.Println(m)
 	return m, err
 }
@@ -74,34 +81,42 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 		return nil, &util.Error{Msg:"URL 错误"}
 	}
 
-	data, err := GetBlogByUrlRewrite(id)
+	data, err := c.GetBlogByUrlRewrite(id)
 	if err != nil {
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
 	//整合
+	info := NewBlogService()
+	info.Blog = data
+	//tag
+	info.Tags = []string{}
+	if data.Tag != "" {
+		info.Tags = strings.Split(data.Tag, ",")
+	}
+	//整合
 	m := make(map[string]interface{})
-	m["Blog"] = *data
-	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
+	m["Content"] = string(editor.Markdown([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
-
-	var Statistics *models.BlogStatistics
-	Statistics, err = models.GetBlogStatisticsById(data.Id)
+	//主键ID值和blog_id值一样所以这里直接取值
+	Statistics := model.NewBlogStatistics()
+	StatisticsData, err := Statistics.GetById(data.BlogId)
 	if err == nil {
-		m["Statistics"] = Statistics
+		info.BlogStatistics = StatisticsData
 	} else {
 		//错误屏蔽
 		err = nil
 		//初始化赋值
-		m["Statistics"] = models.BlogStatistics{}
+		info.BlogStatistics = Statistics
 	}
-
+	m["info"] = info
+	m["title"] = info.Title
 	//fmt.Println(m)
 	return m, err
 }
 
 //创建
-func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error) {
+func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
@@ -121,7 +136,7 @@ func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error)
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-
+	m.TimeUpdate = time.Now()
 	//状态
 	if m.Status < 0 {
 		m.Status = 0
@@ -129,35 +144,35 @@ func (c *Blog)Create(m *models.Blog, stat *models.BlogStatistics) (int64, error)
 	if m.Status > 99 {
 		m.Status = 99
 	}
-	id, err := models.AddBlog(m)
+	o := db.NewDb()
+	affected, err := o.Insert(m)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &util.Error{Msg:"创建错误1：" + err.Error()}
 	}
-
-	stat.BlogId = int(id)
-	stat.Id = stat.BlogId
-	id2, err := models.AddBlogStatistics(stat)
+	stat.BlogId = m.BlogId
+	stat.StatisticsId = stat.BlogId
+	id2, err := o.Insert(stat)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &util.Error{Msg:"创建错误2：" + err.Error()}
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
-		_, err := tagSer.CreateFromTags(int(id), m.Tag, "")
+		_, err := tagSer.CreateFromTags(m.BlogId, m.Tag, "")
 		fmt.Println("TAG:", err)
 	}
-
 	fmt.Println("DATA:", m)
-	fmt.Println("Id:", id)
+	fmt.Println("affected:", affected)
+	fmt.Println("Id:", m.BlogId)
 	fmt.Println("Statistics:", id2)
-	return id, nil
+	return m.BlogId, nil
 }
 //更新
-func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, error) {
+func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	if id < 1 {
 		return 0, &util.Error{Msg:"ID 错误"}
 	}
-
-	info, err := models.GetBlogById(id)
+	mode := model.NewBlog()
+	info, err := mode.GetById(id)
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
@@ -187,40 +202,44 @@ func (c *Blog)Update(id int, m *models.Blog, stat *models.BlogStatistics) (int, 
 	if m.Status > 99 {
 		m.Status = 99
 	}
-
-	m.Id = id
-	_, err = c.UpdateById(m, "title", "content", "status", "is_open", "time_add", "author", "url_source", "url_rewrite", "url", "thumb", "sort", "description", "tag")
+	//截取
+	m.Description=str.Substr(m.Description,0,255)
+	stat.SeoDescription=str.Substr(stat.SeoDescription,0,255)
+	o := db.NewDb()
+	num, err := o.Id(id).Update(m)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
-
+	fmt.Println("============", num)
+	//
 	stat.BlogId = id
-	stat.Id = stat.BlogId
-	_, err = c.UpdateBlogStatisticsById(stat, "blog_id", "seo_title", "seo_keyword", "seo_description")
+	o = db.NewDb()
+	num2, err := o.Id(id).Update(stat)
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
+	fmt.Println(num2)
 	//标签 创建和删除
 	var tagSer *BlogTag
 	_, err = tagSer.CreateFromTags(id, m.Tag, info.Tag)
 	fmt.Println("TAG:", err)
-	fmt.Println("DATA:", m)
+	//fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
 	return id, nil
 }
 //更新
-func (c *Blog)UpdateById(m *models.Blog, cols ...string) (num int64, err error) {
-	o := orm.NewOrm()
-	if num, err = o.Update(m, cols...); err == nil {
+func (c *Blog)UpdateById(m *model.Blog, cols ...interface{}) (num int64, err error) {
+	o := db.NewDb()
+	if num, err = o.Id(m.BlogId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil
 	}
 	return 0, err
 }
 //更新
-func (c *Blog)UpdateBlogStatisticsById(m *models.BlogStatistics, cols ...string) (num int64, err error) {
-	o := orm.NewOrm()
-	if num, err = o.Update(m, cols...); err == nil {
+func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interface{}) (num int64, err error) {
+	o := db.NewDb()
+	if num, err = o.Id(m.StatisticsId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
 		return num, nil
 	}
@@ -231,33 +250,34 @@ func (c *Blog)Delete(id int) (bool, error) {
 	if id < 1 {
 		return false, &util.Error{Msg:"ID 错误"}
 	}
-	err := models.DeleteBlog(id)
+	mode := model.NewBlog()
+	num, err := mode.Delete(id)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
-	err = c.DeleteBlogStatisticsByBlogId(id)
+	fmt.Println("num:", num)
+	num2, err := c.DeleteBlogStatisticsByBlogId(id)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+	fmt.Println("num2:", num2)
 	return true, nil
 }
-func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (err error) {
-	o := orm.NewOrm()
-	v := models.BlogStatistics{BlogId: id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&models.BlogStatistics{BlogId: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
-		}
+func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {
+	o := db.NewDb()
+	mode := model.NewBlogStatistics()
+	mode.BlogId = id
+	num, err := o.Delete(mode)
+	if err == nil {
+		return num, nil
 	}
-	return
+	return num, err
 }
 //根据自定义伪静态查询
-func GetBlogByUrlRewrite(id string) (v *models.Blog, err error) {
-	o := orm.NewOrm()
-	v = &models.Blog{UrlRewrite: id}
-	if err = o.Read(v, "url_rewrite"); err == nil {
+func (c *Blog)GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
+	o := db.NewDb()
+	v = new(model.Blog)
+	if err = o.Find(v); err == nil {
 		return v, nil
 	}
 	return nil, err
@@ -267,112 +287,69 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
-
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(models.Blog))
-	qs = qs.Filter("cat_id", cat_id)
-	qs = qs.Filter("title", str)
+	mode := new(model.Blog)
+	where := make(map[string]interface{})
+	where["cat_id"] = cat_id
+	where["title"] = str
 	if id > 0 {
-		qs = qs.Filter("blog_id__nq", id)
+		where["blog_id!=?"] = id
 	}
-	count, err := qs.Count()
-	fmt.Println(count)
+	count, err := db.Filter(where).Count(mode)
+
 	if err != nil {
 		fmt.Println(err)
 		return false, err
 	}
+	fmt.Println(count)
 	if count == 0 {
 		return true, nil
 	}
 	return false, &util.Error{Msg:"已存在"}
 }
-
-// GetAllBlog retrieves all Blog matches certain condition. Returns empty list if
-// no records exist
-func GetAllBlog(query map[string]string, fields []string, sortby []string, order []string,
-page int, limit int) (*UtilOrm.Page, error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(models.Blog))
-	var l []models.Blog
-	// query k=v
-	for k, v := range query {
-		// rewrite dot-notation to Object__Attribute
-		k = strings.Replace(k, ".", "__", -1)
-		qs = qs.Filter(k, v)
-	}
-	count, err := qs.Count()
+func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
+	mode := model.NewBlog()
+	data, err := mode.GetAll(q, fields, orderBy, page, 20)
 	if err != nil {
+		return nil, err
+	}
+	ids := make([]int, data.TotalCount)
+	for i, x := range data.Data {
+		r := x.(model.Blog)
+		ids[i] = r.BlogId
+	}
+	//fmt.Println(ids)
+	stat := make([]model.BlogStatistics, 0)
+	o := db.NewDb()
+	err = o.In("blog_id", ids).Find(&stat)
+	if err != nil {
+		stat = []model.BlogStatistics{}
 		fmt.Println(err)
 	}
-	if page < 1 {
-		page = 1
-	}
-	Query := UtilOrm.PageUtil(int(count), page, limit)
-	if count == 0 {
-		return Query, nil
-	}
-	//fmt.Println("Query",Query)
-	// order by:
-	var sortFields []string
-	if len(sortby) != 0 {
-		if len(sortby) == len(order) {
-			// 1) for each sort field, there is an associated order
-			for i, v := range sortby {
-				orderby := ""
-				if order[i] == "desc" {
-					orderby = "-" + v
-				} else if order[i] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-			qs = qs.OrderBy(sortFields...)
-		} else if len(sortby) != len(order) && len(order) == 1 {
-			// 2) there is exactly one order, all the sorted fields will be sorted by this order
-			for _, v := range sortby {
-				orderby := ""
-				if order[0] == "desc" {
-					orderby = "-" + v
-				} else if order[0] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
+	for i, x := range data.Data {
+		row := &Blog{}
+		tmp := x.(model.Blog)
+		//内容转换
+		tmp.Content=string(editor.Markdown([]byte(tmp.Content)))
+		row.Blog = &tmp
+		row.Tags = []string{}
+		if row.Tag != "" {
+			row.Tags = strings.Split(row.Tag, ",")
 		}
-	} else {
-		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
+		row.BlogStatistics=&model.BlogStatistics{}
+		for _, v := range stat {
+			//fmt.Println(v)
+			if (v.BlogId == tmp.BlogId) {
+				row.Comment=v.Comment
+				row.BlogStatistics.Read=v.Read
+				row.SeoDescription=v.SeoDescription
+				row.SeoKeyword=v.SeoKeyword
+				row.SeoTitle=v.SeoTitle
+				//fmt.Println(">>>>",row.BlogStatistics)
+			}
 		}
+		//fmt.Println("===",row.BlogStatistics)
+		data.Data[i] = &row
 	}
-	fmt.Println("Offset", Query)
-	fmt.Println("Offset", Query.Offset)
 
-	var ml []interface{}
-	qs = qs.OrderBy(sortFields...)
-	if _, err = qs.Limit(limit, int64(Query.Offset)).All(&l, fields...); err == nil {
-		if len(fields) == 0 {
-			for _, v := range l {
-				ml = append(ml, v)
-			}
-		} else {
-			// trim unused fields
-			for _, v := range l {
-				m := make(map[string]interface{})
-				val := reflect.ValueOf(v)
-				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
-				}
-				ml = append(ml, m)
-			}
-		}
-		Query.Data = ml
-		return Query, nil
-	}
-	return nil, err
+	return data, nil
 }

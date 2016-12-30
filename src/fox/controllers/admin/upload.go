@@ -5,6 +5,7 @@ import (
 	"fox/util/file"
 	"fmt"
 	"encoding/json"
+	"fox/util/editor"
 )
 
 type Upload struct {
@@ -14,6 +15,7 @@ type Upload struct {
 func (c *Upload) URLMapping() {
 	c.Mapping("Image", c.Image)
 	c.Mapping("File", c.File)
+	c.Mapping("Post", c.Post)
 }
 //图片
 // @router /upload/image [get]
@@ -39,14 +41,34 @@ func (c *Upload)File() {
 }
 //上传图片
 // @router /upload/image [post]
-func (c *BlogController)Image() {
+func (c *Upload)Post() {
+	t := c.GetString("t")
+	file_name := "file"
+	if t == "markdown" {
+		file_name = "editormd-image-file"
+	}
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	file, err := file.Upload("file", c.Ctx.Request)
-	if err != nil {
-		rsp.Error(err.Error())
-		c.StopRun()
+	f, err := file.Upload(file_name, c.Ctx.Request)
+	if t == "markdown" {
+		md:=&editor.EditorMd{}
+		if err != nil {
+			md.Message=err.Error()
+			md.Success=0
+		}else{
+			md.Message="上传成功"
+			md.Url=f.Url
+			md.Success=1
+		}
+
+		c.Data["json"]=md
+		c.ServeJSON()
+	}else{
+		if err != nil {
+			rsp.Error(err.Error())
+			c.StopRun()
+		}
+		rsp.SetData(f)
+		rsp.Success("")
 	}
-	rsp.SetData(file)
-	rsp.Success("")
 }

@@ -33,7 +33,7 @@ func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	if ok && session == "" {
 		return nil, &util.Error{Msg:"Session 为空"}
 	}
-	var Sess *admin.AdminSession
+	Sess :=admin.NewAdminSessionService()
 	err := json.Unmarshal([]byte(session), &Sess)
 	if err != nil {
 		return nil, &util.Error{Msg:"Session 序列号转换错误. " + err.Error()}

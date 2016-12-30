@@ -1,17 +1,21 @@
 package admin
 
 import (
-	"fox/models"
 	"github.com/astaxie/beego/orm"
 	"strings"
 	"fox/util"
 	"github.com/astaxie/beego"
 	"fmt"
 	UtilAuth "fox/util/Auth"
+	"fox/model"
+	"fox/util/db"
 )
 
 type AdminUser  struct {
 
+}
+func NewAdminUserService() *AdminUser{
+	return new(AdminUser)
 }
 //登录验证
 func (c *AdminUser) Auth(account, password string) (*AdminSession, error) {
@@ -20,14 +24,14 @@ func (c *AdminUser) Auth(account, password string) (*AdminSession, error) {
 	//登录成功
 	if err == nil {
 		//转换为session
-		var AdminSession *AdminSession
+		AdminSession:=NewAdminSessionService()
 		Session := AdminSession.Convert(admUser)
 		return Session, nil
 	}
 	return nil, err
 }
 //登录验证
-func (c *AdminUser) Login(account, password string) (admUser *models.Admin, err error) {
+func (c *AdminUser) Login(account, password string) (admUser *model.Admin, err error) {
 	if len(account) == 0 {
 		return nil, &util.Error{Msg:"账号 不能为空"}
 	}
@@ -36,9 +40,10 @@ func (c *AdminUser) Login(account, password string) (admUser *models.Admin, err 
 	}
 	admUser, err = c.GetAdminByUserName(account)
 	if err == nil {
-		if admUser.Id != 0 {
+		if admUser.Aid != 0 {
 			password := UtilAuth.PasswordSalt(password, admUser.Salt)
-			fmt.Println(password)
+			//fmt.Println(password)
+			//fmt.Println(admUser.Password)
 			if !strings.EqualFold(password, admUser.Password) {
 				return nil, &util.Error{Msg:"密码 错误"}
 			}
@@ -53,24 +58,29 @@ func (c *AdminUser) Login(account, password string) (admUser *models.Admin, err 
 	return nil, &util.Error{Msg:"登陆失败，请稍后重试.."}
 }
 //根据用户名查找
-func (c *AdminUser) GetAdminByUserName(account string) (v *models.Admin, err error) {
-	o := orm.NewOrm()
-	v = &models.Admin{Username: account}
-
-	if err = o.Read(v, "Username"); err == nil {
-		return v, nil
+func (c *AdminUser) GetAdminByUserName(account string) (*model.Admin, error) {
+	mod := model.NewAdmin()
+	//mod.Username = account
+	o := db.NewDb()
+	ok,err := o.Where("username=?",account).Get(mod)
+	if err == nil && ok{
+		if mod.Aid ==0{
+			return nil,&util.Error{Msg:"用户不存在"}
+		}
+		return mod, nil
 	}
 	fmt.Println(err)
 	return nil, err
 }
 //根据ID查找
-func (c *AdminUser) GetAdminById(id int) (admUser *models.Admin, err error) {
+func (c *AdminUser) GetAdminById(id int) (*model.Admin, error) {
 	if id <= 0 {
 		return nil, &util.Error{Msg:"id 错误"}
 	}
-	admUser, err = models.GetAdminById(id)
+	mod := model.NewAdmin()
+	admUser, err := mod.GetById(id)
 	if err == nil {
-		if admUser.Id != 0 {
+		if admUser.Aid != 0 {
 			return admUser, nil
 		} else {
 			return nil, &util.Error{Msg:"账号 不存在"}
@@ -96,15 +106,17 @@ func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 	if uid < 1 {
 		return false, &util.Error{Msg:"用户 UID 错误"}
 	}
-	admUser, err := models.GetAdminById(uid)
+	mod := model.NewAdmin()
+	admUser, err := mod.GetById(uid)
 	if err == nil {
-		if admUser.Id != 0 {
+		if admUser.Aid != 0 {
 			pwd := UtilAuth.PasswordSalt(pwd, admUser.Salt)
 			if strings.EqualFold(pwd, admUser.Password) {
 				return false, &util.Error{Msg:"新密码与旧密码相同"}
 			}
-			admin := &models.Admin{Id: uid, Password:pwd}
-			c.UpdateAdminById(admin,"password")
+			mod.Aid = uid
+			mod.Password = pwd
+			c.UpdateAdminById(mod, "password")
 			return true, nil
 		} else {
 			return false, &util.Error{Msg:"账号 不存在"}
@@ -113,11 +125,11 @@ func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 	return false, &util.Error{Msg:"账号 不存在"}
 }
 //更新
-func (c *AdminUser)UpdateAdminById(m *models.Admin, cols ...string) (num int64,err error) {
-	o := orm.NewOrm()
-	if num, err = o.Update(m, cols...); err == nil {
+func (c *AdminUser)UpdateAdminById(m *model.Admin, cols ...interface{}) (num int64, err error) {
+	o := db.NewDb()
+	if num, err = o.Id(m.Aid).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
-		return num,nil
+		return num, nil
 	}
-	return 0,err
+	return 0, err
 }

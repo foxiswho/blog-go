@@ -2,11 +2,11 @@ package admin
 
 import (
 	"time"
-	"fox/models"
+	"fox/model"
 )
 
 type AdminSession struct {
-	Id         int       `orm:"column(aid);auto"`
+	Aid        int       `orm:"column(aid);auto"`
 	Username   string    `orm:"column(username);size(30)"`
 	Mail       string    `orm:"column(mail);size(80)"`
 	TimeAdd    time.Time `orm:"column(time_add);type(timestamp);null;auto_now_add"`
@@ -18,7 +18,10 @@ type AdminSession struct {
 	Qq         string    `orm:"column(qq);size(50)"`
 	Phone      string    `orm:"column(phone);size(50)"`
 	Mobile     string    `orm:"column(mobile);size(20)"`
-	Role_id    map[int]models.AdminRoleAccess //扩展角色
+	Role_id    map[int]model.AdminRoleAccess //扩展角色
+}
+func NewAdminSessionService() *AdminSession{
+	return new(AdminSession)
 }
 /*
 // session 填充
@@ -57,11 +60,11 @@ func (this *AdminSession) Del(){
 	admin.DelSession(SESSION_NAME)
 }*/
 //转换
-func (c *AdminSession) Convert(admUser *models.Admin) *AdminSession {
+func (c *AdminSession) Convert(admUser *model.Admin) *AdminSession {
 	//赋值
 	Session := &AdminSession{}
 	Session.Username = admUser.Username
-	Session.Id = admUser.Id
+	Session.Aid = admUser.Aid
 	Session.Mail = admUser.Mail
 	Session.TimeAdd = admUser.TimeAdd
 	Session.Ip = admUser.Ip
