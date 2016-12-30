@@ -62,7 +62,7 @@
                                                 <button class="btn btn-info upload_file" type="button"><i class="fa fa-file"></i> 文件上传</button>
                                             </div>
 
-                                            <div class="panel-body">
+                                            <div class="panel-body" id="content_div">
                                                 <textarea name="content" id="content"  rows="30">{{.info.Content}}</textarea>
                                             </div>
                                         </div>
@@ -329,26 +329,6 @@
                     </div>
                 </div>
                 </form>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-content">
-                                <!--<div data-provide="markdown-editable">-->
-                                    <!--<h2>Bootstrap-Markdown简介</h2>-->
-                                    <!--<p>Bootstrap-Markdown是一款优秀的markdown编辑器，提供了实用的API，利用插件进行扩展。<code>你可以单击这段文字试试</code>-->
-                                    <!--</p>-->
-                                <!--</div>-->
-                                <p class="alert alert-success alert-dismissable m-t">
-                                    更多示例请访问：<a href="http://toopay.github.io/bootstrap-markdown/" target="_blank">http://toopay.github.io/bootstrap-markdown/</a>
-                                    <br>GitHub：
-                                    <a href="https://github.com/toopay/bootstrap-markdown" target="_blank">https://github.com/toopay/bootstrap-markdown</a>
-                                    <br/>语法：<a href="http://blog.csdn.net/witnessai1/article/details/52551362" target="_blank">http://blog.csdn.net/witnessai1/article/details/52551362</a>
-                                    <br/>语法：<a href="http://www.appinn.com/markdown/" target="_blank">http://www.appinn.com/markdown/</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
     </div>
 {{template "admin/public/footer.html" .}}

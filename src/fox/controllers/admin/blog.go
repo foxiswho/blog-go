@@ -21,7 +21,6 @@ func (c *BlogController) URLMapping() {
 	c.Mapping("Get", c.Get)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Detail", c.Detail)
-	c.Mapping("Image", c.Image)
 }
 //检测名称重复
 // @router /blog/check_title [post]

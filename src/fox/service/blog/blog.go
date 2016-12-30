@@ -9,6 +9,7 @@ import (
 	"fox/model"
 	"strings"
 	"fox/util/editor"
+	"fox/util/str"
 )
 
 const (
@@ -199,7 +200,9 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	if m.Status > 99 {
 		m.Status = 99
 	}
-
+	//截取
+	m.Description=str.Substr(m.Description,0,255)
+	stat.SeoDescription=str.Substr(stat.SeoDescription,0,255)
 	o := db.NewDb()
 	num, err := o.Id(id).Update(m)
 	if err != nil {
@@ -218,7 +221,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	var tagSer *BlogTag
 	_, err = tagSer.CreateFromTags(id, m.Tag, info.Tag)
 	fmt.Println("TAG:", err)
-	fmt.Println("DATA:", m)
+	//fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
 	return id, nil
 }
