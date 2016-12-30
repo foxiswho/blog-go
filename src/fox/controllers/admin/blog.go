@@ -80,7 +80,9 @@ func (c *BlogController)Get() {
 //添加
 // @router /blog/add [get]
 func (c *BlogController)Add() {
-	mod := model.NewBlog()
+	mod := blog.NewBlogService()
+	mod.Blog=&model.Blog{}
+	mod.BlogStatistics=&model.BlogStatistics{}
 	mod.TypeId = blog.ORIGINAL
 	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = blog.TYPE_ID
