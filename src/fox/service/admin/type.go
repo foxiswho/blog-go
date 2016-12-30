@@ -126,6 +126,25 @@ func (c *Type)Delete(id int) (bool, error) {
 	}
 	fmt.Println("num:", num)
 	return true, nil
+}//删除
+func (c *Type)DeleteAndTypeId(id, type_id int) (bool, error) {
+	if id < 1 {
+		return false, &util.Error{Msg:"ID 错误"}
+	}
+	if id < 10000 {
+		return false, &util.Error{Msg:"系统数据 禁止修改"}
+	}
+	if type_id < 1 {
+		return false, &util.Error{Msg:"类型 错误"}
+	}
+	mod := model.NewType()
+	o := db.NewDb()
+	num, err := o.Id(id).Where("type_id=?", type_id).Delete(mod)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	fmt.Println("num:", num)
+	return true, nil
 }
 //详情
 func (c *Type)Read(id int) (map[string]interface{}, error) {

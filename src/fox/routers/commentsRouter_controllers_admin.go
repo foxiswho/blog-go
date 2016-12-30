@@ -48,6 +48,13 @@ func init() {
 			AllowHTTPMethods: []string{"post"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminRole"],
+		beego.ControllerComments{
+			Method: "Delete",
+			Router: `/admin_role/:id`,
+			AllowHTTPMethods: []string{"delete"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:AdminUser"] = append(beego.GlobalControllerRouter["fox/controllers/admin:AdminUser"],
 		beego.ControllerComments{
 			Method: "CheckTitle",

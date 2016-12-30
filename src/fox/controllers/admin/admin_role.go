@@ -135,3 +135,20 @@ func (c *AdminRole)CheckName() {
 		rsp.Success("")
 	}
 }
+//删除
+// @router /admin_role/:id [delete]
+func (c *AdminRole)Delete() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	//ID 获取 格式化
+	id := c.Ctx.Input.Param(":id")
+	int_id, _ := strconv.Atoi(id)
+	//更新
+	ser := admin.NewTypeService()
+	_, err := ser.DeleteAndTypeId(int_id,admin.ADMIN_ROLE)
+	if err != nil {
+		rsp.Error(err.Error())
+	} else {
+		rsp.Success("")
+	}
+}
