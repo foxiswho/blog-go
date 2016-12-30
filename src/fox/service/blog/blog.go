@@ -71,6 +71,7 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 		info.BlogStatistics = Statistics
 	}
 	m["info"] = info
+	m["title"] = info.Title
 	//fmt.Println(m)
 	return m, err
 }
@@ -109,6 +110,7 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 		info.BlogStatistics = Statistics
 	}
 	m["info"] = info
+	m["title"] = info.Title
 	//fmt.Println(m)
 	return m, err
 }

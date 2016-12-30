@@ -30,6 +30,6 @@ func (this *ErrorController) Initialization() {
 	this.Data["__public__"] = "/"
 	this.Data["__static__"] = "/static/"
 	this.Data["__theme__"] = "/static/post/"
-	this.Data["blog_name"] = beego.AppConfig.String("blog_name")
+	this.Data["site_name"] = beego.AppConfig.String("site_name")
 	//orm.RunSyncdb("default", false, true)
 }

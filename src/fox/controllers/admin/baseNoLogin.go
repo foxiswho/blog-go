@@ -21,7 +21,7 @@ func (c *BaseNoLoginController) Initialization() {
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
-	c.Data["blog_name"] = beego.AppConfig.String("blog_name")
+	c.Data["site_name"] = beego.AppConfig.String("site_name")
 	//c.Layout="admin/public/layout.html"
 	//orm.RunSyncdb("default", false, true)
 }

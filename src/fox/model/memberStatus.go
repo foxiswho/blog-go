@@ -8,19 +8,19 @@ import (
 )
 
 type MemberStatus struct {
-	StatusId       int       `json:"status_id" xorm:"not null pk autoincr INT(11)" orm:"column(status_id)"`
-	Uid            int       `json:"uid" xorm:"not null default 0 index INT(11)" orm:"column(uid)"`
-	RegIp          string    `json:"reg_ip" xorm:"not null default '' CHAR(15)" orm:"column(reg_ip)"`
-	RegTime        time.Time `json:"reg_time" xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP" orm:"column(reg_time)"`
-	RegType        int       `json:"reg_type" xorm:"not null default 0 INT(11)" orm:"column(reg_type)"`
-	RegAppId       int       `json:"reg_app_id" xorm:"not null default 1 INT(11)" orm:"column(reg_app_id)"`
-	LastLoginIp    string    `json:"last_login_ip" xorm:"not null default '' CHAR(15)" orm:"column(last_login_ip)"`
-	LastLoginTime  time.Time `json:"last_login_time" xorm:"TIMESTAMP" orm:"column(last_login_time)"`
-	LastLoginAppId int       `json:"last_login_app_id" xorm:"not null default 0 INT(11)" orm:"column(last_login_app_id)"`
-	Login          int       `json:"login" xorm:"not null default 0 SMALLINT(5)" orm:"column(login)"`
-	IsMobile       int       `json:"is_mobile" xorm:"not null default 0 TINYINT(1)" orm:"column(is_mobile)"`
-	IsEmail        int       `json:"is_email" xorm:"not null default 0 TINYINT(1)" orm:"column(is_email)"`
-	AidAid         int       `json:"aid_aid" xorm:"not null default 0 INT(11)" orm:"column(aid_aid)"`
+	StatusId       int       `json:"status_id" xorm:"not null pk autoincr INT(11)"`
+	Uid            int       `json:"uid" xorm:"not null default 0 index INT(11)"`
+	RegIp          string    `json:"reg_ip" xorm:"not null default '' CHAR(15)"`
+	RegTime        time.Time `json:"reg_time" xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	RegType        int       `json:"reg_type" xorm:"not null default 0 INT(11)"`
+	RegAppId       int       `json:"reg_app_id" xorm:"not null default 1 INT(11)"`
+	LastLoginIp    string    `json:"last_login_ip" xorm:"not null default '' CHAR(15)"`
+	LastLoginTime  time.Time `json:"last_login_time" xorm:"TIMESTAMP"`
+	LastLoginAppId int       `json:"last_login_app_id" xorm:"not null default 0 INT(11)"`
+	Login          int       `json:"login" xorm:"not null default 0 SMALLINT(5)"`
+	IsMobile       int       `json:"is_mobile" xorm:"not null default 0 TINYINT(1)"`
+	IsEmail        int       `json:"is_email" xorm:"not null default 0 TINYINT(1)"`
+	AidAid         int       `json:"aid_aid" xorm:"not null default 0 INT(11)"`
 }
 
 //初始化

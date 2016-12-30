@@ -7,19 +7,19 @@ import (
 )
 
 type MemberProfile struct {
-	ProfileId   int    `json:"profile_id" xorm:"not null pk autoincr INT(11)" orm:"column(profile_id)"`
-	Uid         int    `json:"uid" xorm:"not null default 0 index INT(11)" orm:"column(uid)"`
-	Sex         int    `json:"sex" xorm:"not null default 1 TINYINT(1)" orm:"column(sex)"`
-	Job         string `json:"job" xorm:"not null default '' VARCHAR(50)" orm:"column(job)"`
-	Qq          string `json:"qq" xorm:"not null default '' VARCHAR(20)" orm:"column(qq)"`
-	Phone       string `json:"phone" xorm:"not null default '' VARCHAR(20)" orm:"column(phone)"`
-	County      int    `json:"county" xorm:"not null default 1 INT(11)" orm:"column(county)"`
-	Province    int    `json:"province" xorm:"not null default 0 INT(11)" orm:"column(province)"`
-	City        int    `json:"city" xorm:"not null default 0 INT(11)" orm:"column(city)"`
-	District    int    `json:"district" xorm:"not null default 0 INT(11)" orm:"column(district)"`
-	Address     string `json:"address" xorm:"not null default '' VARCHAR(255)" orm:"column(address)"`
-	Wechat      string `json:"wechat" xorm:"not null default '' VARCHAR(20)" orm:"column(wechat)"`
-	RemarkAdmin string `json:"remark_admin" xorm:"TEXT" orm:"column(remark_admin)"`
+	ProfileId   int    `json:"profile_id" xorm:"not null pk autoincr INT(11)"`
+	Uid         int    `json:"uid" xorm:"not null default 0 index INT(11)"`
+	Sex         int    `json:"sex" xorm:"not null default 1 TINYINT(1)"`
+	Job         string `json:"job" xorm:"not null default '' VARCHAR(50)"`
+	Qq          string `json:"qq" xorm:"not null default '' VARCHAR(20)"`
+	Phone       string `json:"phone" xorm:"not null default '' VARCHAR(20)"`
+	County      int    `json:"county" xorm:"not null default 1 INT(11)"`
+	Province    int    `json:"province" xorm:"not null default 0 INT(11)"`
+	City        int    `json:"city" xorm:"not null default 0 INT(11)"`
+	District    int    `json:"district" xorm:"not null default 0 INT(11)"`
+	Address     string `json:"address" xorm:"not null default '' VARCHAR(255)"`
+	Wechat      string `json:"wechat" xorm:"not null default '' VARCHAR(20)"`
+	RemarkAdmin string `json:"remark_admin" xorm:"TEXT"`
 }
 
 //初始化

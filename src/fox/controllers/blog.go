@@ -35,6 +35,7 @@ func (c *BlogController) Get() {
 		c.Error(err.Error())
 		return
 	} else {
+		c.Data["title"] =read["title"]
 		c.Data["info"] = read["info"]
 		c.Data["TimeAdd"] = read["TimeAdd"]
 		c.Data["Content"] = read["Content"]

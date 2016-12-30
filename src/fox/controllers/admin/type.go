@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"fox/util/Response"
 	"fox/model"
+	"fox/util/url"
 )
 
 type TypeController struct {
@@ -102,7 +103,7 @@ func (c *TypeController)Post() {
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewType()
 	//参数传递
-	if err := c.ParseForm(mod); err != nil {
+	if err := url.ParseForm(c.Input(),mod); err != nil {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
@@ -148,7 +149,7 @@ func (c *TypeController)Put() {
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
 	mod := model.NewType()
-	if err := c.ParseForm(mod); err != nil {
+	if err := url.ParseForm(c.Input(),mod); err != nil {
 		rsp.Error(err.Error())
 	}
 	//更新

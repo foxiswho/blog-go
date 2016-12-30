@@ -13,10 +13,10 @@ type Type struct {
 
 }
 
-func NewTypeService() *Type{
+func NewTypeService() *Type {
 	return new(Type)
 }
-func (this *Type)Query(type_id int) (*db.Paginator,  error) {
+func (this *Type)Query(type_id int) (*db.Paginator, error) {
 	fields := []string{}
 	query := make(map[string]interface{})
 	query["type_id"] = type_id
@@ -68,15 +68,14 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 	if id < 10000 {
 		return 0, &util.Error{Msg:"系统数据 禁止修改"}
 	}
-	mod := model.NewType()
-	_, err := mod.GetById(id)
+	_, err := m.GetById(id)
 	if err != nil {
 		return 0, &util.Error{Msg:"数据不存在"}
 	}
 	if len(m.Name) < 1 {
 		return 0, &util.Error{Msg:"标题 不能为空"}
 	}
-	fmt.Println("DATA:", m)
+	//fmt.Println("DATA:", m)
 	//删除状态
 	if m.IsDel < 0 {
 		m.IsDel = 0
@@ -187,4 +186,20 @@ func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	}
 	return false, &util.Error{Msg:"已存在"}
 
+}
+func (c *Type)SiteConfig() map[string]interface{} {
+	tp := make([]model.Type, 0)
+	o := db.NewDb()
+	tps := make(map[string]interface{})
+	err := o.Where("type_id=?", 10007).Find(&tp)
+	if err != nil {
+		fmt.Println(err)
+		return tps
+	}
+	for _, v := range tp {
+		if v.Mark != "" {
+			tps[v.Mark] = v.Content
+		}
+	}
+	return tps
 }

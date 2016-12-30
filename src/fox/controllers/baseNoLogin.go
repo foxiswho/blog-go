@@ -7,28 +7,34 @@ import (
 	"fox/util/datetime"
 	"fox/util/db"
 	"github.com/astaxie/beego/orm"
+	"fox/service/admin"
 )
 
 type BaseNoLoginController struct {
 	beego.Controller
+	Config map[string]interface{}
 	//Session *service.AdminSession //当前登录用户信息
 }
 
 //  框架中的扩展函数
-func (this *BaseNoLoginController) Prepare() {
-	this.Initialization()
+func (c *BaseNoLoginController) Prepare() {
+	c.Initialization()
 }
 // 初始化数据
-func (this *BaseNoLoginController) Initialization() {
-	this.Data["__public__"] = "/"
-	this.Data["__static__"] = "/static/"
-	this.Data["__theme__"] = "/static/post/"
-	this.Data["blog_name"] = beego.AppConfig.String("blog_name")
-	//orm.RunSyncdb("default", false, true)
+func (c *BaseNoLoginController) Initialization() {
+	c.Data["__public__"] = "/"
+	c.Data["__static__"] = "/static/"
+	c.Data["__theme__"] = "/static/post/"
+	//博客名字
+	c.Config = admin.NewTypeService().SiteConfig()
+	if len(c.Config) > 0 {
+		c.Data["site_name"] = c.Config["SITE_NAME"]
+	}
+
 }
 //表单日期时间
-func (this *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
-	date := this.GetString(key)
+func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
+	date := c.GetString(key)
 	if len(date) > 0 {
 		date, err := datetime.FormatTimeStructLocation(date, datetime.Y_M_D_H_I_S)
 		if err == nil {
@@ -38,9 +44,9 @@ func (this *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
 	return time.Time{}, false
 }
 //表单日期时间
-func (this *BaseNoLoginController) Error(key string) {
-	this.Data["content"] = key
-	this.TplName = "error/404.html"
+func (c *BaseNoLoginController) Error(key string) {
+	c.Data["content"] = key
+	c.TplName = "error/404.html"
 }
 //初始化数据库
 func init() {
