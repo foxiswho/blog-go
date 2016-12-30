@@ -45,6 +45,7 @@ func init() {
 			&admin.BlogController{},
 			&admin.Select{},
 			&admin.Upload{},
+			&admin.AdminUser{},
 		),
 	)
 	beego.AddNamespace(ns)

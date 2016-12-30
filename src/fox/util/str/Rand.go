@@ -12,8 +12,8 @@ func GetRand() *rand.Rand {
 func RandSalt() string {
 	var salt = ""
 	for i := 0; i < 4; i++ {
-		rand := GetRand()
-		salt += string(SALT[rand.Intn(len(SALT))])
+		ran := GetRand()
+		salt += string(SALT[ran.Intn(len(SALT))])
 	}
 	return salt
 }

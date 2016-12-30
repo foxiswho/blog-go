@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"reflect"
 	"fox/util"
+	"time"
 )
 
 type Db struct {
@@ -35,6 +36,8 @@ func Init() {
 		fmt.Println("NewEngine", err)
 	}
 	DB.Db.ShowSQL(true)
+	locat, _ := time.LoadLocation("Asia/Shanghai")
+	DB.Db.TZLocation = locat
 }
 // NewDb create new db
 func NewDb() *xorm.Engine {
@@ -50,7 +53,7 @@ var Query *QuerySession
 func Filter(where map[string]interface{}) *xorm.Session {
 	db := DB.Db
 	Query = new(QuerySession)
-	if len(where)>0{
+	if len(where) > 0 {
 		i := 1
 		for k, v := range where {
 			//fmt.Println(k, v, reflect.TypeOf(v))
@@ -154,9 +157,9 @@ func Filter(where map[string]interface{}) *xorm.Session {
 			}
 			i++
 		}
-	}else {
+	} else {
 		//初始化
-		Query.Session=db.Limit(20,0)
+		Query.Session = db.Limit(20, 0)
 	}
 
 	return Query.Session
