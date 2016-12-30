@@ -1,14 +1,15 @@
 package admin
 
 import (
-	"github.com/astaxie/beego"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"fox/util/datetime"
+	"fox/service/admin"
 )
 
 type BaseNoLoginController struct {
 	AdminSession
+	Config map[string]interface{}
 }
 
 //  框架中的扩展函数
@@ -21,9 +22,11 @@ func (c *BaseNoLoginController) Initialization() {
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
-	c.Data["site_name"] = beego.AppConfig.String("site_name")
-	//c.Layout="admin/public/layout.html"
-	//orm.RunSyncdb("default", false, true)
+	//博客名字
+	c.Config = admin.NewTypeService().SiteConfig()
+	if len(c.Config) > 0 {
+		c.Data["site_name"] = c.Config["SITE_NAME"]
+	}
 }
 //表单日期时间
 func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
