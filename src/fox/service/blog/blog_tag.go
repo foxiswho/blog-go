@@ -16,7 +16,7 @@ type BlogTag struct {
 func NewBlogTagService() *BlogTag{
 	return new(BlogTag)
 }
-func (c *BlogTag)Query(str string) ( *db.Page,  error) {
+func (c *BlogTag)Query(str string) ( *db.Paginator,  error) {
 	query := make(map[string]interface{})
 	fields := []string{}
 	if str != "" {

@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"fox/service/blog"
 	"fmt"
-	"fox/model"
 )
 
 type BlogController struct {
@@ -23,7 +22,7 @@ type BlogController struct {
 // @router /article/:id [get]
 func (c *BlogController) Get() {
 	idStr := c.Ctx.Input.Param(":id")
-	ser :=blog.NewBlogService()
+	ser := blog.NewBlogService()
 	var err error
 	var read map[string]interface{}
 	if ok, _ := regexp.Match(`^\d+$`, []byte(idStr)); ok {
@@ -40,6 +39,7 @@ func (c *BlogController) Get() {
 		c.Data["statistics"] = read["Statistics"]
 		c.Data["TimeAdd"] = read["TimeAdd"]
 		c.Data["Content"] = read["Content"]
+		c.Data["OtherData"] = read["tag"]
 	}
 	c.TplName = "blog/get.html"
 }
@@ -61,12 +61,12 @@ func (c *BlogController) GetAll() {
 	orderBy := "blog_id desc"
 	query := make(map[string]interface{})
 	query["type=?"] = blog.TYPE_ARTICLE
-	mode := model.NewBlog()
+	mode := blog.NewBlogService()
 	//分页
 	page, _ := c.GetInt("page")
 	data, err := mode.GetAll(query, fields, orderBy, page, 20)
 	fmt.Println("err", err)
-	fmt.Println("data", data)
+	//fmt.Println("data", data)
 	if err != nil {
 		//c.Data["data"] = err.Error()
 		fmt.Println(err.Error())
@@ -74,4 +74,5 @@ func (c *BlogController) GetAll() {
 		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"
+
 }

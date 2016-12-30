@@ -1,66 +1,45 @@
 {{template "blog/header.html" .}}
-    <!-- Page Content -->
+{{template "blog/left.html" .}}
+<section id="main" class="index" style="display: block">
     <div class="container">
-
-        <div class="row">
-
-            <!-- Blog Post Content Column -->
-            <div class="col-lg-8">
-
-                <!-- Blog Post -->
-                {{range .data.Data}}
-                <div>
-                <!-- Title -->
-                    <a href="/article/{{.BlogId}}">
-                <h1>{{.Title}}</h1>
-                    </a>
-                <!-- Author -->
-                <p class="lead">
-                    by <a href="#">风.fox</a>
-                </p>
-                <hr>
-                <!-- Date/Time -->
-                <p><span class="glyphicon glyphicon-time"></span> Posted on {{dateformat .TimeAdd "2006-01-02 15:04:05"}}</p>
-                    {{.Content}}
-                    <hr>
+        <div id="article-list">
+            {{$OtherData := .data.OtherData}}
+            {{range .data.Data}}
+            <article class="article">
+                <div class="row">
+                    <header class="header">
+                        <h3 class="title">
+                            <a href="/article/{{.BlogId}}">{{.Title}}</a>
+                        </h3>
+                    </header>
+                    <section class="brief">
+                        {{.Content}}
+                    </section>
+                    <aside class="aside clearfix">
+                        <span class="date">
+                            <span class="year">{{dateformat .TimeAdd "2006"}}</span>/
+                            <span class="month">{{dateformat .TimeAdd "01"}}</span>/
+                            <span class="day">{{dateformat .TimeAdd "02"}}</span>
+                        </span>
+                        <span class="tags">
+                            {{$tags:=map_get $OtherData .BlogId }}
+                            {{range $i,$v:=$tags}}
+                            <a class="tag" href="/tag/{{$v}}.html">{{$v}}</a>
+                             {{end}}
+                        </span>
+                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.BlogId}}">详情</a>
+                    </aside>
                 </div>
-                {{end}}
-                <div id="page">
-                    <ul class="pagination" id="pageUl">
-                    </ul>
-                </div>
+            </article>
+            {{end}}
+            <div class="article-pager">
+                <span class="current">Page 1 of 1</span>
             </div>
 
-            {{template "blog/right.html" .}}
-
         </div>
-        <!-- /.row -->
-        <hr>
+        {{template "blog/footer.html" .}}
     </div>
-    <!-- /.container -->
-{{template "blog/footer.html" .}}
-<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
-<script>
-    $(function () {
-        $("#pageUl").bootstrapPaginator({
-            currentPage: '{{.data.PageNo}}',
-            totalPages: '{{.data.TotalPage}}',
-            bootstrapMajorVersion: 3,
-            size: "small",
-            itemTexts: function (type, page, current) {
-                switch (type) {
-                    case "first": return "首页";
-                    case "prev": return "上一页";
-                    case "next": return "下一页";
-                    case "last": return "末页";
-                    case "page": return page;
-                }
-            },
-            onPageClicked: function(e,originalEvent,type,page){
-                window.location.href = "?page=" + page
-            }
-        });
-    });
-</script>
+</section>
+{{template "blog/footer_js.html" .}}
 </body>
 </html>

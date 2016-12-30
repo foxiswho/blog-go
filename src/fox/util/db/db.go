@@ -172,7 +172,7 @@ func FilterWhereAnd(db *xorm.Engine, i int, key string, value ...interface{}) {
 		Query.Session = Query.Session.And(key, value...)
 	}
 }
-func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*Page, error) {
+func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*Paginator, error) {
 	session := Filter(q)
 	count, err := session.Count(model)
 	if err != nil {

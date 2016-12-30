@@ -8,6 +8,8 @@ import (
 	"github.com/russross/blackfriday"
 	"fox/util/db"
 	"fox/model"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -26,7 +28,8 @@ const (
 type Blog struct {
 
 }
-func NewBlogService() *Blog{
+
+func NewBlogService() *Blog {
 	return new(Blog)
 }
 //详情
@@ -36,17 +39,24 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	}
 	mode := model.NewBlog()
 	data, err := mode.GetById(id)
-	fmt.Println(data)
+	//fmt.Println(data)
 	if err != nil {
 		fmt.Println(err)
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
 	//整合
 	m := make(map[string]interface{})
-	m["info"] = *data
+	m["info"] = data
 	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
+	//tag
+	row := make(map[string][]string)
+	row[strconv.Itoa(data.BlogId)] = []string{}
+	if data.Tag != "" {
+		row[strconv.Itoa(data.BlogId)] = strings.Split(data.Tag, ",")
+	}
+	m["tag"] = row
 	//主键ID值和blog_id值一样所以这里直接取值
 	Statistics := model.NewBlogStatistics()
 	StatisticsData, err := Statistics.GetById(id)
@@ -77,7 +87,13 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
-
+	//tag
+	row := make(map[string][]string)
+	row[strconv.Itoa(data.BlogId)] = []string{}
+	if data.Tag != "" {
+		row[strconv.Itoa(data.BlogId)] = strings.Split(data.Tag, ",")
+	}
+	m["tag"] = row
 	Statistics := model.NewBlogStatistics()
 	StatisticsData, err := Statistics.GetById(data.BlogId)
 	if err == nil {
@@ -114,7 +130,7 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-	m.TimeUpdate =time.Now()
+	m.TimeUpdate = time.Now()
 	//状态
 	if m.Status < 0 {
 		m.Status = 0
@@ -186,7 +202,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	if err != nil {
 		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
 	}
-	fmt.Println("============",num)
+	fmt.Println("============", num)
 	//
 	stat.BlogId = id
 	o = db.NewDb()
@@ -281,4 +297,20 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 		return true, nil
 	}
 	return false, &util.Error{Msg:"已存在"}
+}
+func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
+	mode := model.NewBlog()
+	data, err := mode.GetAll(q, fields, orderBy, page, 20)
+	if err != nil {
+		return nil, err
+	}
+	data.OtherData = make(map[string]interface{})
+	for _, x := range data.Data {
+		row := x.(model.Blog)
+		data.OtherData[strconv.Itoa(row.BlogId)] = []string{}
+		if row.Tag != "" {
+			data.OtherData[strconv.Itoa(row.BlogId)] = strings.Split(row.Tag, ",")
+		}
+	}
+	return data, nil
 }

@@ -16,7 +16,7 @@ type BlogCat struct {
 func NewBlogCatService() *BlogCat{
 	return new(BlogCat)
 }
-func (c *BlogCat)Query(cat_id int) ( *db.Page,  error) {
+func (c *BlogCat)Query(cat_id int) ( *db.Paginator,  error) {
 	query := make(map[string]interface{})
 	query["cat_id"] = cat_id
 	fields := []string{}

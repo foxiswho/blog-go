@@ -36,7 +36,7 @@ func (c *Admin) newMakeDataArr() []Admin {
 }
 
 //列表查询
-func (c *Admin) GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Page, error) {
+func (c *Admin) GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	session := db.Filter(q)
 	count, err := session.Count(c)
 	if err != nil {
