@@ -34,9 +34,14 @@
             </article>
             {{end}}
             <div class="article-pager">
-                <span class="current">Page 1 of 1</span>
+                {{if .data.FirstPageIs}}<a href="/page/{{.data.FirstPage}}">← 首页</a>{{end}}
+                <span class="current">
+                    {{range $i,$v:=.data.Pages}}
+                    <a href="/page/{{$v}}"> {{$v}} </a>
+                    {{end}}
+                </span>
+                {{if .data.LastPageIs}}<a href="/page/{{.data.LastPage}}">下一页 →</a>{{end}}
             </div>
-
         </div>
         {{template "blog/footer.html" .}}
     </div>
