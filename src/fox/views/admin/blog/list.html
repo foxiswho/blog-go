@@ -2,11 +2,10 @@
     <div class="wrapper wrapper-content  animated fadeInRight blog">
         <div class="row">
             <div class="col-lg-12">
-                {{$OtherData := .data.OtherData}}
                 {{range .data.Data}}
                 <div class="ibox">
                     <div class="ibox-content">
-                        <a href="/article/{{.BlogId}}" class="btn-link" target="_blank">
+                        <a href="/article/{{.Blog.BlogId}}" class="btn-link" target="_blank">
                             <h2>
                                 {{if eq .TypeId 10003}}
                                 <label class="label label-primary">原</label>
@@ -20,8 +19,8 @@
                         </a>
                         <div class="small m-b-xs">
                             <strong>{{.Author}}</strong> <span class="text-muted"><i class="fa fa-clock-o"></i> {{dateformat .TimeAdd "2006-01-02 15:04:05"}}</span>
-                            <span class="text-muted"><i class="fa fa-comments-o"></i> 56 评论</span>
-                            <span class="text-muted"><i class="fa fa-eye"></i> 144 浏览</span>
+                            <span class="text-muted"><i class="fa fa-comments-o"></i> {{.Comment}} 评论</span>
+                            <span class="text-muted"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}} 浏览</span>
                         </div>
                         <p>
                             {{.Description}}
@@ -29,8 +28,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h5>标签：</h5>
-                                {{$tags:=map_get $OtherData .BlogId }}
-                                {{range $i,$v:=$tags}}
+                                {{range $i,$v:=.Tags}}
                                 <button class="btn btn-primary btn-xs" type="button">{{$v}}</button>
                                 {{end}}
 
@@ -38,7 +36,7 @@
                             <div class="col-md-6">
                                 <div class=" text-right">
                                     <h5>操作</h5>
-                                    <a href="blog/{{.BlogId}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
+                                    <a href="blog/{{.Blog.BlogId}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
                                 </div>
                             </div>
                         </div>

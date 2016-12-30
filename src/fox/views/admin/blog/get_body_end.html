@@ -22,7 +22,7 @@
     <link href="{{.__static__}}plugin/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" rel="stylesheet">
 <script src="{{.__static__}}plugin/insertAtCaret.js"></script>
     <script>
-        var blog_id="{{if .is_put}}{{.info.BlogId}}{{else}}0{{end}}";
+        var blog_id="{{if .is_put}}{{.info.Blog.BlogId}}{{else}}0{{end}}";
         var upload_json={type_id:{{.TYPE_ID}},id:blog_id};
         var layerID;
         //禁止 回车 表单保存
@@ -111,7 +111,7 @@
                 }
                 var data={"title":$name.value(),"cat_id":0,"id":blog_id};
                 {{if .is_put}}
-                data.id="{{.info.BlogId}}";
+                data.id="{{.info.Blog.BlogId}}";
                 {{end}}
                 $.ajax({
                     url:'/admin/blog/check_title',

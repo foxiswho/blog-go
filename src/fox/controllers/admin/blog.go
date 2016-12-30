@@ -69,7 +69,6 @@ func (c *BlogController)Get() {
 		rsp.Error(err.Error())
 	} else {
 		c.Data["info"] = data["info"]
-		c.Data["statistics"] = data["Statistics"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
 		c.Data["title"] = "博客-编辑"
 		c.Data["_method"] = "put"
