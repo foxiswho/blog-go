@@ -47,7 +47,7 @@ func (c *BlogController)CheckTitle() {
 func (c *BlogController)List() {
 	where := make(map[string]interface{})
 	where["type=?"] = blog.TYPE_ARTICLE
-	mod := model.NewBlog()
+	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	println(err)

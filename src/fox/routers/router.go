@@ -52,5 +52,5 @@ func init() {
 	beego.Router("/", &controllers.BlogController{}, "get:GetAll")
 	beego.Router("/page/:page", &controllers.BlogController{}, "get:GetAll")
 	beego.Router("/article/:id", &controllers.BlogController{}, "get:Get")
-
+	beego.Router("/tag/:tag", &controllers.TagController{}, "get:GetAll")
 }

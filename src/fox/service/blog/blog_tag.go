@@ -13,10 +13,11 @@ import (
 type BlogTag struct {
 
 }
-func NewBlogTagService() *BlogTag{
+
+func NewBlogTagService() *BlogTag {
 	return new(BlogTag)
 }
-func (c *BlogTag)Query(str string) ( *db.Paginator,  error) {
+func (c *BlogTag)Query(str string) (*db.Paginator, error) {
 	query := make(map[string]interface{})
 	fields := []string{}
 	if str != "" {
@@ -140,4 +141,60 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 	}
 
 	return false, nil
+}
+func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
+
+	mode := model.NewBlogTag()
+	data, err := mode.GetAll(q, fields, orderBy, page, 20)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]int, data.TotalCount)
+	for i, x := range data.Data {
+		r := x.(model.BlogTag)
+		ids[i] = r.BlogId
+	}
+	o := db.NewDb()
+	blogs := make([]model.Blog, 0)
+	err=o.Id(ids).Find(&blogs)
+	if err != nil {
+		blogs = []model.Blog{}
+		fmt.Println(err)
+	}
+	//fmt.Println(blogs)
+	stat := make([]model.BlogStatistics, 0)
+	err = o.In("blog_id", ids).Find(&stat)
+	if err != nil {
+		stat = []model.BlogStatistics{}
+		fmt.Println(err)
+	}
+	for i, x := range data.Data {
+		tmp := x.(model.BlogTag)
+		row := &Blog{}
+		for _, r := range blogs {
+			if tmp.BlogId == r.BlogId {
+				row.Blog = &r
+				row.Tags = []string{}
+				if row.Tag != "" {
+					row.Tags = strings.Split(row.Tag, ",")
+				}
+			}
+		}
+		row.BlogStatistics = &model.BlogStatistics{}
+		for _, v := range stat {
+			//fmt.Println(v)
+			if (v.BlogId == tmp.BlogId) {
+				row.Comment = v.Comment
+				row.BlogStatistics.Read = v.Read
+				row.SeoDescription = v.SeoDescription
+				row.SeoKeyword = v.SeoKeyword
+				row.SeoTitle = v.SeoTitle
+				//fmt.Println(">>>>",row.BlogStatistics)
+			}
+		}
+		fmt.Println("===",row.Blog)
+		data.Data[i] = &row
+	}
+
+	return data, nil
 }

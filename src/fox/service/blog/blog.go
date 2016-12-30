@@ -26,7 +26,9 @@ const (
 //
 
 type Blog struct {
-
+	*model.BlogStatistics
+	*model.Blog
+	Tags []string
 }
 
 func NewBlogService() *Blog {
@@ -39,35 +41,34 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	}
 	mode := model.NewBlog()
 	data, err := mode.GetById(id)
-	//fmt.Println(data)
 	if err != nil {
 		fmt.Println(err)
 		return nil, &util.Error{Msg:"数据不存在"}
 	}
+	info := NewBlogService()
+	info.Blog = data
+	//tag
+	info.Tags = []string{}
+	if data.Tag != "" {
+		info.Tags = strings.Split(data.Tag, ",")
+	}
 	//整合
 	m := make(map[string]interface{})
-	m["info"] = data
 	m["Content"] = string(blackfriday.MarkdownBasic([]byte(data.Content)))
 	//时间转换
 	m["TimeAdd"] = datetime.Format(data.TimeAdd, datetime.Y_M_D_H_I_S)
-	//tag
-	row := make(map[string][]string)
-	row[strconv.Itoa(data.BlogId)] = []string{}
-	if data.Tag != "" {
-		row[strconv.Itoa(data.BlogId)] = strings.Split(data.Tag, ",")
-	}
-	m["tag"] = row
 	//主键ID值和blog_id值一样所以这里直接取值
 	Statistics := model.NewBlogStatistics()
 	StatisticsData, err := Statistics.GetById(id)
 	if err == nil {
-		m["Statistics"] = StatisticsData
+		info.BlogStatistics = StatisticsData
 	} else {
 		//错误屏蔽
 		err = nil
 		//初始化赋值
-		m["Statistics"] = Statistics
+		info.BlogStatistics = Statistics
 	}
+	m["info"] = info
 	//fmt.Println(m)
 	return m, err
 }
@@ -304,13 +305,42 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 	if err != nil {
 		return nil, err
 	}
-	data.OtherData = make(map[string]interface{})
-	for _, x := range data.Data {
-		row := x.(model.Blog)
-		data.OtherData[strconv.Itoa(row.BlogId)] = []string{}
-		if row.Tag != "" {
-			data.OtherData[strconv.Itoa(row.BlogId)] = strings.Split(row.Tag, ",")
-		}
+	ids := make([]int, data.TotalCount)
+	for i, x := range data.Data {
+		r := x.(model.Blog)
+		ids[i] = r.BlogId
 	}
+	//fmt.Println(ids)
+	stat := make([]model.BlogStatistics, 0)
+	o := db.NewDb()
+	err = o.In("blog_id", ids).Find(&stat)
+	if err != nil {
+		stat = []model.BlogStatistics{}
+		fmt.Println(err)
+	}
+	for i, x := range data.Data {
+		row := &Blog{}
+		tmp := x.(model.Blog)
+		row.Blog = &tmp
+		row.Tags = []string{}
+		if row.Tag != "" {
+			row.Tags = strings.Split(row.Tag, ",")
+		}
+		row.BlogStatistics=&model.BlogStatistics{}
+		for _, v := range stat {
+			//fmt.Println(v)
+			if (v.BlogId == tmp.BlogId) {
+				row.Comment=v.Comment
+				row.BlogStatistics.Read=v.Read
+				row.SeoDescription=v.SeoDescription
+				row.SeoKeyword=v.SeoKeyword
+				row.SeoTitle=v.SeoTitle
+				//fmt.Println(">>>>",row.BlogStatistics)
+			}
+		}
+		//fmt.Println("===",row.BlogStatistics)
+		data.Data[i] = &row
+	}
+
 	return data, nil
 }

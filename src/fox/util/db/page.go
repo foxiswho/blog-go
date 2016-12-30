@@ -3,11 +3,11 @@ package db
 import "math"
 
 type Paginator struct {
-	Page        int
-	Pages       []int
-	PageSize    int
-	TotalPage   int
-	TotalCount  int
+	Page        int		//当前页
+	Pages       []int	//页码数组
+	PageSize    int		//每页条数
+	TotalPage   int		//总页码
+	TotalCount  int		//总条数
 	FirstPage   int
 	FirstPageIs bool
 	LastPageIs  bool

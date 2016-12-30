@@ -3,13 +3,12 @@
 <section id="main" class="index" style="display: block">
     <div class="container">
         <div id="article-list">
-            {{$OtherData := .data.OtherData}}
             {{range .data.Data}}
             <article class="article">
                 <div class="row">
                     <header class="header">
                         <h3 class="title">
-                            <a href="/article/{{.BlogId}}">{{.Title}}</a>
+                            <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a>
                         </h3>
                     </header>
                     <section class="brief">
@@ -21,13 +20,15 @@
                             <span class="month">{{dateformat .TimeAdd "01"}}</span>/
                             <span class="day">{{dateformat .TimeAdd "02"}}</span>
                         </span>
+                        <a class="day"><i class="fa fa-comments-o"></i> {{.Comment}}</a>
+                        <a class="day"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}}</a>
+                        <a class="author">{{.Author}}</a>
                         <span class="tags">
-                            {{$tags:=map_get $OtherData .BlogId }}
-                            {{range $i,$v:=$tags}}
-                            <a class="tag" href="/tag/{{$v}}.html">{{$v}}</a>
+                            {{range $i,$v:=.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
                              {{end}}
                         </span>
-                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.BlogId}}">详情</a>
+                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.Blog.BlogId}}">详情</a>
                     </aside>
                 </div>
             </article>

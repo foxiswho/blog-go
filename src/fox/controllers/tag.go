@@ -1,45 +1,12 @@
 package controllers
 
 import (
-	"strconv"
-
-	"regexp"
 	"fox/service/blog"
 	"fmt"
 )
 
-type BlogController struct {
+type TagController struct {
 	BaseNoLoginController
-}
-
-
-// GetOne ...
-// @Title Get One
-// @Description get Blog by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Blog
-// @Failure 403 :id is empty
-// @router /article/:id [get]
-func (c *BlogController) Get() {
-	idStr := c.Ctx.Input.Param(":id")
-	ser := blog.NewBlogService()
-	var err error
-	var read map[string]interface{}
-	if ok, _ := regexp.Match(`^\d+$`, []byte(idStr)); ok {
-		id, _ := strconv.Atoi(idStr)
-		read, err = ser.Read(id)
-	} else {
-		read, err = ser.ReadByUrlRewrite(idStr)
-	}
-	if err != nil {
-		c.Error(err.Error())
-		return
-	} else {
-		c.Data["info"] = read["info"]
-		c.Data["TimeAdd"] = read["TimeAdd"]
-		c.Data["Content"] = read["Content"]
-	}
-	c.TplName = "blog/get.html"
 }
 
 // GetAll ...
@@ -54,12 +21,13 @@ func (c *BlogController) Get() {
 // @Success 200 {object} models.Blog
 // @Failure 403
 // @router / [get]
-func (c *BlogController) GetAll() {
+func (c *TagController) GetAll() {
+	idStr := c.Ctx.Input.Param(":tag")
 	fields := []string{}
 	orderBy := "blog_id desc"
 	query := make(map[string]interface{})
-	query["type=?"] = blog.TYPE_ARTICLE
-	mode := blog.NewBlogService()
+	query["name"] = idStr
+	mode := blog.NewBlogTagService()
 	//分页
 	page, _ := c.GetInt("page")
 	data, err := mode.GetAll(query, fields, orderBy, page, 20)
