@@ -47,6 +47,8 @@ func init() {
 			&admin.Upload{},
 			&admin.AdminUser{},
 			&admin.AdminRole{},
+			&admin.Member{},
+			&admin.MemberGroup{},
 		),
 	)
 	beego.AddNamespace(ns)

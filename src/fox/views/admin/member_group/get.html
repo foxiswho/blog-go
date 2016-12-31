@@ -1,0 +1,176 @@
+{{template "admin/public/header.html" .}}
+    <div class="wrapper wrapper-content">
+                <form action="/admin/admin_role{{if .is_put}}/{{.info.Id}}{{end}}" method="post" class="form-horizontal">
+                    <input type="hidden" name="_method" value="{{._method}}" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>Look</h5>
+                                <div class="ibox-tools">
+                                    <button class="btn btn-primary btn-xs btn-w-m" type="submit">保存</button>
+                                    <button class="btn btn-white btn-xs" type="reset">取消</button>
+
+                                    <a class="collapse-link">
+                                        <i class="fa fa-chevron-up"></i>
+                                    </a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="form_editors.html#">
+                                        <i class="fa fa-wrench"></i>更多
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-user">
+                                        <li><a>选项2</a>
+                                        </li>
+                                    </ul>
+                                    <a class="close-link">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">名称</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" placeholder="名称" name="name" class="form-control input-lg" value="{{.info.Name}}" id="name">
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-lg btn-default check_name" type="button">
+                                                    检测重复
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">删除
+                                    </label>
+
+                                    <div class="col-sm-10">
+                                        <div class="switch">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del" {{if eq .info.IsDel 1}}checked{{end}}>
+                                                <label class="onoffswitch-label" for="is_del">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">排序
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control" name="sort" value="{{.info.Sort}}" min="0" step="1">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">备注
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <textarea name="remark" class="form-control">{{.info.Remark}}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+    </div>
+{{template "admin/public/footer.html" .}}
+
+<link href="{{.__theme__}}css/plugins/switchery/switchery.css" rel="stylesheet">
+<script src="{{.__theme__}}js/plugins/switchery/switchery.js"></script>
+<!-- iCheck -->
+<link href="{{.__theme__}}css/plugins/iCheck/custom.css" rel="stylesheet">
+<script src="{{.__theme__}}js/plugins/iCheck/icheck.min.js"></script>
+<script>
+    var type_id="{{.info.TypeId}}";
+    //禁止 回车 表单保存
+    document.getElementsByTagName('form')[0].onkeydown = function(e){
+        var e = e || event;
+        var keyNum = e.which || e.keyCode;
+        return keyNum==13 ? false : true;
+    };
+    $(document).ready(function () {
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+        //保存
+        $('form').submit(function (e) {
+            e.preventDefault();
+            var btn=$('.btn');
+            btn.attr('disabled',true);
+            var $this=$(this);
+            $this.serialize();
+            //加载层
+            var loading = layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
+            $.ajax({
+                url:$this.attr('action'),
+                data:$this.serialize(),
+                dataType:'json',
+                method:"{{._method}}"
+            }).done(function (data) {
+                layer.close(loading);
+                console.log(data)
+                if(data.code==1){
+                    layer.alert(data.info,{ icon:1});
+                    setTimeout(function () {
+                        window.location.reload()
+                    },3000)
+                }else{
+                    layer.alert(data.info,{ icon:2});
+                    btn.attr('disabled',false);
+                }
+            }).fail(function(){ alert("系统错误"); });
+            return false;
+        });
+        //检测是否存在
+        $('button.check_name').click(function () {
+            var $this=$(this),$name=$('#name');
+            if($name.val()==""||$name.val()==null){
+                var t=layer.tips('名称不能为空', $name);
+                setTimeout(function () {
+                    layer.close(t);
+                },2000)
+                return false;
+            }
+            var data={"name":$name.value(),"type_id":type_id,"id":0};
+            {{if .is_put}}
+            data.id="{{.info.Id}}";
+            {{end}}
+            $.ajax({
+                url:'/admin/member_group/check_name',
+                data:data,
+                dataType:'json',
+                method:"post"
+            }).done(function (data) {
+                console.log(data);
+                $this.removeClass("btn-default")
+                if(data.code==1){
+                    $this.removeClass("btn-danger");
+                    $this.addClass("btn-primary");
+                    layer.tips('检测通过', $name);
+                }else{
+                    layer.tips('检测失败，有重复名字', $name);
+                    $this.removeClass("btn-primary");
+                    $this.addClass("btn-danger");
+                }
+            }).fail(function(){ alert("系统错误"); });
+        });
+    });
+    var selectTypeID="";
+    var layerID;
+    function selectType(row) {
+        $(selectTypeID).value(row.id);
+        $(selectTypeID+"_name").value(row.name);
+        return true;
+    }
+</script>
+</body>
+</html>

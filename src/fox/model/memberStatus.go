@@ -20,7 +20,7 @@ type MemberStatus struct {
 	Login          int       `json:"login" xorm:"not null default 0 SMALLINT(5)"`
 	IsMobile       int       `json:"is_mobile" xorm:"not null default 0 TINYINT(1)"`
 	IsEmail        int       `json:"is_email" xorm:"not null default 0 TINYINT(1)"`
-	AidAid         int       `json:"aid_aid" xorm:"not null default 0 INT(11)"`
+	AidAdd         int       `json:"aid_add" xorm:"not null default 0 INT(11)"`
 }
 
 //初始化
