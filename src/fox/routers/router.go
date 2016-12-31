@@ -39,6 +39,7 @@ func init() {
 		//beego.NSRouter("/type", &admin.TypeController{}),
 		beego.NSInclude(
 			&admin.Index{},
+			&admin.Area{},
 			&admin.TypeController{},
 			&admin.BlogTag{},
 			&admin.BlogCat{},
