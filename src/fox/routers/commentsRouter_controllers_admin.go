@@ -118,6 +118,13 @@ func init() {
 			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["fox/controllers/admin:Attachment"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Attachment"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/attachment`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"] = append(beego.GlobalControllerRouter["fox/controllers/admin:BlogCat"],
 		beego.ControllerComments{
 			Method: "List",

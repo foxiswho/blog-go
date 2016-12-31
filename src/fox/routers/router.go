@@ -40,6 +40,7 @@ func init() {
 		beego.NSInclude(
 			&admin.Index{},
 			&admin.Area{},
+			&admin.Attachment{},
 			&admin.TypeController{},
 			&admin.BlogTag{},
 			&admin.BlogCat{},
