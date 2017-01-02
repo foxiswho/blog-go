@@ -20,7 +20,7 @@ type Attachment struct {
 	IsImage      int       `json:"is_image" xorm:"not null default 0 TINYINT(1)"`
 	IsThumb      int       `json:"is_thumb" xorm:"not null default 0 TINYINT(1)"`
 	Downloads    int       `json:"downloads" xorm:"not null default 0 INT(8)"`
-	TimeAdd      time.Time `json:"time_add" xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	TimeAdd      time.Time `json:"time_add" xorm:"not null default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
 	Ip           string    `json:"ip" xorm:"not null default '' CHAR(15)"`
 	Status       int       `json:"status" xorm:"not null default 0 index TINYINT(2)"`
 	Md5          string    `json:"md5" xorm:"not null default '' index CHAR(32)"`

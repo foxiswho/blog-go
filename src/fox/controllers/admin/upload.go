@@ -49,7 +49,7 @@ func (c *Upload)Post() {
 	}
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	f, err := file.Upload(file_name, c.Ctx.Request)
+	f, err := file.Upload(file_name, c.Ctx.Request,"")
 	if t == "markdown" {
 		md:=&editor.EditorMd{}
 		if err != nil {
