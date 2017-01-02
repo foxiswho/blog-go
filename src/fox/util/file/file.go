@@ -26,18 +26,23 @@ type UploadFile struct {
 	AttachmentId int `json:"attachment_id"  name:"attachment_id"`
 	Id           int `json:"attachment_id"  name:"id"`
 	Url          string `json:"url"  name:"完整地址"`
+	Config       map[string]string `json:"-"`
 }
 // 获取文件信息的接口
 type Stat interface {
 	Stat() (os.FileInfo, error)
 }
+
+func NewUploadFile() *UploadFile {
+	return new(UploadFile)
+}
 //上传
-func Upload(field string, r *http.Request) (*UploadFile, error) {
+func Upload(field string, r *http.Request, upload_type string) (*UploadFile, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
 		return nil, err
 	}
-	UploadFile := &UploadFile{}
+	UploadFile := NewUploadFile()
 	var spe string
 	if os.IsPathSeparator('\\') {
 		//前边的判断是否是系统的分隔符
@@ -45,11 +50,19 @@ func Upload(field string, r *http.Request) (*UploadFile, error) {
 	} else {
 		spe = "/"
 	}
-	root_path, err := beego.GetConfig("upload_default", "root_path", "/uploads/image/")
-	if err != nil {
+	//配置
+	if upload_type == "" {
+		upload_type = "upload_default"
+	}
+	//配置检测
+	if _, err := UploadFile.SetConfig(upload_type); err != nil {
 		return nil, err
 	}
-
+	root_path := ""
+	root_path = UploadFile.Config["root_path"]
+	if root_path == "" {
+		root_path = "/uploads/image/"
+	}
 	//年月
 	ym := datetime.Format(time.Now(), "2006_01")
 
@@ -60,6 +73,8 @@ func Upload(field string, r *http.Request) (*UploadFile, error) {
 		fileInfo, _ := statInterface.Stat()
 		//文件大小
 		UploadFile.Size = int(fileInfo.Size())
+	} else {
+		return nil, &util.Error{Msg:"文件错误."}
 	}
 	//文件后缀
 	UploadFile.Ext = path.Ext(header.Filename)
@@ -68,10 +83,16 @@ func Upload(field string, r *http.Request) (*UploadFile, error) {
 	//新文件名
 	UploadFile.Name = crypt.Md5(str) + UploadFile.Ext
 	//保存目录
-	UploadFile.Path = root_path.(string) + ym + spe
+	UploadFile.Path = root_path + ym + spe
 	//文件地址
 	UploadFile.Url = UploadFile.Path + UploadFile.Name
 	fmt.Println("文件数据：", UploadFile)
+	//删除 文件后缀 中的点号
+	UploadFile.Ext = strings.Replace(UploadFile.Ext, ".", "", -1)
+	//审核 检测 大小，文件后缀
+	if _, err := UploadFile.Check(); err != nil {
+		return nil, err
+	}
 	//当前的目录
 	dir, _ := os.Getwd()
 	fmt.Println("当前的目录", dir)
@@ -96,8 +117,6 @@ func Upload(field string, r *http.Request) (*UploadFile, error) {
 	fmt.Println("io.Copy", w, err)
 	fmt.Println("写入文件" + dir + UploadFile.Url + "成功")
 	//最后处理
-	//删除 文件后缀 中的点号
-	UploadFile.Ext = strings.Replace(UploadFile.Ext, ".", "", -1)
 	return UploadFile, nil
 }
 //判断目录或文件是已存在
@@ -110,4 +129,55 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+//设置配置
+func (c *UploadFile)SetConfig(mod string) (bool, error) {
+	isFind := true
+	_, err := beego.GetConfig(mod, "type", "")
+	if err != nil {
+		isFind = false
+	}
+	if !isFind {
+		maps, err := beego.AppConfig.GetSection("upload_default")
+		if err != nil {
+			fmt.Println("config error:", err)
+			return false, err
+		}
+		c.Config = maps
+	} else {
+		maps, err := beego.AppConfig.GetSection("upload_default")
+		if err != nil {
+			fmt.Println("config error:", err)
+			return false, err
+		}
+		c.Config = maps
+	}
+	return true, nil
+}
+//审核
+func (c *UploadFile)Check() (bool, error) {
+	if len(c.Config) == 0 {
+		return false, &util.Error{Msg:"Config 没有配置"}
+	}
+	//后缀是否找到
+	isFind := false
+	extArr := strings.Split(c.Config["ext"], ",")
+	for _, v := range extArr {
+		if v == c.Ext {
+			isFind = true
+		}
+	}
+	//检测后缀 不在上传文件中报错
+	if !isFind {
+		return false, &util.Error{Msg:"此文件不在允许上传范围内"}
+	}
+	//文件大小
+	size, _ := strconv.Atoi(c.Config["size"])
+	if (size > 0) {
+		if c.Size > size {
+			return false, &util.Error{Msg:"文件大小 超过上传限制"}
+		}
+	}
+	//检测文件大小
+	return true, nil
 }
