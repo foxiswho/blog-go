@@ -24,7 +24,7 @@ func dsn() string {
 	db_host := beego.AppConfig.String("db_host")
 	db_port := beego.AppConfig.String("db_port")
 	db_name := beego.AppConfig.String("db_name")
-	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8"
+	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8&loc=Asia%2FShanghai"
 	return dsn
 }
 //初始化

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"fox/model"
 	"fox/util/url"
+	"fox/util/file"
 )
 
 type BlogController struct {
@@ -87,6 +88,10 @@ func (c *BlogController)Add() {
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
+	maps:=make(map[string]interface{})
+	maps["type_id"]= blog.TYPE_ID
+	maps["id"]= 0
+	c.Data["upload_token"]=file.TokeMake(maps)
 	c.TplName = "admin/blog/get.html"
 }
 //保存

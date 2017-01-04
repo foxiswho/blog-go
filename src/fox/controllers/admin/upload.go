@@ -42,28 +42,42 @@ func (c *Upload)File() {
 //上传图片
 // @router /upload/image [post]
 func (c *Upload)Post() {
+	rsp := Response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	t := c.GetString("t")
+	token := c.GetString("token")
+	if token == "" {
+		if t == "markdown" {
+			md := &editor.EditorMd{}
+			md.Message = "令牌错误"
+			md.Success = 0
+			c.Data["json"] = md
+			c.ServeJSON()
+		} else {
+			rsp.Error("令牌错误")
+		}
+		return
+	}
+
 	file_name := "file"
 	if t == "markdown" {
 		file_name = "editormd-image-file"
 	}
-	rsp := Response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
-	f, err := file.Upload(file_name, c.Ctx.Request,"")
-	if t == "markdown" {
-		md:=&editor.EditorMd{}
-		if err != nil {
-			md.Message=err.Error()
-			md.Success=0
-		}else{
-			md.Message="上传成功"
-			md.Url=f.Url
-			md.Success=1
-		}
 
-		c.Data["json"]=md
+	f, err := file.Upload(file_name, c.Ctx.Request, "")
+	if t == "markdown" {
+		md := &editor.EditorMd{}
+		if err != nil {
+			md.Message = err.Error()
+			md.Success = 0
+		} else {
+			md.Message = "上传成功"
+			md.Url = f.Url
+			md.Success = 1
+		}
+		c.Data["json"] = md
 		c.ServeJSON()
-	}else{
+	} else {
 		if err != nil {
 			rsp.Error(err.Error())
 			c.StopRun()

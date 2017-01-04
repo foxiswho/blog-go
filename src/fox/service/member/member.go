@@ -10,7 +10,7 @@ import (
 	"strings"
 	"github.com/astaxie/beego"
 	"fox/util/datetime"
-	UtilAuth "fox/util/Auth"
+	UtilAuth "fox/util/auth"
 )
 
 type Member struct {

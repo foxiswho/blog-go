@@ -6,7 +6,7 @@ import (
 	"fox/util"
 	"github.com/astaxie/beego"
 	"fmt"
-	UtilAuth "fox/util/Auth"
+	UtilAuth "fox/util/auth"
 	"fox/model"
 	"fox/util/db"
 	"fox/util/datetime"

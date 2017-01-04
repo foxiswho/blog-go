@@ -18,3 +18,7 @@ func (this *Index)Get() {
 func (this *Index)V2() {
 	this.TplName = "admin/index/v2.html"
 }
+// @router / [get]
+func (this *Index)Default() {
+	this.Redirect("admin/index",302)
+}

@@ -17,6 +17,7 @@
     <script>
         var blog_id="{{if .is_put}}{{.info.Blog.BlogId}}{{else}}0{{end}}";
         var upload_json={type_id:{{.TYPE_ID}},id:blog_id};
+        var TOKEN='{{.upload_token}}';
         var layerID;
         //禁止 回车 表单保存
 //        document.getElementsByTagName('form')[0].onkeydown = function(e){
@@ -36,7 +37,7 @@
             //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为 #fff
             imageUpload : true,
             imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-            imageUploadURL : "/admin/upload/image?t=markdown",
+            imageUploadURL : "/admin/upload/image?t=markdown&token="+encodeURIComponent(TOKEN),
             /*
              上传的后台只需要返回一个 JSON 数据，结构如下：
              {
@@ -149,7 +150,7 @@
                     shadeClose: true,
                     shade: 0.8,
                     area: ['680px', '400px'],
-                    content: '/admin/upload/image?opt='+encodeURIComponent(JSON.stringify(upload_json)) //iframe的url
+                    content: '/admin/upload/image?opt='+encodeURIComponent(TOKEN) //iframe的url
                 });
             });
 

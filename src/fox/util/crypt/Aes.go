@@ -3,15 +3,17 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"fmt"
 )
 
 type Aes struct {
 }
 
-func (this *Aes) getKey() []byte {
+func (t *Aes) getKey() []byte {
 	strKey := "1234567890123456"
 	keyLen := len(strKey)
 	if keyLen < 16 {
+		fmt.Println("res key 长度不能小于16")
 		panic("res key 长度不能小于16")
 	}
 	arrKey := []byte(strKey)
@@ -28,8 +30,8 @@ func (this *Aes) getKey() []byte {
 }
 
 //加密字符串
-func (this *Aes) Encrypt(strMesg string) ([]byte, error) {
-	key := this.getKey()
+func (t *Aes) Encrypt(strMesg string) ([]byte, error) {
+	key := t.getKey()
 	var iv = []byte(key)[:aes.BlockSize]
 	encrypted := make([]byte, len(strMesg))
 	aesBlockEncrypter, err := aes.NewCipher(key)
@@ -42,14 +44,15 @@ func (this *Aes) Encrypt(strMesg string) ([]byte, error) {
 }
 
 //解密字符串
-func (this *Aes) Decrypt(src []byte) (strDesc string, err error) {
+func (t *Aes) Decrypt(src []byte) (str1 string, err  error) {
 	defer func() {
 		//错误处理
 		if e := recover(); e != nil {
 			err = e.(error)
+			//return "",err
 		}
 	}()
-	key := this.getKey()
+	key := t.getKey()
 	var iv = []byte(key)[:aes.BlockSize]
 	decrypted := make([]byte, len(src))
 	var aesBlockDecrypter cipher.Block
