@@ -44,11 +44,11 @@ func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 		return false, &util.Error{Msg:"名称 不能为空"}
 	}
 	mode := model.NewBlogTag()
-	mode.BlogId = id
-	mode.Name = str
+	//mode.BlogId = id
+	//mode.Name = str
 	o := db.NewDb()
 
-	if num, err := o.Delete(mode); err == nil {
+	if num, err := o.Where("blog_id=? and name=?",id,str).Delete(mode); err == nil {
 		fmt.Println("Number of records deleted in database:", num)
 		return true, nil
 	}
@@ -81,18 +81,21 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 	if tag != "" {
 		//拆分成数组
 		tags = strings.Split(tag, ",")
-		fmt.Println(tags)
+		fmt.Println("拆分数组",tags)
 		//创建
-		for _, v := range tags {
+		for i, v := range tags {
+			v=strings.TrimSpace(v)
 			if v == "" {
 				continue
 			}
+			tags[i]=v
 			//fmt.Println(k,v)
 			if old == "" {
 				mode := model.NewBlogTag()
 				mode.Name = v
 				mode.BlogId = id
-				_, _ = o.Insert(mode)
+				_, err := o.Insert(mode)
+				fmt.Println("err",err)
 			} else {
 				check[v] = false
 				if array.SliceContains(olds, v) {
@@ -102,13 +105,17 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 				mode := model.NewBlogTag()
 				mode.Name = v
 				mode.BlogId = id
-				_, _ = o.Insert(mode)
+				_, err := o.Insert(mode)
+				fmt.Println("err",err)
+
 			}
 		}
 	}
 	//旧 tag 检测
 	if old != "" {
-		for _, val := range olds {
+		for i, val := range olds {
+			val=strings.TrimSpace(val)
+			tags[i]=val
 			if tag != "" {
 				if !check[val] {
 					//没有，从数据库里删除

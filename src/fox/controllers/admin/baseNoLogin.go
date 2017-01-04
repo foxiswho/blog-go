@@ -5,6 +5,7 @@ import (
 	"time"
 	"fox/util/datetime"
 	"fox/service/admin"
+	"strings"
 )
 
 type BaseNoLoginController struct {
@@ -38,4 +39,14 @@ func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
 		}
 	}
 	return time.Time{}, false
+}
+// GetString returns the input value by key string or the default value while it's present and input is blank
+func (c *BaseNoLoginController) GetString(key string, def ...string) string {
+	if v := c.Ctx.Input.Query(key); v != "" {
+		return strings.TrimSpace(v)
+	}
+	if len(def) > 0 {
+		return def[0]
+	}
+	return ""
 }

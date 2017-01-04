@@ -53,6 +53,8 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 			tag = tags[0]
 		}
 		value := form.Get(tag)
+		//value =strings.Trim(value," ")
+		value =strings.TrimSpace(value)
 		if len(value) == 0 {
 			continue
 		}

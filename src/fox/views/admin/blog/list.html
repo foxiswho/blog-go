@@ -5,7 +5,7 @@
                 <div class="search-form">
                     <form action="?" method="get">
                         <div class="input-group">
-                            <input type="text" placeholder="关键词" name="wd" class="form-control input-lg">
+                            <input type="text" placeholder="关键词" name="wd" class="form-control input-lg" value="{{.wd}}">
                             <div class="input-group-btn">
                                 <button class="btn btn-lg btn-primary" type="submit">
                                     搜索
@@ -83,7 +83,12 @@
                 }
             },
             onPageClicked: function(e,originalEvent,type,page){
-                window.location.href = "?page=" + page
+                var wd=$('wd').value();
+                var url="?page=" + page;
+                if (wd!=''){
+                    url+="&wd="+encodeURIComponent(wd);
+                }
+                window.location.href = url;
             }
         });
     });

@@ -57,6 +57,7 @@ func (c *BlogController)List() {
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	println(err)
 	c.Data["data"] = data
+	c.Data["wd"] = wd
 	c.Data["title"] = "博客-列表"
 	c.TplName = "admin/blog/list.html"
 }
