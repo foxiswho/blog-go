@@ -44,8 +44,21 @@ func (c *Upload)File() {
 func (c *Upload)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
+	var maps map[string]interface{}
+	var err error
 	t := c.GetString("t")
 	token := c.GetString("token")
+	if len(token) > 0 {
+		maps, err = file.TokenDeCode(token)
+		if err != nil {
+			fmt.Println("令牌：" + token)
+			fmt.Println("令牌解密失败：" + err.Error())
+			token = ""
+		}else {
+			fmt.Println("令牌解密",maps)
+		}
+
+	}
 	if token == "" {
 		if t == "markdown" {
 			md := &editor.EditorMd{}
@@ -58,13 +71,11 @@ func (c *Upload)Post() {
 		}
 		return
 	}
-
 	file_name := "file"
 	if t == "markdown" {
 		file_name = "editormd-image-file"
 	}
-
-	f, err := file.Upload(file_name, c.Ctx.Request, "")
+	f, err := file.Upload(file_name, c.Ctx.Request,maps)
 	if t == "markdown" {
 		md := &editor.EditorMd{}
 		if err != nil {

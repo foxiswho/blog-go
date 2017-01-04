@@ -17,7 +17,10 @@ type AdminSession struct {
 func (c *AdminSession) SessionSet(session *admin.AdminSession) {
 	SESSION_NAME := beego.AppConfig.String("session_name")
 	//存入 Session
-	str2 := str.JsonEnCode(session)
+	str2,err := str.JsonEnCode(session)
+	if err!=nil{
+		fmt.Println("session:"+err.Error())
+	}
 	//fmt.Println("str => ?", str2)
 	c.SetSession(SESSION_NAME, str2)
 }

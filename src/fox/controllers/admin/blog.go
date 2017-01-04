@@ -91,7 +91,16 @@ func (c *BlogController)Add() {
 	maps:=make(map[string]interface{})
 	maps["type_id"]= blog.TYPE_ID
 	maps["id"]= 0
-	c.Data["upload_token"]=file.TokeMake(maps)
+	cry,err:=file.TokeMake(maps)
+	if err!=nil{
+		fmt.Println("令牌加密错误："+err.Error())
+	}
+	//fmt.Println("令牌加密："+cry)
+	//c1,err:=file.TokenDeCode(cry)
+	//fmt.Println("令牌解密：")
+	//fmt.Println(c1)
+	//fmt.Println(err)
+	c.Data["upload_token"]=cry
 	c.TplName = "admin/blog/get.html"
 }
 //保存

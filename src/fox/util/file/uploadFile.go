@@ -45,12 +45,21 @@ func NewUploadFile() *UploadFile {
 	return new(UploadFile)
 }
 //上传
-func Upload(field string, r *http.Request, upload_type string) (*UploadFile, error) {
+// @field 上传表单名称
+// @r     Request
+// @map   配置数组map
+func Upload(field string, r *http.Request, maps map[string]interface{}) (*UploadFile, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
 		return nil, err
 	}
 	UploadFile := NewUploadFile()
+	//fmt.Println("maps",maps)
+	upload_type1 := maps["upload_type"]
+	upload_type:=""
+	if upload_type1!=nil{
+		upload_type=upload_type1.(string)
+	}
 	//数据填充
 	_, err = UploadFile.SetUploadFileData(upload_type, file, header)
 	if err != nil {
@@ -106,6 +115,7 @@ func (c *UploadFile)SetConfig(mod string) (bool, error) {
 	return true, nil
 }
 //文件基本数据填充
+//@upload_type 上传配置
 func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, header *multipart.FileHeader) (bool, error) {
 	var spe string
 	if os.IsPathSeparator('\\') {
