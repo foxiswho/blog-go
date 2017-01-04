@@ -25,14 +25,15 @@ func Pagination(count int, page int, pageSize int) (*Paginator) {
 	//if count % pageSize > 0 {
 	//	Page.TotalPage = count / pageSize + 1
 	//}
+
 	if page > Page.TotalPage {
 		page = Page.TotalPage
 	}
 	if page <= 0 {
-		Page.Page = 1
+		page = 1
 	}
+	Page.Page = page
 	//当前页
-	page = Page.Page
 	Page.FirstPageIs = page != 1
 	Page.LastPageIs = page != Page.TotalPage
 	if page == 1 {
@@ -61,7 +62,7 @@ func Pagination(count int, page int, pageSize int) (*Paginator) {
 		Page.FirstPage = page - 1
 		Page.LastPage = page + 1
 	default:
-		if Page.TotalPage>1{
+		if Page.TotalPage > 1 {
 			Page.Pages = make([]int, int(math.Min(5, float64(Page.TotalPage))))
 			for i, _ := range pages {
 				Page.Pages[i] = i + 1

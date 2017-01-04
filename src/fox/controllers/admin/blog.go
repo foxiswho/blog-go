@@ -47,6 +47,10 @@ func (c *BlogController)CheckTitle() {
 // @router /blog [get]
 func (c *BlogController)List() {
 	where := make(map[string]interface{})
+	wd := c.GetString("wd")
+	if len(wd) > 0 {
+		where["title like ? "] = "%" + wd + "%"
+	}
 	where["type=?"] = blog.TYPE_ARTICLE
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
@@ -82,27 +86,27 @@ func (c *BlogController)Get() {
 // @router /blog/add [get]
 func (c *BlogController)Add() {
 	mod := blog.NewBlogService()
-	mod.Blog=&model.Blog{}
-	mod.BlogStatistics=&model.BlogStatistics{}
+	mod.Blog = &model.Blog{}
+	mod.BlogStatistics = &model.BlogStatistics{}
 	mod.TypeId = blog.ORIGINAL
 	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = blog.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
-	maps:=make(map[string]interface{})
-	maps["type_id"]= blog.TYPE_ID
-	maps["id"]= 0
-	maps["aid"]= c.Session.Aid
-	cry,err:=file.TokeMake(maps)
-	if err!=nil{
-		fmt.Println("令牌加密错误："+err.Error())
+	maps := make(map[string]interface{})
+	maps["type_id"] = blog.TYPE_ID
+	maps["id"] = 0
+	maps["aid"] = c.Session.Aid
+	cry, err := file.TokeMake(maps)
+	if err != nil {
+		fmt.Println("令牌加密错误：" + err.Error())
 	}
 	//fmt.Println("令牌加密："+cry)
 	//c1,err:=file.TokenDeCode(cry)
 	//fmt.Println("令牌解密：")
 	//fmt.Println(c1)
 	//fmt.Println(err)
-	c.Data["upload_token"]=cry
+	c.Data["upload_token"] = cry
 	c.TplName = "admin/blog/get.html"
 }
 //保存
@@ -113,15 +117,15 @@ func (c *BlogController)Post() {
 	blogModel := model.NewBlog()
 	//参数传递
 	blog_statistics := model.NewBlogStatistics()
-	if err := url.ParseForm(c.Input(),blogModel); err != nil {
-		fmt.Println("ParseForm-err:",err)
+	if err := url.ParseForm(c.Input(), blogModel); err != nil {
+		fmt.Println("ParseForm-err:", err)
 		rsp.Error(err.Error())
 	}
-	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
-		fmt.Println("ParseForm-err:",err)
+	if err := url.ParseForm(c.Input(), blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:", err)
 		rsp.Error(err.Error())
 	}
-	if blogModel.TimeAdd.IsZero(){
+	if blogModel.TimeAdd.IsZero() {
 		//日期
 		date, ok := c.GetDateTime("time_add")
 		if ok {
@@ -129,12 +133,12 @@ func (c *BlogController)Post() {
 		}
 	}
 	//创建
-	serv :=blog.NewBlogService()
+	serv := blog.NewBlogService()
 	id, err := serv.Create(blogModel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
-		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID,c.Session.Aid,id)
+		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID, c.Session.Aid, id)
 		fmt.Println("创建成功！:", id)
 		rsp.Success("")
 	}
@@ -157,15 +161,15 @@ func (c *BlogController)Put() {
 	//参数传递
 	blogMoel := model.NewBlog()
 	blog_statistics := model.NewBlogStatistics()
-	if err := url.ParseForm(c.Input(),blogMoel); err != nil {
-		fmt.Println("ParseForm-err:",err)
+	if err := url.ParseForm(c.Input(), blogMoel); err != nil {
+		fmt.Println("ParseForm-err:", err)
 		rsp.Error(err.Error())
 	}
-	if err := url.ParseForm(c.Input(),blog_statistics); err != nil {
-		fmt.Println("ParseForm-err:",err)
+	if err := url.ParseForm(c.Input(), blog_statistics); err != nil {
+		fmt.Println("ParseForm-err:", err)
 		rsp.Error(err.Error())
 	}
-	if blogMoel.TimeAdd.IsZero(){
+	if blogMoel.TimeAdd.IsZero() {
 		//日期
 		date, ok := c.GetDateTime("time_add")
 		if ok {
@@ -173,7 +177,7 @@ func (c *BlogController)Put() {
 		}
 	}
 	//更新
-	ser :=blog.NewBlogService()
+	ser := blog.NewBlogService()
 	_, err := ser.Update(int_id, blogMoel, blog_statistics)
 	if err != nil {
 		rsp.Error(err.Error())
@@ -190,7 +194,7 @@ func (c *BlogController)Delete() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//更新
-	ser :=blog.NewBlogService()
+	ser := blog.NewBlogService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
 		rsp.Error(err.Error())

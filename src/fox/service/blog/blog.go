@@ -308,7 +308,7 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 }
 func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewBlog()
-	data, err := mode.GetAll(q, fields, orderBy, page, 20)
+	data, err := mode.GetAll(q, fields, orderBy, page, limit)
 	if err != nil {
 		return nil, err
 	}
