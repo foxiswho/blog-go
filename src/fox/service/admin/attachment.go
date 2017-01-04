@@ -25,12 +25,15 @@ func (c *Attachment)GetAll(q map[string]interface{}, fields []string, orderBy st
 //@type_id 模块
 //@id      id
 //@aid     管理员ID
-func (c *Attachment)UpdateByTypeIdId(type_id, id, aid int) (bool, error) {
+func (c *Attachment)UpdateByTypeIdId(type_id, aid, id int) (bool, error) {
 	maps := make(map[string]interface{})
 	maps["type_id"] = type_id
-	maps["id"] = id
+	maps["id"] = 0
 	maps["aid"] = aid
-	num, err := db.Filter(maps).Update(c)
+	mod:=model.NewAttachment()
+	mod.Id=id
+	//fmt.Println("save",mod)
+	num, err := db.Filter(maps).Update(mod)
 	if err != nil {
 		return false, err
 	}

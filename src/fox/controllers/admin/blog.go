@@ -134,7 +134,7 @@ func (c *BlogController)Post() {
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
-		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID,0,c.Session.Aid)
+		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID,c.Session.Aid,id)
 		fmt.Println("创建成功！:", id)
 		rsp.Success("")
 	}

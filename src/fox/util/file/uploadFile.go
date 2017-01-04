@@ -241,28 +241,23 @@ func (c *UploadFile)SaveDataBase(maps map[string]interface{}) {
 
 	fmt.Println("maps=>",maps)
 	//其他字段
-	type_id1 := maps["type_id"]
-	if type_id1 != nil {
-		type_id,_:=number.ObjToInt(type_id1)
-		att.TypeId = type_id
-		fmt.Println("maps[type_id]",maps["type_id"])
-		fmt.Println("type_id1",type_id1)
-		fmt.Println("att.TypeId",att.TypeId)
+	if maps["type_id"] != nil {
+		type_id,_:=number.ObjToInt(maps["type_id"])
+		//fmt.Println("反射类型reflect.Type",reflect.TypeOf(maps["type_id"]))
+		att.TypeId=type_id
 	}
-	aid1 := maps["aid"]
-	if aid1 != nil {
-		aid,_:=number.ObjToInt(aid1)
+	if maps["aid"] != nil {
+		aid,_:=number.ObjToInt(maps["aid"])
 		att.Aid = aid
-		fmt.Println("att.TypeId",att.Aid)
+		//fmt.Println("att.TypeId",att.Aid)
 	}
-	id1 := maps["id"]
-	if id1 != nil {
-		id,_:=number.ObjToInt(id1)
+	if maps["id"] != nil {
+		id,_:=number.ObjToInt(maps["id"])
 		att.Id = id
-		fmt.Println("att.Id",att.Id)
+		//fmt.Println("att.Id",att.Id)
 	}
 	c.Attachment = att
-	fmt.Println("c.Attachment",c.Attachment)
+	//fmt.Println("att",att)
 	o := db.NewDb()
 	_, err := o.Insert(c.Attachment)
 	if err != nil {

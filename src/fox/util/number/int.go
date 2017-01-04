@@ -26,6 +26,10 @@ func ObjToInt(i interface{}) (int, error) {
 		n = int(i.(int32))
 	case int64:
 		n = int(i.(int64))
+	case float32:
+		n = int(i.(float32))
+	case float64:
+		n = int(i.(float64))
 	case string:
 		var err error
 		n, err = strconv.Atoi(i.(string))
