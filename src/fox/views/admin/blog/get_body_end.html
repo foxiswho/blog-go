@@ -16,7 +16,6 @@
 <script src="{{.__static__}}plugin/insertAtCaret.js"></script>
     <script>
         var blog_id="{{if .is_put}}{{.info.Blog.BlogId}}{{else}}0{{end}}";
-        var upload_json={type_id:{{.TYPE_ID}},id:blog_id};
         var TOKEN='{{.upload_token}}';
         var layerID;
         //禁止 回车 表单保存
@@ -155,7 +154,7 @@
             });
 
             $('button.descriptionCut').click(function () {
-                var str=$('#content').data('markdown').parseContent();
+                var str=MarkDown.getPreviewedHTML();
                 if(str){
                     $('#description').value(str.replace(/<[^>]+>/g,""));
                 }
