@@ -8,6 +8,7 @@ import (
 	"fox/model"
 	"fox/util/url"
 	"fox/util/file"
+	"fox/service/admin"
 )
 
 type BlogController struct {
@@ -91,6 +92,7 @@ func (c *BlogController)Add() {
 	maps:=make(map[string]interface{})
 	maps["type_id"]= blog.TYPE_ID
 	maps["id"]= 0
+	maps["aid"]= c.Session.Aid
 	cry,err:=file.TokeMake(maps)
 	if err!=nil{
 		fmt.Println("令牌加密错误："+err.Error())
@@ -132,6 +134,7 @@ func (c *BlogController)Post() {
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
+		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID,0,c.Session.Aid)
 		fmt.Println("创建成功！:", id)
 		rsp.Success("")
 	}

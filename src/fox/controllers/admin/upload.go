@@ -75,6 +75,7 @@ func (c *Upload)Post() {
 	if t == "markdown" {
 		file_name = "editormd-image-file"
 	}
+	//上传
 	f, err := file.Upload(file_name, c.Ctx.Request,maps)
 	if t == "markdown" {
 		md := &editor.EditorMd{}

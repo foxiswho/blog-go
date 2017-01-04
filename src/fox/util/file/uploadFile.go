@@ -16,6 +16,7 @@ import (
 	"mime/multipart"
 	"fox/model"
 	"fox/util/db"
+	"fox/util/number"
 )
 //上传成功后返回结构体
 type UploadFile struct {
@@ -56,9 +57,9 @@ func Upload(field string, r *http.Request, maps map[string]interface{}) (*Upload
 	UploadFile := NewUploadFile()
 	//fmt.Println("maps",maps)
 	upload_type1 := maps["upload_type"]
-	upload_type:=""
-	if upload_type1!=nil{
-		upload_type=upload_type1.(string)
+	upload_type := ""
+	if upload_type1 != nil {
+		upload_type = upload_type1.(string)
 	}
 	//数据填充
 	_, err = UploadFile.SetUploadFileData(upload_type, file, header)
@@ -75,7 +76,7 @@ func Upload(field string, r *http.Request, maps map[string]interface{}) (*Upload
 		return nil, err
 	}
 	//保存到数据库
-	UploadFile.SaveDataBase()
+	UploadFile.SaveDataBase(maps)
 	//最后处理
 	return UploadFile, nil
 }
@@ -171,15 +172,6 @@ func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, h
 	//删除 文件后缀 中的点号
 	c.Ext = strings.Replace(c.Ext, ".", "", -1)
 	fmt.Println("文件数据：", c)
-	//
-	att := model.NewAttachment()
-	att.Ext = c.Ext
-	att.Size = c.Size
-	att.Name = c.Name
-	att.NameOriginal = c.NameOriginal
-	att.Path = c.Path
-	att.Md5 = crypt.Md5(c.Path + c.Name)
-	c.Attachment = att
 	return true, nil
 }
 //审核
@@ -236,7 +228,41 @@ func (c *UploadFile)LocalSave(file multipart.File) (bool, error) {
 	fmt.Println("写入文件" + dir + c.Url + "成功")
 	return true, nil
 }
-func (c *UploadFile)SaveDataBase() {
+//保存到数据库
+func (c *UploadFile)SaveDataBase(maps map[string]interface{}) {
+	//
+	att := model.NewAttachment()
+	att.Ext = c.Ext
+	att.Size = c.Size
+	att.Name = c.Name
+	att.NameOriginal = c.NameOriginal
+	att.Path = c.Path
+	att.Md5 = crypt.Md5(c.Path + c.Name)
+
+	fmt.Println("maps=>",maps)
+	//其他字段
+	type_id1 := maps["type_id"]
+	if type_id1 != nil {
+		type_id,_:=number.ObjToInt(type_id1)
+		att.TypeId = type_id
+		fmt.Println("maps[type_id]",maps["type_id"])
+		fmt.Println("type_id1",type_id1)
+		fmt.Println("att.TypeId",att.TypeId)
+	}
+	aid1 := maps["aid"]
+	if aid1 != nil {
+		aid,_:=number.ObjToInt(aid1)
+		att.Aid = aid
+		fmt.Println("att.TypeId",att.Aid)
+	}
+	id1 := maps["id"]
+	if id1 != nil {
+		id,_:=number.ObjToInt(id1)
+		att.Id = id
+		fmt.Println("att.Id",att.Id)
+	}
+	c.Attachment = att
+	fmt.Println("c.Attachment",c.Attachment)
 	o := db.NewDb()
 	_, err := o.Insert(c.Attachment)
 	if err != nil {
