@@ -120,7 +120,7 @@ if [ ! -d "$SITEPATH/uploads" ]; then
 fi
 #############################
 #结束进程fox
-ps -ef |grep foxwho|awk '{print $2}'|xargs kill -9
+ps -ef |grep /fox|awk '{print $2}'|xargs kill -9
 ############
 #删除原项目
 rm -rf $SITEPATH/fox
