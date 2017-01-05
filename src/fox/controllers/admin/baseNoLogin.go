@@ -1,7 +1,6 @@
 package admin
 
 import (
-	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"fox/util/datetime"
 	"fox/service/admin"
@@ -10,7 +9,7 @@ import (
 
 type BaseNoLogin struct {
 	AdminSession
-	Config map[string]interface{}
+	Site *admin.Site
 }
 
 //  框架中的扩展函数
@@ -24,9 +23,10 @@ func (c *BaseNoLogin) Initialization() {
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
 	//博客名字
-	c.Config = admin.NewTypeService().SiteConfig()
-	if len(c.Config) > 0 {
-		c.Data["site_name"] = c.Config["SITE_NAME"]
+	c.Site = admin.NewSiteService()
+	c.Site.SetSiteConfig()
+	if c.Site!=nil{
+		c.Data["site_name"] = c.Site.GetString("SITE_NAME")
 	}
 }
 //表单日期时间

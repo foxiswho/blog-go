@@ -12,7 +12,7 @@ import (
 
 type BaseNoLogin struct {
 	beego.Controller
-	Config map[string]interface{}
+	Site *admin.Site
 	//Session *service.AdminSession //当前登录用户信息
 }
 
@@ -26,9 +26,10 @@ func (c *BaseNoLogin) Initialization() {
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/post/"
 	//博客名字
-	c.Config = admin.NewTypeService().SiteConfig()
-	if len(c.Config) > 0 {
-		c.Data["site_name"] = c.Config["SITE_NAME"]
+	c.Site = admin.NewSiteService()
+	c.Site.SetSiteConfig()
+	if c.Site!=nil {
+		c.Data["site_name"] = c.Site.GetString("SITE_NAME")
 	}
 
 }

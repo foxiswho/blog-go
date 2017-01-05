@@ -207,19 +207,3 @@ func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	return false, &util.Error{Msg:"已存在"}
 
 }
-func (c *Type)SiteConfig() map[string]interface{} {
-	tp := make([]model.Type, 0)
-	o := db.NewDb()
-	tps := make(map[string]interface{})
-	err := o.Where("type_id=?", 10007).Find(&tp)
-	if err != nil {
-		fmt.Println(err)
-		return tps
-	}
-	for _, v := range tp {
-		if v.Mark != "" {
-			tps[v.Mark] = v.Content
-		}
-	}
-	return tps
-}

@@ -88,7 +88,11 @@ func (c *Blog)Get() {
 // @router /blog/add [get]
 func (c *Blog)Add() {
 	mod := blog.NewBlogService()
-	mod.Blog = &model.Blog{}
+	blog := model.NewBlog()
+	blog.Author = c.Site.GetString("AUTHOR")
+	blog.IsOpen = 1
+	blog.Status = 99
+	mod.Blog = blog
 	mod.BlogStatistics = &model.BlogStatistics{}
 	mod.TypeId = service.ORIGINAL
 	c.Data["info"] = mod

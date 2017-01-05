@@ -73,10 +73,10 @@
 
                                                     <div class="col-sm-10">
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="status" value="0">草稿
+                                                            <input type="radio" name="status" value="0" {{if eq .info.Status 0}}checked{{end}}>草稿
                                                         </label>
                                                         <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="status" value="99" checked>发布
+                                                            <input type="radio" name="status" value="99" {{if eq .info.Status 99}}checked{{end}}>发布
                                                         </label>
                                                     </div>
                                                 </div>
@@ -88,7 +88,7 @@
                                                     <div class="col-sm-10">
                                                         <div class="switch">
                                                             <div class="onoffswitch">
-                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_comment" value="1" id="is_comment">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_comment" value="1" id="is_comment" {{if eq .info.IsComment 1}}checked{{end}}>
                                                                 <label class="onoffswitch-label" for="is_comment">
                                                                     <span class="onoffswitch-inner"></span>
                                                                     <span class="onoffswitch-switch"></span>
@@ -105,7 +105,7 @@
                                                     <div class="col-sm-10">
                                                         <div class="switch">
                                                             <div class="onoffswitch">
-                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_open" value="1" checked id="is_open">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_open" value="1" id="is_open" {{if eq .info.IsOpen 1}}checked{{end}}>
                                                                 <label class="onoffswitch-label" for="is_open">
                                                                     <span class="onoffswitch-inner"></span>
                                                                     <span class="onoffswitch-switch"></span>
@@ -122,7 +122,7 @@
                                                     <div class="col-sm-10">
                                                         <div class="switch">
                                                             <div class="onoffswitch">
-                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_del" value="1" id="is_del" {{if eq .info.IsDel 1}}checked{{end}}>
                                                                 <label class="onoffswitch-label" for="is_del">
                                                                     <span class="onoffswitch-inner"></span>
                                                                     <span class="onoffswitch-switch"></span>
@@ -148,7 +148,7 @@
                                                     </label>
                                                     <div class="col-sm-10">
                                                         <div class="switch">
-                                                            {{.info.TimeUpdate}}
+                                                            {{dateformat .info.TimeUpdate "2006-01-02 15:04:05"}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -227,7 +227,7 @@
                                                     <div class="col-sm-10">
                                                         <div class="switch">
                                                             <div class="onoffswitch">
-                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_jump" value="1" id="is_jump">
+                                                                <input type="checkbox"  class="onoffswitch-checkbox" name="is_jump" value="1" id="is_jump" {{if eq .info.IsJump 1}}checked{{end}}>
                                                                 <label class="onoffswitch-label" for="is_jump">
                                                                     <span class="onoffswitch-inner"></span>
                                                                     <span class="onoffswitch-switch"></span>

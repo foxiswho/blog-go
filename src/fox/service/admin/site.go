@@ -11,7 +11,7 @@ import (
 )
 
 type Site struct {
-
+	Config map[string]string
 }
 
 func NewSiteService() *Site {
@@ -36,16 +36,39 @@ func (t *Site)Update(form url.Values) (bool, error) {
 		}
 		if val != "" {
 			mod := model.NewType()
-			mod.Content=val
+			mod.Content = val
 			num, err := o.Where("type_id=? and mark=? ", service.SITE_ID, key).Update(mod)
 			if err != nil {
 				return false, err
 			}
-			fmt.Println("更新 " + key + "=>" + val,num)
-		}else{
+			fmt.Println("更新 " + key + "=>" + val, num)
+		} else {
 			fmt.Println(key + "值为空 跳过更新")
 		}
 
 	}
 	return true, nil
+}
+func (c *Site)SiteConfig() map[string]string {
+	tp := make([]model.Type, 0)
+	o := db.NewDb()
+	tps := make(map[string]string)
+	err := o.Where("type_id=?", service.SITE_ID).Find(&tp)
+	if err != nil {
+		fmt.Println(err)
+		return tps
+	}
+	for _, v := range tp {
+		if v.Mark != "" {
+			tps[v.Mark] = v.Content
+		}
+	}
+	return tps
+}
+func (c *Site)SetSiteConfig() {
+	c.Config = c.SiteConfig()
+}
+//获取信息
+func (c *Site)GetString(key string) string {
+	return c.Config[key]
 }
