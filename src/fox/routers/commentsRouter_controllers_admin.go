@@ -377,6 +377,13 @@ func init() {
 			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["fox/controllers/admin:Site"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Site"],
+		beego.ControllerComments{
+			Method: "Put",
+			Router: `/site`,
+			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["fox/controllers/admin:Type"] = append(beego.GlobalControllerRouter["fox/controllers/admin:Type"],
 		beego.ControllerComments{
 			Method: "List",
