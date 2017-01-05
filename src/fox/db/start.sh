@@ -58,10 +58,10 @@ rm -rf $DEPLOYPATH/tttttt
 #编译
 #
 #删除本项目源码
-rm -rf $GO_PATH/fox
+rm -rf $GO_PATH/src/fox
 #
 #复制最新源码到项目里
-mv $DEPLOYPATH/src/fox $GO_PATH/src/fox
+mv $DEPLOYPATH/src/fox $GO_PATH/src/
 
 ######################
 #数据库相关替换
@@ -106,6 +106,8 @@ if [ ! -d "$SITEPATH" ]; then
     chown -R www:www $SITEPATH
 fi
 #######################
+#更改项目名称
+mv $PACK_PATH/fox $PACK_PATH/fox_2
 #复制文件
 cp -auR $PACK_PATH/* $SITEPATH/
 
@@ -116,10 +118,17 @@ if [ ! -d "$SITEPATH/uploads" ]; then
     chmod -R 777 $SITEPATH/uploads
     chown -R www:www $SITEPATH/uploads
 fi
-
+#############################
 #结束进程fox
 ps -ef |grep foxwho|awk '{print $2}'|xargs kill -9
-#启动项目	
+############
+#删除原项目
+rm -rf $SITEPATH/fox
+#名称恢复
+ls -lh ${SITEPATH}
+mv "${SITEPATH}/fox_2" "${SITEPATH}/fox"
+############
+#启动项目
 SH="${SITEPATH}.start.sh"
 $SH
 
