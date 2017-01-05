@@ -22,8 +22,24 @@
     * 标签
     * 附件
     * 。。。。。。
-
-
+#编译
+##新环境
+先安装 beego
+```go
+go get github.com/astaxie/beego
+go get github.com/beego/bee
+```
+然后进入项目目录
+```go
+cd src/fox
+bee run    #beego 要先安装
+```
+##环境已安装过了
+直接进入项目目录 编译
+```go
+cd src/fox
+bee run    #beego 要先安装
+```
 #后台用户
 用户名：admin
 
