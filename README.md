@@ -49,6 +49,10 @@ bee run    #beego 要先安装
 
 数据库文件在:src/fox/db/blog-go.sql.zip中
 
+#src/fox/db/说明
+www.foxwho.com.start.sh 为项目启动文件
+start.sh 为自动部署编译文件
+blog_go.sql.zip 数据库文件
 #用到组件
 go 框架：Beego
 
