@@ -461,7 +461,12 @@ h6 {
 .article-pager a:hover {
     color: rgb(0, 68, 204);
 }
-
+.article-pager a.current{
+    background-color: #0079bc;
+    color: #fff;
+    font-size: 25px;
+    font-weight: bolder;
+}
 #article-single .aside {
     margin-bottom: 20px;
 }

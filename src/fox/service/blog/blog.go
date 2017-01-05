@@ -144,6 +144,24 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	if m.Status > 99 {
 		m.Status = 99
 	}
+	if m.Tag != "" {
+		//拆分成数组
+		tags := strings.Split(m.Tag, ",")
+		//
+		i := 1
+		m.Tag = ""
+		for _, v := range tags {
+			v = strings.TrimSpace(v)
+			if v == "" {
+				continue
+			}
+			if i > 1 {
+				m.Tag += ","
+			}
+			m.Tag += v
+			i++
+		}
+	}
 	o := db.NewDb()
 	affected, err := o.Insert(m)
 	if err != nil {
@@ -202,9 +220,27 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	if m.Status > 99 {
 		m.Status = 99
 	}
+	if m.Tag != "" {
+		//拆分成数组
+		tags := strings.Split(m.Tag, ",")
+		//
+		i := 1
+		m.Tag = ""
+		for _, v := range tags {
+			v = strings.TrimSpace(v)
+			if v == "" {
+				continue
+			}
+			if i > 1 {
+				m.Tag += ","
+			}
+			m.Tag += v
+			i++
+		}
+	}
 	//截取
-	m.Description=str.Substr(m.Description,0,255)
-	stat.SeoDescription=str.Substr(stat.SeoDescription,0,255)
+	m.Description = str.Substr(m.Description, 0, 255)
+	stat.SeoDescription = str.Substr(stat.SeoDescription, 0, 255)
 	o := db.NewDb()
 	num, err := o.Id(id).Update(m)
 	if err != nil {
@@ -329,21 +365,21 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 		row := &Blog{}
 		tmp := x.(model.Blog)
 		//内容转换
-		tmp.Content=string(editor.Markdown([]byte(tmp.Content)))
+		tmp.Content = string(editor.Markdown([]byte(tmp.Content)))
 		row.Blog = &tmp
 		row.Tags = []string{}
 		if row.Tag != "" {
 			row.Tags = strings.Split(row.Tag, ",")
 		}
-		row.BlogStatistics=&model.BlogStatistics{}
+		row.BlogStatistics = &model.BlogStatistics{}
 		for _, v := range stat {
 			//fmt.Println(v)
 			if (v.BlogId == tmp.BlogId) {
-				row.Comment=v.Comment
-				row.BlogStatistics.Read=v.Read
-				row.SeoDescription=v.SeoDescription
-				row.SeoKeyword=v.SeoKeyword
-				row.SeoTitle=v.SeoTitle
+				row.Comment = v.Comment
+				row.BlogStatistics.Read = v.Read
+				row.SeoDescription = v.SeoDescription
+				row.SeoKeyword = v.SeoKeyword
+				row.SeoTitle = v.SeoTitle
 				//fmt.Println(">>>>",row.BlogStatistics)
 			}
 		}

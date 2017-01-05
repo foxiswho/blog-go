@@ -62,14 +62,16 @@ func (c *BlogController) GetAll() {
 	query["type=?"] = blog.TYPE_ARTICLE
 	mode := blog.NewBlogService()
 	//分页
-	page, _ := c.GetInt("page")
-	data, err := mode.GetAll(query, fields, orderBy, page, 20)
+	id := c.Ctx.Input.Param(":page")
+	page, _ := strconv.Atoi(id)
+	data, err := mode.GetAll(query, fields, orderBy, page, 10)
 	fmt.Println("err", err)
 	//fmt.Println("data", data)
 	if err != nil {
 		//c.Data["data"] = err.Error()
 		fmt.Println(err.Error())
 	} else {
+
 		c.Data["data"] = data
 	}
 	c.TplName = "blog/index.html"

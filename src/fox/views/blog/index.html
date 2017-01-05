@@ -36,8 +36,9 @@
             <div class="article-pager">
                 {{if .data.FirstPageIs}}<a href="/page/{{.data.FirstPage}}">← 首页</a>{{end}}
                 <span class="current">
+                    {{$page:=.data.Page}}
                     {{range $i,$v:=.data.Pages}}
-                    <a href="/page/{{$v}}"> {{$v}} </a>
+                    <a href="/page/{{$v}}" class="{{if eq $v $page}}current{{end}}"> {{$v}} </a>
                     {{end}}
                 </span>
                 {{if .data.LastPageIs}}<a href="/page/{{.data.LastPage}}">下一页 →</a>{{end}}
