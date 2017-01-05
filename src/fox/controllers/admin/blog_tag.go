@@ -21,8 +21,9 @@ func (c *BlogTag)List() {
 	if str != "" {
 		query["name"] = str
 	}
+	page, _ := c.GetInt("page")
 	mode := model.NewBlogTag()
-	data, err := mode.GetAll(query, fields, "tag_id desc", 0, 10)
+	data, err := mode.GetAll(query, fields, "tag_id desc",page, 20)
 	if err!=nil{
 		fmt.Println(err)
 	}

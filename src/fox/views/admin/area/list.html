@@ -42,7 +42,7 @@
                             {{range .data.Data}}
                                 <tr class="" id="d_{{.Id}}">
                                     <td>{{.Id}}</td>
-                                    <td>{{.Name}}</td>
+                                    <td><a href="/admin/area?parent_id={{.Id}}" class="font-bold" >{{.Name}}</a></td>
                                     <td>{{.NameTraditional}}</td>
                                     <td>{{.NameEn}}</td>
                                     <td>{{.ParentId}}</td>
@@ -75,7 +75,7 @@
                             {{range .data_ext.Data}}
                             <tr class="" id="d_{{.ExtId}}">
                                 <td>{{.ExtId}}|{{.Id}}</td>
-                                <td>{{.Name}}({{.TypeName}} [{{.OtherName}}])</td>
+                                <td>{{.Name}} (<b style="color: red">{{.TypeName}}</b> [{{.OtherName}}])</td>
                                 <td>{{.NameTraditional}}</td>
                                 <td>{{.NameEn}}</td>
                                 <td>{{.ParentId}}</td>
@@ -112,7 +112,11 @@
     <!-- Page-Level Scripts -->
     <script>
         $(document).ready(function () {
-            $('.dataTables-example').dataTable({iDisplayLength:50});
+            $('.dataTables-example').dataTable({
+                iDisplayLength:-1,
+                "aLengthMenu": [[10, 25, 50, -1], ["每页10条", "每页25条","每页50条", "显示所有数据"]],  //设置每页显示记录的下拉菜单
+                "aaSorting": [[0, "asc"]],  //给列表排序 ，第一个参数表示数组 (由0开始)。0 表示1列。第二个参数为 desc或是asc
+            });
             $('a.del').click(function (e) {
                 e.preventDefault();
                 var $this=$(this);

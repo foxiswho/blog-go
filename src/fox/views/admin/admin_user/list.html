@@ -70,6 +70,10 @@
                                 </tr>
                             {{end}}
                         </table>
+                        <div id="page">
+                            <ul class="pagination" id="pageUl">
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,9 +84,19 @@
     <script src="{{.__theme__}}js/plugins/dataTables/jquery.dataTables.js"></script>
     <script src="{{.__theme__}}js/plugins/dataTables/dataTables.bootstrap.js"></script>
     <!-- Page-Level Scripts -->
+<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
     <script>
         $(document).ready(function () {
-            $('.dataTables-example').dataTable({iDisplayLength:50});
+            $('.dataTables-example').dataTable({
+                "bScrollCollapse": false,  //当显示的数据不足以支撑表格的默认的高度时，依然显示纵向的滚动条。(默认是false)
+                "bPaginate": false,  //是否显示分页
+                "bLengthChange": false,  //每页显示的记录数
+                "bFilter": false, //搜索栏
+                "bInfo": false, //显示表格信息
+                "bAutoWidth": false,  //自适应宽度
+                "ordering": false,//排序操作在服务端进行，所以可以关了。
+                "bJQueryUI": false //可以添加 jqury的ui theme  需要添加css
+            });
             $('a.del').click(function (e) {
                 e.preventDefault();
                 var $this=$(this);
@@ -104,6 +118,29 @@
                     alert("系统错误");
                 });
                 return false;
+            });
+            $("#pageUl").bootstrapPaginator({
+                currentPage: '{{.data.Page}}',
+                totalPages: '{{.data.TotalPage}}',
+                bootstrapMajorVersion: 3,
+                size: "small",
+                itemTexts: function (type, page, current) {
+                    switch (type) {
+                        case "first": return "首页";
+                        case "prev": return "上一页";
+                        case "next": return "下一页";
+                        case "last": return "末页";
+                        case "page": return page;
+                    }
+                },
+                onPageClicked: function(e,originalEvent,type,page){
+                    var wd=$('wd').value();
+                    var url="?page=" + page;
+                    if (wd!=''){
+                        url+="&wd="+encodeURIComponent(wd);
+                    }
+                    window.location.href = url;
+                }
             });
         });
     </script>

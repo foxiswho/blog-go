@@ -59,55 +59,41 @@
     <script src="{{.__theme__}}js/plugins/dataTables/jquery.dataTables.js"></script>
     <script src="{{.__theme__}}js/plugins/dataTables/dataTables.bootstrap.js"></script>
     <!-- Page-Level Scripts -->
+<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
     <script>
         $(document).ready(function () {
             $('.dataTables-example').dataTable({
                 "bScrollCollapse": false,  //当显示的数据不足以支撑表格的默认的高度时，依然显示纵向的滚动条。(默认是false)
-                "bPaginate": true,  //是否显示分页
-                "bLengthChange": true,  //每页显示的记录数
-                "bFilter": true, //搜索栏
-                "bInfo": true, //显示表格信息
+                "bPaginate": false,  //是否显示分页
+                "bLengthChange": false,  //每页显示的记录数
+                "bFilter": false, //搜索栏
+                "bInfo": false, //显示表格信息
                 "bAutoWidth": false,  //自适应宽度
                 "ordering": false,//排序操作在服务端进行，所以可以关了。
-                processing: true,//载入数据的时候是否显示“载入中”
-                "bStateSave": true, //保存状态到cookie *************** 很重要 ， 当搜索的时候页面一刷新会导致搜索的消失。使用这个属性就可避免了
-                "sPaginationType": "full_numbers", //分页，一共两种样式，full_numbers和two_button(默认)
-                "oLanguage": {
-                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                    "sInfoEmtpy": "找不到相关数据",
-                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                    "sProcessing": "正在加载中...",
-                    "sSearch": "搜索",
-                    "sUrl": "", //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
-                    "oPaginate": {
-                        "sFirst":    "第一页",
-                        "sPrevious": " 上一页 ",
-                        "sNext":     " 下一页 ",
-                        "sLast":     " 最后一页 "
+                "bJQueryUI": false //可以添加 jqury的ui theme  需要添加css
+            });
+            $("#pageUl").bootstrapPaginator({
+                currentPage: '{{.data.Page}}',
+                totalPages: '{{.data.TotalPage}}',
+                bootstrapMajorVersion: 3,
+                size: "small",
+                itemTexts: function (type, page, current) {
+                    switch (type) {
+                        case "first": return "首页";
+                        case "prev": return "上一页";
+                        case "next": return "下一页";
+                        case "last": return "末页";
+                        case "page": return page;
                     }
                 },
-                "bJQueryUI": false, //可以添加 jqury的ui theme  需要添加css
-                "aLengthMenu": [[10, 25, 50, -1], ["每页10条", "每页25条","每页50条", "显示所有数据"]],  //设置每页显示记录的下拉菜单
-                "ajax": {
-                    type: "get",
-                    url:"?",
-                    dataSrc: "data",//默认data，也可以写其他的，格式化table的时候取里面的数据
-                },
-                columns: [//对应上面thead里面的序列
-                    { data: "blog_id", },//字段名字和返回的json序列的key对应
-                    { data: "name", },
-                    {
-                       data:"time_add"
-                    },
-                    {
-                        data: function (e) {//这里给最后一列返回一个操作列表
-                            //e是得到的json数组中的一个item ，可以用于控制标签的属性。
-                            return '<a class="btn btn-default btn-xs show-detail-json"><i class="icon-edit"></i>显示详细</a>';
-                        }
+                onPageClicked: function(e,originalEvent,type,page){
+                    var wd=$('wd').value();
+                    var url="?page=" + page;
+                    if (wd!=''){
+                        url+="&wd="+encodeURIComponent(wd);
                     }
-                ]
+                    window.location.href = url;
+                }
             });
         });
     </script>
