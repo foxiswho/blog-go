@@ -81,6 +81,15 @@ func (c *Blog)Get() {
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
 		c.Data["TYPE_ID"] = service.TYPE_ID
+		maps := make(map[string]interface{})
+		maps["type_id"] = service.TYPE_ID
+		maps["id"] = int_id
+		maps["aid"] = c.Session.Aid
+		cry, err := file.TokeMake(maps)
+		if err != nil {
+			fmt.Println("令牌加密错误：" + err.Error())
+		}
+		c.Data["upload_token"] = cry
 		c.TplName = "admin/blog/get.html"
 	}
 }
