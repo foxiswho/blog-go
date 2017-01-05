@@ -16,7 +16,7 @@
                     </form>
                 </div>
                 {{range .data.Data}}
-                <div class="ibox">
+                <div class="ibox" id="d_{{.Blog.BlogId}}">
                     <div class="ibox-content">
                         <a href="/article/{{.Blog.BlogId}}" class="btn-link" target="_blank">
                             <h2>
@@ -50,6 +50,7 @@
                                 <div class=" text-right">
                                     <h5>操作</h5>
                                     <a href="blog/{{.Blog.BlogId}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
+                                    <a href="blog/{{.Blog.BlogId}}" class="btn btn-danger btn-xs del" ><i class="fa fa-times"></i> 删除</a>
                                 </div>
                             </div>
                         </div>
@@ -90,6 +91,27 @@
                 }
                 window.location.href = url;
             }
+        });
+        $('a.del').click(function (e) {
+            e.preventDefault();
+            var $this=$(this);
+            var url=$this.attr('href');
+            $.ajax({
+                url:url,
+                dataType:'json',
+                method:"DELETE"
+            }).done(function (data) {
+                console.log(data);
+                if(data.code==1){
+                    layer.tips(data.info,$this);
+                    $("#"+url.replace("blog/","d_")).hide(3000);
+                }else{
+                    layer.tips(data.info,$this);
+                }
+            }).fail(function(){
+                alert("系统错误");
+            });
+            return false;
         });
     });
 </script>

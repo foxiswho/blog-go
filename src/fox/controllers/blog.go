@@ -6,10 +6,11 @@ import (
 	"regexp"
 	"fox/service/blog"
 	"fmt"
+	"fox/service"
 )
 
-type BlogController struct {
-	BaseNoLoginController
+type Blog struct {
+	BaseNoLogin
 }
 
 
@@ -20,7 +21,7 @@ type BlogController struct {
 // @Success 200 {object} models.Blog
 // @Failure 403 :id is empty
 // @router /article/:id [get]
-func (c *BlogController) Get() {
+func (c *Blog) Get() {
 	idStr := c.Ctx.Input.Param(":id")
 	ser := blog.NewBlogService()
 	var err error
@@ -55,11 +56,11 @@ func (c *BlogController) Get() {
 // @Success 200 {object} models.Blog
 // @Failure 403
 // @router / [get]
-func (c *BlogController) GetAll() {
+func (c *Blog) GetAll() {
 	fields := []string{}
 	orderBy := "blog_id desc"
 	query := make(map[string]interface{})
-	query["type=?"] = blog.TYPE_ARTICLE
+	query["type=?"] = service.TYPE_ARTICLE
 	mode := blog.NewBlogService()
 	//分页
 	id := c.Ctx.Input.Param(":page")

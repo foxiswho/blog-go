@@ -9,7 +9,7 @@ type Area struct {
 	*model.AreaExt
 }
 
-func NewAreaSercice() *Area {
+func NewAreaService() *Area {
 	return new(Area)
 }
 func (c *Area)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {

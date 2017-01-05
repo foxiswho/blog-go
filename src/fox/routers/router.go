@@ -18,9 +18,9 @@ func init() {
 	//beego.Router("/admin/login", &admin.LoginController{})
 	//beego.Router("/admin/index", &admin.IndexController{})
 	ns := beego.NewNamespace("/admin",
-		beego.NSRouter("/login", &admin.LoginController{}),
-		beego.NSRouter("/logout", &admin.LogoutController{}),
-		beego.NSRouter("/my_password", &admin.MyPasswordController{}),
+		beego.NSRouter("/login", &admin.Login{}),
+		beego.NSRouter("/logout", &admin.Logout{}),
+		beego.NSRouter("/my_password", &admin.MyPassword{}),
 		//blog
 		//使用注解路由
 		//beego.NSRouter("/blog", &admin.BlogController{}, "get:List"),
@@ -41,10 +41,10 @@ func init() {
 			&admin.Index{},
 			&admin.Area{},
 			&admin.Attachment{},
-			&admin.TypeController{},
+			&admin.Type{},
 			&admin.BlogTag{},
 			&admin.BlogCat{},
-			&admin.BlogController{},
+			&admin.Blog{},
 			&admin.Select{},
 			&admin.Upload{},
 			&admin.AdminUser{},
@@ -55,8 +55,8 @@ func init() {
 	)
 	beego.AddNamespace(ns)
 	//首页
-	beego.Router("/", &controllers.BlogController{}, "get:GetAll")
-	beego.Router("/page/:page", &controllers.BlogController{}, "get:GetAll")
-	beego.Router("/article/:id", &controllers.BlogController{}, "get:Get")
-	beego.Router("/tag/:tag", &controllers.TagController{}, "get:GetAll")
+	beego.Router("/", &controllers.Blog{}, "get:GetAll")
+	beego.Router("/page/:page", &controllers.Blog{}, "get:GetAll")
+	beego.Router("/article/:id", &controllers.Blog{}, "get:Get")
+	beego.Router("/tag/:tag", &controllers.Tag{}, "get:GetAll")
 }

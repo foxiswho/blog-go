@@ -1,10 +1,10 @@
 package admin
 
-type LogoutController struct {
-	BaseNoLoginController
+type Logout struct {
+	BaseNoLogin
 }
 
-func (this *LogoutController)Get() {
+func (this *Logout)Get() {
 	this.SessionDel()
 	//this.TplName = "admin/logout/get.html"
 	this.Redirect("/admin/login", 302)

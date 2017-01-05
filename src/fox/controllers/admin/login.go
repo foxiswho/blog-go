@@ -6,14 +6,14 @@ import (
 	"fox/service/admin"
 )
 
-type LoginController struct {
-	BaseNoLoginController
+type Login struct {
+	BaseNoLogin
 }
 
-func (this *LoginController)Get() {
+func (this *Login)Get() {
 	this.TplName = "admin/login/get.html"
 }
-func (this *LoginController)Post() {
+func (this *Login)Post() {
 	username := this.GetString("username")
 	password := this.GetString("password")
 	fmt.Println("username:",username)

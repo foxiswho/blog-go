@@ -8,7 +8,7 @@ type AreaExt struct {
 	*model.AreaExt
 }
 
-func NewAreaExtSercice() *AreaExt {
+func NewAreaExtService() *AreaExt {
 	return new(AreaExt)
 }
 func (c *AreaExt)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {

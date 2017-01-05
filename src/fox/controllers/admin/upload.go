@@ -9,7 +9,7 @@ import (
 )
 
 type Upload struct {
-	BaseController
+	Base
 }
 
 func (c *Upload) URLMapping() {

@@ -10,11 +10,11 @@ import (
 	"fox/util/url"
 )
 
-type TypeController struct {
-	BaseController
+type Type struct {
+	Base
 }
 
-func (c *TypeController) URLMapping() {
+func (c *Type) URLMapping() {
 	c.Mapping("List", c.List)
 	c.Mapping("ListChild", c.ListChild)
 	c.Mapping("Add", c.Add)
@@ -24,7 +24,7 @@ func (c *TypeController) URLMapping() {
 }
 //列表
 // @router /type [get]
-func (c *TypeController)List() {
+func (c *Type)List() {
 	ser :=admin.NewTypeService()
 	data, err := ser.Query(0)
 	fmt.Println(err)
@@ -35,7 +35,7 @@ func (c *TypeController)List() {
 }
 //子类
 // @router /type/list_child/:id [get]
-func (c *TypeController)ListChild() {
+func (c *Type)ListChild() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	ser :=admin.NewTypeService()
@@ -58,7 +58,7 @@ func (c *TypeController)ListChild() {
 //添加
 // @router /type/add [get]
 // @router /type/add/:id [get]
-func (c *TypeController)Add() {
+func (c *Type)Add() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	mod := model.NewType()
@@ -98,7 +98,7 @@ func (c *TypeController)Add() {
 }
 //保存
 // @router /type [post]
-func (c *TypeController)Post() {
+func (c *Type)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewType()
@@ -119,7 +119,7 @@ func (c *TypeController)Post() {
 }
 //编辑
 // @router /type/:id [get]
-func (c *TypeController)Get() {
+func (c *Type)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	ser := admin.NewTypeService()
@@ -141,7 +141,7 @@ func (c *TypeController)Get() {
 }
 //更新
 // @router /type/:id [put]
-func (c *TypeController)Put() {
+func (c *Type)Put() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
@@ -163,7 +163,7 @@ func (c *TypeController)Put() {
 }
 //检测名称重复
 // @router /type/check_name [post]
-func (c *TypeController)CheckName() {
+func (c *Type)CheckName() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化

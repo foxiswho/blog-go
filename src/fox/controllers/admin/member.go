@@ -10,7 +10,7 @@ import (
 )
 
 type Member struct {
-	BaseController
+	Base
 }
 
 func (c *Member) URLMapping() {

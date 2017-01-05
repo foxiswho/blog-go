@@ -6,6 +6,7 @@ import (
 	"time"
 	"fox/model"
 	"fox/util/db"
+	"fox/service"
 )
 
 
@@ -37,7 +38,7 @@ func (c *BlogCat)Create(m *model.Blog) (int, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-	m.CatId = TYPE_CAT
+	m.CatId = service.TYPE_CAT
 	//状态
 	m.Status = 99
 	o := db.NewDb()
@@ -81,7 +82,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 		m.TimeAdd = time.Now()
 	}
 	m.TimeSystem = m.TimeAdd
-	m.CatId = TYPE_CAT
+	m.CatId = service.TYPE_CAT
 	//状态
 	m.Status = 99
 
@@ -113,7 +114,7 @@ func (c *BlogCat)Delete(id int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if info.CatId != TYPE_CAT {
+	if info.CatId != service.TYPE_CAT {
 		return false, &util.Error{Msg:"不是栏目，不能删除"}
 	}
 	num, err := mode.Delete(id)

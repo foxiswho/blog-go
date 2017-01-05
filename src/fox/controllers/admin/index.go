@@ -2,7 +2,7 @@ package admin
 
 
 type Index struct {
-	BaseController
+	Base
 }
 func (c *Index) URLMapping() {
 	c.Mapping("Get", c.Get)

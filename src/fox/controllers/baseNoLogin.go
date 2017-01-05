@@ -10,18 +10,18 @@ import (
 	"fox/service/admin"
 )
 
-type BaseNoLoginController struct {
+type BaseNoLogin struct {
 	beego.Controller
 	Config map[string]interface{}
 	//Session *service.AdminSession //当前登录用户信息
 }
 
 //  框架中的扩展函数
-func (c *BaseNoLoginController) Prepare() {
+func (c *BaseNoLogin) Prepare() {
 	c.Initialization()
 }
 // 初始化数据
-func (c *BaseNoLoginController) Initialization() {
+func (c *BaseNoLogin) Initialization() {
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/post/"
@@ -33,7 +33,7 @@ func (c *BaseNoLoginController) Initialization() {
 
 }
 //表单日期时间
-func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
+func (c *BaseNoLogin) GetDateTime(key string) (time.Time, bool) {
 	date := c.GetString(key)
 	if len(date) > 0 {
 		date, err := datetime.FormatTimeStructLocation(date, datetime.Y_M_D_H_I_S)
@@ -44,7 +44,7 @@ func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
 	return time.Time{}, false
 }
 //表单日期时间
-func (c *BaseNoLoginController) Error(key string) {
+func (c *BaseNoLogin) Error(key string) {
 	c.Data["content"] = key
 	c.TplName = "error/404.html"
 }

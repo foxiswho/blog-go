@@ -12,16 +12,7 @@ import (
 	"fox/util/str"
 )
 
-const (
-	//博客模块ID
-	TYPE_ID = 10006
-	//原创
-	ORIGINAL = 10003
-	//栏目 博客分类属性 栏目ID
-	TYPE_CAT = 10001
-	//文章
-	TYPE_ARTICLE = 0
-)
+
 
 //
 
@@ -286,17 +277,23 @@ func (c *Blog)Delete(id int) (bool, error) {
 	if id < 1 {
 		return false, &util.Error{Msg:"ID 错误"}
 	}
+	fmt.Println("博客文章删除ID", id)
 	mode := model.NewBlog()
 	num, err := mode.Delete(id)
 	if err != nil {
-		fmt.Println("err:", err)
+		fmt.Println("Blog del err:", err)
 	}
 	fmt.Println("num:", num)
 	num2, err := c.DeleteBlogStatisticsByBlogId(id)
 	if err != nil {
-		fmt.Println("err:", err)
+		fmt.Println("BlogStatistics del err:", err)
 	}
 	fmt.Println("num2:", num2)
+	num3, err := NewBlogTagService().DeleteByBlogId(id)
+	if err != nil {
+		fmt.Println("BlogTag del err:", err)
+	}
+	fmt.Println("num3:", num3)
 	return true, nil
 }
 func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {

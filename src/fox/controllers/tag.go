@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-type TagController struct {
-	BaseNoLoginController
+type Tag struct {
+	BaseNoLogin
 }
 
 // GetAll ...
@@ -21,7 +21,7 @@ type TagController struct {
 // @Success 200 {object} models.Blog
 // @Failure 403
 // @router / [get]
-func (c *TagController) GetAll() {
+func (c *Tag) GetAll() {
 	idStr := c.Ctx.Input.Param(":tag")
 	fields := []string{}
 	orderBy := "blog_id desc"

@@ -6,7 +6,7 @@ import (
 )
 
 type Attachment struct {
-	BaseController
+	Base
 }
 
 func (c *Attachment) URLMapping() {
@@ -16,7 +16,7 @@ func (c *Attachment) URLMapping() {
 // @router /attachment [get]
 func (c *Attachment)List() {
 	where := make(map[string]interface{})
-	mod := admin.NewAttachmentSercice()
+	mod := admin.NewAttachmentService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "attachment_id DESC", page, 20)
 	if err != nil {

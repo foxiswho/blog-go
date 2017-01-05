@@ -13,10 +13,11 @@ type Type struct {
 
 }
 
+
 func NewTypeService() *Type {
 	return new(Type)
 }
-func (this *Type)Query(type_id int) (*db.Paginator, error) {
+func (c *Type)Query(type_id int) (*db.Paginator, error) {
 	fields := []string{}
 	query := make(map[string]interface{})
 	query["type_id"] = type_id

@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-type BaseNoLoginController struct {
+type BaseNoLogin struct {
 	AdminSession
 	Config map[string]interface{}
 }
 
 //  框架中的扩展函数
-func (c *BaseNoLoginController) Prepare() {
+func (c *BaseNoLogin) Prepare() {
 	c.Initialization()
 }
 // 初始化数据
-func (c *BaseNoLoginController) Initialization() {
+func (c *BaseNoLogin) Initialization() {
 	c.Data["HtmlHead"] = ""
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
@@ -30,7 +30,7 @@ func (c *BaseNoLoginController) Initialization() {
 	}
 }
 //表单日期时间
-func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
+func (c *BaseNoLogin) GetDateTime(key string) (time.Time, bool) {
 	date := c.GetString(key)
 	if len(date) > 0 {
 		date, err := datetime.FormatTimeStructLocation(date, datetime.Y_M_D_H_I_S)
@@ -41,7 +41,7 @@ func (c *BaseNoLoginController) GetDateTime(key string) (time.Time, bool) {
 	return time.Time{}, false
 }
 // GetString returns the input value by key string or the default value while it's present and input is blank
-func (c *BaseNoLoginController) GetString(key string, def ...string) string {
+func (c *BaseNoLogin) GetString(key string, def ...string) string {
 	if v := c.Ctx.Input.Query(key); v != "" {
 		return strings.TrimSpace(v)
 	}

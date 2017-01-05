@@ -6,16 +6,16 @@ import (
 	"fox/service/admin"
 )
 
-type MyPasswordController struct {
-	BaseController
+type MyPassword struct {
+	Base
 }
 
-func (this *MyPasswordController)Get() {
+func (this *MyPassword)Get() {
 	this.Data["username"] = this.Session.Username
 	this.Data["true_name"] = this.Session.TrueName
 	this.TplName = "admin/my/password.html"
 }
-func (this *MyPasswordController)Post() {
+func (this *MyPassword)Post() {
 	password := this.GetString("password")
 	fmt.Println("password:",password)
 	rsp := Response.NewResponse()

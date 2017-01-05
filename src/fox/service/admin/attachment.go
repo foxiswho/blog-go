@@ -10,7 +10,7 @@ type Attachment struct {
 	*model.Attachment
 }
 
-func NewAttachmentSercice() *Attachment {
+func NewAttachmentService() *Attachment {
 	return new(Attachment)
 }
 func (c *Attachment)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {

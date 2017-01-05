@@ -8,7 +8,7 @@ import (
 )
 
 type Select struct {
-	BaseController
+	Base
 }
 
 func (c *Select) URLMapping() {

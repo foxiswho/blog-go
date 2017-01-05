@@ -6,11 +6,11 @@ import (
 	"fox/service/admin"
 )
 
-type BaseController struct {
-	BaseNoLoginController
+type Base struct {
+	BaseNoLogin
 }
 //  框架中的扩展函数
-func (this *BaseController) Prepare() {
+func (this *Base) Prepare() {
 	//this.BaseNoLoginController.Prepare()
 	this.Initialization()
 	////session 判断

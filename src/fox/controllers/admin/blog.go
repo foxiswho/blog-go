@@ -9,13 +9,14 @@ import (
 	"fox/util/url"
 	"fox/util/file"
 	"fox/service/admin"
+	"fox/service"
 )
 
-type BlogController struct {
-	BaseController
+type Blog struct {
+	Base
 }
 
-func (c *BlogController) URLMapping() {
+func (c *Blog) URLMapping() {
 	c.Mapping("CheckTitle", c.CheckTitle)
 	c.Mapping("List", c.List)
 	c.Mapping("Add", c.Add)
@@ -26,7 +27,7 @@ func (c *BlogController) URLMapping() {
 }
 //检测名称重复
 // @router /blog/check_title [post]
-func (c *BlogController)CheckTitle() {
+func (c *Blog)CheckTitle() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
@@ -45,13 +46,13 @@ func (c *BlogController)CheckTitle() {
 }
 //列表
 // @router /blog [get]
-func (c *BlogController)List() {
+func (c *Blog)List() {
 	where := make(map[string]interface{})
 	wd := c.GetString("wd")
 	if len(wd) > 0 {
 		where["title like ? "] = "%" + wd + "%"
 	}
-	where["type=?"] = blog.TYPE_ARTICLE
+	where["type=?"] = service.TYPE_ARTICLE
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
@@ -63,7 +64,7 @@ func (c *BlogController)List() {
 }
 //编辑
 // @router /blog/:id [get]
-func (c *BlogController)Get() {
+func (c *Blog)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	var ser *blog.Blog
@@ -79,23 +80,23 @@ func (c *BlogController)Get() {
 		c.Data["title"] = "博客-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
-		c.Data["TYPE_ID"] = blog.TYPE_ID
+		c.Data["TYPE_ID"] = service.TYPE_ID
 		c.TplName = "admin/blog/get.html"
 	}
 }
 //添加
 // @router /blog/add [get]
-func (c *BlogController)Add() {
+func (c *Blog)Add() {
 	mod := blog.NewBlogService()
 	mod.Blog = &model.Blog{}
 	mod.BlogStatistics = &model.BlogStatistics{}
-	mod.TypeId = blog.ORIGINAL
+	mod.TypeId = service.ORIGINAL
 	c.Data["info"] = mod
-	c.Data["TYPE_ID"] = blog.TYPE_ID
+	c.Data["TYPE_ID"] = service.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
 	maps := make(map[string]interface{})
-	maps["type_id"] = blog.TYPE_ID
+	maps["type_id"] = service.TYPE_ID
 	maps["id"] = 0
 	maps["aid"] = c.Session.Aid
 	cry, err := file.TokeMake(maps)
@@ -112,7 +113,7 @@ func (c *BlogController)Add() {
 }
 //保存
 // @router /blog [post]
-func (c *BlogController)Post() {
+func (c *Blog)Post() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blogModel := model.NewBlog()
@@ -139,21 +140,21 @@ func (c *BlogController)Post() {
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
-		admin.NewAttachmentSercice().UpdateByTypeIdId(blog.TYPE_ID, c.Session.Aid, id)
+		admin.NewAttachmentService().UpdateByTypeIdId(service.TYPE_ID, c.Session.Aid, id)
 		fmt.Println("创建成功！:", id)
 		rsp.Success("")
 	}
 }
 //查看
 // @router /blog/detail/:id [get]
-func (c *BlogController)Detail() {
+func (c *Blog)Detail() {
 	c.Get()
 	c.Data["title"] = "博客-查看"
 	c.TplName = "admin/blog/detail.html"
 }
 //更新
 // @router /blog/:id [put]
-func (c *BlogController)Put() {
+func (c *Blog)Put() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
@@ -188,7 +189,7 @@ func (c *BlogController)Put() {
 }
 //删除
 // @router /blog/:id [delete]
-func (c *BlogController)Delete() {
+func (c *Blog)Delete() {
 	rsp := Response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化

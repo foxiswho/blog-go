@@ -6,7 +6,7 @@ import (
 )
 
 type BlogTag struct {
-	BaseController
+	Base
 }
 
 func (c *BlogTag) URLMapping() {

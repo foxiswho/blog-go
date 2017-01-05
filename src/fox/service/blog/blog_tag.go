@@ -48,7 +48,7 @@ func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 	//mode.Name = str
 	o := db.NewDb()
 
-	if num, err := o.Where("blog_id=? and name=?",id,str).Delete(mode); err == nil {
+	if num, err := o.Where("blog_id=? and name=?", id, str).Delete(mode); err == nil {
 		fmt.Println("Number of records deleted in database:", num)
 		return true, nil
 	}
@@ -81,21 +81,21 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 	if tag != "" {
 		//拆分成数组
 		tags = strings.Split(tag, ",")
-		fmt.Println("拆分数组",tags)
+		fmt.Println("拆分数组", tags)
 		//创建
 		for i, v := range tags {
-			v=strings.TrimSpace(v)
+			v = strings.TrimSpace(v)
 			if v == "" {
 				continue
 			}
-			tags[i]=v
+			tags[i] = v
 			//fmt.Println(k,v)
 			if old == "" {
 				mode := model.NewBlogTag()
 				mode.Name = v
 				mode.BlogId = id
 				_, err := o.Insert(mode)
-				fmt.Println("err",err)
+				fmt.Println("err", err)
 			} else {
 				check[v] = false
 				if array.SliceContains(olds, v) {
@@ -106,7 +106,7 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 				mode.Name = v
 				mode.BlogId = id
 				_, err := o.Insert(mode)
-				fmt.Println("err",err)
+				fmt.Println("err", err)
 
 			}
 		}
@@ -114,8 +114,8 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 	//旧 tag 检测
 	if old != "" {
 		for i, val := range olds {
-			val=strings.TrimSpace(val)
-			tags[i]=val
+			val = strings.TrimSpace(val)
+			tags[i] = val
 			if tag != "" {
 				if !check[val] {
 					//没有，从数据库里删除
@@ -151,7 +151,7 @@ func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy strin
 	}
 	o := db.NewDb()
 	blogs := make([]model.Blog, 0)
-	err=o.Id(ids).Find(&blogs)
+	err = o.Id(ids).Find(&blogs)
 	if err != nil {
 		blogs = []model.Blog{}
 		fmt.Println(err)
@@ -187,9 +187,19 @@ func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy strin
 				//fmt.Println(">>>>",row.BlogStatistics)
 			}
 		}
-		fmt.Println("===",row.Blog)
+		fmt.Println("===", row.Blog)
 		data.Data[i] = &row
 	}
 
 	return data, nil
+}
+func (c *BlogTag)DeleteByBlogId(id int) (int64, error) {
+	mod := model.NewBlogTag()
+	o := db.NewDb()
+	num, err := o.Where("blog_id=?",id).Delete(mod)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println("删除条数", num)
+	return num, nil
 }

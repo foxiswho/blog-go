@@ -10,7 +10,7 @@ import (
 )
 
 type AdminUser struct {
-	BaseController
+	Base
 }
 
 func (c *AdminUser) URLMapping() {
