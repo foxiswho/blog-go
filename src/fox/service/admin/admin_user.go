@@ -121,22 +121,18 @@ func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 			}
 			mod.Aid = uid
 			mod.Password = pwd
-			c.UpdateAdminById(mod, "password")
+			o := db.NewDb()
+			num, err := o.Id(mod.Aid).Update(mod)
+			if err != nil {
+				return false,err
+			}
+			fmt.Println("更新条数",num)
 			return true, nil
 		} else {
 			return false, &util.Error{Msg:"账号 不存在"}
 		}
 	}
 	return false, &util.Error{Msg:"账号 不存在"}
-}
-//更新
-func (c *AdminUser)UpdateAdminById(m *model.Admin, cols ...interface{}) (num int64, err error) {
-	o := db.NewDb()
-	if num, err = o.Id(m.Aid).Update(m, cols...); err == nil {
-		fmt.Println("Number of records updated in database:", num)
-		return num, nil
-	}
-	return 0, err
 }
 func (c *AdminUser)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewAdmin()
