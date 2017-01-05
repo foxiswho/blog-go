@@ -36,6 +36,12 @@ func (c *Blog) Get() {
 		c.Error(err.Error())
 		return
 	} else {
+		tmp:=read["info"]
+		fmt.Println(tmp)
+		B:=tmp.(*blog.Blog)
+		fmt.Println(B)
+		_,err:=ser.UpdateRead(B.Blog.BlogId)
+		fmt.Println(err)
 		c.Data["title"] =read["title"]
 		c.Data["info"] = read["info"]
 		c.Data["TimeAdd"] = read["TimeAdd"]

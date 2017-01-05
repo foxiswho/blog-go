@@ -8,9 +8,9 @@ import (
 	"fox/util"
 	"fox/service/admin"
 )
-
+//后台 Session 处理
 type AdminSession struct {
-	beego.Controller
+	beego.Controller	//继承 beego 控制器
 	Session *admin.AdminSession //当前登录用户信息
 }
 // session 填充
@@ -48,7 +48,7 @@ func (c *AdminSession) SessionDel(){
 	SESSION_NAME := beego.AppConfig.String("session_name")
 	c.DelSession(SESSION_NAME)
 }
-//表单日期时间
+//错误信息
 func (c *AdminSession) Error(key string) {
 	c.Data["content"] = key
 	if c.IsAjax() {

@@ -386,3 +386,20 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 
 	return data, nil
 }
+//更新 浏览数
+func (c *Blog)UpdateRead(id int) (int, error) {
+	if id < 1 {
+		return 0, &util.Error{Msg:"ID 错误"}
+	}
+	fmt.Println("Id:", id)
+	o := db.NewDb()
+	ret, err := o.Exec("UPDATE blog_statistics SET `read`=`read`+1 WHERE statistics_id=?", id)
+	if err != nil {
+		fmt.Println("err:", err)
+		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
+	}
+	num,err:=ret.RowsAffected()
+	fmt.Println("err",err )
+	fmt.Println("更新条数",num )
+	return id, nil
+}
