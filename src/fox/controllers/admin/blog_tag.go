@@ -22,12 +22,17 @@ func (c *BlogTag)List() {
 		query["name"] = str
 	}
 	mode := model.NewBlogTag()
-	data, err := mode.GetAll(query, fields, "tag_id desc", 0, 20)
+	data, err := mode.GetAll(query, fields, "tag_id desc", 0, 10)
 	if err!=nil{
 		fmt.Println(err)
 	}
-	//println(data)
-	c.Data["data"] = data
-	c.Data["title"] = "博客-TAG-列表"
-	c.TplName = "admin/blog/tag/list.html"
+	if c.IsAjax(){
+		c.Data["json"]=data
+		c.ServeJSON()
+	}else{
+		//println(data)
+		c.Data["data"] = data
+		c.Data["title"] = "博客-TAG-列表"
+		c.TplName = "admin/blog/tag/list.html"
+	}
 }

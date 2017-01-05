@@ -3,8 +3,8 @@ package db
 import "math"
 
 type Paginator struct {
-	Page        int   //当前页
-	Pages       []int //页码数组
+	Page        int   //当前页		`json:"page"`
+	Pages       []int //页码数组		`json:"pages"`
 	PageSize    int   //每页条数
 	TotalPage   int   //总页码
 	TotalCount  int   //总条数
@@ -12,7 +12,7 @@ type Paginator struct {
 	FirstPageIs bool
 	LastPageIs  bool
 	LastPage    int
-	Data        []interface{}
+	Data        []interface{}		`json:"data"`
 	OtherData   map[string]interface{}
 	Offset      int
 }
