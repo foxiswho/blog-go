@@ -10,7 +10,7 @@
  * 站点属性配置
  * 类别数据 增删改查
  * 博客前台显示 分页
- 
+ * 七牛云存储
 
 #未来
  * 其他模块继续完善
@@ -24,10 +24,14 @@
     * 。。。。。。
 #编译
 ##新环境
-先安装 beego
+先安装 beego 和其他依赖
 ```go
 go get github.com/astaxie/beego
 go get github.com/beego/bee
+go get github.com/astaxie/beego/cache
+go get github.com/go-xorm/xorm
+go get -u github.com/xormplus/xorm
+go get -u qiniupkg.com/api.v7
 ```
 然后进入项目目录
 ```go

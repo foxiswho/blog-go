@@ -8,6 +8,7 @@ import (
 	"fox/util/array"
 	"fox/model"
 	"fox/util/db"
+	"fox/util/editor"
 )
 
 type BlogTag struct {
@@ -168,6 +169,8 @@ func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy strin
 		row := &Blog{}
 		for _, r := range blogs {
 			if tmp.BlogId == r.BlogId {
+				//内容转换
+				r.Content = string(editor.Markdown([]byte(r.Content)))
 				row.Blog = &r
 				row.Tags = []string{}
 				if row.Tag != "" {

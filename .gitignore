@@ -5,6 +5,8 @@ src/github.com/deepzz0/goblog/.idea
 .DS_Store
 !/src/fox/uploads/image/index.html
 /src/fox/uploads/image/*
+/src/fox/uploads/tmp/*
+/src/fox/uploads/*
 /.vscode/*
 /logs
 *.rej

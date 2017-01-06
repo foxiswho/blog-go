@@ -71,9 +71,27 @@ func Upload(field string, r *http.Request, maps map[string]interface{}) (*Upload
 		return nil, err
 	}
 	defer file.Close()
-	//保存到本地
-	if _, err := UploadFile.LocalSave(file); err != nil {
+	defer UploadFile.LocalTmpFileRemove()
+	//临时文件
+	if _, err := UploadFile.LocalSaveFile(file, UploadFile.GetLocalTmpPath(), UploadFile.Name); err != nil {
 		return nil, err
+	}
+	//调用第三方存储
+	if UploadFile.Config["type"] == "QiNiu" {
+
+		UP := NewQiNiu()
+		ret, err := UP.Upload(file, UploadFile)
+		if err != nil {
+			fmt.Println("七牛回执 ERR：", err)
+		}
+		fmt.Println("七牛回执", ret)
+	}
+	//本地是否保存
+	if UploadFile.Config["local_save_is"]=="true"{
+		//保存到本地
+		if _, err := UploadFile.LocalSaveFile(file, UploadFile.Path, UploadFile.Name); err != nil {
+			return nil, err
+		}
 	}
 	//保存到数据库
 	UploadFile.SaveDataBase(maps)
@@ -106,7 +124,7 @@ func (c *UploadFile)SetConfig(mod string) (bool, error) {
 		}
 		c.Config = maps
 	} else {
-		maps, err := beego.AppConfig.GetSection("upload_default")
+		maps, err := beego.AppConfig.GetSection(mod)
 		if err != nil {
 			fmt.Println("config error:", err)
 			return false, err
@@ -202,31 +220,56 @@ func (c *UploadFile)Check() (bool, error) {
 	return true, nil
 }
 //本地保存
-func (c *UploadFile)LocalSave(file multipart.File) (bool, error) {
+func (c *UploadFile)LocalSaveFile(file multipart.File, path, file_name string) (bool, error) {
 	//当前的目录
 	dir, _ := os.Getwd()
 	fmt.Println("当前的目录", dir)
+	url := path + file_name
 	//判断目录
-	isOk, _ := PathExists(dir + c.Path)
+	isOk, _ := PathExists(dir + path)
 	if !isOk {
-		err := os.Mkdir(dir + c.Path, os.ModePerm)  //在当前目录下生成目录
+		err := os.Mkdir(dir + path, os.ModePerm)  //在当前目录下生成目录
 		if err != nil {
 			fmt.Println("创建目录失败", err)
-			return false, &util.Error{Msg:"目录创建不成功！" + c.Path}
+			return false, &util.Error{Msg:"目录创建不成功！" + path}
 		}
-		fmt.Println("创建目录" + dir + c.Path + "成功")
+		fmt.Println("创建目录" + dir + path + "成功")
 	}
 
-	f, err := os.OpenFile(dir + c.Url, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0666)
+	f, err := os.OpenFile(dir + url, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0666)
 	if err != nil {
 		fmt.Println("写入文件失败", err)
-		return false, &util.Error{Msg:"文件写入不成功！" + c.Url}
+		return false, &util.Error{Msg:"文件写入不成功！" + url}
 	}
 	defer f.Close()
 	w, err := io.Copy(f, file)
 	fmt.Println("io.Copy", w, err)
-	fmt.Println("写入文件" + dir + c.Url + "成功")
+	fmt.Println("写入文件" + dir + url + "成功")
 	return true, nil
+}
+//本地临时文件
+func (c *UploadFile)LocalTmpFileRemove() error {
+	root_path_tmp := c.GetLocalTmpPath()
+	//当前的目录
+	dir, _ := os.Getwd()
+	fmt.Println("当前的目录", dir)
+	file := dir + root_path_tmp + c.Name
+	fmt.Println("删除的文件", file)
+	err := os.Remove(file)               //删除文件test.txt
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+	return nil
+}
+//本地临时文件路径
+func (c *UploadFile)GetLocalTmpPath() string {
+	root_path_tmp := c.Config["root_path_tmp"]
+	if root_path_tmp == "" {
+		root_path_tmp = "/uploads/tmp"
+	}
+	return root_path_tmp
 }
 //保存到数据库
 func (c *UploadFile)SaveDataBase(maps map[string]interface{}) {
@@ -239,20 +282,20 @@ func (c *UploadFile)SaveDataBase(maps map[string]interface{}) {
 	att.Path = c.Path
 	att.Md5 = crypt.Md5(c.Path + c.Name)
 
-	fmt.Println("maps=>",maps)
+	fmt.Println("maps=>", maps)
 	//其他字段
 	if maps["type_id"] != nil {
-		type_id,_:=number.ObjToInt(maps["type_id"])
+		type_id, _ := number.ObjToInt(maps["type_id"])
 		//fmt.Println("反射类型reflect.Type",reflect.TypeOf(maps["type_id"]))
-		att.TypeId=type_id
+		att.TypeId = type_id
 	}
 	if maps["aid"] != nil {
-		aid,_:=number.ObjToInt(maps["aid"])
+		aid, _ := number.ObjToInt(maps["aid"])
 		att.Aid = aid
 		//fmt.Println("att.TypeId",att.Aid)
 	}
 	if maps["id"] != nil {
-		id,_:=number.ObjToInt(maps["id"])
+		id, _ := number.ObjToInt(maps["id"])
 		att.Id = id
 		//fmt.Println("att.Id",att.Id)
 	}
