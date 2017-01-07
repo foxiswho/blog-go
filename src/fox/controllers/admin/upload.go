@@ -84,7 +84,7 @@ func (c *Upload)Post() {
 			md.Success = 0
 		} else {
 			md.Message = "上传成功"
-			md.Url = f.Url
+			md.Url = f.Http
 			md.Success = 1
 		}
 		c.Data["json"] = md

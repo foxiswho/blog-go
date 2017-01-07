@@ -87,7 +87,7 @@ func Upload(field string, r *http.Request, maps map[string]interface{}) (*Upload
 		fmt.Println("七牛回执", ret)
 	}
 	//本地是否保存
-	if UploadFile.Config["local_save_is"]=="true"{
+	if UploadFile.Config["local_save_is"] == "true" {
 		//保存到本地
 		if _, err := UploadFile.LocalSaveFile(file, UploadFile.Path, UploadFile.Name); err != nil {
 			return nil, err
@@ -189,7 +189,10 @@ func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, h
 	c.Url = c.Path + c.Name
 	//删除 文件后缀 中的点号
 	c.Ext = strings.Replace(c.Ext, ".", "", -1)
+	http := c.Config["http"]
+	c.Http = http + strings.Replace(c.Url, "/", "", 1)
 	fmt.Println("文件数据：", c)
+
 	return true, nil
 }
 //审核
