@@ -36,6 +36,11 @@ go get github.com/go-xorm/xorm
 go get -u github.com/xormplus/xorm
 go get -u qiniupkg.com/api.v7
 ```
+>如果`golang.org/x/net/context`无法下载使用下面下载地址
+http://www.golangtc.com/static/download/packages/golang.org.x.net.tar.gz
+或者使用下面网址中安步骤下载
+http://www.golangtc.com/download/package
+
 然后进入项目目录
 ```go
 cd src/fox
