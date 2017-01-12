@@ -24,6 +24,17 @@
     * 。。。。。。
     
 #编译
+##GO环境变量
+根据你自己目录设置
+```shell
+export GOROOT=/usr/local/go
+export GOPKG=$GOROOT/pkg/tool/darwin_amd64
+export GOARCH=amd64
+export GOOS=darwin
+export GOPATH=/Volumes/work/go/blog-go
+export GOBIN=$GOPATH/bin
+export PATH=.:$PATH:$GOBIN:$GOPKG:$GOPATH/bin 
+```
 
 ##新环境
 
@@ -34,6 +45,7 @@ go get github.com/beego/bee
 go get github.com/astaxie/beego/cache
 go get github.com/go-xorm/xorm
 go get -u github.com/xormplus/xorm
+go get github.com/go-xorm/cmd/xorm
 go get -u qiniupkg.com/api.v7
 ```
 >如果`golang.org/x/net/context`无法下载使用下面下载地址
