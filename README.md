@@ -24,7 +24,9 @@
     * 。。。。。。
     
 #编译
+
 ##新环境
+
 先安装 beego 和其他依赖
 ```go
 go get github.com/astaxie/beego
