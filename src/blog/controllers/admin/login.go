@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/util/Response"
+	"blog/fox/Response"
 	"fmt"
 	"blog/service/admin"
 )

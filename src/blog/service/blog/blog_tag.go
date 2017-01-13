@@ -2,13 +2,13 @@ package blog
 
 import (
 	"fmt"
-	"blog/util"
+	"blog/fox"
 	"time"
 	"strings"
-	"blog/util/array"
+	"blog/fox/array"
 	"blog/model"
-	"blog/util/db"
-	"blog/util/editor"
+	"blog/fox/db"
+	"blog/fox/editor"
 )
 
 type BlogTag struct {
@@ -23,7 +23,7 @@ func (c *BlogTag)Create(m *model.BlogTag) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
-		return 0, &util.Error{Msg:"标题 不能为空"}
+		return 0, &fox.Error{Msg:"标题 不能为空"}
 	}
 	//时间
 	if m.TimeAdd.IsZero() {
@@ -32,7 +32,7 @@ func (c *BlogTag)Create(m *model.BlogTag) (int, error) {
 	o := db.NewDb()
 	affected, err := o.Insert(m)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &fox.Error{Msg:"创建错误：" + err.Error()}
 	}
 	fmt.Println("affected:", affected)
 	fmt.Println("DATA:", m)
@@ -42,7 +42,7 @@ func (c *BlogTag)Create(m *model.BlogTag) (int, error) {
 //删除
 func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 	if str == "" {
-		return false, &util.Error{Msg:"名称 不能为空"}
+		return false, &fox.Error{Msg:"名称 不能为空"}
 	}
 	mode := model.NewBlogTag()
 	//mode.BlogId = id

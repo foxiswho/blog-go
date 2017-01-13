@@ -3,7 +3,7 @@ package http
 import (
 	"fmt"
 	"strings"
-	"blog/util/str"
+	"blog/fox/str"
 	"net/http"
 	"github.com/astaxie/beego/context"
 )

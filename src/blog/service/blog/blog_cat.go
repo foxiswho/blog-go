@@ -2,10 +2,10 @@ package blog
 
 import (
 	"fmt"
-	"blog/util"
+	"blog/fox"
 	"time"
 	"blog/model"
-	"blog/util/db"
+	"blog/fox/db"
 	"blog/service"
 )
 
@@ -31,7 +31,7 @@ func (c *BlogCat)Query(cat_id int) ( *db.Paginator,  error) {
 func (c *BlogCat)Create(m *model.Blog) (int, error) {
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
-		return 0, &util.Error{Msg:"标题 不能为空"}
+		return 0, &fox.Error{Msg:"标题 不能为空"}
 	}
 	//时间
 	if m.TimeAdd.IsZero() {
@@ -44,14 +44,14 @@ func (c *BlogCat)Create(m *model.Blog) (int, error) {
 	o := db.NewDb()
 	affected, err := o.Insert(m)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &fox.Error{Msg:"创建错误：" + err.Error()}
 	}
 	stat := model.NewBlogStatistics()
 	stat.BlogId = m.BlogId
 	stat.StatisticsId = stat.BlogId
 	id2, err := o.Insert(stat)
 	if err != nil {
-		return 0, &util.Error{Msg:"创建错误：" + err.Error()}
+		return 0, &fox.Error{Msg:"创建错误：" + err.Error()}
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
@@ -66,15 +66,15 @@ func (c *BlogCat)Create(m *model.Blog) (int, error) {
 //更新
 func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	if id < 1 {
-		return 0, &util.Error{Msg:"ID 错误"}
+		return 0, &fox.Error{Msg:"ID 错误"}
 	}
 	mode := model.NewBlog()
 	_, err := mode.GetById(id)
 	if err != nil {
-		return 0, &util.Error{Msg:"数据不存在"}
+		return 0, &fox.Error{Msg:"数据不存在"}
 	}
 	if len(m.Title) < 1 {
-		return 0, &util.Error{Msg:"标题 不能为空"}
+		return 0, &fox.Error{Msg:"标题 不能为空"}
 	}
 	fmt.Println("DATA:", m)
 	//时间
@@ -89,7 +89,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	o := db.NewDb()
 	num, err := o.Id(id).Update(m)
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
+		return 0, &fox.Error{Msg:"更新错误：" + err.Error()}
 	}
 	fmt.Println(num)
 	//
@@ -97,7 +97,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 	stat.BlogId = id
 	num2, err := o.Id(id).Update(stat)
 	if err != nil {
-		return 0, &util.Error{Msg:"更新错误：" + err.Error()}
+		return 0, &fox.Error{Msg:"更新错误：" + err.Error()}
 	}
 	fmt.Println(num2)
 	fmt.Println("DATA:", m)
@@ -107,7 +107,7 @@ func (c *BlogCat)Update(id int, m *model.Blog) (int, error) {
 //删除
 func (c *BlogCat)Delete(id int) (bool, error) {
 	if id < 1 {
-		return false, &util.Error{Msg:"ID 错误"}
+		return false, &fox.Error{Msg:"ID 错误"}
 	}
 	mode := model.NewBlog()
 	info, err := mode.GetById(id)
@@ -115,7 +115,7 @@ func (c *BlogCat)Delete(id int) (bool, error) {
 		return false, err
 	}
 	if info.CatId != service.TYPE_CAT {
-		return false, &util.Error{Msg:"不是栏目，不能删除"}
+		return false, &fox.Error{Msg:"不是栏目，不能删除"}
 	}
 	num, err := mode.Delete(id)
 	if err != nil {

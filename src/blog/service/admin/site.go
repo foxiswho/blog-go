@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"blog/util/db"
+	"blog/fox/db"
 	"blog/service"
 	"net/url"
-	"blog/util"
+	"blog/fox"
 	"strings"
 	"blog/model"
 	"fmt"
@@ -24,7 +24,7 @@ func (t *Site)Query() (*db.Paginator, error) {
 //更新
 func (t *Site)Update(form url.Values) (bool, error) {
 	if len(form) < 1 {
-		return false, &util.Error{Msg:"站点信息 不能为空"}
+		return false, &fox.Error{Msg:"站点信息 不能为空"}
 	}
 
 	o := db.NewDb()
@@ -32,7 +32,7 @@ func (t *Site)Update(form url.Values) (bool, error) {
 		key = strings.TrimSpace(key)
 		val := strings.TrimSpace(v[0])
 		if key == "SITE_NAME" && len(val) < 1 {
-			return false, &util.Error{Msg:"站点名称 不能为空"}
+			return false, &fox.Error{Msg:"站点名称 不能为空"}
 		}
 		if val != "" {
 			mod := model.NewType()

@@ -2,7 +2,7 @@ package admin
 
 import (
 	"blog/model"
-	"blog/util/db"
+	"blog/fox/db"
 )
 type Area struct {
 	*model.Area

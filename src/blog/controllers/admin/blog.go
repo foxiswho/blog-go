@@ -1,13 +1,13 @@
 package admin
 
 import (
-	"blog/util/Response"
+	"blog/fox/Response"
 	"strconv"
 	"blog/service/blog"
 	"fmt"
 	"blog/model"
-	"blog/util/url"
-	"blog/util/file"
+	"blog/fox/url"
+	"blog/fox/file"
 	"blog/service/admin"
 	"blog/service"
 )

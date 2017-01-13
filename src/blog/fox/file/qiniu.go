@@ -6,9 +6,9 @@ import (
 	"qiniupkg.com/api.v7/kodocli"
 	"fmt"
 	"github.com/astaxie/beego"
-	"blog/util"
+	"blog/fox"
 	"time"
-	"blog/util/cache"
+	"blog/fox/cache"
 	"mime/multipart"
 	"strings"
 	"os"
@@ -46,7 +46,7 @@ func (t *QiNiu)SetQiNiuConfig() (bool, error) {
 	}
 	fmt.Println("setConfig", ok)
 	if len(t.Config) < 1 {
-		return false, &util.Error{Msg:"配置文件没有读取"}
+		return false, &fox.Error{Msg:"配置文件没有读取"}
 	}
 	// 初始化AK，SK
 	conf.ACCESS_KEY = t.Config["access_key"]
@@ -92,13 +92,13 @@ func (t *QiNiu)Upload(file multipart.File, UploadFile *UploadFile) (interface{},
 	_, err := t.SetQiNiuConfig()
 	if err != nil {
 		fmt.Println("getConfig err:", err)
-		return nil, &util.Error{Msg:"七牛配置错误:" + err.Error()}
+		return nil, &fox.Error{Msg:"七牛配置错误:" + err.Error()}
 	}
 	//token
 	token := t.GetToken()
 	if len(token)<1{
 		fmt.Println("token",token)
-		return nil,&util.Error{Msg:"七牛token不能为空"}
+		return nil,&fox.Error{Msg:"七牛token不能为空"}
 	}
 	// 构建一个uploader
 	uploader := kodocli.NewUploader(0, nil)

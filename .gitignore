@@ -14,3 +14,4 @@ src/github.com/deepzz0/goblog/.idea
 /bin/*
 /pkg/*
 /src/fox/fox
+/src/fox/blog

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"blog/util/crypt"
+	"blog/fox/crypt"
 	"github.com/astaxie/beego"
 )
 

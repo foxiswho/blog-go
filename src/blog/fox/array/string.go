@@ -2,17 +2,17 @@ package array
 
 import (
 	"fmt"
-	"blog/util"
+	"blog/fox"
 )
 //slice翻转
 func StringReverse(src []string) error {
 	if src == nil {
 		panic(fmt.Errorf("the src can't be empty!"))
-		return &util.Error{Msg:"数组不能为空"}
+		return &fox.Error{Msg:"数组不能为空"}
 	}
 	count := len(src)
 	if count < 1 {
-		return &util.Error{Msg:"数组不能为空"}
+		return &fox.Error{Msg:"数组不能为空"}
 	}
 	mid := count / 2
 	for i := 0; i < mid; i++ {

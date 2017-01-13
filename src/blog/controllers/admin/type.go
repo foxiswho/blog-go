@@ -5,9 +5,9 @@ import (
 	"blog/service/admin"
 	"fmt"
 	"strconv"
-	"blog/util/Response"
+	"blog/fox/Response"
 	"blog/model"
-	"blog/util/url"
+	"blog/fox/url"
 )
 
 type Type struct {

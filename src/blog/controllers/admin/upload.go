@@ -1,11 +1,11 @@
 package admin
 
 import (
-	"blog/util/Response"
-	"blog/util/file"
+	"blog/fox/Response"
+	"blog/fox/file"
 	"fmt"
 	"encoding/json"
-	"blog/util/editor"
+	"blog/fox/editor"
 )
 
 type Upload struct {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"strconv"
 	"reflect"
-	"blog/util"
+	"blog/fox"
 	"time"
 )
 
@@ -180,7 +180,7 @@ func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fie
 	count, err := session.Count(model)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &util.Error{Msg:err.Error()}
+		return nil, &fox.Error{Msg:err.Error()}
 	}
 	Query := Pagination(int(count), page, limit)
 	if count == 0 {
@@ -197,7 +197,7 @@ func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fie
 	err = session.Find(&data)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &util.Error{Msg:err.Error()}
+		return nil, &fox.Error{Msg:err.Error()}
 	}
 	Query.Data = make([]interface{}, len(data))
 	for y, x := range data {

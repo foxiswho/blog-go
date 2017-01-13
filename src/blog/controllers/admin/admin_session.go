@@ -2,10 +2,10 @@ package admin
 
 import (
 	"github.com/astaxie/beego"
-	"blog/util/str"
+	"blog/fox/str"
 	"encoding/json"
 	"fmt"
-	"blog/util"
+	"blog/fox"
 	"blog/service/admin"
 )
 //后台 Session 处理
@@ -31,15 +31,15 @@ func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	fmt.Println("session:", session)
 	fmt.Println("ok bool:", ok)
 	if !ok {
-		return nil, &util.Error{Msg:"Session 不存在"}
+		return nil, &fox.Error{Msg:"Session 不存在"}
 	}
 	if ok && session == "" {
-		return nil, &util.Error{Msg:"Session 为空"}
+		return nil, &fox.Error{Msg:"Session 为空"}
 	}
 	Sess :=admin.NewAdminSessionService()
 	err := json.Unmarshal([]byte(session), &Sess)
 	if err != nil {
-		return nil, &util.Error{Msg:"Session 序列号转换错误. " + err.Error()}
+		return nil, &fox.Error{Msg:"Session 序列号转换错误. " + err.Error()}
 	}
 	return Sess, nil
 }

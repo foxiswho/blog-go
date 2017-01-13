@@ -4,8 +4,8 @@ import (
 	"github.com/astaxie/beego"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
-	"blog/util/datetime"
-	"blog/util/db"
+	"blog/fox/datetime"
+	"blog/fox/db"
 	"github.com/astaxie/beego/orm"
 	"blog/service/admin"
 )

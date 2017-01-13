@@ -1,6 +1,6 @@
 package member
 
-import "blog/util"
+import "blog/fox"
 
 type Login struct {
 	Username    string
@@ -28,7 +28,7 @@ func (c *Login)App(id int) {
 }
 func (c *Login)check() (*Login,error) {
 	if c.Username == "" {
-		return nil, &util.Error{Msg:"用户名不能为空"}
+		return nil, &fox.Error{Msg:"用户名不能为空"}
 	}
-	return nil, &util.Error{Msg:"用户名不能为空"}
+	return nil, &fox.Error{Msg:"用户名不能为空"}
 }

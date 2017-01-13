@@ -1,11 +1,11 @@
 package admin
 
 import (
-	"blog/util/Response"
+	"blog/fox/Response"
 	"strconv"
 	"fmt"
 	"blog/model"
-	"blog/util/url"
+	"blog/fox/url"
 	"blog/service/member"
 )
 

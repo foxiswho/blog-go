@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"blog/util"
-	"blog/util/db"
+	"blog/fox"
+	"blog/fox/db"
 	"time"
 )
 
@@ -51,7 +51,7 @@ func (c *Blog) GetAll(q map[string]interface{}, fields []string, orderBy string,
 	count, err := session.Count(c)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &util.Error{Msg: err.Error()}
+		return nil, &fox.Error{Msg: err.Error()}
 	}
 	Query := db.Pagination(int(count), page, limit)
 	if count == 0 {
@@ -70,7 +70,7 @@ func (c *Blog) GetAll(q map[string]interface{}, fields []string, orderBy string,
 	err = session.Find(&data)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &util.Error{Msg: err.Error()}
+		return nil, &fox.Error{Msg: err.Error()}
 	}
 	Query.Data = make([]interface{}, len(data))
 	for y, x := range data {
