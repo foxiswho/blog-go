@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/fox/Response"
+	"blog/fox/response"
 	"fmt"
 	"blog/service/admin"
 )
@@ -10,15 +10,15 @@ type Login struct {
 	BaseNoLogin
 }
 
-func (this *Login)Get() {
-	this.TplName = "admin/login/get.html"
+func (c *Login)Get() {
+	c.TplName = "admin/login/get.html"
 }
-func (this *Login)Post() {
-	username := this.GetString("username")
-	password := this.GetString("password")
+func (c *Login)Post() {
+	username := c.GetString("username")
+	password := c.GetString("password")
 	fmt.Println("username:",username)
-	rsp := Response.NewResponse()
-	defer rsp.WriteJson(this.Ctx.ResponseWriter)
+	rsp := response.NewResponse()
+	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	adminUser :=admin.NewAdminUserService()
 	adm, err := adminUser.Auth(username, password)
 	if err != nil {
@@ -27,7 +27,7 @@ func (this *Login)Post() {
 	} else {
 		fmt.Println("登录成功：",adm)
 		//设置Session
-		this.SessionSet(adm)
+		c.SessionSet(adm)
 		rsp.Success("")
 		return
 	}

@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/fox/Response"
+	"blog/fox/response"
 	"strconv"
 	"fmt"
 	"blog/model"
@@ -25,7 +25,7 @@ func (c *AdminUser) URLMapping() {
 //检测名称重复
 // @router /admin/check_title [post]
 func (c *AdminUser)CheckTitle() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
@@ -63,7 +63,7 @@ func (c *AdminUser)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := Response.NewResponse()
+		rsp := response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
@@ -89,7 +89,7 @@ func (c *AdminUser)Add() {
 //保存
 // @router /admin [post]
 func (c *AdminUser)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewAdmin()
 	//参数传递
@@ -125,7 +125,7 @@ func (c *AdminUser)Detail() {
 //更新
 // @router /admin/:id [put]
 func (c *AdminUser)Put() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
@@ -153,7 +153,7 @@ func (c *AdminUser)Put() {
 //删除
 // @router /admin/:id [delete]
 func (c *AdminUser)Delete() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")

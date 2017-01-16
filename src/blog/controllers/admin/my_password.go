@@ -2,7 +2,7 @@ package admin
 
 import (
 	"fmt"
-	"blog/fox/Response"
+	"blog/fox/response"
 	"blog/service/admin"
 )
 
@@ -18,7 +18,7 @@ func (this *MyPassword)Get() {
 func (this *MyPassword)Post() {
 	password := this.GetString("password")
 	fmt.Println("password:",password)
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(this.Ctx.ResponseWriter)
 	adminUser :=admin.NewAdminUserService()
 	ok, err := adminUser.UpdatePassword(password,this.Session.Aid)

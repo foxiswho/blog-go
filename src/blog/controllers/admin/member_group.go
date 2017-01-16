@@ -5,7 +5,7 @@ import (
 	"blog/service/admin"
 	"fmt"
 	"strconv"
-	"blog/fox/Response"
+	"blog/fox/response"
 	"blog/model"
 	"blog/fox/url"
 	"blog/service"
@@ -54,7 +54,7 @@ func (c *MemberGroup)Add() {
 //保存
 // @router /member_group [post]
 func (c *MemberGroup)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewType()
 	//参数传递
@@ -82,7 +82,7 @@ func (c *MemberGroup)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := Response.NewResponse()
+		rsp := response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
@@ -98,7 +98,7 @@ func (c *MemberGroup)Get() {
 //更新
 // @router /member_group/:id [put]
 func (c *MemberGroup)Put() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
@@ -121,7 +121,7 @@ func (c *MemberGroup)Put() {
 //检测名称重复
 // @router /member_group/check_name [post]
 func (c *MemberGroup)CheckName() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
@@ -139,7 +139,7 @@ func (c *MemberGroup)CheckName() {
 //删除
 // @router /member_group/:id [delete]
 func (c *MemberGroup)Delete() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")

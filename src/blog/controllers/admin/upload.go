@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/fox/Response"
+	"blog/fox/response"
 	"blog/fox/file"
 	"fmt"
 	"encoding/json"
@@ -42,7 +42,7 @@ func (c *Upload)File() {
 //上传图片
 // @router /upload/image [post]
 func (c *Upload)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	var maps map[string]interface{}
 	var err error

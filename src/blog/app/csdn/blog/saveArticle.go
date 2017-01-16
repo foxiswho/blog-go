@@ -3,22 +3,68 @@ package blog
 import (
 	"github.com/astaxie/beego/httplib"
 	"blog/app/csdn"
+	"time"
+	"strings"
+	"blog/fox"
+	"blog/app/csdn/entity"
 )
 //发表/修改文章
 type SaveArticle struct {
 	AccessToken string `json:"access_token" 是 OAuth授权后获得`
-	Id          int `json:"id" 否 文章id，修改文章的时候需要`
-	Title       string `json:"title" 是 文章标题`
-	Type        string `json:"type" 是 文章类型（original|report|translated）`
-	Description string `json:"description" 否 文章简介`
-	Content     string `json:"content" 是 文章内容`
-	Categories  string `json:"content" 否 自定义类别（英文逗号分割）`
-	Tags        string `json:"content" 否 文章标签（英文逗号分割）`
-	Ip          string `json:"content" 否 用户ip`
+	Ip          string `json:"ip" 否 用户ip`
+	*entity.Article
+}
+
+func NewSaveArticle() *SaveArticle {
+	return new(SaveArticle)
+}
+func (t *SaveArticle)SetType(str string) (error) {
+	if str == "original" || str == "report" || str == "translated" {
+		return nil
+	}
+	return fox.Error{Msg:"type 不能为空，original|report|translated"}
+}
+func (t *SaveArticle)Check() (error) {
+	if len(t.AccessToken) < 1 {
+		return fox.Error{Msg:"access_token 不能为空"}
+	}
+	if len(t.Title) < 1 {
+		return fox.Error{Msg:"title 不能为空"}
+	}
+	if len(t.Type) < 1 {
+		return fox.Error{Msg:"type 不能为空，original|report|translated"}
+	}
+	if len(t.Description) < 1 {
+		return fox.Error{Msg:"description 不能为空"}
+	}
+	if len(t.Content) < 1 {
+		return fox.Error{Msg:"content 不能为空"}
+	}
+	if len(t.Tags) < 1 {
+		return fox.Error{Msg:"tags 不能为空"}
+	}
+	return nil
 }
 //发送
 func (t *SaveArticle)Post() (string, error) {
+	err := t.Check()
+	if err != nil {
+		return "", err
+	}
 	req := httplib.Post(csdn.BLOG_SAVE_URL)
+	//超时
+	req.SetTimeout(100 * time.Second, 30 * time.Second)
+	//参数
+	req.Param("access_token", t.AccessToken)
+	req.Param("id", t.Id)
+	req.Param("title", t.Title)
+	req.Param("type", t.Type)
+	req.Param("description", t.Description)
+	req.Param("content", t.Content)
+	req.Param("categories", t.Categories)
+	req.Param("tags", t.Tags)
+	req.Param("ip", t.Ip)
+	//返回
 	s, err := req.String()
 	if err != nil {
 		return "", err

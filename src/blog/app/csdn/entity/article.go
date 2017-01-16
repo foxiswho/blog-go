@@ -15,6 +15,6 @@ type Article struct {
 	Bury           string `json:"bury" 否 被踩次数`
 	Description    string `json:"description" 否 文章简介`
 	Content        string `json:"content" 是 文章内容`
-	Categories     string `json:"content" 否 自定义类别（英文逗号分割）`
-	Tags           string `json:"content" 否 文章标签（英文逗号分割）`
+	Categories     string `json:"categories" 否 自定义类别（英文逗号分割）`
+	Tags           string `json:"tags" 否 文章标签（英文逗号分割）`
 }

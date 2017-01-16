@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/fox/Response"
+	"blog/fox/response"
 	"strconv"
 	"fmt"
 	"blog/service/blog"
@@ -43,7 +43,7 @@ func (c *BlogCat)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := Response.NewResponse()
+		rsp := response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
@@ -68,7 +68,7 @@ func (c *BlogCat)Add() {
 //保存
 // @router /blog/cat [post]
 func (c *BlogCat)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blogModel := model.NewBlog()
 
@@ -96,7 +96,7 @@ func (c *BlogCat)Post() {
 //更新
 // @router /blog/cat/:id [put]
 func (c *BlogCat)Put() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
@@ -124,7 +124,7 @@ func (c *BlogCat)Put() {
 //删除
 // @router /blog/cat/:id [delete]
 func (c *BlogCat)Delete() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")

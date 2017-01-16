@@ -5,7 +5,7 @@ import (
 	"blog/service/admin"
 	"fmt"
 	"strconv"
-	"blog/fox/Response"
+	"blog/fox/response"
 	"blog/model"
 	"blog/fox/url"
 	"blog/service"
@@ -54,7 +54,7 @@ func (c *AdminRole)Add() {
 //保存
 // @router /admin_role [post]
 func (c *AdminRole)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewType()
 	//参数传递
@@ -82,7 +82,7 @@ func (c *AdminRole)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := Response.NewResponse()
+		rsp := response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
@@ -98,7 +98,7 @@ func (c *AdminRole)Get() {
 //更新
 // @router /admin_role/:id [put]
 func (c *AdminRole)Put() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
@@ -121,7 +121,7 @@ func (c *AdminRole)Put() {
 //检测名称重复
 // @router /admin_role/check_name [post]
 func (c *AdminRole)CheckName() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
@@ -139,7 +139,7 @@ func (c *AdminRole)CheckName() {
 //删除
 // @router /admin_role/:id [delete]
 func (c *AdminRole)Delete() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")

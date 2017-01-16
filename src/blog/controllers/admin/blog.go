@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"blog/fox/Response"
+	"blog/fox/response"
 	"strconv"
 	"blog/service/blog"
 	"fmt"
@@ -28,7 +28,7 @@ func (c *Blog) URLMapping() {
 //检测名称重复
 // @router /blog/check_title [post]
 func (c *Blog)CheckTitle() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	int_id, _ := c.GetInt("cat_id")
@@ -71,7 +71,7 @@ func (c *Blog)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := Response.NewResponse()
+		rsp := response.NewResponse()
 		defer rsp.WriteJson(c.Ctx.ResponseWriter)
 		rsp.Error(err.Error())
 	} else {
@@ -127,7 +127,7 @@ func (c *Blog)Add() {
 //保存
 // @router /blog [post]
 func (c *Blog)Post() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blogModel := model.NewBlog()
 	//参数传递
@@ -168,7 +168,7 @@ func (c *Blog)Detail() {
 //更新
 // @router /blog/:id [put]
 func (c *Blog)Put() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
@@ -203,7 +203,7 @@ func (c *Blog)Put() {
 //删除
 // @router /blog/:id [delete]
 func (c *Blog)Delete() {
-	rsp := Response.NewResponse()
+	rsp := response.NewResponse()
 	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")

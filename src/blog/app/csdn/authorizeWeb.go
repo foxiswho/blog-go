@@ -5,11 +5,47 @@ import (
 	"strings"
 	"github.com/astaxie/beego/httplib"
 	"encoding/json"
+	"github.com/astaxie/beego"
+	"fmt"
+	"blog/fox"
+	"blog/fox/cache"
+	"blog/app/csdn/entity"
+	"time"
 )
 
 type AuthorizeWeb struct {
 	RedirectUri string `json:"redirect_uri"` //登录成功后浏览器回跳的URL。
 	Code        string `json:"code"`         //Authorization Code
+	Config      map[string]string    `json:"-"`
+}
+
+func NewAuthorizeWeb() *AuthorizeWeb {
+	return new(AuthorizeWeb)
+}
+//获取配置
+func (t *AuthorizeWeb)loadConfig() (bool, error) {
+	maps, err := beego.AppConfig.GetSection("csdn")
+	if err != nil {
+		return false, err
+	}
+	t.Config = maps
+	return true, nil
+}
+//配置读取
+func (t *AuthorizeWeb)SetConfig() (bool, error) {
+	ok, err := t.loadConfig()
+	if err != nil {
+		fmt.Println("setConfig err:", err)
+		return false, err
+	}
+	fmt.Println("setConfig", ok)
+	if len(t.Config) < 1 {
+		return false, &fox.Error{Msg:"配置文件没有读取"}
+	}
+	// 初始化AK，SK
+	ACCESS_KEY = t.Config["access_key"]
+	SECRET_KEY = t.Config["secret_key"]
+	return true, nil
 }
 //设置回调URl
 func (t *AuthorizeWeb)SetRedirectUri(str string) {
@@ -52,7 +88,9 @@ func (t *AuthorizeWeb)getAccessToken(token string) string {
 }
 //获取内容
 func (t *AuthorizeWeb)Get(token string) (string, error) {
-	req := httplib.Get(t.getAccessToken(token))
+	url := t.getAccessToken(token)
+	fmt.Println("token url", url)
+	req := httplib.Get(url)
 	s, err := req.String()
 	if err != nil {
 		return "", err
@@ -60,15 +98,49 @@ func (t *AuthorizeWeb)Get(token string) (string, error) {
 	return s, nil
 }
 //获取AccessToken
-func (t *AuthorizeWeb)GetAccessToken(token string) (*AccessToken, error) {
+func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) {
 	s, err := t.Get(token)
 	if err != nil {
 		return nil, err
 	}
-	var access AccessToken
-	err = json.Unmarshal(s, &access)
+	fmt.Println("返回值", s)
+	var access *entity.AccessToken
+	err = json.Unmarshal([]byte(s), &access)
+	if err != nil {
+		return nil, err
+	}
+	access.LastTime = time.Now()
+	//缓存
+	err = t.PutAccessTokenCache(access)
 	if err != nil {
 		return nil, err
 	}
 	return access, nil
+}
+func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
+	str, err := t.GetCache("CSDN_AccessToken")
+	if len(str) < 1 {
+		return nil, &fox.Error{Msg:"返回数据为空"}
+	}
+	var access *entity.AccessToken
+	err = json.Unmarshal([]byte(str), &access)
+	if err != nil {
+		return nil, err
+	}
+	return access, nil
+}
+func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
+	return t.PutCache("CSDN_AccessToken", val)
+}
+func (t *AuthorizeWeb)GetCache(key string) (string, error) {
+	tmp := cache.Cache.Get(key)
+	str := tmp.(string)
+	if len(str) < 1 {
+		return "", &fox.Error{Msg:"返回数据为空"}
+	}
+	return str, nil
+}
+func (t *AuthorizeWeb)PutCache(key string, val interface{}) (error) {
+	err := cache.Cache.Put(key, val, 86400 * time.Second)
+	return err
 }

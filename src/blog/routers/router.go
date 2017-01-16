@@ -52,6 +52,7 @@ func init() {
 			&admin.Member{},
 			&admin.MemberGroup{},
 			&admin.Site{},
+			&admin.AppCsdn{},
 		),
 	)
 	beego.AddNamespace(ns)

@@ -13,7 +13,7 @@ func main() {
 	orm.Debug = true
 	beego.ErrorController(&controllers.Error{})
 	beego.SetStaticPath("/uploads","uploads")
-	beego.AddFuncMap("array",array)
+	//beego.AddFuncMap("array",array)
 	beego.Run()
 }
 
