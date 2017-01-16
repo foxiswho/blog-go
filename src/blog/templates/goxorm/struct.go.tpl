@@ -73,11 +73,14 @@ func (c *{{Mapper .Name}}) GetById(id int) (*{{Mapper .Name}}, error) {
 	{{end}}
     {{end}}
     o := db.NewDb()
-	_, err := o.Get(m)
-	if err == nil {
-		return m, nil
-	}
-	return nil, err
+	ok, err := o.Get(m)
+    if err != nil {
+        return nil, err
+    }
+    if !ok{
+        return nil,&fox.Error{Msg:"数据不存在"}
+    }
+    return m, nil
 }
 // 删除 单条记录
 func (c *{{Mapper .Name}}) Delete(id int) (int64, error) {

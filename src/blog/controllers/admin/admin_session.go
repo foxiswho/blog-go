@@ -55,13 +55,33 @@ func (c *AdminSession) Error(key string) {
 		type Msg struct {
 			Info string `json:"info"`
 			Code int    `json:"code"`
+			Data interface{} `json:"data"`
 		}
 		msg := &Msg{}
 		msg.Code = 0
 		msg.Info = key
+		msg.Data = c.Data["Data"]
 		c.Data["json"] = msg
 		c.ServeJSON()
 	} else {
 		c.TplName = "error/404.html"
+	}
+}
+func (c *AdminSession) Success(key string) {
+	c.Data["content"] = key
+	if c.IsAjax() {
+		type Msg struct {
+			Info string `json:"info"`
+			Code int    `json:"code"`
+			Data interface{} `json:"data"`
+		}
+		msg := &Msg{}
+		msg.Code = 1
+		msg.Info = key
+		msg.Data = c.Data["Data"]
+		c.Data["json"] = msg
+		c.ServeJSON()
+	} else {
+		c.TplName = "error/success.html"
 	}
 }

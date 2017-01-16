@@ -9,7 +9,7 @@ import (
 	"blog/fox/url"
 	"blog/fox/file"
 	"blog/service/admin"
-	"blog/service"
+	"blog/service/conf"
 )
 
 type Blog struct {
@@ -52,7 +52,7 @@ func (c *Blog)List() {
 	if len(wd) > 0 {
 		where["title like ? "] = "%" + wd + "%"
 	}
-	where["type=?"] = service.TYPE_ARTICLE
+	where["type=?"] = conf.TYPE_ARTICLE
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
@@ -80,9 +80,14 @@ func (c *Blog)Get() {
 		c.Data["title"] = "博客-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
-		c.Data["TYPE_ID"] = service.TYPE_ID
+		c.Data["TYPE_ID"] = conf.TYPE_ID
+		ser := blog.NewBlogSyncMappingService()
+		mod, err := ser.GetAppId(conf.APP_CSDN, int_id)
+		if err == nil {
+			c.Data["app_csdn_id"] = mod.Id
+		}
 		maps := make(map[string]interface{})
-		maps["type_id"] = service.TYPE_ID
+		maps["type_id"] = conf.TYPE_ID
 		maps["id"] = int_id
 		maps["aid"] = c.Session.Aid
 		cry, err := file.TokeMake(maps)
@@ -103,13 +108,13 @@ func (c *Blog)Add() {
 	blog.Status = 99
 	mod.Blog = blog
 	mod.BlogStatistics = &model.BlogStatistics{}
-	mod.TypeId = service.ORIGINAL
+	mod.TypeId = conf.ORIGINAL
 	c.Data["info"] = mod
-	c.Data["TYPE_ID"] = service.TYPE_ID
+	c.Data["TYPE_ID"] = conf.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
 	maps := make(map[string]interface{})
-	maps["type_id"] = service.TYPE_ID
+	maps["type_id"] = conf.TYPE_ID
 	maps["id"] = 0
 	maps["aid"] = c.Session.Aid
 	cry, err := file.TokeMake(maps)
@@ -153,7 +158,7 @@ func (c *Blog)Post() {
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
-		admin.NewAttachmentService().UpdateByTypeIdId(service.TYPE_ID, c.Session.Aid, id)
+		admin.NewAttachmentService().UpdateByTypeIdId(conf.TYPE_ID, c.Session.Aid, id)
 		fmt.Println("创建成功！:", id)
 		rsp.Success("")
 	}

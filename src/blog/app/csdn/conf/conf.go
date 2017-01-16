@@ -18,4 +18,6 @@ const (
 	BLOG_CATEGORY_URL="http://api.csdn.net/blog/getcategorylist"
 	//博客TAG
 	BLOG_TAG_URL="http://api.csdn.net/blog/gettaglist"
+	//获取文章内容
+	BLOG_ID_URL="http://api.csdn.net/blog/getarticle"
 )

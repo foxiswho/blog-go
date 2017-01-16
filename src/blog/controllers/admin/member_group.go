@@ -8,7 +8,7 @@ import (
 	"blog/fox/response"
 	"blog/model"
 	"blog/fox/url"
-	"blog/service"
+	"blog/service/conf"
 )
 
 type MemberGroup struct {
@@ -26,7 +26,7 @@ func (c *MemberGroup) URLMapping() {
 // @router /member_group [get]
 func (c *MemberGroup)List() {
 	ser := admin.NewTypeService()
-	data, err := ser.Query(service.MEMBER_GROUP)
+	data, err := ser.Query(conf.MEMBER_GROUP)
 	fmt.Println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "用户组-列表"
@@ -37,13 +37,13 @@ func (c *MemberGroup)List() {
 // @router /member_group/add [get]
 func (c *MemberGroup)Add() {
 	mod := model.NewType()
-	mod.TypeId = service.MEMBER_GROUP
+	mod.TypeId = conf.MEMBER_GROUP
 	mod.IsDefault = 0
 	mod.IsDel = 0
 	mod.IsSystem = 0
 	mod.IsShow = 1
 	mod.IsChild = 0
-	c.Data["type_id"] = service.MEMBER_GROUP
+	c.Data["type_id"] = conf.MEMBER_GROUP
 	c.Data["type_id_name"] = "无"
 	c.Data["parent_id_name"] = "无"
 	c.Data["info"] = mod
@@ -62,7 +62,7 @@ func (c *MemberGroup)Post() {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	mod.TypeId = service.MEMBER_GROUP
+	mod.TypeId = conf.MEMBER_GROUP
 	//创建
 	ser := admin.NewTypeService()
 	id, err := ser.Create(mod)
@@ -108,7 +108,7 @@ func (c *MemberGroup)Put() {
 	if err := url.ParseForm(c.Input(), mod); err != nil {
 		rsp.Error(err.Error())
 	}
-	mod.TypeId = service.MEMBER_GROUP
+	mod.TypeId = conf.MEMBER_GROUP
 	//更新
 	ser := admin.NewTypeService()
 	_, err := ser.Update(int_id, mod)
@@ -128,7 +128,7 @@ func (c *MemberGroup)CheckName() {
 	name := c.GetString("name")
 	//创建
 	ser := admin.NewTypeService()
-	ok, err := ser.CheckNameTypeId(service.MEMBER_GROUP, name, id)
+	ok, err := ser.CheckNameTypeId(conf.MEMBER_GROUP, name, id)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -146,7 +146,7 @@ func (c *MemberGroup)Delete() {
 	int_id, _ := strconv.Atoi(id)
 	//更新
 	ser := admin.NewTypeService()
-	_, err := ser.DeleteAndTypeId(int_id,service.MEMBER_GROUP)
+	_, err := ser.DeleteAndTypeId(int_id,conf.MEMBER_GROUP)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {

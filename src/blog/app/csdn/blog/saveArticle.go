@@ -7,6 +7,9 @@ import (
 	"blog/app/csdn/entity"
 	"blog/app/csdn/conf"
 	"strconv"
+	"fmt"
+	"strings"
+	"encoding/json"
 )
 //发表/修改文章
 type SaveArticle struct {
@@ -46,10 +49,10 @@ func (t *SaveArticle)Check() (error) {
 	return nil
 }
 //发送
-func (t *SaveArticle)Post() (string, error) {
+func (t *SaveArticle)Post() (*entity.Article, error) {
 	err := t.Check()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req := httplib.Post(conf.BLOG_SAVE_URL)
 	//超时
@@ -61,13 +64,28 @@ func (t *SaveArticle)Post() (string, error) {
 	req.Param("type", t.Type)
 	req.Param("description", t.Description)
 	req.Param("content", t.Content)
+	//req.Param("markdowncontent", t.Content)
+	//req.Param("markdowndirectory", "")
+	req.Param("articleedittype", "1")
 	req.Param("categories", t.Categories)
 	req.Param("tags", t.Tags)
 	req.Param("ip", t.Ip)
 	//返回
 	s, err := req.String()
 	if err != nil {
-		return "", err
+		fmt.Println("返回错误信息：", err)
+		return nil, &fox.Error{Msg:"返回错误信息：" + err.Error()}
 	}
-	return s, nil
+	//是否错误代码
+	if strings.Contains(s, "error_code") {
+		fmt.Println("返回错误信息：", s)
+		return nil, &fox.Error{Msg:"返回错误信息：" + s}
+	}
+	fmt.Println("返回内容：", s)
+	var saveArticle *entity.Article
+	if err := json.Unmarshal([]byte(s), &saveArticle); err != nil {
+		return nil, &fox.Error{Msg:"反序列化失败：" + err.Error()}
+	}
+	fmt.Println("反序列化：", saveArticle)
+	return saveArticle, nil
 }

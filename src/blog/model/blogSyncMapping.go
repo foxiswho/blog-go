@@ -12,8 +12,8 @@ type BlogSyncMapping struct {
 	BlogId     int       `json:"blog_id" xorm:"not null default 0 INT(11)"`
 	TypeId     int       `json:"type_id" xorm:"not null default 0 INT(11)"`
 	Id         string    `json:"id" xorm:"not null default '' VARCHAR(64)"`
-	TimeUpdate time.Time `json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	TimeUpdate time.Time `json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
+	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
 	Mark       string    `json:"mark" xorm:"not null default '' CHAR(32)"`
 	IsSync     int       `json:"is_sync" xorm:"not null default 0 TINYINT(1)"`
 	Extend     string    `json:"extend" xorm:"VARCHAR(5000)"`

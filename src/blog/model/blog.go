@@ -82,15 +82,16 @@ func (c *Blog) GetAll(q map[string]interface{}, fields []string, orderBy string,
 // 获取 单条记录
 func (c *Blog) GetById(id int) (*Blog, error) {
 	m := NewBlog()
-
 	m.BlogId = id
-
 	o := db.NewDb()
-	_, err := o.Get(m)
-	if err == nil {
-		return m, nil
+	ok, err := o.Get(m)
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	if !ok{
+		return nil,&fox.Error{Msg:"数据不存在"}
+	}
+	return m, nil
 }
 
 // 删除 单条记录

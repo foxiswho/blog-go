@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"blog/service/blog"
 	"fmt"
-	"blog/service"
+	"blog/service/conf"
 )
 
 type Blog struct {
@@ -66,7 +66,7 @@ func (c *Blog) GetAll() {
 	fields := []string{}
 	orderBy := "blog_id desc"
 	query := make(map[string]interface{})
-	query["type=?"] = service.TYPE_ARTICLE
+	query["type=?"] = conf.TYPE_ARTICLE
 	mode := blog.NewBlogService()
 	//分页
 	id := c.Ctx.Input.Param(":page")

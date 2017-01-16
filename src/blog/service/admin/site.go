@@ -2,12 +2,12 @@ package admin
 
 import (
 	"blog/fox/db"
-	"blog/service"
 	"net/url"
 	"blog/fox"
 	"strings"
 	"blog/model"
 	"fmt"
+	"blog/service/conf"
 )
 
 type Site struct {
@@ -19,7 +19,7 @@ func NewSiteService() *Site {
 }
 //列表
 func (t *Site)Query() (*db.Paginator, error) {
-	return NewTypeService().Query(service.SITE_ID)
+	return NewTypeService().Query(conf.SITE_ID)
 }
 //更新
 func (t *Site)Update(form url.Values) (bool, error) {
@@ -37,7 +37,7 @@ func (t *Site)Update(form url.Values) (bool, error) {
 		if val != "" {
 			mod := model.NewType()
 			mod.Content = val
-			num, err := o.Where("type_id=? and mark=? ", service.SITE_ID, key).Update(mod)
+			num, err := o.Where("type_id=? and mark=? ", conf.SITE_ID, key).Update(mod)
 			if err != nil {
 				return false, err
 			}
@@ -53,7 +53,7 @@ func (c *Site)SiteConfig() map[string]string {
 	tp := make([]model.Type, 0)
 	o := db.NewDb()
 	tps := make(map[string]string)
-	err := o.Where("type_id=?", service.SITE_ID).Find(&tp)
+	err := o.Where("type_id=?", conf.SITE_ID).Find(&tp)
 	if err != nil {
 		fmt.Println(err)
 		return tps

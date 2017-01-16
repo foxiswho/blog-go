@@ -112,7 +112,8 @@ func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) 
 	}
 	access.LastTime = time.Now()
 	//缓存
-	err = t.PutAccessTokenCache(access)
+	j,_:=json.Marshal(access)
+	err = t.PutAccessTokenCache(string(j))
 	if err != nil {
 		return nil, err
 	}
@@ -120,14 +121,16 @@ func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) 
 }
 func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
 	str, err := t.GetCache("CSDN_AccessToken")
-	if len(str) < 1 {
-		return nil, &fox.Error{Msg:"返回数据为空"}
-	}
-	var access *entity.AccessToken
-	err = json.Unmarshal([]byte(str), &access)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("令牌",str)
+	var access *entity.AccessToken
+	err = json.Unmarshal([]byte(str), &access)
+	if err != nil {
+		return nil, &fox.Error{Msg:"token反序列化错误：" + err.Error()}
+	}
+	fmt.Println("反序列化",access)
 	return access, nil
 }
 func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
@@ -135,9 +138,10 @@ func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
 }
 func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 	tmp := cache.Cache.Get(key)
+	fmt.Println("获取csdn 缓存",tmp)
 	str := tmp.(string)
 	if len(str) < 1 {
-		return "", &fox.Error{Msg:"返回数据为空"}
+		return "", &fox.Error{Msg:"CSDN Token 已过期，请重新用CSDN登陆"}
 	}
 	return str, nil
 }

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"blog/fox/config"
 	"blog/service/oauth"
-	"blog/service"
 	"blog/service/admin"
+	"blog/service/conf"
 )
 
 type Oauth struct {
@@ -57,7 +57,7 @@ func (c *Oauth)Csdn() {
 	} else {
 		//查询用户是否存在
 		oau := oauth.NewConnect()
-		con, err := oau.Admin(service.APP_CSDN, acc.Username, false)
+		con, err := oau.Admin(conf.APP_CSDN, acc.Username, false)
 		if err == nil {
 			fmt.Println("con 值", con)
 			adminUser := admin.NewAdminUserService()
@@ -67,6 +67,7 @@ func (c *Oauth)Csdn() {
 				AdminSession := admin.NewAdminSessionService()
 				Session := AdminSession.Convert(adm)
 				c.SessionSet(Session)
+				fmt.Println("验证通过 跳转到后台")
 				url := config.String("http") + "/admin/index"
 				c.Redirect(url, 302)
 			} else {
@@ -74,7 +75,9 @@ func (c *Oauth)Csdn() {
 				c.Error(err.Error())
 			}
 
-		} else {
+		} else if err.Error()=="未绑定" {
+			c.TplName="app/csdn/get.html"
+		}else {
 			fmt.Println(err)
 			c.Error(err.Error())
 		}

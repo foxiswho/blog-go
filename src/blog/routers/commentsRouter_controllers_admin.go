@@ -251,6 +251,20 @@ func init() {
 			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"],
+		beego.ControllerComments{
+			Method: "Post",
+			Router: `/blog_sync/go`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"],
+		beego.ControllerComments{
+			Method: "Put",
+			Router: `/blog_sync/go`,
+			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["blog/controllers/admin:BlogTag"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogTag"],
 		beego.ControllerComments{
 			Method: "List",

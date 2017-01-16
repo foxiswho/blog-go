@@ -45,6 +45,7 @@ func init() {
 			&admin.BlogTag{},
 			&admin.BlogCat{},
 			&admin.Blog{},
+			&admin.BlogSync{},
 			&admin.Select{},
 			&admin.Upload{},
 			&admin.AdminUser{},

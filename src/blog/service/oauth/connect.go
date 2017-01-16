@@ -22,26 +22,22 @@ func (t *Connect)Admin(type_id int, val string, is_uid bool) (*model.Connect, er
 		return nil, &fox.Error{Msg:"type_id 值错误"}
 	}
 	con := model.NewConnect()
-	o := db.NewDb()
-	//UID
+	fmt.Println(type_id, val)
+	maps := make(map[string]interface{})
+	maps["type_id"] = type_id
+	//不是UID登陆
 	if is_uid {
-		err := o.Where("type_id=? and uid=?", type_id, val).Find(con)
-		if err != nil {
-			return nil, &fox.Error{Msg:"查询错误 "+err.Error()}
-		}
-		if con.Uid < 1 {
-			return nil, &fox.Error{Msg:"uid 值错误,请联系管理员处理"}
-		}
+		maps["uid"] = val
 	} else {
-		//open_id
-		err := o.Where("type_id=? and open_id=?", type_id, val).Find(con)
-		if err != nil {
-			return nil, &fox.Error{Msg:"查询错误 "+err.Error()}
-		}
-		if con.Uid < 1 {
-			return nil, &fox.Error{Msg:"uid 值错误,请联系管理员处理"}
-		}
+		maps["open_id"] = val
 	}
-	fmt.Println("con",con)
+	_,err := db.Filter(maps).Get(con)
+	if err != nil {
+		return nil, &fox.Error{Msg:"查询错误 " + err.Error()}
+	}
+	if con.Uid < 1 {
+		return nil, &fox.Error{Msg:"未绑定"}
+	}
+	fmt.Println("con", con)
 	return con, nil
 }

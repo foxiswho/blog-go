@@ -54,6 +54,8 @@
                                         </li>
                                         <li class=""><a data-toggle="tab" href="#tab-remark" aria-expanded="false">备注</a>
                                         </li>
+                                        <li class=""><a data-toggle="tab" href="#tab-blog" aria-expanded="false">同步其他博客</a>
+                                        </li>
                                     </ul>
                                     <div class="tab-content">
                                         <div id="tab-content" class="tab-pane active">
@@ -317,6 +319,34 @@
                                                     <label class="col-sm-2 control-label">备注：</label>
                                                     <div class="col-sm-10">
                                                         <textarea name="remark" class="form-control" style="min-height: 200px">{{.info.Remark}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div id="tab-blog" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">CSDN</label>
+                                                    <div class="col-sm-10">
+                                                        <div class="input-group col-sm-2">
+                                                            <input type="text" class="form-control" name="id" value="{{.app_csdn_id}}" placeholder="csdn 文章ID" id="sync_{{.Type_id}}">
+                                                            <div class="input-group-btn">
+                                                                <button data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">操作 <span class="caret"></span>
+                                                                </button>
+                                                                <ul class="dropdown-menu pull-right">
+                                                                    <li><a href="javascript:void(0);" class="get" data-type_id="{{.Type_id}}">获取</a>
+                                                                    </li>
+                                                                    <li><a href="javascript:void(0);" class="create" data-type_id="{{.Type_id}}">创建</a>
+                                                                    </li>
+                                                                    <li><a href="javascript:void(0);" class="update" data-type_id="{{.Type_id}}">更新</a>
+                                                                    </li>
+                                                                    <li class="divider"></li>
+                                                                    <li><a href="javascript:void(0);">选项4</a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

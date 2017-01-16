@@ -15,7 +15,7 @@ type Connect struct {
 	Token     string    `json:"token" xorm:"not null default '' VARCHAR(80)"`
 	Type      int       `json:"type" xorm:"not null default 1 INT(11)"`
 	TypeLogin int       `json:"type_login" xorm:"not null default 0 INT(11)"`
-	TimeAdd   time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	TimeAdd   time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
 	Extend    string    `json:"extend" xorm:"VARCHAR(5000)"`
 }
 

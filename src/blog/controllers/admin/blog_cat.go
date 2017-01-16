@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"blog/service/blog"
 	"blog/model"
-	"blog/service"
+	"blog/service/conf"
 )
 
 type BlogCat struct {
@@ -24,7 +24,7 @@ func (c *BlogCat) URLMapping() {
 // @router /blog/cat [get]
 func (c *BlogCat)List() {
 	where := make(map[string]interface{})
-	where["type=?"] = service.TYPE_CAT
+	where["type=?"] = conf.TYPE_CAT
 	mod := model.NewBlog()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 999)
@@ -53,14 +53,14 @@ func (c *BlogCat)Get() {
 		c.Data["title"] = "博客-分类-编辑"
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
-		c.Data["type"] = service.TYPE_CAT
+		c.Data["type"] = conf.TYPE_CAT
 		c.TplName = "admin/blog/cat/get.html"
 	}
 }
 //添加
 // @router /blog/cat/add [get]
 func (c *BlogCat)Add() {
-	c.Data["type"] = service.TYPE_CAT
+	c.Data["type"] = conf.TYPE_CAT
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-分类-添加"
 	c.TplName = "admin/blog/cat/get.html"
@@ -77,7 +77,7 @@ func (c *BlogCat)Post() {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	blogModel.Type = service.TYPE_CAT
+	blogModel.Type = conf.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {
@@ -106,7 +106,7 @@ func (c *BlogCat)Put() {
 	if err := c.ParseForm(&blogModel); err != nil {
 		rsp.Error(err.Error())
 	}
-	blogModel.Type = service.TYPE_CAT
+	blogModel.Type = conf.TYPE_CAT
 	//日期
 	date, ok := c.GetDateTime("time_add")
 	if ok {

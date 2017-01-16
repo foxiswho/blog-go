@@ -8,7 +8,7 @@ import (
 	"blog/fox/response"
 	"blog/model"
 	"blog/fox/url"
-	"blog/service"
+	"blog/service/conf"
 )
 
 type AdminRole struct {
@@ -26,7 +26,7 @@ func (c *AdminRole) URLMapping() {
 // @router /admin_role [get]
 func (c *AdminRole)List() {
 	ser := admin.NewTypeService()
-	data, err := ser.Query(service.ADMIN_ROLE)
+	data, err := ser.Query(conf.ADMIN_ROLE)
 	fmt.Println(err)
 	c.Data["data"] = data
 	c.Data["title"] = "角色-列表"
@@ -37,13 +37,13 @@ func (c *AdminRole)List() {
 // @router /admin_role/add [get]
 func (c *AdminRole)Add() {
 	mod := model.NewType()
-	mod.TypeId = service.ADMIN_ROLE
+	mod.TypeId = conf.ADMIN_ROLE
 	mod.IsDefault = 0
 	mod.IsDel = 0
 	mod.IsSystem = 0
 	mod.IsShow = 1
 	mod.IsChild = 0
-	c.Data["type_id"] = service.ADMIN_ROLE
+	c.Data["type_id"] = conf.ADMIN_ROLE
 	c.Data["type_id_name"] = "无"
 	c.Data["parent_id_name"] = "无"
 	c.Data["info"] = mod
@@ -62,7 +62,7 @@ func (c *AdminRole)Post() {
 		rsp.Error(err.Error())
 		c.StopRun()
 	}
-	mod.TypeId = service.ADMIN_ROLE
+	mod.TypeId = conf.ADMIN_ROLE
 	//创建
 	ser := admin.NewTypeService()
 	id, err := ser.Create(mod)
@@ -108,7 +108,7 @@ func (c *AdminRole)Put() {
 	if err := url.ParseForm(c.Input(), mod); err != nil {
 		rsp.Error(err.Error())
 	}
-	mod.TypeId = service.ADMIN_ROLE
+	mod.TypeId = conf.ADMIN_ROLE
 	//更新
 	ser := admin.NewTypeService()
 	_, err := ser.Update(int_id, mod)
@@ -128,7 +128,7 @@ func (c *AdminRole)CheckName() {
 	name := c.GetString("name")
 	//创建
 	ser := admin.NewTypeService()
-	ok, err := ser.CheckNameTypeId(service.ADMIN_ROLE, name, id)
+	ok, err := ser.CheckNameTypeId(conf.ADMIN_ROLE, name, id)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
@@ -146,7 +146,7 @@ func (c *AdminRole)Delete() {
 	int_id, _ := strconv.Atoi(id)
 	//更新
 	ser := admin.NewTypeService()
-	_, err := ser.DeleteAndTypeId(int_id,service.ADMIN_ROLE)
+	_, err := ser.DeleteAndTypeId(int_id,conf.ADMIN_ROLE)
 	if err != nil {
 		rsp.Error(err.Error())
 	} else {
