@@ -11,6 +11,7 @@ import (
 	"blog/fox/cache"
 	"blog/app/csdn/entity"
 	"time"
+	"blog/app/csdn/conf"
 )
 
 type AuthorizeWeb struct {
@@ -43,8 +44,8 @@ func (t *AuthorizeWeb)SetConfig() (bool, error) {
 		return false, &fox.Error{Msg:"配置文件没有读取"}
 	}
 	// 初始化AK，SK
-	ACCESS_KEY = t.Config["access_key"]
-	SECRET_KEY = t.Config["secret_key"]
+	conf.ACCESS_KEY = t.Config["access_key"]
+	conf.SECRET_KEY = t.Config["secret_key"]
 	return true, nil
 }
 //设置回调URl
@@ -53,17 +54,17 @@ func (t *AuthorizeWeb)SetRedirectUri(str string) {
 }
 //登录URL
 func (t *AuthorizeWeb)GetAuthorizeUrl() string {
-	if ACCESS_KEY == "" {
+	if conf.ACCESS_KEY == "" {
 		return "ACCESS_KEY 必须赋值"
 	}
-	if SECRET_KEY == "" {
+	if conf.SECRET_KEY == "" {
 		return "SECRET_KEY 必须赋值"
 	}
 	//client_id：在开发者中心注册应用时获得的API Key。
 	//redirect_uri：登录成功后浏览器回跳的URL。
 	//response_type：服务端流程，此值固定为“code”。
-	str := WEB_URL
-	str += "?client_id=" + url.QueryEscape(ACCESS_KEY)
+	str := conf.WEB_URL
+	str += "?client_id=" + url.QueryEscape(conf.ACCESS_KEY)
 	str += "&redirect_uri=" + url.QueryEscape(t.RedirectUri)
 	str += "&response_type=code"
 	return str
@@ -78,9 +79,9 @@ func (t *AuthorizeWeb)getAccessToken(token string) string {
 	//code：用户登录成功后获得的 Authorization Code。
 	//
 	//这里获取ACCESS_TOKEN 的URL 和APP_URL一样，直接使用
-	str := APP_URL
-	str += "?client_id=" + url.QueryEscape(ACCESS_KEY)
-	str += "&client_secret=" + url.QueryEscape(SECRET_KEY)
+	str := conf.APP_URL
+	str += "?client_id=" + url.QueryEscape(conf.ACCESS_KEY)
+	str += "&client_secret=" + url.QueryEscape(conf.SECRET_KEY)
 	str += "&grant_type=authorization_code"
 	str += "&redirect_uri=" + url.QueryEscape(t.RedirectUri)
 	str += "&code=" + url.QueryEscape(token)

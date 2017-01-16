@@ -2,11 +2,11 @@ package blog
 
 import (
 	"github.com/astaxie/beego/httplib"
-	"blog/app/csdn"
 	"time"
-	"strings"
 	"blog/fox"
 	"blog/app/csdn/entity"
+	"blog/app/csdn/conf"
+	"strconv"
 )
 //发表/修改文章
 type SaveArticle struct {
@@ -22,26 +22,26 @@ func (t *SaveArticle)SetType(str string) (error) {
 	if str == "original" || str == "report" || str == "translated" {
 		return nil
 	}
-	return fox.Error{Msg:"type 不能为空，original|report|translated"}
+	return &fox.Error{Msg:"type 不能为空，original|report|translated"}
 }
 func (t *SaveArticle)Check() (error) {
 	if len(t.AccessToken) < 1 {
-		return fox.Error{Msg:"access_token 不能为空"}
+		return &fox.Error{Msg:"access_token 不能为空"}
 	}
 	if len(t.Title) < 1 {
-		return fox.Error{Msg:"title 不能为空"}
+		return &fox.Error{Msg:"title 不能为空"}
 	}
 	if len(t.Type) < 1 {
-		return fox.Error{Msg:"type 不能为空，original|report|translated"}
+		return &fox.Error{Msg:"type 不能为空，original|report|translated"}
 	}
 	if len(t.Description) < 1 {
-		return fox.Error{Msg:"description 不能为空"}
+		return &fox.Error{Msg:"description 不能为空"}
 	}
 	if len(t.Content) < 1 {
-		return fox.Error{Msg:"content 不能为空"}
+		return &fox.Error{Msg:"content 不能为空"}
 	}
 	if len(t.Tags) < 1 {
-		return fox.Error{Msg:"tags 不能为空"}
+		return &fox.Error{Msg:"tags 不能为空"}
 	}
 	return nil
 }
@@ -51,12 +51,12 @@ func (t *SaveArticle)Post() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req := httplib.Post(csdn.BLOG_SAVE_URL)
+	req := httplib.Post(conf.BLOG_SAVE_URL)
 	//超时
 	req.SetTimeout(100 * time.Second, 30 * time.Second)
 	//参数
 	req.Param("access_token", t.AccessToken)
-	req.Param("id", t.Id)
+	req.Param("id", strconv.Itoa(t.Id))
 	req.Param("title", t.Title)
 	req.Param("type", t.Type)
 	req.Param("description", t.Description)

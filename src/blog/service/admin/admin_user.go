@@ -70,7 +70,7 @@ func (c *AdminUser) GetAdminByUserName(account string) (*model.Admin, error) {
 	ok, err := o.Where("username=?", account).Get(mod)
 	if err == nil && ok {
 		if mod.Aid == 0 {
-			return nil, &fox.Error{Msg:"用户不存在"}
+			return nil, &fox.Error{Msg:"用户 不存在"}
 		}
 		return mod, nil
 	}

@@ -237,6 +237,20 @@ func init() {
 			AllowHTTPMethods: []string{"delete"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/auth_csdn`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogSync"],
+		beego.ControllerComments{
+			Method: "Go",
+			Router: `/blog_sync/go`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["blog/controllers/admin:BlogTag"] = append(beego.GlobalControllerRouter["blog/controllers/admin:BlogTag"],
 		beego.ControllerComments{
 			Method: "List",
@@ -368,6 +382,20 @@ func init() {
 			Method: "Delete",
 			Router: `/member_group/:id`,
 			AllowHTTPMethods: []string{"delete"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:Oauth"] = append(beego.GlobalControllerRouter["blog/controllers/admin:Oauth"],
+		beego.ControllerComments{
+			Method: "Get",
+			Router: `/oauth`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:Oauth"] = append(beego.GlobalControllerRouter["blog/controllers/admin:Oauth"],
+		beego.ControllerComments{
+			Method: "Csdn",
+			Router: `/oauth_csdn`,
+			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
 	beego.GlobalControllerRouter["blog/controllers/admin:Select"] = append(beego.GlobalControllerRouter["blog/controllers/admin:Select"],

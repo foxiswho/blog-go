@@ -2,7 +2,7 @@ package blog
 
 import (
 	"github.com/astaxie/beego/httplib"
-	"blog/app/csdn"
+	"blog/app/csdn/conf"
 )
 //获取博主的自定义分类
 type List struct {
@@ -13,7 +13,7 @@ type List struct {
 }
 //发送
 func (t *List)Post() (string, error) {
-	req := httplib.Post(csdn.BLOG_LIST_URL)
+	req := httplib.Post(conf.BLOG_LIST_URL)
 	s, err := req.String()
 	if err != nil {
 		return "", err

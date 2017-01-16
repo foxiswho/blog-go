@@ -1,4 +1,4 @@
-package csdn
+package conf
 
 var ACCESS_KEY string
 var SECRET_KEY string

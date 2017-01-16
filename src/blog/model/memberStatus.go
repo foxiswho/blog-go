@@ -1,9 +1,9 @@
 package model
 
 import (
-	"fmt"
 	"blog/fox"
 	"blog/fox/db"
+	"fmt"
 	"time"
 )
 
