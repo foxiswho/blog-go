@@ -6,26 +6,31 @@ import (
 	"blog/service/admin"
 	"strings"
 )
-
+//无须登录 基础控制器
 type BaseNoLogin struct {
-	AdminSession
-	Site *admin.Site
+	AdminSession //继承此控制器
+	Site *admin.Site //博客参数
 }
 
 //  框架中的扩展函数
 func (c *BaseNoLogin) Prepare() {
+	//初始化
 	c.Initialization()
 }
 // 初始化数据
 func (c *BaseNoLogin) Initialization() {
+	//模版参数
 	c.Data["HtmlHead"] = ""
 	c.Data["__public__"] = "/"
 	c.Data["__static__"] = "/static/"
 	c.Data["__theme__"] = "/static/Hplus-v.4.1.0/"
-	//博客名字
+	//初始化
 	c.Site = admin.NewSiteService()
+	//博客配置赋值
 	c.Site.SetSiteConfig()
+	//检测是否存在
 	if c.Site!=nil{
+		//不存在，则，使用 配置文件中名称
 		c.Data["site_name"] = c.Site.GetString("SITE_NAME")
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"blog/fox/editor"
 	"blog/fox/array"
 )
-
+//上传控制器
 type Upload struct {
 	Base
 }

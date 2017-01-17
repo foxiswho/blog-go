@@ -9,11 +9,11 @@ import (
 	"blog/fox/url"
 	"blog/service/conf"
 )
-
+//角色控制器
 type AdminRole struct {
 	Base
 }
-
+//路由自动
 func (c *AdminRole) URLMapping() {
 	c.Mapping("List", c.List)
 	c.Mapping("Add", c.Add)
@@ -24,17 +24,26 @@ func (c *AdminRole) URLMapping() {
 //列表
 // @router /admin_role [get]
 func (c *AdminRole)List() {
+	//初始化
 	ser := admin.NewTypeService()
+	//查询
 	data, err := ser.Query(conf.ADMIN_ROLE)
-	fmt.Println(err)
+	//错误检测
+	if err != nil {
+		fmt.Println(err)
+		c.Error(err.Error())
+		return
+	}
+	//变量赋值
 	c.Data["data"] = data
 	c.Data["title"] = "角色-列表"
-	c.Data["HtmlHead"] = controllers.ExecuteTemplateHtml("admin/type/head.html", c.Data)
+	//模版
 	c.TplName = "admin/admin_role/list.html"
 }
 //添加
 // @router /admin_role/add [get]
 func (c *AdminRole)Add() {
+	//结构体初始化，并给予初始值
 	mod := model.NewType()
 	mod.TypeId = conf.ADMIN_ROLE
 	mod.IsDefault = 0
@@ -42,27 +51,33 @@ func (c *AdminRole)Add() {
 	mod.IsSystem = 0
 	mod.IsShow = 1
 	mod.IsChild = 0
+	//模版赋值
 	c.Data["type_id"] = conf.ADMIN_ROLE
 	c.Data["type_id_name"] = "无"
 	c.Data["parent_id_name"] = "无"
 	c.Data["info"] = mod
 	c.Data["_method"] = "post"
 	c.Data["title"] = "角色-添加"
+	//模版
 	c.TplName = "admin/admin_role/get.html"
 }
 //保存
 // @router /admin_role [post]
 func (c *AdminRole)Post() {
+	//初始化
 	mod := model.NewType()
-	//参数传递
+	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := url.ParseForm(c.Input(), mod); err != nil {
+		//错误显示
 		c.Error(err.Error())
 		return
 	}
 	mod.TypeId = conf.ADMIN_ROLE
-	//创建
+	//创建，初始化
 	ser := admin.NewTypeService()
+	//保存到数据库创建记录
 	id, err := ser.Create(mod)
+	//错误检测
 	if err != nil {
 		c.Error(err.Error())
 		return
@@ -74,20 +89,25 @@ func (c *AdminRole)Post() {
 //编辑
 // @router /admin_role/:id [get]
 func (c *AdminRole)Get() {
+	//获取ID 和字符串ID转为数值型
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
+	//初始化
 	ser := admin.NewTypeService()
+	//获取该ID记录
 	data, err := ser.Read(int_id)
-	//println("Detail :", err.Error())
+	//错误检测和输出
 	if err != nil {
 		c.Error(err.Error())
 	} else {
+		//模版变量赋值
 		c.Data["info"] = data["info"]
 		c.Data["type_id_name"] = data["type_id_name"]
 		c.Data["parent_id_name"] = data["parent_id_name"]
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
 		c.Data["title"] = "角色-修改"
+		//模版
 		c.TplName = "admin/admin_role/get.html"
 	}
 }
@@ -97,16 +117,20 @@ func (c *AdminRole)Put() {
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	//参数传递
+	//初始化
 	mod := model.NewType()
+	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := url.ParseForm(c.Input(), mod); err != nil {
+		//错误输出
 		c.Error(err.Error())
 		return
 	}
 	mod.TypeId = conf.ADMIN_ROLE
-	//更新
+	//初始化
 	ser := admin.NewTypeService()
+	//更新
 	_, err := ser.Update(int_id, mod)
+	//错误检测
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -119,9 +143,11 @@ func (c *AdminRole)CheckName() {
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
 	name := c.GetString("name")
-	//创建
+	//初始化
 	ser := admin.NewTypeService()
+	//根据ID检测是否重复
 	ok, err := ser.CheckNameTypeId(conf.ADMIN_ROLE, name, id)
+	//错误检测
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -135,9 +161,11 @@ func (c *AdminRole)Delete() {
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	//更新
+	//初始化
 	ser := admin.NewTypeService()
-	_, err := ser.DeleteAndTypeId(int_id,conf.ADMIN_ROLE)
+	//删除该记录
+	_, err := ser.DeleteAndTypeId(int_id, conf.ADMIN_ROLE)
+	//错误检测
 	if err != nil {
 		c.Error(err.Error())
 	} else {

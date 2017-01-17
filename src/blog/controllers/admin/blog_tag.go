@@ -4,7 +4,7 @@ import (
 	"blog/model"
 	"fmt"
 )
-
+//博客标签
 type BlogTag struct {
 	Base
 }

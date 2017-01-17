@@ -4,7 +4,7 @@ import (
 	"blog/service/admin"
 	"fmt"
 )
-
+//站点配置
 type Site struct {
 	Base
 }

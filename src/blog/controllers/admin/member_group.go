@@ -9,7 +9,7 @@ import (
 	"blog/fox/url"
 	"blog/service/conf"
 )
-
+//用户组
 type MemberGroup struct {
 	Base
 }

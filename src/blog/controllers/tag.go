@@ -4,41 +4,36 @@ import (
 	"blog/service/blog"
 	"fmt"
 )
-
+//标签控制器
 type Tag struct {
 	BaseNoLogin
 }
 
-// GetAll ...
-// @Title Get All
-// @Description get Blog
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.Blog
-// @Failure 403
+//标签 列表页面
 // @router / [get]
 func (c *Tag) GetAll() {
+	//标签获取
 	idStr := c.Ctx.Input.Param(":tag")
-	fields := []string{}
-	orderBy := "blog_id desc"
+	//查询变量
 	query := make(map[string]interface{})
 	query["name"] = idStr
+	//初始化
 	mode := blog.NewBlogTagService()
 	//分页
 	page, _ := c.GetInt("page")
-	data, err := mode.GetAll(query, fields, orderBy, page, 20)
-	fmt.Println("err", err)
-	//fmt.Println("data", data)
+	//查询
+	data, err := mode.GetAll(query, []string{}, "blog_id desc", page, 20)
+	//错误
 	if err != nil {
 		//c.Data["data"] = err.Error()
 		fmt.Println(err.Error())
+		c.Error(err.Error())
+		return
 	} else {
+		//变量赋值
 		c.Data["data"] = data
 	}
+	//模版
 	c.TplName = "blog/index.html"
 
 }

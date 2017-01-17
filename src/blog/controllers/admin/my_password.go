@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"blog/service/admin"
 )
-
+//当前管理员密码修改
 type MyPassword struct {
 	Base
 }

@@ -10,7 +10,7 @@ import (
 	"blog/service/admin"
 	"blog/service/conf"
 )
-
+//博客控制器
 type Blog struct {
 	Base
 }

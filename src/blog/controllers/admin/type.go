@@ -8,7 +8,7 @@ import (
 	"blog/model"
 	"blog/fox/url"
 )
-
+//属性类别
 type Type struct {
 	Base
 }

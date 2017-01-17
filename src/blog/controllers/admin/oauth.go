@@ -8,7 +8,7 @@ import (
 	"blog/service/admin"
 	"blog/service/conf"
 )
-
+//第三方账号登录
 type Oauth struct {
 	BaseNoLogin
 }

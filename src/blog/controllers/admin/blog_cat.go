@@ -7,7 +7,7 @@ import (
 	"blog/model"
 	"blog/service/conf"
 )
-
+//博客栏目控制器
 type BlogCat struct {
 	Base
 }

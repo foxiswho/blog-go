@@ -4,7 +4,7 @@ import (
 	"blog/service/admin"
 	"fmt"
 )
-
+//附件
 type Attachment struct {
 	Base
 }

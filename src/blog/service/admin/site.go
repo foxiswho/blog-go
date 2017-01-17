@@ -13,7 +13,7 @@ import (
 type Site struct {
 	Config map[string]string
 }
-
+//初始化 站点配置
 func NewSiteService() *Site {
 	return new(Site)
 }
@@ -65,6 +65,7 @@ func (c *Site)SiteConfig() map[string]string {
 	}
 	return tps
 }
+//站点配置赋值
 func (c *Site)SetSiteConfig() {
 	c.Config = c.SiteConfig()
 }

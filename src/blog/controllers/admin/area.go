@@ -4,7 +4,7 @@ import (
 	"blog/service/admin"
 	"fmt"
 )
-
+//地区
 type Area struct {
 	Base
 }

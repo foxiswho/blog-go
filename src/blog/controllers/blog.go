@@ -8,79 +8,80 @@ import (
 	"fmt"
 	"blog/service/conf"
 )
-
+//首页 博客控制器
 type Blog struct {
 	BaseNoLogin
 }
 
 
-// GetOne ...
-// @Title Get One
-// @Description get Blog by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Blog
-// @Failure 403 :id is empty
+//文章详情
 // @router /article/:id [get]
 func (c *Blog) Get() {
 	idStr := c.Ctx.Input.Param(":id")
+	//初始化
 	ser := blog.NewBlogService()
 	var err error
 	var read map[string]interface{}
+	//正则匹配 该idStr 数字
 	if ok, _ := regexp.Match(`^\d+$`, []byte(idStr)); ok {
+		//字符串转换为数值类型
 		id, _ := strconv.Atoi(idStr)
+		//获取该ID信息
 		read, err = ser.Read(id)
 	} else {
+		//根据自定义URL，获取该信息，
 		read, err = ser.ReadByUrlRewrite(idStr)
 	}
+	//错误输出
 	if err != nil {
 		c.Error(err.Error())
+		//直接返回
 		return
 	} else {
-		tmp:=read["info"]
-		fmt.Println(tmp)
-		B:=tmp.(*blog.Blog)
+		//赋值
+		tmp := read["info"]
+		//interface变量转换为结构体
+		B := tmp.(*blog.Blog)
 		fmt.Println(B)
-		_,err:=ser.UpdateRead(B.Blog.BlogId)
-		fmt.Println(err)
-		c.Data["title"] =read["title"]
+		//更新浏览次数
+		_, err := ser.UpdateRead(B.Blog.BlogId)
+		if err != nil {
+			fmt.Println(err)
+		}
+		//模版变量赋值
+		c.Data["title"] = read["title"]
 		c.Data["info"] = read["info"]
 		c.Data["TimeAdd"] = read["TimeAdd"]
 		c.Data["Content"] = read["Content"]
 	}
+	//模版
 	c.TplName = "blog/get.html"
 }
 
-// GetAll ...
-// @Title Get All
-// @Description get Blog
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.Blog
-// @Failure 403
+//博客首页，列表页面
 // @router / [get]
 func (c *Blog) GetAll() {
-	fields := []string{}
-	orderBy := "blog_id desc"
+	//查询变量
 	query := make(map[string]interface{})
 	query["type=?"] = conf.TYPE_ARTICLE
+	//初始化
 	mode := blog.NewBlogService()
 	//分页
 	id := c.Ctx.Input.Param(":page")
+	//字符串转换为数值
 	page, _ := strconv.Atoi(id)
-	data, err := mode.GetAll(query, fields, orderBy, page, 10)
-	fmt.Println("err", err)
-	//fmt.Println("data", data)
+	//查询
+	data, err := mode.GetAll(query, []string{}, "blog_id desc", page, 10)
+	//错误输出
 	if err != nil {
-		//c.Data["data"] = err.Error()
-		fmt.Println(err.Error())
+		fmt.Println("err", err)
+		c.Error(err.Error())
+		return
 	} else {
-
+		//模版变量
 		c.Data["data"] = data
 	}
+	//模版
 	c.TplName = "blog/index.html"
 
 }

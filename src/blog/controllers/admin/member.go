@@ -7,7 +7,7 @@ import (
 	"blog/fox/url"
 	"blog/service/member"
 )
-
+//用户
 type Member struct {
 	Base
 }

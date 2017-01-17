@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"blog/model"
 )
-
+//各种选择加载数据
 type Select struct {
 	Base
 }
