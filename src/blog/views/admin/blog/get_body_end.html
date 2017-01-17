@@ -198,14 +198,13 @@
                     console.log(data);
                     $this.removeClass("btn-default");
                     if(data.code==1){
-                        var c=data.data;
                         layer.tips('成功',$this);
-                        MarkDown.setMarkdown(c.content);
+                        MarkDown.setMarkdown(data.content);
                         $('#tag').tagsinput('removeAll');
-                        $('#tag').tagsinput('add',c.tag);
+                        $('#tag').tagsinput('add',data.tag);
                         $('#tag').tagsinput('refresh');
-                        $('#title').val(c.title);
-                        $('#description').val(c.description);
+                        $('#title').val(data.title);
+                        $('#description').val(data.description);
                     }else{
                         layer.tips('失败:'+data.info,$this);
                     }
@@ -262,7 +261,6 @@
                     console.log(data);
                     $this.removeClass("btn-default");
                     if(data.code==1){
-                        var c=data.data;
                         layer.tips('成功',$this);
                     }else{
                         layer.tips('失败:'+data.info,$this);
