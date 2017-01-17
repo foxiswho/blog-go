@@ -1,17 +1,17 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"blog/fox/datetime"
 	"blog/fox/db"
-	"github.com/astaxie/beego/orm"
 	"blog/service/admin"
+	"blog/fox"
+	"blog/fox/log"
 )
 
 type BaseNoLogin struct {
-	beego.Controller
+	fox.Controller
 	Site *admin.Site
 	//Session *service.AdminSession //当前登录用户信息
 }
@@ -53,6 +53,5 @@ func (c *BaseNoLogin) Error(key string) {
 func init() {
 	//初始化
 	db.Init();
-	orm.DefaultTimeLoc = time.UTC
-	beego.Info("init orm start...")
+	log.Info("init start...")
 }

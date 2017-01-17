@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"blog/fox/str"
 	"strings"
-	"github.com/astaxie/beego"
 	"blog/fox/datetime"
 	UtilAuth "blog/fox/auth"
 )
@@ -51,7 +50,7 @@ func (c *Member) GetById(id int) (*model.Member, error) {
 			return nil, &fox.Error{Msg:"账号 不存在"}
 		}
 	}
-	beego.Info(err)
+	fmt.Println("获取错误",err)
 	return nil, &fox.Error{Msg:"获取失败，请稍后重试.."}
 }
 //密码更新

@@ -2,7 +2,6 @@ package file
 
 import (
 	"os"
-	"github.com/astaxie/beego"
 	"blog/fox/datetime"
 	"time"
 	"net/http"
@@ -17,6 +16,7 @@ import (
 	"blog/model"
 	"blog/fox/db"
 	"blog/fox/number"
+	"blog/fox/config"
 )
 //上传成功后返回结构体
 type UploadFile struct {
@@ -112,19 +112,19 @@ func PathExists(path string) (bool, error) {
 //设置配置
 func (c *UploadFile)SetConfig(mod string) (bool, error) {
 	isFind := true
-	_, err := beego.GetConfig(mod, "type", "")
+	_, err := config.GetConfig(mod, "type", "")
 	if err != nil {
 		isFind = false
 	}
 	if !isFind {
-		maps, err := beego.AppConfig.GetSection("upload_default")
+		maps, err := config.GetSection("upload_default")
 		if err != nil {
 			fmt.Println("config error:", err)
 			return false, err
 		}
 		c.Config = maps
 	} else {
-		maps, err := beego.AppConfig.GetSection(mod)
+		maps, err := config.GetSection(mod)
 		if err != nil {
 			fmt.Println("config error:", err)
 			return false, err

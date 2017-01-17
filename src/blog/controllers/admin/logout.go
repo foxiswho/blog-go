@@ -4,8 +4,8 @@ type Logout struct {
 	BaseNoLogin
 }
 
-func (this *Logout)Get() {
-	this.SessionDel()
+func (c *Logout)Get() {
+	c.SessionDel()
 	//this.TplName = "admin/logout/get.html"
-	this.Redirect("/admin/login", 302)
+	c.Redirect("/admin/login", 302)
 }

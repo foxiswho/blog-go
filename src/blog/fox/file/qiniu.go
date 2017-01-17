@@ -5,13 +5,13 @@ import (
 	"qiniupkg.com/api.v7/conf"
 	"qiniupkg.com/api.v7/kodocli"
 	"fmt"
-	"github.com/astaxie/beego"
 	"blog/fox"
 	"time"
 	"blog/fox/cache"
 	"mime/multipart"
 	"strings"
 	"os"
+	"blog/fox/config"
 )
 
 type QiNiu struct {
@@ -30,7 +30,7 @@ func NewQiNiu() *QiNiu {
 }
 //获取配置
 func (t *QiNiu)setConfig() (bool, error) {
-	maps, err := beego.AppConfig.GetSection("qiniu")
+	maps, err := config.GetSection("qiniu")
 	if err != nil {
 		return false, err
 	}
@@ -68,7 +68,7 @@ func (t *QiNiu)setToken() string {
 	// 生成一个上传token
 	token := c.MakeUptoken(policy)
 	//缓存
-	err := cache.Cache.Put("qiniu_token", token, 3600 * time.Second)
+	err := cache.Put("qiniu_token", token, 3600 * time.Second)
 	if err!=nil{
 		fmt.Println("设置缓存错误",err)
 	}
@@ -76,10 +76,10 @@ func (t *QiNiu)setToken() string {
 }
 //获取
 func (t *QiNiu)GetToken() string {
-	if !cache.Cache.IsExist("qiniu_token") {
+	if !cache.IsExist("qiniu_token") {
 		return t.setToken()
 	}
-	token := cache.Cache.Get("qiniu_token")
+	token := cache.Get("qiniu_token")
 	tmp:=token.(string)
 	if len(tmp)==0{
 		return t.setToken()

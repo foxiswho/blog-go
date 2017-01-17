@@ -1,9 +1,12 @@
 package controllers
 
-import "github.com/astaxie/beego"
+import (
+	"blog/fox"
+	"blog/fox/config"
+)
 
 type Error struct {
-	beego.Controller
+	fox.Controller
 }
 
 func (c *Error) Error404() {
@@ -22,14 +25,13 @@ func (c *Error) ErrorDb() {
 	c.TplName = "error/dberror.html"
 }
 //  框架中的扩展函数
-func (this *Error) Prepare() {
-	this.Initialization()
+func (c *Error) Prepare() {
+	c.Initialization()
 }
 // 初始化数据
-func (this *Error) Initialization() {
-	this.Data["__public__"] = "/"
-	this.Data["__static__"] = "/static/"
-	this.Data["__theme__"] = "/static/post/"
-	this.Data["site_name"] = beego.AppConfig.String("site_name")
-	//orm.RunSyncdb("default", false, true)
+func (c *Error) Initialization() {
+	c.Data["__public__"] = "/"
+	c.Data["__static__"] = "/static/"
+	c.Data["__theme__"] = "/static/post/"
+	c.Data["site_name"] = config.String("site_name")
 }

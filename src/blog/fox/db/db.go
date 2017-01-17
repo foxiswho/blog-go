@@ -1,7 +1,6 @@
 package db
 
 import (
-	"github.com/astaxie/beego"
 	"fmt"
 	"github.com/xormplus/xorm"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"reflect"
 	"blog/fox"
 	"time"
+	"blog/fox/config"
 )
 
 type Db struct {
@@ -19,11 +19,11 @@ type Db struct {
 var DB *Db
 //
 func dsn() string {
-	db_user := beego.AppConfig.String("db_user")
-	db_pass := beego.AppConfig.String("db_pass")
-	db_host := beego.AppConfig.String("db_host")
-	db_port := beego.AppConfig.String("db_port")
-	db_name := beego.AppConfig.String("db_name")
+	db_user := config.String("db_user")
+	db_pass := config.String("db_pass")
+	db_host := config.String("db_host")
+	db_port := config.String("db_port")
+	db_name := config.String("db_name")
 	dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8&loc=Asia%2FShanghai"
 	return dsn
 }
@@ -34,6 +34,7 @@ func Init() {
 	DB.Db, err = xorm.NewEngine("mysql", dsn())
 	if err != nil {
 		fmt.Println("NewEngine", err)
+		panic(err.Error())
 	}
 	DB.Db.ShowSQL(true)
 	locat, _ := time.LoadLocation("Asia/Shanghai")

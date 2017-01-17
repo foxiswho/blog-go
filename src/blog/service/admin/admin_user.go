@@ -1,10 +1,8 @@
 package admin
 
 import (
-	"github.com/astaxie/beego/orm"
 	"strings"
 	"blog/fox"
-	"github.com/astaxie/beego"
 	"fmt"
 	UtilAuth "blog/fox/auth"
 	"blog/model"
@@ -56,10 +54,8 @@ func (c *AdminUser) Login(account, password string) (admUser *model.Admin, err e
 		} else {
 			return nil, &fox.Error{Msg:"账号 不存在"}
 		}
-	} else if err == orm.ErrNoRows {
-		return nil, &fox.Error{Msg:"账号 不存在."}
 	}
-	beego.Info(err)
+	fmt.Println("登陆 err",err)
 	return nil, &fox.Error{Msg:"登陆失败，请稍后重试.."}
 }
 //根据用户名查找
@@ -90,10 +86,8 @@ func (c *AdminUser) GetAdminById(id int) (*model.Admin, error) {
 		} else {
 			return nil, &fox.Error{Msg:"账号 不存在"}
 		}
-	} else if err == orm.ErrNoRows {
-		return nil, &fox.Error{Msg:"账号 不存在"}
 	}
-	beego.Info(err)
+	fmt.Println("获取 err",err)
 	return nil, &fox.Error{Msg:"获取失败，请稍后重试.."}
 }
 //密码更新

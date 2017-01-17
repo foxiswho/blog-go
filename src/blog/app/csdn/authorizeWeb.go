@@ -137,7 +137,7 @@ func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
 	return t.PutCache("CSDN_AccessToken", val)
 }
 func (t *AuthorizeWeb)GetCache(key string) (string, error) {
-	tmp := cache.Cache.Get(key)
+	tmp := cache.Get(key)
 	fmt.Println("获取csdn 缓存",tmp)
 	str := tmp.(string)
 	if len(str) < 1 {
@@ -146,6 +146,6 @@ func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 	return str, nil
 }
 func (t *AuthorizeWeb)PutCache(key string, val interface{}) (error) {
-	err := cache.Cache.Put(key, val, 86400 * time.Second)
+	err := cache.Put(key, val, 86400 * time.Second)
 	return err
 }

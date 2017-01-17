@@ -3,10 +3,10 @@ package file
 import (
 	"blog/fox/str"
 	"blog/fox/crypt"
-	"github.com/astaxie/beego"
 	"encoding/base64"
 	"blog/fox"
 	"blog/fox/array"
+	"blog/fox/config"
 )
 //令牌生成
 //@maps 令牌数组
@@ -16,7 +16,7 @@ func TokeMake(maps map[string]interface{}) (string, error) {
 	if err != nil {
 		return "", &fox.Error{Msg:"序列化失败：" + err.Error()}
 	}
-	key := []byte(beego.AppConfig.String("aes_key"))
+	key := []byte(config.String("aes_key"))
 	result, err := crypt.AesEncrypt([]byte(s), key)
 	if err != nil {
 		return "", &fox.Error{Msg:"加密失败：" + err.Error()}
@@ -30,7 +30,7 @@ func TokenDeCode(str string) (map[string]interface{}, error) {
 	if len(str) < 1 {
 		return nil, &fox.Error{Msg:"字符串 不能为空"}
 	}
-	key := []byte(beego.AppConfig.String("aes_key"))
+	key := []byte(config.String("aes_key"))
 	b64:=base64.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
 	byt, err := b64.DecodeString(str)
 	if err != nil {

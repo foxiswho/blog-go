@@ -2,13 +2,13 @@ package auth
 
 import (
 	"blog/fox/crypt"
-	"github.com/astaxie/beego"
+	"blog/fox/config"
 )
 
 // encrypt password
 func PasswordSalt(pass, salt string) string {
 	salt1 := "4%$@w"
-	password_salt := beego.AppConfig.String("password_salt")
+	password_salt := config.String("password_salt")
 	str :=salt1+pass+salt+password_salt
 	//return crypt.Md5(crypt.Sha256(str))
 	return crypt.Md5(str)

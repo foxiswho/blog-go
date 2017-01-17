@@ -1,16 +1,17 @@
 package admin
 
 import (
-	"github.com/astaxie/beego"
 	"strings"
 	"strconv"
 	"blog/model"
+	"blog/fox/log"
 )
 
 type AdminAuth struct {
 
 }
-func NewAdminAuthService() *AdminAuth{
+
+func NewAdminAuthService() *AdminAuth {
 	return new(AdminAuth)
 }
 //验证Session
@@ -19,13 +20,13 @@ func (c *AdminAuth)Validate(account string) (*AdminSession) {
 	var admin *AdminUser
 	admUser, err := admin.GetAdminByUserName(account)
 	if err != nil || admUser.Aid < 0 {
-		beego.Debug("Auth 验证错误：", err.Error())
+		log.Debug("Auth 验证错误：", err.Error())
 		return nil
 	}
 	//赋值
-	session :=NewAdminSessionService()
+	session := NewAdminSessionService()
 	Session := session.Convert(admUser)
-	beego.Debug("Auth 验证通过：", Session)
+	log.Debug("Auth 验证通过：", Session)
 	return Session
 }
 
@@ -43,14 +44,14 @@ func (c *AdminAuth)ValidateToken(token, currentIp string) (*model.Admin) {
 	Dtoken := "sdfs|sdfa|asdfa"
 	array := strings.Split(Dtoken, "|")
 	if len(array) != 3 {
-		beego.Debug("token 校验失败")
+		log.Debug("token 校验失败")
 		return nil
 	}
 	uid := array[0]
 	ip := array[2]
 	//IP发生变化 强制重新登录
 	if !strings.EqualFold(ip, currentIp) {
-		beego.Debug("IP发生变化 强制重新登录")
+		log.Debug("IP发生变化 强制重新登录")
 		return nil
 	}
 	int_id, _ := strconv.Atoi(uid)
@@ -58,7 +59,7 @@ func (c *AdminAuth)ValidateToken(token, currentIp string) (*model.Admin) {
 	var admin *AdminUser
 	admUser, err := admin.GetAdminById(int_id)
 	if err != nil || admUser.Aid < 0 {
-		beego.Debug("Auth 验证错误：", err.Error())
+		log.Debug("Auth 验证错误：", err.Error())
 		return nil
 	}
 	return admUser

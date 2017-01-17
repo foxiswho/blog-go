@@ -1,21 +1,21 @@
 package admin
 
 import (
-	"github.com/astaxie/beego"
 	"blog/fox/str"
 	"encoding/json"
 	"fmt"
 	"blog/fox"
 	"blog/service/admin"
+	"blog/fox/config"
 )
 //后台 Session 处理
 type AdminSession struct {
-	beego.Controller            //继承 beego 控制器
+	fox.Controller            //继承 控制器
 	Session *admin.AdminSession //当前登录用户信息
 }
 // session 填充
 func (c *AdminSession) SessionSet(session *admin.AdminSession) {
-	SESSION_NAME := beego.AppConfig.String("session_name")
+	SESSION_NAME := config.String("session_name")
 	//存入 Session
 	str2, err := str.JsonEnCode(session)
 	if err != nil {
@@ -26,7 +26,7 @@ func (c *AdminSession) SessionSet(session *admin.AdminSession) {
 }
 //获取
 func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
-	SESSION_NAME := beego.AppConfig.String("session_name")
+	SESSION_NAME := config.String("session_name")
 	session, ok := c.GetSession(SESSION_NAME).(string)
 	fmt.Println("session:", session)
 	fmt.Println("ok bool:", ok)
@@ -45,7 +45,7 @@ func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
 }
 //删除
 func (c *AdminSession) SessionDel() {
-	SESSION_NAME := beego.AppConfig.String("session_name")
+	SESSION_NAME := config.String("session_name")
 	c.DelSession(SESSION_NAME)
 }
 //错误信息
