@@ -12,7 +12,7 @@ type Category struct {
 }
 func (t *Category)Check() (error) {
 	if len(t.AccessToken) < 1 {
-		return &fox.Error{Msg:"access_token 不能为空"}
+		return fox.NewError("access_token 不能为空")
 	}
 	return nil
 }

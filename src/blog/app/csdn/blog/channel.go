@@ -12,10 +12,10 @@ type Channel struct {
 }
 func (t *Channel)Check() (error) {
 	if len(t.AccessToken) < 1 {
-		return &fox.Error{Msg:"access_token 不能为空"}
+		return fox.NewError("access_token 不能为空")
 	}
 	if len(t.ClientId) < 1 {
-		return &fox.Error{Msg:"client_id 不能为空"}
+		return fox.NewError("client_id 不能为空")
 	}
 	return nil
 }

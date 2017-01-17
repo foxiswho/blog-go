@@ -181,7 +181,7 @@ func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fie
 	count, err := session.Count(model)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &fox.Error{Msg:err.Error()}
+		return nil,fox.NewError(err.Error())
 	}
 	Query := Pagination(int(count), page, limit)
 	if count == 0 {
@@ -198,7 +198,7 @@ func GetAll(model interface{}, data []interface{}, q map[string]interface{}, fie
 	err = session.Find(&data)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &fox.Error{Msg:err.Error()}
+		return nil,fox.NewError(err.Error())
 	}
 	Query.Data = make([]interface{}, len(data))
 	for y, x := range data {

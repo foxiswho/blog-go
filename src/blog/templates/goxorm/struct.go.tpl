@@ -36,8 +36,8 @@ func (c *{{Mapper .Name}})GetAll(q map[string]interface{}, fields []string, orde
 	session := db.Filter(q)
 	count, err := session.Count(c)
 	if err != nil {
-		fmt.Println(err)
-		return nil, &fox.Error{Msg:err.Error()}
+		fmt.Println("数据查询错误：",err)
+		return nil,fox.NewError("数据查询错误:"+err.Error())
 	}
 	Query := db.Pagination(int(count), page, limit)
 	if count == 0 {
@@ -55,8 +55,8 @@ func (c *{{Mapper .Name}})GetAll(q map[string]interface{}, fields []string, orde
 	data := c.newMakeDataArr()
 	err = session.Find(&data)
 	if err != nil {
-		fmt.Println(err)
-		return nil, &fox.Error{Msg:err.Error()}
+		fmt.Println("数据查询错误:",err)
+		return nil,fox.NewError("数据查询错误:"+err.Error())
 	}
 	Query.Data = make([]interface{}, len(data))
 	for y, x := range data {
@@ -78,7 +78,7 @@ func (c *{{Mapper .Name}}) GetById(id int) (*{{Mapper .Name}}, error) {
         return nil, err
     }
     if !ok{
-        return nil,&fox.Error{Msg:"数据不存在"}
+        return nil,fox.NewError("数据不存在:"+err.Error())
     }
     return m, nil
 }

@@ -41,7 +41,7 @@ func (t *AuthorizeWeb)SetConfig() (bool, error) {
 	}
 	fmt.Println("setConfig", ok)
 	if len(t.Config) < 1 {
-		return false, &fox.Error{Msg:"配置文件没有读取"}
+		return false,fox.NewError("配置文件没有读取")
 	}
 	// 初始化AK，SK
 	conf.ACCESS_KEY = t.Config["access_key"]
@@ -128,7 +128,7 @@ func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
 	var access *entity.AccessToken
 	err = json.Unmarshal([]byte(str), &access)
 	if err != nil {
-		return nil, &fox.Error{Msg:"token反序列化错误：" + err.Error()}
+		return nil,fox.NewError("token反序列化错误：" + err.Error())
 	}
 	fmt.Println("反序列化",access)
 	return access, nil
@@ -141,7 +141,7 @@ func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 	fmt.Println("获取csdn 缓存",tmp)
 	str := tmp.(string)
 	if len(str) < 1 {
-		return "", &fox.Error{Msg:"CSDN Token 已过期，请重新用CSDN登陆"}
+		return "",fox.NewError("CSDN Token 已过期，请重新用CSDN登陆")
 	}
 	return str, nil
 }

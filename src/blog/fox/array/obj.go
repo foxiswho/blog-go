@@ -30,7 +30,7 @@ func ObjToMap(obj interface{}) (mapObj map[string]interface{}, err error) {
 func StrToMap(str string) (mapObj map[string]interface{}, err error) {
 	// 结构体转json
 	if str == "" {
-		return nil, &fox.Error{Msg:"字符串为空不能转换"}
+		return nil,fox.NewError("字符串为空不能转换")
 	}
 	var result map[string]interface{}
 	if err := json.Unmarshal([]byte(str), &result); err != nil {

@@ -28,7 +28,7 @@ func (c *Login)App(id int) {
 }
 func (c *Login)check() (*Login,error) {
 	if c.Username == "" {
-		return nil, &fox.Error{Msg:"用户名不能为空"}
+		return nil,fox.NewError("用户名不能为空")
 	}
-	return nil, &fox.Error{Msg:"用户名不能为空"}
+	return nil,fox.NewError("用户名不能为空")
 }

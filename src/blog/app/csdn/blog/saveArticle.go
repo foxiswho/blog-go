@@ -25,26 +25,26 @@ func (t *SaveArticle)SetType(str string) (error) {
 	if str == "original" || str == "report" || str == "translated" {
 		return nil
 	}
-	return &fox.Error{Msg:"type 不能为空，original|report|translated"}
+	return fox.NewError("type 不能为空，original|report|translated")
 }
 func (t *SaveArticle)Check() (error) {
 	if len(t.AccessToken) < 1 {
-		return &fox.Error{Msg:"access_token 不能为空"}
+		return fox.NewError("access_token 不能为空")
 	}
 	if len(t.Title) < 1 {
-		return &fox.Error{Msg:"title 不能为空"}
+		return fox.NewError("title 不能为空")
 	}
 	if len(t.Type) < 1 {
-		return &fox.Error{Msg:"type 不能为空，original|report|translated"}
+		return fox.NewError("type 不能为空，original|report|translated")
 	}
 	if len(t.Description) < 1 {
-		return &fox.Error{Msg:"description 不能为空"}
+		return fox.NewError("description 不能为空")
 	}
 	if len(t.Content) < 1 {
-		return &fox.Error{Msg:"content 不能为空"}
+		return fox.NewError("content 不能为空")
 	}
 	if len(t.Tags) < 1 {
-		return &fox.Error{Msg:"tags 不能为空"}
+		return fox.NewError("tags 不能为空")
 	}
 	return nil
 }
@@ -74,17 +74,17 @@ func (t *SaveArticle)Post() (*entity.Article, error) {
 	s, err := req.String()
 	if err != nil {
 		fmt.Println("返回错误信息：", err)
-		return nil, &fox.Error{Msg:"返回错误信息：" + err.Error()}
+		return nil,fox.NewError("返回错误信息：" + err.Error())
 	}
 	//是否错误代码
 	if strings.Contains(s, "error_code") {
 		fmt.Println("返回错误信息：", s)
-		return nil, &fox.Error{Msg:"返回错误信息：" + s}
+		return nil,fox.NewError("返回错误信息：" + s)
 	}
 	fmt.Println("返回内容：", s)
 	var saveArticle *entity.Article
 	if err := json.Unmarshal([]byte(s), &saveArticle); err != nil {
-		return nil, &fox.Error{Msg:"反序列化失败：" + err.Error()}
+		return nil,fox.NewError("反序列化失败：" + err.Error())
 	}
 	fmt.Println("反序列化：", saveArticle)
 	return saveArticle, nil

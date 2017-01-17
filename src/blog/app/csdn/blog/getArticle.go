@@ -21,10 +21,10 @@ func NewGetArticle() *GetArticle {
 }
 func (t *GetArticle)Check() (error) {
 	if len(t.AccessToken) < 1 {
-		return &fox.Error{Msg:"access_token 不能为空"}
+		return fox.NewError("access_token 不能为空")
 	}
 	if t.Id < 1 {
-		return &fox.Error{Msg:"文章id 不能为空"}
+		return fox.NewError("文章id 不能为空")
 	}
 	return nil
 }
@@ -50,7 +50,7 @@ func (t *GetArticle)Post() (*entity.Article, error) {
 	err = json.Unmarshal([]byte(s), &art)
 	if err != nil {
 		fmt.Println("内容反序列化 错误：",err)
-		return nil, &fox.Error{Msg:"内容反序列化 错误："+err.Error()}
+		return nil, fox.NewError("内容反序列化 错误："+err.Error())
 	}
 	if len(art.MarkdownContent)>0{
 		art.Content=art.MarkdownContent

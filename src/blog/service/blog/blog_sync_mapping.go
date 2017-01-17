@@ -20,10 +20,10 @@ func (t *BlogSyncMapping)GetAppId(type_id, blog_id int) (*model.BlogSyncMapping,
 	m := model.NewBlogSyncMapping()
 	_, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return nil, &fox.Error{Msg:"不存在"}
+		return nil,fox.NewError("不存在")
 	}
 	if m.MapId < 1 {
-		return nil, &fox.Error{Msg:"不存在"}
+		return nil,fox.NewError("不存在")
 	}
 	return m, nil
 }

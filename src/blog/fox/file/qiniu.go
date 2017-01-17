@@ -46,7 +46,7 @@ func (t *QiNiu)SetQiNiuConfig() (bool, error) {
 	}
 	fmt.Println("setConfig", ok)
 	if len(t.Config) < 1 {
-		return false, &fox.Error{Msg:"配置文件没有读取"}
+		return false,fox.NewError("配置文件没有读取")
 	}
 	// 初始化AK，SK
 	conf.ACCESS_KEY = t.Config["access_key"]
@@ -69,8 +69,8 @@ func (t *QiNiu)setToken() string {
 	token := c.MakeUptoken(policy)
 	//缓存
 	err := cache.Put("qiniu_token", token, 3600 * time.Second)
-	if err!=nil{
-		fmt.Println("设置缓存错误",err)
+	if err != nil {
+		fmt.Println("设置缓存错误", err)
 	}
 	return token
 }
@@ -80,8 +80,8 @@ func (t *QiNiu)GetToken() string {
 		return t.setToken()
 	}
 	token := cache.Get("qiniu_token")
-	tmp:=token.(string)
-	if len(tmp)==0{
+	tmp := token.(string)
+	if len(tmp) == 0 {
 		return t.setToken()
 	}
 	return tmp
@@ -92,13 +92,13 @@ func (t *QiNiu)Upload(file multipart.File, UploadFile *UploadFile) (interface{},
 	_, err := t.SetQiNiuConfig()
 	if err != nil {
 		fmt.Println("getConfig err:", err)
-		return nil, &fox.Error{Msg:"七牛配置错误:" + err.Error()}
+		return nil,fox.NewError("七牛配置错误:" + err.Error())
 	}
 	//token
 	token := t.GetToken()
-	if len(token)<1{
-		fmt.Println("token",token)
-		return nil,&fox.Error{Msg:"七牛token不能为空"}
+	if len(token) < 1 {
+		fmt.Println("token", token)
+		return nil,fox.NewError("七牛token不能为空")
 	}
 	// 构建一个uploader
 	uploader := kodocli.NewUploader(0, nil)
@@ -108,10 +108,10 @@ func (t *QiNiu)Upload(file multipart.File, UploadFile *UploadFile) (interface{},
 	var ret PutRet
 	// 设置上传文件的路径
 	key := UploadFile.Path + UploadFile.Name
-	filePath := dir+UploadFile.GetLocalTmpPath()+UploadFile.Name
-	key=strings.Replace(key,"/","",1)
+	filePath := dir + UploadFile.GetLocalTmpPath() + UploadFile.Name
+	key = strings.Replace(key, "/", "", 1)
 	fmt.Println("本地文件绝对路径", filePath)
-	fmt.Println("去除第一个字符/后，访问路径",key)
+	fmt.Println("去除第一个字符/后，访问路径", key)
 	// 调用PutFileWithoutKey方式上传，没有设置saveasKey以文件的hash命名
 	err = uploader.PutFile(nil, &ret, token, key, filePath, nil)
 	// 打印出错信息
@@ -120,6 +120,6 @@ func (t *QiNiu)Upload(file multipart.File, UploadFile *UploadFile) (interface{},
 		return nil, err
 	}
 	// 打印返回的信息
-	fmt.Println("七牛成功后返回信息",ret)
+	fmt.Println("七牛成功后返回信息", ret)
 	return ret, nil
 }

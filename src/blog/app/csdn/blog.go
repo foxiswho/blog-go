@@ -24,7 +24,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	fmt.Println("CSDN 更新文章")
 	//fmt.Println("更新内容",b.Blog)
 	if id < 1 {
-		return &fox.Error{Msg:"id 不能为空"}
+		return fox.NewError("id 不能为空")
 	}
 	web := NewAuthorizeWeb()
 	acc, err := web.GetAccessTokenCache()
@@ -58,7 +58,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return &fox.Error{Msg:"更新错误"}
+		return fox.NewError("更新错误:"+err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	//更新
@@ -86,11 +86,11 @@ func (t *Blog) Create(b *mod.Blog, type_id int) error {
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return &fox.Error{Msg:"更新错误"}
+		return fox.NewError("更新错误:"+err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	if m.MapId > 0 {
-		return &fox.Error{Msg:"已存在此数据，不能重复插入"}
+		return fox.NewError("已存在此数据，不能重复插入")
 	}
 	web := NewAuthorizeWeb()
 	acc, err := web.GetAccessTokenCache()
@@ -133,7 +133,7 @@ func (t *Blog) Create(b *mod.Blog, type_id int) error {
 //获取
 func (t *Blog) Read(id string) (*mod.Blog, error) {
 	if len(id) < 1 {
-		return nil, &fox.Error{Msg:"id 不能为空"}
+		return nil, fox.NewError("id 不能为空")
 	}
 	web := NewAuthorizeWeb()
 	acc, err := web.GetAccessTokenCache()
@@ -183,7 +183,7 @@ func Get(type_id, id, blog_id int) (*mod.Blog, error) {
 		m := model.NewBlogSyncMapping()
 		_, err := db.Filter(maps).Get(m)
 		if err != nil {
-			return b, &fox.Error{Msg:"更新错误"}
+			return nil,fox.NewError("更新错误:"+err.Error())
 		}
 		//更新
 		if m.MapId > 0 {

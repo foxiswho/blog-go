@@ -13,7 +13,6 @@ type Type struct {
 
 }
 
-
 func NewTypeService() *Type {
 	return new(Type)
 }
@@ -32,7 +31,7 @@ func (c *Type)Create(m *model.Type) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Name) < 1 {
-		return 0, &fox.Error{Msg:"名称 不能为空"}
+		return 0,fox.NewError("名称 不能为空")
 	}
 	//时间
 	if m.TimeAdd.IsZero() {
@@ -55,7 +54,7 @@ func (c *Type)Create(m *model.Type) (int, error) {
 	o := db.NewDb()
 	affected, err := o.Insert(m)
 	if err != nil {
-		return 0, &fox.Error{Msg:"创建错误：" + err.Error()}
+		return 0,fox.NewError("创建错误：" + err.Error())
 	}
 	fmt.Println("affected:", affected)
 	fmt.Println("Id:", m.Id)
@@ -64,17 +63,17 @@ func (c *Type)Create(m *model.Type) (int, error) {
 //更新
 func (c *Type)Update(id int, m *model.Type) (int, error) {
 	if id < 1 {
-		return 0, &fox.Error{Msg:"ID 错误"}
+		return 0,fox.NewError("ID 错误")
 	}
 	if id < 10000 {
-		return 0, &fox.Error{Msg:"系统数据 禁止修改"}
+		return 0,fox.NewError("系统数据 禁止修改")
 	}
 	_, err := m.GetById(id)
 	if err != nil {
-		return 0, &fox.Error{Msg:"数据不存在"}
+		return 0,fox.NewError("数据不存在")
 	}
 	if len(m.Name) < 1 {
-		return 0, &fox.Error{Msg:"标题 不能为空"}
+		return 0,fox.NewError("标题 不能为空")
 	}
 	//fmt.Println("DATA:", m)
 	//删除状态
@@ -95,7 +94,7 @@ func (c *Type)Update(id int, m *model.Type) (int, error) {
 	m.Id = id
 	num, err := o.Id(id).Where("id>10000").Update(m)
 	if err != nil {
-		return 0, &fox.Error{Msg:"更新错误：" + err.Error()}
+		return 0,fox.NewError("更新错误：" + err.Error())
 	}
 	fmt.Println("DATA:", m)
 	fmt.Println("Id:", id)
@@ -115,10 +114,10 @@ func (c *Type)UpdateById(m *model.Type, cols ...interface{}) (num int64, err err
 //删除
 func (c *Type)Delete(id int) (bool, error) {
 	if id < 1 {
-		return false, &fox.Error{Msg:"ID 错误"}
+		return false,fox.NewError("ID 错误")
 	}
 	if id < 10000 {
-		return false, &fox.Error{Msg:"系统数据 禁止修改"}
+		return false,fox.NewError("系统数据 禁止修改")
 	}
 	mod := model.NewType()
 	num, err := mod.Delete(id)
@@ -130,13 +129,13 @@ func (c *Type)Delete(id int) (bool, error) {
 }//删除
 func (c *Type)DeleteAndTypeId(id, type_id int) (bool, error) {
 	if id < 1 {
-		return false, &fox.Error{Msg:"ID 错误"}
+		return false,fox.NewError("ID 错误")
 	}
 	if id < 10000 {
-		return false, &fox.Error{Msg:"系统数据 禁止修改"}
+		return false,fox.NewError("系统数据 禁止修改")
 	}
 	if type_id < 1 {
-		return false, &fox.Error{Msg:"类型 错误"}
+		return false,fox.NewError("类型 错误")
 	}
 	mod := model.NewType()
 	o := db.NewDb()
@@ -150,12 +149,12 @@ func (c *Type)DeleteAndTypeId(id, type_id int) (bool, error) {
 //详情
 func (c *Type)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
-		return nil, &fox.Error{Msg:"ID 错误"}
+		return nil,fox.NewError("ID 错误")
 	}
 	mod := model.NewType()
 	data, err := mod.GetById(id)
 	if err != nil {
-		return nil, &fox.Error{Msg:"数据不存在"}
+		return nil,fox.NewError("数据不存在")
 	}
 	//整合
 	m := make(map[string]interface{})
@@ -185,7 +184,7 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 //详情
 func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if str == "" {
-		return false, &fox.Error{Msg:"名称 不能为空"}
+		return false,fox.NewError("名称 不能为空")
 	}
 	mod := model.NewType()
 	where := make(map[string]interface{})
@@ -204,6 +203,6 @@ func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if count == 0 {
 		return true, nil
 	}
-	return false, &fox.Error{Msg:"已存在"}
+	return false,fox.NewError("已存在")
 
 }

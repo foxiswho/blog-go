@@ -174,7 +174,7 @@ func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, h
 			//文件大小
 			c.Size = num_int
 		} else {
-			return false, &fox.Error{Msg:"文件错误."}
+			return false,fox.NewError("文件错误.")
 		}
 	}
 	//文件后缀
@@ -198,7 +198,7 @@ func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, h
 //审核
 func (c *UploadFile)Check() (bool, error) {
 	if len(c.Config) == 0 {
-		return false, &fox.Error{Msg:"Config 没有配置"}
+		return false,fox.NewError("Config 没有配置")
 	}
 	//后缀是否找到
 	isFind := false
@@ -210,13 +210,13 @@ func (c *UploadFile)Check() (bool, error) {
 	}
 	//检测后缀 不在上传文件中报错
 	if !isFind {
-		return false, &fox.Error{Msg:"此文件不在允许上传范围内"}
+		return false,fox.NewError("此文件不在允许上传范围内")
 	}
 	//文件大小
 	size, _ := strconv.Atoi(c.Config["size"])
 	if (size > 0) {
 		if c.Size > size {
-			return false, &fox.Error{Msg:"文件大小 超过上传限制"}
+			return false,fox.NewError("文件大小 超过上传限制")
 		}
 	}
 	//检测文件大小
@@ -234,7 +234,7 @@ func (c *UploadFile)LocalSaveFile(file multipart.File, path, file_name string) (
 		err := os.Mkdir(dir + path, os.ModePerm)  //在当前目录下生成目录
 		if err != nil {
 			fmt.Println("创建目录失败", err)
-			return false, &fox.Error{Msg:"目录创建不成功！" + path}
+			return false,fox.NewError("目录创建不成功！" + path)
 		}
 		fmt.Println("创建目录" + dir + path + "成功")
 	}
@@ -242,7 +242,7 @@ func (c *UploadFile)LocalSaveFile(file multipart.File, path, file_name string) (
 	f, err := os.OpenFile(dir + url, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0666)
 	if err != nil {
 		fmt.Println("写入文件失败", err)
-		return false, &fox.Error{Msg:"文件写入不成功！" + url}
+		return false,fox.NewError("文件写入不成功！" + url)
 	}
 	defer f.Close()
 	w, err := io.Copy(f, file)
