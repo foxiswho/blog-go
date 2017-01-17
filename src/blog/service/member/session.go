@@ -4,7 +4,7 @@ import (
 	"time"
 	"blog/model"
 )
-
+//前台session
 type Session struct {
 	Uid      int       `json:"uid" xorm:"not null pk autoincr INT(11)"`
 	Mobile   string    `json:"mobile" xorm:"not null default '' index CHAR(11)"`
@@ -17,7 +17,7 @@ type Session struct {
 	Name     string    `json:"name" xorm:"not null default '' VARCHAR(100)"`
 	Ip       string       `json:"ip" xorm:"not null default '' CHAR(15)"`
 }
-
+//快速初始化
 func NewSessionService() *Session {
 	return new(Session)
 }

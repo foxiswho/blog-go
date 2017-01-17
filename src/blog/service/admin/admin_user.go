@@ -11,12 +11,12 @@ import (
 	"time"
 	"blog/fox/str"
 )
-
+//管理员
 type AdminUser  struct {
 	*model.Admin
 	*model.AdminStatus
 }
-
+//快速初始化好管理员
 func NewAdminUserService() *AdminUser {
 	return new(AdminUser)
 }
@@ -128,6 +128,7 @@ func (c *AdminUser)UpdatePassword(pwd string, uid int) (bool, error) {
 	}
 	return false, fox.NewError("账号 不存在")
 }
+//列表
 func (c *AdminUser)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewAdmin()
 	data, err := mode.GetAll(q, fields, orderBy, page, 20)
@@ -170,7 +171,7 @@ func (c *AdminUser)GetAll(q map[string]interface{}, fields []string, orderBy str
 
 	return data, nil
 }
-//详情
+//根据ID获取检测用户名是否存在
 func (c *AdminUser)CheckUserNameById(str string, id int) (bool, error) {
 	if str == "" {
 		return false, fox.NewError("名称 不能为空")

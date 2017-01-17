@@ -10,11 +10,11 @@ import (
 	"blog/fox/db"
 	"blog/fox/editor"
 )
-
+//标签
 type BlogTag struct {
 
 }
-
+//快速初始化
 func NewBlogTagService() *BlogTag {
 	return new(BlogTag)
 }
@@ -55,7 +55,7 @@ func (c *BlogTag)DeleteByName(id int, str string) (bool, error) {
 	}
 	return false, nil
 }
-//根据
+//根据名字获取数据
 func (c *BlogTag)GetBlogTagCheckName(str string) (*model.BlogTag, error) {
 	mode := model.NewBlogTag()
 	mode.Name = str
@@ -138,6 +138,7 @@ func (c *BlogTag)CreateFromTags(id int, tag, old string) (bool, error) {
 
 	return false, nil
 }
+//列表
 func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 
 	mode := model.NewBlogTag()
@@ -196,6 +197,7 @@ func (c *BlogTag)GetAll(q map[string]interface{}, fields []string, orderBy strin
 
 	return data, nil
 }
+//根据博客ID删除数据
 func (c *BlogTag)DeleteByBlogId(id int) (int64, error) {
 	mod := model.NewBlogTag()
 	o := db.NewDb()

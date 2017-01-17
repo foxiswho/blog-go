@@ -1,7 +1,7 @@
 package member
 
 import "blog/fox"
-
+//登录
 type Login struct {
 	Username    string
 	Password    string
@@ -26,6 +26,7 @@ func (c *Login)SetIp(ip string) {
 func (c *Login)App(id int) {
 	c.AppId = id
 }
+//检测
 func (c *Login)check() (*Login,error) {
 	if c.Username == "" {
 		return nil,fox.NewError("用户名不能为空")

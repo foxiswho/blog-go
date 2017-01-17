@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"blog/service/conf"
 )
-
+//站点配置
 type Site struct {
 	Config map[string]string
 }

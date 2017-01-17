@@ -6,7 +6,7 @@ import (
 	"blog/model"
 	"blog/fox/log"
 )
-
+//后台权限验证
 type AdminAuth struct {
 
 }

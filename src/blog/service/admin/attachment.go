@@ -5,14 +5,15 @@ import (
 	"blog/fox/db"
 	"fmt"
 )
-
+//附件
 type Attachment struct {
 	*model.Attachment
 }
-
+//快速初始化
 func NewAttachmentService() *Attachment {
 	return new(Attachment)
 }
+//列表
 func (c *Attachment)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewAttachment()
 	data, err := mode.GetAll(q, fields, orderBy, page, 20)

@@ -11,17 +11,13 @@ import (
 	"blog/fox/editor"
 	"blog/fox/str"
 )
-
-
-
-//
-
+//博客
 type Blog struct {
 	*model.BlogStatistics
 	*model.Blog
 	Tags []string
 }
-
+//快速初始化
 func NewBlogService() *Blog {
 	return new(Blog)
 }
@@ -66,7 +62,7 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	//fmt.Println(m)
 	return m, err
 }
-//详情
+//根据 自定义URL 获取详情
 func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	if id == "" {
 		return nil,fox.NewError("URL 错误")
@@ -296,6 +292,7 @@ func (c *Blog)Delete(id int) (bool, error) {
 	fmt.Println("num3:", num3)
 	return true, nil
 }
+//删除 扩展表数据
 func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {
 	o := db.NewDb()
 	mode := model.NewBlogStatistics()
@@ -315,7 +312,7 @@ func (c *Blog)GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
 	}
 	return nil, err
 }
-//详情
+//检测标题是否重复
 func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false,fox.NewError("名称 不能为空")
@@ -339,6 +336,7 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	}
 	return false,fox.NewError("已存在")
 }
+//列表
 func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewBlog()
 	data, err := mode.GetAll(q, fields, orderBy, page, limit)

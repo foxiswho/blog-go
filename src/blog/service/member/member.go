@@ -11,13 +11,13 @@ import (
 	"blog/fox/datetime"
 	UtilAuth "blog/fox/auth"
 )
-
+//用户
 type Member struct {
 	*model.Member
 	*model.MemberProfile
 	*model.MemberStatus
 }
-
+//快速初始化
 func NewMemberService() *Member {
 	return new(Member)
 }

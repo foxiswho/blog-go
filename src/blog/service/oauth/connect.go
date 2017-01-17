@@ -6,14 +6,15 @@ import (
 	"blog/model"
 	"fmt"
 )
-
+//第三方
 type Connect struct {
 
 }
-
+//快速初始化好
 func NewConnect() *Connect {
 	return new(Connect)
 }
+//后台绑定
 func (t *Connect)Admin(type_id int, val string, is_uid bool) (*model.Connect, error) {
 	if len(val) < 1 {
 		return nil,fox.NewError("val 值不能为空:")

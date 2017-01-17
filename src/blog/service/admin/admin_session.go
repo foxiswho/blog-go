@@ -4,7 +4,7 @@ import (
 	"time"
 	"blog/model"
 )
-
+//后台session
 type AdminSession struct {
 	Aid        int       `orm:"column(aid);auto"`
 	Username   string    `orm:"column(username);size(30)"`
@@ -20,6 +20,7 @@ type AdminSession struct {
 	Mobile     string    `orm:"column(mobile);size(20)"`
 	Role_id    map[int]model.AdminRoleAccess //扩展角色
 }
+//快速初始化
 func NewAdminSessionService() *AdminSession{
 	return new(AdminSession)
 }

@@ -8,14 +8,15 @@ import (
 	"blog/model"
 	"blog/fox/db"
 )
-
+//类别，属性
 type Type struct {
 
 }
-
+//快速初始化
 func NewTypeService() *Type {
 	return new(Type)
 }
+//获取 指定id 数据列表
 func (c *Type)Query(type_id int) (*db.Paginator, error) {
 	fields := []string{}
 	query := make(map[string]interface{})
@@ -181,7 +182,7 @@ func (c *Type)Read(id int) (map[string]interface{}, error) {
 	//fmt.Println(m)
 	return m, err
 }
-//详情
+//检测名称是否存在
 func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false,fox.NewError("名称 不能为空")

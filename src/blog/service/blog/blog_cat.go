@@ -8,15 +8,15 @@ import (
 	"blog/fox/db"
 	"blog/service/conf"
 )
-
-
-
+//分类
 type BlogCat struct {
 
 }
+//快速初始化
 func NewBlogCatService() *BlogCat{
 	return new(BlogCat)
 }
+//指定ID 数据列表
 func (c *BlogCat)Query(cat_id int) ( *db.Paginator,  error) {
 	query := make(map[string]interface{})
 	query["cat_id"] = cat_id
