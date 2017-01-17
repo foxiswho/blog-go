@@ -273,7 +273,9 @@
             });
             //表单数据是否变化
             $("input, textarea, select").change(function () {
-                $('#thatForm').data("changed",true);
+                if($(this).attr('name')!='id'){
+                    $('#thatForm').data("changed",true);
+                }
             });
         });
         //图片插入到编辑器中
