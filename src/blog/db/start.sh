@@ -58,15 +58,15 @@ rm -rf $DEPLOYPATH/tttttt
 #编译
 #
 #删除本项目源码
-rm -rf $GO_PATH/src/fox
+rm -rf $GO_PATH/src/blog
 #
 #复制最新源码到项目里
-mv $DEPLOYPATH/src/fox $GO_PATH/src/
+mv $DEPLOYPATH/src/blog $GO_PATH/src/
 
 ######################
 #数据库相关替换
 #配置文件
-DB_FILE=$GO_PATH/src/fox/conf/app.conf
+DB_FILE=$GO_PATH/src/blog/conf/app.conf
 #替换数据库
 sed -i "s:db_user.*=.*:db_user=\"${P_DB_USER}\":g" $DB_FILE
 sed -i "s:db_pass.*=.*:db_pass=\"${P_DB_PWD}\":g" $DB_FILE
@@ -77,17 +77,17 @@ sed -i "s:httpport.*=.*:httpport=${P_PORT}:g" $DB_FILE
 
 ######################
 #进入项目目录
-cd $GO_PATH/src/fox
+cd $GO_PATH/src/blog
 #使用beego 打包
 bee pack
 
 ######################
 #解压缩打包文件
-cd $GO_PATH/src/fox
-#fox是项目名称
+cd $GO_PATH/src/blog
+#blog是项目名称
 rm -rf $DEPLOYPATH/*
 
-tar -zxf fox.tar.gz -C $DEPLOYPATH
+tar -zxf blog.tar.gz -C $DEPLOYPATH
 PACK_PATH=$DEPLOYPATH
 ######################
 #删除不相干文件
@@ -107,7 +107,7 @@ if [ ! -d "$SITEPATH" ]; then
 fi
 #######################
 #更改项目名称
-mv $PACK_PATH/fox $PACK_PATH/fox_2
+mv $PACK_PATH/blog $PACK_PATH/blog_2
 #复制文件
 cp -auR $PACK_PATH/* $SITEPATH/
 
@@ -119,14 +119,14 @@ if [ ! -d "$SITEPATH/uploads" ]; then
     chown -R www:www $SITEPATH/uploads
 fi
 #############################
-#结束进程fox
-ps -ef |grep /fox|awk '{print $2}'|xargs kill -9
+#结束进程blog
+ps -ef |grep /blog|awk '{print $2}'|xargs kill -9
 ############
 #删除原项目
-rm -rf $SITEPATH/fox
+rm -rf $SITEPATH/blog
 #名称恢复
 ls -lh ${SITEPATH}
-mv "${SITEPATH}/fox_2" "${SITEPATH}/fox"
+mv "${SITEPATH}/blog_2" "${SITEPATH}/blog"
 ############
 #启动项目
 SH="${SITEPATH}.start.sh"
