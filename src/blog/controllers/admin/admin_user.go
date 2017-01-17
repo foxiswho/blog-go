@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"blog/fox/response"
 	"strconv"
 	"fmt"
 	"blog/model"
@@ -25,8 +24,6 @@ func (c *AdminUser) URLMapping() {
 //检测名称重复
 // @router /admin/check_title [post]
 func (c *AdminUser)CheckTitle() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
 	name := c.GetString("wd")
@@ -34,10 +31,10 @@ func (c *AdminUser)CheckTitle() {
 	serv := admin.NewAdminUserService()
 	ok, err := serv.CheckUserNameById(name, id)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		fmt.Println("成功！:", ok)
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //列表
@@ -63,9 +60,7 @@ func (c *AdminUser)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := response.NewResponse()
-		defer rsp.WriteJson(c.Ctx.ResponseWriter)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		c.Data["info"] = data["info"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
@@ -89,18 +84,18 @@ func (c *AdminUser)Add() {
 //保存
 // @router /admin [post]
 func (c *AdminUser)Post() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewAdmin()
 	//参数传递
 	modExt := model.NewAdminStatus()
 	if err := url.ParseForm(c.Input(), mod); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	if err := url.ParseForm(c.Input(), modExt); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	//更新人
 	modExt.AidUpdate = c.Session.Aid
@@ -109,10 +104,10 @@ func (c *AdminUser)Post() {
 	serv := admin.NewAdminUserService()
 	id, err := serv.Create(mod, modExt)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		fmt.Println("创建成功！:", id)
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //查看
@@ -125,8 +120,6 @@ func (c *AdminUser)Detail() {
 //更新
 // @router /admin/:id [put]
 func (c *AdminUser)Put() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
@@ -135,26 +128,26 @@ func (c *AdminUser)Put() {
 	modExt := model.NewAdminStatus()
 	if err := url.ParseForm(c.Input(), mod); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	if err := url.ParseForm(c.Input(), modExt); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	//更新
 	ser := admin.NewAdminUserService()
 	_, err := ser.Update(int_id, mod, modExt)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //删除
 // @router /admin/:id [delete]
 func (c *AdminUser)Delete() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
@@ -162,9 +155,9 @@ func (c *AdminUser)Delete() {
 	ser := admin.NewAdminUserService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 

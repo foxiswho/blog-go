@@ -1,11 +1,11 @@
 package admin
 
 import (
-	"blog/fox/response"
 	"blog/fox/file"
 	"fmt"
 	"encoding/json"
 	"blog/fox/editor"
+	"blog/fox/array"
 )
 
 type Upload struct {
@@ -42,8 +42,6 @@ func (c *Upload)File() {
 //上传图片
 // @router /upload/image [post]
 func (c *Upload)Post() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	var maps map[string]interface{}
 	var err error
 	t := c.GetString("t")
@@ -54,8 +52,8 @@ func (c *Upload)Post() {
 			fmt.Println("令牌：" + token)
 			fmt.Println("令牌解密失败：" + err.Error())
 			token = ""
-		}else {
-			fmt.Println("令牌解密",maps)
+		} else {
+			fmt.Println("令牌解密", maps)
 		}
 
 	}
@@ -67,7 +65,7 @@ func (c *Upload)Post() {
 			c.Data["json"] = md
 			c.ServeJSON()
 		} else {
-			rsp.Error("令牌错误")
+			c.Error("令牌错误")
 		}
 		return
 	}
@@ -76,7 +74,7 @@ func (c *Upload)Post() {
 		file_name = "editormd-image-file"
 	}
 	//上传
-	f, err := file.Upload(file_name, c.Ctx.Request,maps)
+	f, err := file.Upload(file_name, c.Ctx.Request, maps)
 	if t == "markdown" {
 		md := &editor.EditorMd{}
 		if err != nil {
@@ -91,10 +89,15 @@ func (c *Upload)Post() {
 		c.ServeJSON()
 	} else {
 		if err != nil {
-			rsp.Error(err.Error())
-			c.StopRun()
+			c.Error(err.Error())
+		} else {
+			m, err := array.ObjToMap(f)
+			if err != nil {
+				c.Success("操作成功")
+			} else {
+				c.Success("操作成功", m)
+			}
 		}
-		rsp.SetData(f)
-		rsp.Success("")
+
 	}
 }

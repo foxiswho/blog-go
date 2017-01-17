@@ -5,7 +5,6 @@ import (
 	"blog/service/admin"
 	"fmt"
 	"strconv"
-	"blog/fox/response"
 	"blog/model"
 	"blog/fox/url"
 	"blog/service/conf"
@@ -54,23 +53,21 @@ func (c *MemberGroup)Add() {
 //保存
 // @router /member_group [post]
 func (c *MemberGroup)Post() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	mod := model.NewType()
 	//参数传递
 	if err := url.ParseForm(c.Input(), mod); err != nil {
-		rsp.Error(err.Error())
-		c.StopRun()
+		c.Error(err.Error())
+		return
 	}
 	mod.TypeId = conf.MEMBER_GROUP
 	//创建
 	ser := admin.NewTypeService()
 	id, err := ser.Create(mod)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		fmt.Println("创建成功！:", id)
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //编辑
@@ -82,9 +79,7 @@ func (c *MemberGroup)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := response.NewResponse()
-		defer rsp.WriteJson(c.Ctx.ResponseWriter)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		c.Data["info"] = data["info"]
 		c.Data["type_id_name"] = data["type_id_name"]
@@ -98,31 +93,28 @@ func (c *MemberGroup)Get() {
 //更新
 // @router /member_group/:id [put]
 func (c *MemberGroup)Put() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
 	mod := model.NewType()
 	if err := url.ParseForm(c.Input(), mod); err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	mod.TypeId = conf.MEMBER_GROUP
 	//更新
 	ser := admin.NewTypeService()
 	_, err := ser.Update(int_id, mod)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //检测名称重复
 // @router /member_group/check_name [post]
 func (c *MemberGroup)CheckName() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id, _ := c.GetInt("id")
 	name := c.GetString("name")
@@ -130,17 +122,15 @@ func (c *MemberGroup)CheckName() {
 	ser := admin.NewTypeService()
 	ok, err := ser.CheckNameTypeId(conf.MEMBER_GROUP, name, id)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		fmt.Println("成功！:", ok)
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //删除
 // @router /member_group/:id [delete]
 func (c *MemberGroup)Delete() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
@@ -148,8 +138,8 @@ func (c *MemberGroup)Delete() {
 	ser := admin.NewTypeService()
 	_, err := ser.DeleteAndTypeId(int_id,conf.MEMBER_GROUP)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }

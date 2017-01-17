@@ -3,7 +3,6 @@ package admin
 import (
 	"blog/service/admin"
 	"fmt"
-	"blog/fox/response"
 )
 
 type Site struct {
@@ -29,14 +28,12 @@ func (c *Site)List() {
 //更新
 // @router /site [put]
 func (c *Site)Put() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//参数传递
 	ser := admin.NewSiteService()
 	_, err := ser.Update(c.Input())
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }

@@ -31,15 +31,15 @@ func (c *AdminSession) SessionGet() (*admin.AdminSession, error) {
 	fmt.Println("session:", session)
 	fmt.Println("ok bool:", ok)
 	if !ok {
-		return nil,fox.NewError("Session 不存在")
+		return nil, fox.NewError("Session 不存在")
 	}
 	if ok && session == "" {
-		return nil,fox.NewError("Session 为空")
+		return nil, fox.NewError("Session 为空")
 	}
 	Sess := admin.NewAdminSessionService()
 	err := json.Unmarshal([]byte(session), &Sess)
 	if err != nil {
-		return nil,fox.NewError("Session 序列号转换错误. " + err.Error())
+		return nil, fox.NewError("Session 序列号转换错误. " + err.Error())
 	}
 	return Sess, nil
 }
@@ -49,37 +49,31 @@ func (c *AdminSession) SessionDel() {
 	c.DelSession(SESSION_NAME)
 }
 //错误信息
-func (c *AdminSession) Error(key string) {
-	c.Data["content"] = key
+func (c *AdminSession) Error(key string, def ...map[string]interface{}) {
 	if c.IsAjax() {
-		type Msg struct {
-			Info string `json:"info"`
-			Code int    `json:"code"`
-			Data interface{} `json:"data"`
+		m := make(map[string]interface{})
+		if len(def) > 0 {
+			m = def[0]
 		}
-		msg := &Msg{}
-		msg.Code = 0
-		msg.Info = key
-		msg.Data = c.Data["Data"]
-		c.Data["json"] = msg
+		m["info"] = key
+		m["code"] = 1
+		c.Data["json"] = m
 		c.ServeJSON()
 	} else {
+		c.Data["content"] = key
 		c.TplName = "error/404.html"
 	}
 }
-func (c *AdminSession) Success(key string) {
+func (c *AdminSession) Success(key string, def ...map[string]interface{}) {
 	c.Data["content"] = key
 	if c.IsAjax() {
-		type Msg struct {
-			Info string `json:"info"`
-			Code int    `json:"code"`
-			Data interface{} `json:"data"`
+		m := make(map[string]interface{})
+		if len(def) > 0 {
+			m = def[0]
 		}
-		msg := &Msg{}
-		msg.Code = 1
-		msg.Info = key
-		msg.Data = c.Data["Data"]
-		c.Data["json"] = msg
+		m["info"] = key
+		m["code"] = 1
+		c.Data["json"] = m
 		c.ServeJSON()
 	} else {
 		c.TplName = "error/success.html"

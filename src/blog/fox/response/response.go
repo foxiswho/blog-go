@@ -14,22 +14,24 @@ const (
 )
 
 type Response struct {
-	Code int 	`json:"code"`
-	Info string	`json:"info"`
-	Data interface{}	`json:"data"`
-	Err  Error	`json:"err"`
+	Code int    `json:"code"`
+	Info string    `json:"info"`
+	Data interface{}    `json:"data"`
+	Err  Error    `json:"err"`
 }
 type Error struct {
-	Level string	`json:"level"`
-	Msg   string	`json:"msg"`
+	Level string    `json:"level"`
+	Msg   string    `json:"msg"`
 }
 type Success struct {
-	Level string	`json:"level"`
-	Msg   string	`json:"msg"`
+	Level string    `json:"level"`
+	Msg   string    `json:"msg"`
 }
 
 func NewResponse() *Response {
-	return &Response{Code: 1}
+	r := new(Response)
+	r.Code = 1
+	return r
 }
 func (resp *Response) Tips(msg, level string) {
 	resp.Info = msg

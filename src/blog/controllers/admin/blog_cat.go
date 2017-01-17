@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"blog/fox/response"
 	"strconv"
 	"fmt"
 	"blog/service/blog"
@@ -43,9 +42,7 @@ func (c *BlogCat)Get() {
 	data, err := ser.Read(int_id)
 	//println("Detail :", err.Error())
 	if err != nil {
-		rsp := response.NewResponse()
-		defer rsp.WriteJson(c.Ctx.ResponseWriter)
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		c.Data["info"] = data["info"]
 		c.Data["statistics"] = data["Statistics"]
@@ -68,14 +65,12 @@ func (c *BlogCat)Add() {
 //保存
 // @router /blog/cat [post]
 func (c *BlogCat)Post() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	blogModel := model.NewBlog()
 
 	//参数传递
 	if err := c.ParseForm(&blogModel); err != nil {
-		rsp.Error(err.Error())
-		c.StopRun()
+		c.Error(err.Error())
+		return
 	}
 	blogModel.Type = conf.TYPE_CAT
 	//日期
@@ -87,24 +82,23 @@ func (c *BlogCat)Post() {
 	serv :=blog.NewBlogCatService()
 	id, err := serv.Create(blogModel)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
 		fmt.Println("创建成功！:", id)
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //更新
 // @router /blog/cat/:id [put]
 func (c *BlogCat)Put() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
 	blogModel := model.NewBlog()
 	if err := c.ParseForm(&blogModel); err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
+		return
 	}
 	blogModel.Type = conf.TYPE_CAT
 	//日期
@@ -116,16 +110,14 @@ func (c *BlogCat)Put() {
 	ser :=blog.NewBlogCatService()
 	_, err := ser.Update(int_id, blogModel)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }
 //删除
 // @router /blog/cat/:id [delete]
 func (c *BlogCat)Delete() {
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(c.Ctx.ResponseWriter)
 	//ID 获取 格式化
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
@@ -133,8 +125,8 @@ func (c *BlogCat)Delete() {
 	ser :=blog.NewBlogCatService()
 	_, err := ser.Delete(int_id)
 	if err != nil {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 	}
 }

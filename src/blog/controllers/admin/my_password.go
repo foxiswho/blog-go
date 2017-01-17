@@ -2,7 +2,6 @@ package admin
 
 import (
 	"fmt"
-	"blog/fox/response"
 	"blog/service/admin"
 )
 
@@ -10,23 +9,21 @@ type MyPassword struct {
 	Base
 }
 
-func (this *MyPassword)Get() {
-	this.Data["username"] = this.Session.Username
-	this.Data["true_name"] = this.Session.TrueName
-	this.TplName = "admin/my/password.html"
+func (c *MyPassword)Get() {
+	c.Data["username"] = c.Session.Username
+	c.Data["true_name"] = c.Session.TrueName
+	c.TplName = "admin/my/password.html"
 }
-func (this *MyPassword)Post() {
-	password := this.GetString("password")
+func (c *MyPassword)Post() {
+	password := c.GetString("password")
 	fmt.Println("password:",password)
-	rsp := response.NewResponse()
-	defer rsp.WriteJson(this.Ctx.ResponseWriter)
 	adminUser :=admin.NewAdminUserService()
-	ok, err := adminUser.UpdatePassword(password,this.Session.Aid)
+	ok, err := adminUser.UpdatePassword(password,c.Session.Aid)
 	if !ok {
-		rsp.Error(err.Error())
+		c.Error(err.Error())
 		return
 	} else {
-		rsp.Success("")
+		c.Success("操作成功")
 		return
 	}
 
