@@ -89,13 +89,13 @@ func (c *Upload)Post() {
 		c.ServeJSON()
 	} else {
 		if err != nil {
-			c.Error(err.Error())
+			c.ErrorJson(err.Error())
 		} else {
 			m, err := array.ObjToMap(f)
 			if err != nil {
-				c.Success("操作成功")
+				c.SuccessJson("操作成功")
 			} else {
-				c.Success("操作成功", m)
+				c.SuccessJson("操作成功", m)
 			}
 		}
 

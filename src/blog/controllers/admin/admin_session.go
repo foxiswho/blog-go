@@ -51,14 +51,7 @@ func (c *AdminSession) SessionDel() {
 //错误信息
 func (c *AdminSession) Error(key string, def ...map[string]interface{}) {
 	if c.IsAjax() {
-		m := make(map[string]interface{})
-		if len(def) > 0 {
-			m = def[0]
-		}
-		m["info"] = key
-		m["code"] = 1
-		c.Data["json"] = m
-		c.ServeJSON()
+		c.ErrorJson(key, def...)
 	} else {
 		c.Data["content"] = key
 		c.TplName = "error/404.html"
@@ -67,15 +60,29 @@ func (c *AdminSession) Error(key string, def ...map[string]interface{}) {
 func (c *AdminSession) Success(key string, def ...map[string]interface{}) {
 	c.Data["content"] = key
 	if c.IsAjax() {
-		m := make(map[string]interface{})
-		if len(def) > 0 {
-			m = def[0]
-		}
-		m["info"] = key
-		m["code"] = 1
-		c.Data["json"] = m
-		c.ServeJSON()
+		c.SuccessJson(key, def...)
 	} else {
 		c.TplName = "error/success.html"
 	}
+}
+//错误信息
+func (c *AdminSession) ErrorJson(key string, def ...map[string]interface{}) {
+	m := make(map[string]interface{})
+	if len(def) > 0 {
+		m = def[0]
+	}
+	m["info"] = key
+	m["code"] = 0
+	c.Data["json"] = m
+	c.ServeJSON()
+}
+func (c *AdminSession) SuccessJson(key string, def ...map[string]interface{}) {
+	m := make(map[string]interface{})
+	if len(def) > 0 {
+		m = def[0]
+	}
+	m["info"] = key
+	m["code"] = 1
+	c.Data["json"] = m
+	c.ServeJSON()
 }

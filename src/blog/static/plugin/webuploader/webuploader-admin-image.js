@@ -80,6 +80,7 @@ jQuery(function() {
 
         disableGlobalDnd: true,
 
+        // sendAsBinary:true,  //指明使用二进制的方式上传文件
         chunked: true,
         server: UPLOAD_URL,
         fileNumLimit: 1,
@@ -156,7 +157,7 @@ jQuery(function() {
 
             // 成功
             if ( cur === 'error' || cur === 'invalid' ) {
-                console.log( file.statusText );
+                console.log("file.statusText", file.statusText );
                 showError( file.statusText );
                 percentages[ file.id ][ 1 ] = 1;
             } else if ( cur === 'interrupt' ) {
@@ -339,13 +340,28 @@ jQuery(function() {
                 break;
             case 'finish':
                 stats = uploader.getStats();
+                console.log('finish.stats',stats);
                 if ( stats.successNum ) {
-                    $upload.text( '开始上传' ).hide();
-                    $('button.ok').show();
-                    var t=layer.msg('上传成功！');
-                    setTimeout(function () {
-                        layer.close(t);
-                    },3000);
+                    console.log('finish.Response',Response);
+                    if(Response && Response.code){
+                        $upload.text( '开始上传' ).hide();
+                        $('button.ok').show();
+                        var t=layer.msg('操作成功！');
+                        setTimeout(function () {
+                            layer.close(t);
+                        },3000);
+                    }else{
+                        layer.msg('上传失败，失败原因：<br/>'+Response.info+'<br/>3秒后请重新上传',{
+                            time: 20000, //20s后自动关闭
+                            btn: ['明白了']
+                        }, function(){
+                            location.reload();
+                        });
+                        // layer.tips('3秒后请重新上传');
+                        setTimeout(function () {
+                            location.reload();
+                        },3000);
+                    }
                 } else {
                     // 没有成功的图片，重设
                     state = 'done';
@@ -393,22 +409,22 @@ jQuery(function() {
 
     };
     uploader.on( 'beforeFileQueued', function( file) {
-        console.log(file)
+        console.log('beforeFileQueued',file)
     });
     var Response={};
     uploader.on( 'uploadSuccess', function( file,response ) {
-        console.log(file)
-        console.log(response)
+        console.log('uploadSuccess.file',file);
+        console.log('uploadSuccess.response',response);
+        Response=response;
         if(response.code==1){
             layer.tips('上传成功！');
-            Response=response;
-        }else if(response.code!=1){
+        }else{
             layer.tips('上传失败，失败原因：'+response.info);
         }
     });
 
     uploader.on( 'all', function( type ) {
-        console.log(type)
+        console.log('all.type',type)
         var stats;
         switch( type ) {
             case 'uploadFinished':
@@ -461,7 +477,7 @@ jQuery(function() {
     $('button.ok').click(function () {
         // layer.tips('反应速度很慢，不要着急哦！',$(this),5);
         //关闭
-        if(window.parent.uploadImage(Response.data)==true){
+        if(window.parent.uploadImage(Response)==true){
             window.parent.layer.close(window.parent.layerID);
         }else {
             alert('数据传输失败')

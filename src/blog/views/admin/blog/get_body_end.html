@@ -21,6 +21,7 @@
         var blog_id="{{if .is_put}}{{.info.Blog.BlogId}}{{else}}0{{end}}";
         var TOKEN='{{.upload_token}}';
         var layerID;
+        var UPLOAD_INPUT_ID='';
         //禁止 回车 表单保存
 //        document.getElementsByTagName('form')[0].onkeydown = function(e){
 //            var e = e || event;
@@ -52,6 +53,10 @@
              url     : "图片地址"        // 上传成功时才返回
              }
              */
+            onchange : function() {
+                console.log("markdown:数据变动");
+                $('#thatForm').data("changed",true);
+            }
         });
 
 
@@ -73,6 +78,11 @@
             //保存
             $('#thatForm').submit(function (e) {
                 e.preventDefault();
+                //提交前判断
+                if ($("#thatForm").data("changed")!=true) {
+                    layer.alert("没有修改过任何数据",{ icon:1});
+                    return false;
+                }
                 var btn=$('.btn');
                 btn.attr('disabled',true);
                 var $this=$(this);
@@ -148,7 +158,9 @@
                     alert("系统错误");
                 });
             });
+            //图片上传
             $('button.upload_image').click(function () {
+                UPLOAD_INPUT_ID=$(this).data('name');
                 //iframe层
                 layerID=layer.open({
                     type: 2,
@@ -159,7 +171,7 @@
                     content: '/admin/upload/image?opt='+encodeURIComponent(TOKEN) //iframe的url
                 });
             });
-
+            //摘要截取
             $('button.descriptionCut').click(function () {
                 var str=MarkDown.getPreviewedHTML();
                 if(str){
@@ -168,6 +180,11 @@
             });
             //同步获取博客ID内容
             $('a.get').click(function (e) {
+                //提交前判断
+                if ($("#thatForm").data("changed")) {
+                    layer.alert("数据变动过，请先保存数据后再操作",{ icon:1});
+                    return false;
+                }
                 var $this=$('#sync_');
                 var id=$this.val();
                 var tp_id =10011;
@@ -198,6 +215,11 @@
             });
             //创建博客ID
             $('a.create').click(function (e) {
+                //提交前判断
+                if ($("#thatForm").data("changed")) {
+                    layer.alert("数据变动过，请先保存数据后再操作",{ icon:1});
+                    return false;
+                }
                 var $this=$('#sync_');
                 var id=$this.val();
                 var tp_id =10011;
@@ -222,6 +244,11 @@
             });
             //更新博客ID
             $('a.update').click(function (e) {
+                //提交前判断
+                if ($("#thatForm").data("changed")) {
+                    layer.alert("数据变动过，请先保存数据后再操作",{ icon:1});
+                    return false;
+                }
                 var $this=$('#sync_');
                 var id=$this.val();
                 var tp_id =10011;
@@ -244,11 +271,18 @@
                     alert("系统错误");
                 });
             });
+            //表单数据是否变化
+            $("input, textarea, select").change(function () {
+                $('#thatForm').data("changed",true);
+            });
         });
         //图片插入到编辑器中
         function uploadImage(row) {
 //            $("#content").insertAtCaret('![输入图片说明]('+row.url+' "在这里输入图片标题")');
-            $("#content").insertAtCaret('!['+row.name_original+']('+row.url+')');
+            //$("#content").insertAtCaret('!['+row.name_original+']('+row.url+')');
+            if (UPLOAD_INPUT_ID=='thumb'){
+                $('#'+UPLOAD_INPUT_ID).val(row.url);
+            }
             return true;
         }
     </script>
