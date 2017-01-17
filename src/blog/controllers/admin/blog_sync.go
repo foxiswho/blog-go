@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"blog/model"
 	"blog/service/blog"
+	"blog/fox/array"
 )
 //博客同步
 type BlogSync struct {
@@ -41,8 +42,8 @@ func (c *BlogSync)Go() {
 			if err != nil {
 				c.Error(err.Error())
 			} else {
-				c.Data["Data"] = b
-				c.Success("ok")
+				m,_:=array.ObjToMap(b)
+				c.Success("ok",m)
 			}
 		} else {
 			c.Error("id 不能为空")
