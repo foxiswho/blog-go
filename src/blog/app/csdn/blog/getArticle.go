@@ -10,15 +10,16 @@ import (
 	"encoding/json"
 	"fmt"
 )
-
+//获取文章
 type GetArticle struct {
 	AccessToken string `json:"access_token" 是 OAuth授权后获得`
 	Id          int `json:"id" 是 文章id`
 }
-
+//初始化
 func NewGetArticle() *GetArticle {
 	return new(GetArticle)
 }
+//检测
 func (t *GetArticle)Check() (error) {
 	if len(t.AccessToken) < 1 {
 		return fox.NewError("access_token 不能为空")
@@ -28,6 +29,7 @@ func (t *GetArticle)Check() (error) {
 	}
 	return nil
 }
+//发送
 func (t *GetArticle)Post() (*entity.Article, error) {
 	err := t.Check()
 	if err != nil {

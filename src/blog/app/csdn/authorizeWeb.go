@@ -13,13 +13,13 @@ import (
 	"time"
 	"blog/app/csdn/conf"
 )
-
+//网页登陆
 type AuthorizeWeb struct {
 	RedirectUri string `json:"redirect_uri"` //登录成功后浏览器回跳的URL。
 	Code        string `json:"code"`         //Authorization Code
 	Config      map[string]string    `json:"-"`
 }
-
+//初始化
 func NewAuthorizeWeb() *AuthorizeWeb {
 	return new(AuthorizeWeb)
 }
@@ -119,6 +119,7 @@ func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) 
 	}
 	return access, nil
 }
+//获取token缓存
 func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
 	str, err := t.GetCache("CSDN_AccessToken")
 	if err != nil {
@@ -133,9 +134,11 @@ func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
 	fmt.Println("反序列化",access)
 	return access, nil
 }
+//更新token缓存
 func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
 	return t.PutCache("CSDN_AccessToken", val)
 }
+//获取缓存
 func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 	tmp := cache.Get(key)
 	fmt.Println("获取csdn 缓存",tmp)
@@ -145,6 +148,7 @@ func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 	}
 	return str, nil
 }
+//更新缓存
 func (t *AuthorizeWeb)PutCache(key string, val interface{}) (error) {
 	err := cache.Put(key, val, 86400 * time.Second)
 	return err

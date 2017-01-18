@@ -11,11 +11,11 @@ import (
 	"time"
 	"blog/app/csdn/entity"
 )
-
+//博客
 type Blog struct {
 
 }
-
+//初始化
 func NewCsdnBlogApp() *Blog {
 	return new(Blog)
 }
@@ -36,12 +36,12 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	art := blog.NewSaveArticle()
 	art.Article = &entity.Article{}
 	art.AccessToken = acc.AccessToken
-	if len(b.Blog.Tag)>0{
+	if len(b.Blog.Tag) > 0 {
 		art.Tags = b.Blog.Tag
 	}
 	art.Id = id
 	art.Content = b.Content
-	if len(b.Blog.Description)>0{
+	if len(b.Blog.Description) > 0 {
 		art.Description = b.Blog.Description
 	}
 	art.Title = b.Title
@@ -58,7 +58,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return fox.NewError("更新错误:"+err.Error())
+		return fox.NewError("更新错误:" + err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	//更新
@@ -86,7 +86,7 @@ func (t *Blog) Create(b *mod.Blog, type_id int) error {
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return fox.NewError("更新错误:"+err.Error())
+		return fox.NewError("更新错误:" + err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	if m.MapId > 0 {
@@ -168,6 +168,7 @@ func (t *Blog) Read(id string) (*mod.Blog, error) {
 	fmt.Println("内容", b.Title)
 	return b, nil
 }
+//根据id更新或插入记录
 func Get(type_id, id, blog_id int) (*mod.Blog, error) {
 	csdn := NewCsdnBlogApp()
 	b, err := csdn.Read(strconv.Itoa(id))
@@ -183,7 +184,7 @@ func Get(type_id, id, blog_id int) (*mod.Blog, error) {
 		m := model.NewBlogSyncMapping()
 		_, err := db.Filter(maps).Get(m)
 		if err != nil {
-			return nil,fox.NewError("更新错误:"+err.Error())
+			return nil, fox.NewError("更新错误:" + err.Error())
 		}
 		//更新
 		if m.MapId > 0 {

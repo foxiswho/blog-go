@@ -10,6 +10,7 @@ type Channel struct {
 	AccessToken string `json:"access_token" 是 OAuth授权后获得`
 	ClientId    string `json:"client_id" App申请的Key`
 }
+//检测
 func (t *Channel)Check() (error) {
 	if len(t.AccessToken) < 1 {
 		return fox.NewError("access_token 不能为空")

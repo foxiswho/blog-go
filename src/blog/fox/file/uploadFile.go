@@ -190,6 +190,11 @@ func (c *UploadFile)SetUploadFileData(upload_type string, file multipart.File, h
 	//删除 文件后缀 中的点号
 	c.Ext = strings.Replace(c.Ext, ".", "", -1)
 	http := c.Config["http"]
+	//域名,beego 不支持在 配置后注释，还要我变个方法操作
+	//查询是否是注释，如果是直接设置该变量为空值
+	if strings.Contains(http, "#upload"){
+		http=""
+	}
 	c.Http = http + strings.Replace(c.Url, "/", "", 1)
 	fmt.Println("文件数据：", c)
 

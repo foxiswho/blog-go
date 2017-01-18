@@ -17,16 +17,19 @@ type SaveArticle struct {
 	Ip          string `json:"ip" 否 用户ip`
 	*entity.Article
 }
-
+//初始化
 func NewSaveArticle() *SaveArticle {
 	return new(SaveArticle)
 }
+//设置类型
 func (t *SaveArticle)SetType(str string) (error) {
 	if str == "original" || str == "report" || str == "translated" {
+		t.Type = str
 		return nil
 	}
 	return fox.NewError("type 不能为空，original|report|translated")
 }
+//检测
 func (t *SaveArticle)Check() (error) {
 	if len(t.AccessToken) < 1 {
 		return fox.NewError("access_token 不能为空")
@@ -45,6 +48,9 @@ func (t *SaveArticle)Check() (error) {
 	}
 	if len(t.Tags) < 1 {
 		return fox.NewError("tags 不能为空")
+	}
+	if err := t.SetType(t.Type); err != nil {
+		return err
 	}
 	return nil
 }
@@ -74,17 +80,17 @@ func (t *SaveArticle)Post() (*entity.Article, error) {
 	s, err := req.String()
 	if err != nil {
 		fmt.Println("返回错误信息：", err)
-		return nil,fox.NewError("返回错误信息：" + err.Error())
+		return nil, fox.NewError("返回错误信息：" + err.Error())
 	}
 	//是否错误代码
 	if strings.Contains(s, "error_code") {
 		fmt.Println("返回错误信息：", s)
-		return nil,fox.NewError("返回错误信息：" + s)
+		return nil, fox.NewError("返回错误信息：" + s)
 	}
 	fmt.Println("返回内容：", s)
 	var saveArticle *entity.Article
 	if err := json.Unmarshal([]byte(s), &saveArticle); err != nil {
-		return nil,fox.NewError("反序列化失败：" + err.Error())
+		return nil, fox.NewError("反序列化失败：" + err.Error())
 	}
 	fmt.Println("反序列化：", saveArticle)
 	return saveArticle, nil

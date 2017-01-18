@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"blog/controllers"
 	"blog/service/admin"
 	"fmt"
 	"strconv"

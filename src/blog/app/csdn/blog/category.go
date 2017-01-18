@@ -10,6 +10,7 @@ import (
 type Category struct {
 	AccessToken string `json:"access_token" 是 OAuth授权后获得`
 }
+//监测
 func (t *Category)Check() (error) {
 	if len(t.AccessToken) < 1 {
 		return fox.NewError("access_token 不能为空")
