@@ -59,11 +59,12 @@ rm -rf $DEPLOYPATH/tttttt
 #
 #删除本项目源码
 rm -rf $GO_PATH/src/blog
+echo $GO_PATH/src/blog
 #
 #复制最新源码到项目里
 mv $DEPLOYPATH/src/blog $GO_PATH/src/
 
-######################
+#####################
 #数据库相关替换
 #配置文件
 DB_FILE=$GO_PATH/src/blog/conf/app.conf
@@ -74,12 +75,25 @@ sed -i "s:db_name.*=.*:db_name=\"${P_DB_NAME}\":g" $DB_FILE
 sed -i "s:db_host.*=.*:db_host=\"${P_DB_HOST}\":g" $DB_FILE
 #替换项目端口
 sed -i "s:httpport.*=.*:httpport=${P_PORT}:g" $DB_FILE
-
+#使用七牛存储附件
+sed -i "s:type=\"local\":type=\"QiNiu\":g" $DB_FILE
+#产品模式
+sed -i "s:runmode = dev:runmode = prod:g" $DB_FILE
+#本地不保存文件
+sed -i "s:local_save_is=true:local_save_is=false:g" $DB_FILE
+echo "qiniu 参数替换"
+sed -i "s:access_key=\"qiniu\":access_key=\"这里参数\":g" $DB_FILE
+sed -i "s:secret_key=\"qiniu\":secret_key=\"这里参数\":g" $DB_FILE
+echo "csdn 参数替换"
+sed -i "s:access_key=\"csdn\":access_key=\"这里参数\":g" $DB_FILE
+sed -i "s:secret_key=\"csdn\":secret_key=\"这里参数\":g" $DB_FILE
+#域名替换
+sed -i "s:http=\"\#upload_default\":http=\"http://img.foxwho.com/\":g" $DB_FILE
 ######################
 #进入项目目录
 cd $GO_PATH/src/blog
 #使用beego 打包
-bee pack
+/usr/local/go/bin/bee pack
 
 ######################
 #解压缩打包文件
@@ -118,9 +132,10 @@ if [ ! -d "$SITEPATH/uploads" ]; then
     chmod -R 777 $SITEPATH/uploads
     chown -R www:www $SITEPATH/uploads
 fi
-#############################
-#结束进程blog
+#######################
+#结束进程 blog
 ps -ef |grep /blog|awk '{print $2}'|xargs kill -9
+echo "========="
 ############
 #删除原项目
 rm -rf $SITEPATH/blog
@@ -130,6 +145,7 @@ mv "${SITEPATH}/blog_2" "${SITEPATH}/blog"
 ############
 #启动项目
 SH="${SITEPATH}.start.sh"
-$SH
+$SH &
 
 echo "SUCCESS"
+
