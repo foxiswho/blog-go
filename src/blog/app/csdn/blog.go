@@ -10,6 +10,7 @@ import (
 	"blog/fox/db"
 	"time"
 	"blog/app/csdn/entity"
+	"blog/fox/editor"
 )
 //博客
 type Blog struct {
@@ -40,7 +41,9 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 		art.Tags = b.Blog.Tag
 	}
 	art.Id = id
-	art.Content = b.Content
+	//csdn的人 真懒
+	//转换为 富文本格式内容
+	art.Content = string(editor.Markdown([]byte(b.Content)))
 	if len(b.Blog.Description) > 0 {
 		art.Description = b.Blog.Description
 	}
