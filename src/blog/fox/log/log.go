@@ -4,7 +4,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"strings"
 )
-
+//此处 为以后 更换框架做准备
 // Alert logs a message at alert level.
 func Alert(v ...interface{}) {
 	logs.Alert(generateFmtStr(len(v)), v...)

@@ -1,7 +1,7 @@
 package db
 
 import "math"
-
+//分页
 type Paginator struct {
 	Page        int   //当前页		`json:"page"`
 	Pages       []int //页码数组		`json:"pages"`

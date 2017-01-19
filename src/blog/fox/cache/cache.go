@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 )
-
+//此处 为以后 更换框架做准备
 var Cache cache.Cache
 
 func init() {

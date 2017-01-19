@@ -39,24 +39,29 @@ func (c *Upload)File() {
 	c.Data["title"] = "文件上传"
 	c.TplName = "admin/upload/file.html"
 }
-//上传图片
+//上传图片 支持 markdown编辑器上传图片
 // @router /upload/image [post]
 func (c *Upload)Post() {
+	//声明
 	var maps map[string]interface{}
 	var err error
 	t := c.GetString("t")
 	token := c.GetString("token")
+	//token 验证
 	if len(token) > 0 {
+		//解密
 		maps, err = file.TokenDeCode(token)
 		if err != nil {
 			fmt.Println("令牌：" + token)
 			fmt.Println("令牌解密失败：" + err.Error())
 			token = ""
+			c.Error("令牌解密失败："+err.Error())
+			return
 		} else {
 			fmt.Println("令牌解密", maps)
 		}
-
 	}
+	//判断是否是 markdown编辑器 输出相应的错误
 	if token == "" {
 		if t == "markdown" {
 			md := &editor.EditorMd{}
@@ -69,12 +74,14 @@ func (c *Upload)Post() {
 		}
 		return
 	}
+	//上传文件file表单元素名称
 	file_name := "file"
 	if t == "markdown" {
 		file_name = "editormd-image-file"
 	}
 	//上传
 	f, err := file.Upload(file_name, c.Ctx.Request, maps)
+	//如果是markdown编辑器返回
 	if t == "markdown" {
 		md := &editor.EditorMd{}
 		if err != nil {
@@ -88,6 +95,7 @@ func (c *Upload)Post() {
 		c.Data["json"] = md
 		c.ServeJSON()
 	} else {
+		//其他返回
 		if err != nil {
 			c.ErrorJson(err.Error())
 		} else {

@@ -15,7 +15,7 @@ type Db struct {
 	Db            *xorm.Engine
 	FilterSession *xorm.Session
 }
-
+//数据库
 var DB *Db
 //
 func dsn() string {

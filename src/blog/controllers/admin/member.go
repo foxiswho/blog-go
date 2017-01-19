@@ -40,6 +40,7 @@ func (c *Member)CheckTitle() {
 //列表
 // @router /member [get]
 func (c *Member)List() {
+	//查询
 	where := make(map[string]interface{})
 	mod := member.NewMemberService()
 	page, _ := c.GetInt("page")

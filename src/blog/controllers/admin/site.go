@@ -16,9 +16,13 @@ func (c *Site) URLMapping() {
 //列表
 // @router /site [get]
 func (c *Site)List() {
+	//初始化
 	ser := admin.NewSiteService()
 	data, err := ser.Query()
-	fmt.Println(err)
+	if err != nil {
+		c.Error(err.Error())
+		return
+	}
 	c.Data["data"] = data
 	c.Data["title"] = "站点配置"
 	c.Data["_method"] = "put"

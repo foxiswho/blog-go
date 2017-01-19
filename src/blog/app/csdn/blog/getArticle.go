@@ -36,6 +36,7 @@ func (t *GetArticle)Post() (*entity.Article, error) {
 		return nil, err
 	}
 	fmt.Println("验证通过")
+	//接口传输数据
 	req := httplib.Post(conf.BLOG_ID_URL)
 	//超时
 	req.SetTimeout(100 * time.Second, 30 * time.Second)

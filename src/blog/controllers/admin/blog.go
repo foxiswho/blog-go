@@ -44,17 +44,20 @@ func (c *Blog)CheckTitle() {
 //列表
 // @router /blog [get]
 func (c *Blog)List() {
+	//查询
 	where := make(map[string]interface{})
 	wd := c.GetString("wd")
 	if len(wd) > 0 {
 		where["title like ? "] = "%" + wd + "%"
 	}
 	where["type=?"] = conf.TYPE_ARTICLE
+	//初始化
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
 	if err != nil {
-		fmt.Println(err)
+		c.Error(err.Error())
+		return
 	}
 	c.Data["data"] = data
 	c.Data["wd"] = wd
@@ -66,11 +69,12 @@ func (c *Blog)List() {
 func (c *Blog)Get() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
+	//初始化获取信息
 	var ser *blog.Blog
 	data, err := ser.Read(int_id)
-	//println("Detail :", err.Error())
 	if err != nil {
 		c.Error(err.Error())
+		return
 	} else {
 		c.Data["info"] = data["info"]
 		c.Data["TimeAdd"] = data["TimeAdd"]
@@ -78,11 +82,13 @@ func (c *Blog)Get() {
 		c.Data["_method"] = "put"
 		c.Data["is_put"] = true
 		c.Data["TYPE_ID"] = conf.TYPE_ID
+		//初始化好 获取绑定 CSDN博客文章ID
 		ser := blog.NewBlogSyncMappingService()
 		mod, err := ser.GetAppId(conf.APP_CSDN, int_id)
 		if err == nil {
 			c.Data["app_csdn_id"] = mod.Id
 		}
+		//上传令牌 初始化
 		maps := make(map[string]interface{})
 		maps["type_id"] = conf.TYPE_ID
 		maps["id"] = int_id
@@ -90,6 +96,8 @@ func (c *Blog)Get() {
 		cry, err := file.TokeMake(maps)
 		if err != nil {
 			fmt.Println("令牌加密错误：" + err.Error())
+			c.Error(err.Error())
+			return
 		}
 		c.Data["upload_token"] = cry
 		c.TplName = "admin/blog/get.html"
@@ -108,10 +116,12 @@ func (c *Blog)Add() {
 	blogMod.TypeId = conf.ORIGINAL	//原创
 	mod.Blog = blogMod
 	mod.BlogStatistics = &model.BlogStatistics{}
+	//模版参数设置
 	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = conf.TYPE_ID
 	c.Data["_method"] = "post"
 	c.Data["title"] = "博客-添加"
+	//上传令牌设置
 	maps := make(map[string]interface{})
 	maps["type_id"] = conf.TYPE_ID
 	maps["id"] = 0
@@ -119,6 +129,8 @@ func (c *Blog)Add() {
 	cry, err := file.TokeMake(maps)
 	if err != nil {
 		fmt.Println("令牌加密错误：" + err.Error())
+		c.Error(err.Error())
+		return
 	}
 	//fmt.Println("令牌加密："+cry)
 	//c1,err:=file.TokenDeCode(cry)
@@ -134,16 +146,19 @@ func (c *Blog)Post() {
 	blogModel := model.NewBlog()
 	//参数传递
 	blog_statistics := model.NewBlogStatistics()
+	//表单结构体绑定
 	if err := url.ParseForm(c.Input(), blogModel); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
 		return
 	}
+	//表单结构体绑定
 	if err := url.ParseForm(c.Input(), blog_statistics); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
 		return
 	}
+	//日期判断
 	if blogModel.TimeAdd.IsZero() {
 		//日期
 		date, ok := c.GetDateTime("time_add")
@@ -157,6 +172,7 @@ func (c *Blog)Post() {
 	if err != nil {
 		c.Error(err.Error())
 	} else {
+		//附件归属更新
 		admin.NewAttachmentService().UpdateByTypeIdId(conf.TYPE_ID, c.Session.Aid, id)
 		fmt.Println("创建成功！:", id)
 		c.Success("操作成功")
@@ -165,6 +181,7 @@ func (c *Blog)Post() {
 //查看
 // @router /blog/detail/:id [get]
 func (c *Blog)Detail() {
+	//直接使用编辑页数据
 	c.Get()
 	c.Data["title"] = "博客-查看"
 	c.TplName = "admin/blog/detail.html"
@@ -178,16 +195,19 @@ func (c *Blog)Put() {
 	//参数传递
 	blogMoel := model.NewBlog()
 	blog_statistics := model.NewBlogStatistics()
+	//表单 与结构体绑定
 	if err := url.ParseForm(c.Input(), blogMoel); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
 		return
 	}
+	//表单与结构体绑定
 	if err := url.ParseForm(c.Input(), blog_statistics); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
 		return
 	}
+	//时间判断
 	if blogMoel.TimeAdd.IsZero() {
 		//日期
 		date, ok := c.GetDateTime("time_add")

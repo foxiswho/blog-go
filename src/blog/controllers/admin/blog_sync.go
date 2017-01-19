@@ -38,6 +38,7 @@ func (c *BlogSync)Go() {
 	if err == nil {
 		id, err := c.GetInt("id")
 		if err == nil {
+			//调用CSDN 获取文章接口
 			b, err := csdn.Get(type_id, id, blog_id)
 			if err != nil {
 				c.Error(err.Error())
@@ -66,13 +67,15 @@ func (c *BlogSync)Post() {
 			mod:=model.NewBlog()
 			data, err := mod.GetById(blog_id)
 			if err == nil {
-				fmt.Println(err)
+				//调用CSDN 文章创建接口
 				sync := csdn.NewCsdnBlogApp()
 				m:=blog.NewBlogService()
 				m.Blog=data
-				err:=sync.Create(m,type_id)
+				id,err:=sync.Create(m,type_id)
 				if err==nil{
-					c.Success("成功!")
+					maps:=make(map[string]interface{})
+					maps["id"]=id
+					c.Success("成功!",maps)
 				}else{
 					c.Error(err.Error())
 				}
@@ -98,6 +101,7 @@ func (c *BlogSync)Put() {
 				mod:=model.NewBlog()
 				data, err := mod.GetById(blog_id)
 				if err == nil {
+					//调用CSDN 文章更新接口
 					sync := csdn.NewCsdnBlogApp()
 					m:=blog.NewBlogService()
 					m.Blog=data

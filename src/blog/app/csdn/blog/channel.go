@@ -26,6 +26,7 @@ func (t *Channel)Post() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//接口传输数据
 	req := httplib.Post(conf.BLOG_CHANNEL_URL)
 	//超时
 	req.SetTimeout(100 * time.Second, 30 * time.Second)

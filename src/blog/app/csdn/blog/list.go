@@ -13,6 +13,7 @@ type List struct {
 }
 //发送
 func (t *List)Post() (string, error) {
+	//接口传输数据
 	req := httplib.Post(conf.BLOG_LIST_URL)
 	s, err := req.String()
 	if err != nil {

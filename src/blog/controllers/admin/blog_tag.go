@@ -15,6 +15,7 @@ func (c *BlogTag) URLMapping() {
 //列表
 // @router /blog/tag [get]
 func (c *BlogTag)List() {
+	//查询
 	query := make(map[string]interface{})
 	fields := []string{}
 	str := c.GetString("wd")
@@ -22,10 +23,12 @@ func (c *BlogTag)List() {
 		query["name"] = str
 	}
 	page, _ := c.GetInt("page")
+	//初始化
 	mode := model.NewBlogTag()
 	data, err := mode.GetAll(query, fields, "tag_id desc",page, 20)
 	if err!=nil{
-		fmt.Println(err)
+		c.Error(err.Error())
+		return
 	}
 	if c.IsAjax(){
 		c.Data["json"]=data

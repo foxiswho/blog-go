@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 )
+//来自beego
 func isStructPtr(t reflect.Type) bool {
 	return t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct
 }

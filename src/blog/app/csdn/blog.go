@@ -27,13 +27,16 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	if id < 1 {
 		return fox.NewError("id 不能为空")
 	}
+	//初始化
 	web := NewAuthorizeWeb()
+	//获取缓存  及判断
 	acc, err := web.GetAccessTokenCache()
 	if err != nil {
 		fmt.Println("令牌缓存获取失败", err)
 		return err
 	}
 	fmt.Println("令牌缓存获取成功")
+	//初始化 及赋值
 	art := blog.NewSaveArticle()
 	art.Article = &entity.Article{}
 	art.AccessToken = acc.AccessToken
@@ -41,7 +44,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 		art.Tags = b.Blog.Tag
 	}
 	art.Id = id
-	//csdn的人 真懒
+	//csdn的人 真懒，不支持Markdown格式文本
 	//转换为 富文本格式内容
 	art.Content = string(editor.Markdown([]byte(b.Content)))
 	if len(b.Blog.Description) > 0 {
@@ -49,6 +52,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	}
 	art.Title = b.Title
 	art.Type = "original"
+	//接口传输
 	str, err := art.Post()
 	if err != nil {
 		return err
@@ -58,6 +62,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	maps["blog_id"] = b.Blog.BlogId
 	maps["id"] = id
 	maps["type_id"] = type_id
+	//初始化及数据库查询
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
@@ -82,26 +87,30 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	return nil
 }
 //创建
-func (t *Blog) Create(b *mod.Blog, type_id int) error {
+func (t *Blog) Create(b *mod.Blog, type_id int)(int,error){
 	maps := make(map[string]interface{})
 	maps["blog_id"] = b.Blog.BlogId
 	maps["type_id"] = type_id
+	//初始化及查询
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return fox.NewError("更新错误:" + err.Error())
+		return 0,fox.NewError("更新错误:" + err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	if m.MapId > 0 {
-		return fox.NewError("已存在此数据，不能重复插入")
+		return 0,fox.NewError("已存在此数据，不能重复插入")
 	}
+	//初始化
 	web := NewAuthorizeWeb()
+	//获取token缓存
 	acc, err := web.GetAccessTokenCache()
 	if err != nil {
 		fmt.Println("令牌缓存获取失败", err)
-		return err
+		return 0,err
 	}
 	fmt.Println("令牌缓存获取成功")
+	//初始化
 	art := blog.NewSaveArticle()
 	art.Article = &entity.Article{}
 	art.AccessToken = acc.AccessToken
@@ -111,9 +120,10 @@ func (t *Blog) Create(b *mod.Blog, type_id int) error {
 	art.Description = b.Description
 	art.Title = b.Title
 	art.Type = "original"
+	//接口传输
 	str, err := art.Post()
 	if err != nil {
-		return err
+		return 0,err
 	}
 	fmt.Println("返回：", str)
 	//更新
@@ -131,28 +141,33 @@ func (t *Blog) Create(b *mod.Blog, type_id int) error {
 		_, err := db.NewDb().Insert(m)
 		fmt.Println("保存状态", err)
 	}
-	return nil
+	return m.Id,nil
 }
 //获取
 func (t *Blog) Read(id string) (*mod.Blog, error) {
 	if len(id) < 1 {
 		return nil, fox.NewError("id 不能为空")
 	}
+	//初始化
 	web := NewAuthorizeWeb()
+	//获取缓存
 	acc, err := web.GetAccessTokenCache()
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 	fmt.Println("令牌缓存获取成功")
+	//初始化及赋值
 	art := blog.NewGetArticle()
 	art.AccessToken = acc.AccessToken
 	art.Id, _ = strconv.Atoi(id)
+	//接口数据传输
 	str, err := art.Post()
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("内容获取成功")
+	//初始化 赋值
 	modBlog := model.NewBlog()
 	modBlog.Content = str.Content
 	if len(str.Description) > 1 {
@@ -173,7 +188,9 @@ func (t *Blog) Read(id string) (*mod.Blog, error) {
 }
 //根据id更新或插入记录
 func Get(type_id, id, blog_id int) (*mod.Blog, error) {
+	//初始化
 	csdn := NewCsdnBlogApp()
+	//接口传输获取内容
 	b, err := csdn.Read(strconv.Itoa(id))
 	if err != nil {
 		return nil, err

@@ -194,7 +194,7 @@ func (c *Type)CheckNameTypeId(type_id int, str string, id int) (bool, error) {
 	if id > 0 {
 		where["id !=?"] = id
 	}
-
+	//总数
 	count, err := db.Filter(where).Count(mod)
 	if err != nil {
 		fmt.Println(err)

@@ -20,12 +20,17 @@ func (c *Select) URLMapping() {
 func (c *Select)Type() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
+	//初始化
 	ser :=admin.NewTypeService()
 	data, err := ser.Query(int_id)
-	fmt.Println(err)
+	if err!=nil{
+		c.Error(err.Error())
+		return
+	}
 	mod := model.NewType()
 	c.Data["info"] = mod
 	if int_id > 0 {
+		//获取该信息数据
 		data, err := ser.Read(int_id)
 		if err == nil {
 			c.Data["info"] = data["info"]

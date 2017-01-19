@@ -23,6 +23,7 @@ func (t *Category)Post() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//接口传输数据
 	req := httplib.Post(conf.BLOG_CATEGORY_URL)
 	//超时
 	req.SetTimeout(100 * time.Second, 30 * time.Second)

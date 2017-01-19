@@ -35,6 +35,7 @@ func (t *Site)Update(form url.Values) (bool, error) {
 			return false,fox.NewError("站点名称 不能为空")
 		}
 		if val != "" {
+			//更新
 			mod := model.NewType()
 			mod.Content = val
 			num, err := o.Where("type_id=? and mark=? ", conf.SITE_ID, key).Update(mod)
@@ -49,6 +50,7 @@ func (t *Site)Update(form url.Values) (bool, error) {
 	}
 	return true, nil
 }
+//获取站点配置
 func (c *Site)SiteConfig() map[string]string {
 	tp := make([]model.Type, 0)
 	o := db.NewDb()

@@ -24,9 +24,12 @@ func (c *Type) URLMapping() {
 //列表
 // @router /type [get]
 func (c *Type)List() {
-	ser :=admin.NewTypeService()
+	ser := admin.NewTypeService()
 	data, err := ser.Query(0)
-	fmt.Println(err)
+	if err != nil {
+		c.Error(err.Error())
+		return
+	}
 	c.Data["data"] = data
 	c.Data["title"] = "类别-列表"
 	c.Data["HtmlHead"] = controllers.ExecuteTemplateHtml("admin/type/head.html", c.Data)
@@ -37,9 +40,12 @@ func (c *Type)List() {
 func (c *Type)ListChild() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
-	ser :=admin.NewTypeService()
+	ser := admin.NewTypeService()
 	data, err := ser.Query(int_id)
-	fmt.Println(err)
+	if err != nil {
+		c.Error(err.Error())
+		return
+	}
 	c.Data["info"] = ""
 	if int_id > 0 {
 		ser := admin.NewTypeService()
@@ -72,7 +78,6 @@ func (c *Type)Add() {
 	c.Data["parent_id_name"] = "无"
 	c.Data["info"] = mod
 	if int_id > 0 {
-
 		ser := admin.NewTypeService()
 		data, err := ser.Read(int_id)
 		if err == nil {
@@ -100,7 +105,7 @@ func (c *Type)Add() {
 func (c *Type)Post() {
 	mod := model.NewType()
 	//参数传递
-	if err := url.ParseForm(c.Input(),mod); err != nil {
+	if err := url.ParseForm(c.Input(), mod); err != nil {
 		c.Error(err.Error())
 		return
 	}
@@ -142,7 +147,7 @@ func (c *Type)Put() {
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
 	mod := model.NewType()
-	if err := url.ParseForm(c.Input(),mod); err != nil {
+	if err := url.ParseForm(c.Input(), mod); err != nil {
 		c.Error(err.Error())
 	}
 	//更新

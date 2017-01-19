@@ -34,12 +34,14 @@ func (t *AuthorizeWeb)loadConfig() (bool, error) {
 }
 //配置读取
 func (t *AuthorizeWeb)SetConfig() (bool, error) {
+	//获取配置
 	ok, err := t.loadConfig()
 	if err != nil {
 		fmt.Println("setConfig err:", err)
 		return false, err
 	}
 	fmt.Println("setConfig", ok)
+	//配置文件是否读取
 	if len(t.Config) < 1 {
 		return false,fox.NewError("配置文件没有读取")
 	}
@@ -89,9 +91,12 @@ func (t *AuthorizeWeb)getAccessToken(token string) string {
 }
 //获取内容
 func (t *AuthorizeWeb)Get(token string) (string, error) {
+	//获取
 	url := t.getAccessToken(token)
 	fmt.Println("token url", url)
+	//接口传输
 	req := httplib.Get(url)
+	//返回数据 及 判断
 	s, err := req.String()
 	if err != nil {
 		return "", err
@@ -100,19 +105,22 @@ func (t *AuthorizeWeb)Get(token string) (string, error) {
 }
 //获取AccessToken
 func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) {
+	//获取
 	s, err := t.Get(token)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("返回值", s)
+	//反序列化 结构体
 	var access *entity.AccessToken
 	err = json.Unmarshal([]byte(s), &access)
 	if err != nil {
 		return nil, err
 	}
 	access.LastTime = time.Now()
-	//缓存
+	//缓存 序列化 json
 	j,_:=json.Marshal(access)
+	//存储
 	err = t.PutAccessTokenCache(string(j))
 	if err != nil {
 		return nil, err
@@ -121,11 +129,13 @@ func (t *AuthorizeWeb)GetAccessToken(token string) (*entity.AccessToken, error) 
 }
 //获取token缓存
 func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
+	//获取缓存
 	str, err := t.GetCache("CSDN_AccessToken")
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("令牌",str)
+	//反序列化 结构体
 	var access *entity.AccessToken
 	err = json.Unmarshal([]byte(str), &access)
 	if err != nil {
@@ -136,10 +146,12 @@ func (t *AuthorizeWeb)GetAccessTokenCache() (*entity.AccessToken, error) {
 }
 //更新token缓存
 func (t *AuthorizeWeb)PutAccessTokenCache(val interface{}) (error) {
+	//设置缓存
 	return t.PutCache("CSDN_AccessToken", val)
 }
 //获取缓存
 func (t *AuthorizeWeb)GetCache(key string) (string, error) {
+	//获取缓存
 	tmp := cache.Get(key)
 	fmt.Println("获取csdn 缓存",tmp)
 	str := tmp.(string)
@@ -150,6 +162,7 @@ func (t *AuthorizeWeb)GetCache(key string) (string, error) {
 }
 //更新缓存
 func (t *AuthorizeWeb)PutCache(key string, val interface{}) (error) {
+	//设置缓存
 	err := cache.Put(key, val, 86400 * time.Second)
 	return err
 }

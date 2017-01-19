@@ -13,7 +13,7 @@ import (
 	"os"
 	"blog/fox/config"
 )
-
+//七牛云存储
 type QiNiu struct {
 	Config map[string]string `json:"-"`
 }
@@ -24,7 +24,7 @@ type PutRet struct {
 	Hash string `json:"hash"`
 	Key  string `json:"key"`
 }
-
+//初始化
 func NewQiNiu() *QiNiu {
 	return new(QiNiu)
 }

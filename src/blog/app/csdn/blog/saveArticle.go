@@ -60,6 +60,7 @@ func (t *SaveArticle)Post() (*entity.Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	//接口传输数据
 	req := httplib.Post(conf.BLOG_SAVE_URL)
 	//超时
 	req.SetTimeout(100 * time.Second, 30 * time.Second)
@@ -88,6 +89,7 @@ func (t *SaveArticle)Post() (*entity.Article, error) {
 		return nil, fox.NewError("返回错误信息：" + s)
 	}
 	fmt.Println("返回内容：", s)
+	//json 序列化 成  结构体
 	var saveArticle *entity.Article
 	if err := json.Unmarshal([]byte(s), &saveArticle); err != nil {
 		return nil, fox.NewError("反序列化失败：" + err.Error())
