@@ -27,7 +27,9 @@ func Markdown(raw []byte) []byte {
 		blackfriday.HTML_USE_XHTML |
 		blackfriday.HTML_USE_SMARTYPANTS |
 		blackfriday.HTML_SMARTYPANTS_FRACTIONS |
-		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES |
+		blackfriday.HTML_TOC |
+		blackfriday.HTML_HREF_TARGET_BLANK
 
 	renderer := &markdownRender{
 		Renderer: blackfriday.HtmlRenderer(htmlFlags, "", ""),

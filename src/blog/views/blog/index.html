@@ -11,7 +11,7 @@
                             <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a>
                         </h3>
                     </header>
-                    <section class="brief">
+                    <section class=" markdown-body editormd-html-preview">
                         {{.Content |str2html}}
                     </section>
                     <aside class="aside clearfix">
@@ -48,5 +48,11 @@
     </div>
 </section>
 {{template "blog/footer_js.html" .}}
+<link rel="stylesheet" href="http://cdn.bootcss.com/highlight.js/8.0/styles/monokai_sublime.min.css">
+<script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
+<script>
+    //代码高亮
+    hljs.initHighlightingOnLoad();
+</script>
 </body>
 </html>
