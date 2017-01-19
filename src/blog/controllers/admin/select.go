@@ -24,6 +24,7 @@ func (c *Select)Type() {
 	ser :=admin.NewTypeService()
 	data, err := ser.Query(int_id)
 	if err!=nil{
+		fmt.Println(err.Error())
 		c.Error(err.Error())
 		return
 	}

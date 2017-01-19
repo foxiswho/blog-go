@@ -20,6 +20,7 @@ func (c *Site)List() {
 	ser := admin.NewSiteService()
 	data, err := ser.Query()
 	if err != nil {
+		fmt.Println(err.Error())
 		c.Error(err.Error())
 		return
 	}

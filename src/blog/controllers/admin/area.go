@@ -25,6 +25,7 @@ func (c *Area)List() {
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "id ASC", page, 999)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.Error(err.Error())
 		return
 	}

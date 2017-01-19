@@ -22,6 +22,7 @@ func (c *Attachment)List() {
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "attachment_id DESC", page, 20)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.Error(err.Error())
 		return
 	}

@@ -87,7 +87,7 @@ func (t *Blog) Update(b *mod.Blog, type_id int, id int) error {
 	return nil
 }
 //创建
-func (t *Blog) Create(b *mod.Blog, type_id int)(int,error){
+func (t *Blog) Create(b *mod.Blog, type_id int)(string,error){
 	maps := make(map[string]interface{})
 	maps["blog_id"] = b.Blog.BlogId
 	maps["type_id"] = type_id
@@ -95,11 +95,11 @@ func (t *Blog) Create(b *mod.Blog, type_id int)(int,error){
 	m := model.NewBlogSyncMapping()
 	ok, err := db.Filter(maps).Get(m)
 	if err != nil {
-		return 0,fox.NewError("更新错误:" + err.Error())
+		return "",fox.NewError("更新错误:" + err.Error())
 	}
 	fmt.Println("查询状态", ok)
 	if m.MapId > 0 {
-		return 0,fox.NewError("已存在此数据，不能重复插入")
+		return "",fox.NewError("已存在此数据，不能重复插入")
 	}
 	//初始化
 	web := NewAuthorizeWeb()
@@ -107,7 +107,7 @@ func (t *Blog) Create(b *mod.Blog, type_id int)(int,error){
 	acc, err := web.GetAccessTokenCache()
 	if err != nil {
 		fmt.Println("令牌缓存获取失败", err)
-		return 0,err
+		return "",err
 	}
 	fmt.Println("令牌缓存获取成功")
 	//初始化
@@ -123,7 +123,7 @@ func (t *Blog) Create(b *mod.Blog, type_id int)(int,error){
 	//接口传输
 	str, err := art.Post()
 	if err != nil {
-		return 0,err
+		return "",err
 	}
 	fmt.Println("返回：", str)
 	//更新

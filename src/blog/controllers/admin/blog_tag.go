@@ -27,6 +27,7 @@ func (c *BlogTag)List() {
 	mode := model.NewBlogTag()
 	data, err := mode.GetAll(query, fields, "tag_id desc",page, 20)
 	if err!=nil{
+		fmt.Println(err.Error())
 		c.Error(err.Error())
 		return
 	}

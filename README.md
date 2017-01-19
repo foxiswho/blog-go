@@ -1,7 +1,4 @@
-
 #GO语言博客
-基本功能已 实现
-
 #功能说明
  * 文章 增删该查
  * 图片 上传
@@ -11,8 +8,10 @@
  * 类别数据 增删改查
  * 博客前台显示 分页
  * 七牛云存储
+ * CSDN登陆及绑定
  * CSDN博客同步简单版(csdn的人真懒，只能同步富文本，不能同步markdown的文本)
  * 阿里云自动部署
+ 
 #未来
  * 其他模块继续完善
     * 省市区
@@ -60,13 +59,13 @@ http://www.golangtc.com/download/package
 
 然后进入项目目录
 ```go
-cd src/fox
+cd src/blog
 bee run    #beego 要先安装
 ```
 ##环境已安装过了
 直接进入项目目录 编译
 ```go
-cd src/fox
+cd src/blog
 bee run    #beego 要先安装
 ```
 #后台用户
@@ -76,9 +75,9 @@ bee run    #beego 要先安装
 
 登陆地址 : /admin/login
 
-数据库文件在:src/fox/db/blog-go.sql.zip中
+数据库文件在:src/blog/db/blog-go.sql.zip中
 
-#src/fox/db/说明
+#src/blog/db/说明
 www.foxwho.com.start.sh 为项目启动文件
 start.sh 为自动部署编译文件
 blog_go.sql.zip 数据库文件
@@ -137,7 +136,7 @@ go get github.com/go-xorm/cmd/xorm
 ```
 #生成模型
 >templates/goxorm 可以修改此模版
-先把 src/github.com/go-xorm/cmd/xorm/templates 目录，复制到你的项目目录里，例如 我的项目目录为 src/fox 那么就复制到该目录下，然后执行此命令
+先把 src/github.com/go-xorm/cmd/xorm/templates 目录，复制到你的项目目录里，例如 我的项目目录为 src/blog 那么就复制到该目录下，然后执行此命令
 该目录下多余的文件夹可以删除（C++,objc,go）
 
 ```shell
