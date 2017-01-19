@@ -10,6 +10,7 @@ import (
 	"strings"
 	"blog/fox/editor"
 	"blog/fox/str"
+	"blog/service/conf"
 )
 //博客
 type Blog struct {
@@ -25,13 +26,13 @@ func NewBlogService() *Blog {
 //详情
 func (c *Blog)Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
-		return nil,fox.NewError("ID 错误")
+		return nil, fox.NewError("ID 错误")
 	}
 	mode := model.NewBlog()
 	data, err := mode.GetById(id)
 	if err != nil {
 		fmt.Println(err)
-		return nil,fox.NewError("数据不存在")
+		return nil, fox.NewError("数据不存在")
 	}
 	//整合
 	info := NewBlogService()
@@ -65,12 +66,12 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 //根据 自定义URL 获取详情
 func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	if id == "" {
-		return nil,fox.NewError("URL 错误")
+		return nil, fox.NewError("URL 错误")
 	}
 
 	data, err := c.GetBlogByUrlRewrite(id)
 	if err != nil {
-		return nil,fox.NewError("数据不存在")
+		return nil, fox.NewError("数据不存在")
 	}
 	//整合
 	info := NewBlogService()
@@ -107,16 +108,16 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
-		return 0,fox.NewError("标题 不能为空")
+		return 0, fox.NewError("标题 不能为空")
 	}
 	if len(m.Content) < 1 {
-		return 0,fox.NewError("内容 不能为空")
+		return 0, fox.NewError("内容 不能为空")
 	}
 	if m.TypeId < 10003 {
-		return 0,fox.NewError("请选择类别")
+		return 0, fox.NewError("请选择类别")
 	}
 	if m.TypeId > 10005 {
-		return 0,fox.NewError("类别 错误")
+		return 0, fox.NewError("类别 错误")
 	}
 	//时间
 	if m.TimeAdd.IsZero() {
@@ -130,6 +131,13 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	}
 	if m.Status > 99 {
 		m.Status = 99
+	}
+	//阅读判断
+	if m.IsRead < conf.READ_NOT {
+		m.IsRead = conf.READ_NOT
+	}
+	if m.IsRead > conf.READ_FINISH {
+		m.IsRead = conf.READ_FINISH
 	}
 	if m.Tag != "" {
 		//拆分成数组
@@ -152,13 +160,13 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	o := db.NewDb()
 	affected, err := o.Insert(m)
 	if err != nil {
-		return 0,fox.NewError("创建错误1：" + err.Error())
+		return 0, fox.NewError("创建错误1：" + err.Error())
 	}
 	stat.BlogId = m.BlogId
 	stat.StatisticsId = stat.BlogId
 	id2, err := o.Insert(stat)
 	if err != nil {
-		return 0,fox.NewError("创建错误2：" + err.Error())
+		return 0, fox.NewError("创建错误2：" + err.Error())
 	}
 	if m.Tag != "" {
 		var tagSer *BlogTag
@@ -174,24 +182,24 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 //更新
 func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	if id < 1 {
-		return 0,fox.NewError("ID 错误")
+		return 0, fox.NewError("ID 错误")
 	}
 	mode := model.NewBlog()
 	info, err := mode.GetById(id)
 	if err != nil {
-		return 0,fox.NewError("数据不存在")
+		return 0, fox.NewError("数据不存在")
 	}
 	if len(m.Title) < 1 {
-		return 0,fox.NewError("标题 不能为空")
+		return 0, fox.NewError("标题 不能为空")
 	}
 	if len(m.Content) < 1 {
-		return 0,fox.NewError("内容 不能为空")
+		return 0, fox.NewError("内容 不能为空")
 	}
 	if m.TypeId < 10003 {
-		return 0,fox.NewError("请选择类别")
+		return 0, fox.NewError("请选择类别")
 	}
 	if m.TypeId > 10005 {
-		return 0,fox.NewError("类别 错误")
+		return 0, fox.NewError("类别 错误")
 	}
 	fmt.Println("DATA:", m)
 	//时间
@@ -206,6 +214,13 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	}
 	if m.Status > 99 {
 		m.Status = 99
+	}
+	//阅读判断
+	if m.IsRead < conf.READ_NOT {
+		m.IsRead = conf.READ_NOT
+	}
+	if m.IsRead > conf.READ_FINISH {
+		m.IsRead = conf.READ_FINISH
 	}
 	if m.Tag != "" {
 		//拆分成数组
@@ -231,7 +246,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	o := db.NewDb()
 	num, err := o.Id(id).Update(m)
 	if err != nil {
-		return 0,fox.NewError("更新错误：" + err.Error())
+		return 0, fox.NewError("更新错误：" + err.Error())
 	}
 	fmt.Println("============", num)
 	//
@@ -239,7 +254,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	o = db.NewDb()
 	num2, err := o.Id(id).Update(stat)
 	if err != nil {
-		return 0,fox.NewError("更新错误：" + err.Error())
+		return 0, fox.NewError("更新错误：" + err.Error())
 	}
 	fmt.Println(num2)
 	//标签 创建和删除
@@ -271,7 +286,7 @@ func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interfac
 //删除
 func (c *Blog)Delete(id int) (bool, error) {
 	if id < 1 {
-		return false,fox.NewError("ID 错误")
+		return false, fox.NewError("ID 错误")
 	}
 	fmt.Println("博客文章删除ID", id)
 	mode := model.NewBlog()
@@ -315,7 +330,7 @@ func (c *Blog)GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
 //检测标题是否重复
 func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if str == "" {
-		return false,fox.NewError("名称 不能为空")
+		return false, fox.NewError("名称 不能为空")
 	}
 	mode := new(model.Blog)
 	where := make(map[string]interface{})
@@ -334,7 +349,7 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if count == 0 {
 		return true, nil
 	}
-	return false,fox.NewError("已存在")
+	return false, fox.NewError("已存在")
 }
 //列表
 func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
@@ -387,14 +402,14 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 //更新 浏览数
 func (c *Blog)UpdateRead(id int) (int, error) {
 	if id < 1 {
-		return 0,fox.NewError("ID 错误")
+		return 0, fox.NewError("ID 错误")
 	}
 	fmt.Println("Id:", id)
 	o := db.NewDb()
 	ret, err := o.Exec("UPDATE blog_statistics SET `read`=`read`+1 WHERE statistics_id=?", id)
 	if err != nil {
 		fmt.Println("err:", err)
-		return 0,fox.NewError("更新错误：" + err.Error())
+		return 0, fox.NewError("更新错误：" + err.Error())
 	}
 	num, err := ret.RowsAffected()
 	fmt.Println("err", err)

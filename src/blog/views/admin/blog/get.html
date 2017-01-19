@@ -8,6 +8,18 @@
                             <div class="ibox-title">
                                 <h5>Markdown编辑器</h5>
                                 <div class="ibox-tools">
+                                    <span class="c_is_read">
+                                        <input class="i-checks" type="radio" name="is_read" value="10014" {{if eq .info.IsRead 10014 }}checked{{end}}>未看
+                                        <input class="i-checks"  type="radio" name="is_read" value="10015" {{if eq .info.IsRead 10015}}checked{{end}}>在看
+                                        <input class="i-checks"  type="radio" name="is_read" value="10016" {{if eq .info.IsRead 10016}}checked{{end}}>已看
+                                    </span>
+                                    |
+                                    <span class="c_type_id">
+                                        <input class="i-checks" type="radio" name="type_id" value="10003" {{if eq .info.TypeId 10003 }}checked{{end}}>原创
+                                        <input class="i-checks"  type="radio" name="type_id" value="10004" {{if eq .info.TypeId 10004}}checked{{end}}>翻译
+                                        <input class="i-checks"  type="radio" name="type_id" value="10005" {{if eq .info.TypeId 10005}}checked{{end}}>转载
+                                    </span>
+                                    |
                                     <button class="btn btn-primary btn-xs saveRelease" type="button">保存发布</button>
                                     <button class="btn btn-white btn-xs" type="reset">取消</button>
                                     <button class="btn btn-success btn-xs save" type="button">保存草稿</button>
@@ -179,21 +191,12 @@
                                         </div>
                                         <div id="tab-url" class="tab-pane">
                                             <div class="panel-body">
-                                                <div class="form-group c_type_id">
-                                                    <label class="col-sm-2 control-label">类别</label>
+                                                <!--<div class="form-group">-->
+                                                    <!--<label class="col-sm-2 control-label">类别</label>-->
+                                                    <!--<div class="col-sm-10">-->
 
-                                                    <div class="col-sm-10">
-                                                        <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10003" {{if eq .info.TypeId 10003 }}checked{{end}}>原创
-                                                        </label>
-                                                        <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10004" {{if eq .info.TypeId 10004}}checked{{end}}>翻译
-                                                        </label>
-                                                        <label class="checkbox-inline i-checks">
-                                                            <input type="radio" name="type_id" value="10005" {{if eq .info.TypeId 10005}}checked{{end}}>转载
-                                                        </label>
-                                                    </div>
-                                                </div>
+                                                    <!--</div>-->
+                                                <!--</div>-->
                                                 <!--<div class="hr-line-dashed"></div>-->
                                                 <!--<div class="form-group">-->
                                                     <!--<label class="col-sm-2 control-label">分类-->
@@ -207,7 +210,7 @@
                                                         <!--</select>-->
                                                     <!--</div>-->
                                                 <!--</div>-->
-                                                <div class="hr-line-dashed"></div>
+                                                <!--<div class="hr-line-dashed"></div>-->
                                                 <div class="form-group">
                                                     <label class="col-sm-2 control-label">作者
                                                     </label>

@@ -15,7 +15,6 @@
                             {{else if eq .TypeId 10005}}
                             <label class="label">转</label>
                             {{end}}
-                            {{.Title}}
                             <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a>
                         </h3>
                     </header>
@@ -30,7 +29,7 @@
                         </span>
                         <a class="day"><i class="fa fa-comments-o"></i> {{.Comment}}</a>
                         <a class="day"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}}</a>
-                        <a class="author">{{.Author}}</a>
+                        <a class="author" title="作者">{{.Author}}</a>
                         <span class="tags">
                             {{range $i,$v:=.Tags}}
                             <a class="tag" href="/tag/{{$v}}">{{$v}}</a>

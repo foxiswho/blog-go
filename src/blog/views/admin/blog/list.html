@@ -27,6 +27,13 @@
                                 {{else if eq .TypeId 10005}}
                                 <label class="label">转</label>
                                 {{end}}
+                                {{if eq .IsRead 10016}}
+                                <label class="label label-primary">已</label>
+                                {{else if eq .IsRead 10015}}
+                                <label class="label label-info">在</label>
+                                {{else}}
+                                <label class="label">未</label>
+                                {{end}}
                                 {{.Title}}
                                 </h2>
                         </a>

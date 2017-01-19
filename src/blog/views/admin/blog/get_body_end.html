@@ -178,6 +178,16 @@
                     $('#description').value(str.replace(/<[^>]+>/g,""));
                 }
             });
+            //原创转载
+            $('.c_type_id .i-checks').on('ifClicked',function (e) {
+                if($(this).val()=='10005'){
+                    $('ul.nav-tabs li:eq(2) a').tab('show');
+                }
+            });
+            //有动作
+            $('.i-checks').on('ifClicked',function (e) {
+                $('#thatForm').data("changed",true);
+            });
             //同步获取博客ID内容
             $('a.get').click(function (e) {
                 //提交前判断

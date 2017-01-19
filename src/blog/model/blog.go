@@ -31,6 +31,7 @@ type Blog struct {
 	IsRelevant  int       `json:"is_relevant" xorm:"not null default 0 TINYINT(1)"`
 	IsJump      int       `json:"is_jump" xorm:"not null default 0 TINYINT(1)"`
 	IsComment   int       `json:"is_comment" xorm:"not null default 1 TINYINT(1)"`
+	IsRead      int       `json:"is_read" xorm:"not null default 10014 INT(11)"`
 	Sort        int       `json:"sort" xorm:"not null default 0 index(is_del) INT(11)"`
 	Remark      string    `json:"remark" xorm:"not null default '' VARCHAR(255)"`
 }

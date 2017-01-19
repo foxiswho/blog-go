@@ -53,7 +53,7 @@ func (c *Blog)List() {
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
 	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
-	if err!=nil{
+	if err != nil {
 		fmt.Println(err)
 	}
 	c.Data["data"] = data
@@ -99,13 +99,15 @@ func (c *Blog)Get() {
 // @router /blog/add [get]
 func (c *Blog)Add() {
 	mod := blog.NewBlogService()
-	blog := model.NewBlog()
-	blog.Author = c.Site.GetString("AUTHOR")
-	blog.IsOpen = 1
-	blog.Status = 99
-	mod.Blog = blog
+	//初始化状态
+	blogMod := model.NewBlog()
+	blogMod.Author = c.Site.GetString("AUTHOR")
+	blogMod.IsOpen = 1				//启用
+	blogMod.Status = 99				//发布
+	blogMod.IsRead = conf.READ_NOT	//未读
+	blogMod.TypeId = conf.ORIGINAL	//原创
+	mod.Blog = blogMod
 	mod.BlogStatistics = &model.BlogStatistics{}
-	mod.TypeId = conf.ORIGINAL
 	c.Data["info"] = mod
 	c.Data["TYPE_ID"] = conf.TYPE_ID
 	c.Data["_method"] = "post"
