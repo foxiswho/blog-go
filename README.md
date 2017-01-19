@@ -25,7 +25,10 @@
     
 #问题
  * 1.beego 配置文件竟然不支持注释，是不是还没找到正确的注释使用方式呢？
+#前台界面
 
+#后台界面
+![](https://img.shields.io/github/stars/foxiswho/blog-go.svg)
 #编译
 ##GO环境变量
 根据你自己目录设置
