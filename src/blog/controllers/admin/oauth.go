@@ -16,6 +16,43 @@ type Oauth struct {
 func (c *Oauth) URLMapping() {
 	c.Mapping("Get", c.Get)
 	c.Mapping("Csdn", c.Csdn)
+	c.Mapping("Post", c.Post)
+}
+//绑定
+// @router /oauth [post]
+func (c *Oauth)Post() {
+	web := csdn.NewAuthorizeWeb()
+	csdn, err := web.GetAccessTokenCache()
+	if err != nil {
+		c.Error(err.Error())
+		return
+	}
+	if len(csdn.Username) < 1 {
+		c.Error(" Token 已过期，请重新登陆")
+		return
+	}
+	username := c.GetString("username")
+	password := c.GetString("password")
+	fmt.Println("username:", username)
+	//初始化
+	adminUser := admin.NewAdminUserService()
+	//验证
+	adm, err := adminUser.Auth(username, password)
+	//错误检测
+	if err != nil {
+		c.Error(err.Error())
+	} else {
+		con := oauth.NewConnect()
+		err := con.Binding(conf.APP_CSDN, adm.Aid, csdn.Username, csdn.AccessToken, conf.APP_CSDN, conf.ADMIN_YES)
+		if err != nil {
+			c.Error(err.Error())
+		}
+		fmt.Println("绑定成功：", adm)
+		//设置Session
+		c.SessionSet(adm)
+		//返回
+		c.Success("绑定成功")
+	}
 }
 // @router /oauth [get]
 func (c *Oauth)Get() {
@@ -74,10 +111,11 @@ func (c *Oauth)Csdn() {
 				fmt.Println(err)
 				c.Error(err.Error())
 			}
-
-		} else if err.Error()=="未绑定" {
-			c.TplName="app/csdn/get.html"
-		}else {
+		} else if err.Error() == "未绑定" {
+			c.Data["type_id_name"] = "CSDN"
+			c.Data["username"] = acc.Username
+			c.TplName = "oauth/get.html"
+		} else {
 			fmt.Println(err)
 			c.Error(err.Error())
 		}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{.site_name}} - 绑定</title>
+    <link rel="shortcut icon" href="{{.__theme__}}/favicon.ico">
+    <link href="{{.__theme__}}css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="{{.__theme__}}css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="{{.__theme__}}css/animate.css" rel="stylesheet">
+    <link href="{{.__theme__}}css/style.css?v=4.1.0" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div>
+        <h3>绑定 {{.type_id_name}} 账户名：{{.username}}</h3>
+        <form class="m-t" role="form" action="/admin/oauth" method="post">
+            <div class="form-group">
+                <input type="text" name="username" class="form-control" placeholder="用户名" required="">
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-control" placeholder="密码" required="">
+            </div>
+            <button type="submit" class="btn btn-primary block full-width m-b">绑定账号</button>
+        </form>
+    </div>
+</div>
+
+<!-- 全局js -->
+<script src="{{.__theme__}}js/jquery.min.js?v=2.1.4"></script>
+<script src="{{.__theme__}}js/bootstrap.min.js?v=3.3.6"></script>
+<script src="{{.__theme__}}js/plugins/layer/layer.min.js"></script>
+<script>
+    $('form').submit(function (e) {
+        e.preventDefault();
+        var btn=$('.btn');
+        btn.attr('disabled',true);
+        var $this=$(this);
+        $this.serialize();
+        //加载层
+        var loading = layer.load(0, {shade: false}); //0代表加载的风格，支持0-2
+        $.post($this.attr('action'),$this.serialize(),function (data) {
+            layer.close(loading);
+            if(data.code==1){
+                layer.tips('绑定成功！正在跳转……', '.btn');
+                setTimeout(function () {
+                    window.location.href='/admin/index'
+                },2000)
+            }else{
+                console.log(data)
+                layer.alert(data.info,{ icon:2});
+                btn.attr('disabled',false);
+            }
+        },'json')
+        return false;
+    })
+
+</script>
+
+</body>
+</html>

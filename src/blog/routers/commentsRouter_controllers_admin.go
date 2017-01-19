@@ -400,6 +400,13 @@ func init() {
 
 	beego.GlobalControllerRouter["blog/controllers/admin:Oauth"] = append(beego.GlobalControllerRouter["blog/controllers/admin:Oauth"],
 		beego.ControllerComments{
+			Method: "Post",
+			Router: `/oauth`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:Oauth"] = append(beego.GlobalControllerRouter["blog/controllers/admin:Oauth"],
+		beego.ControllerComments{
 			Method: "Get",
 			Router: `/oauth`,
 			AllowHTTPMethods: []string{"get"},
