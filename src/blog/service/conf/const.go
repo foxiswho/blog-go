@@ -25,4 +25,6 @@ const (
 	//////////
 	ADMIN_YES =301  //后台
 	ADMIN_NO =302  //前台
+	//
+	WORK_OTHER = 10017 //技术之外文章
 )

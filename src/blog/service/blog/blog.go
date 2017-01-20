@@ -244,7 +244,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	m.Description = str.Substr(m.Description, 0, 255)
 	stat.SeoDescription = str.Substr(stat.SeoDescription, 0, 255)
 	o := db.NewDb()
-	num, err := o.Id(id).Update(m)
+	num, err := o.Id(id).MustCols("type").Update(m)
 	if err != nil {
 		return 0, fox.NewError("更新错误：" + err.Error())
 	}

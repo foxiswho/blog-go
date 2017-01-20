@@ -198,13 +198,13 @@ func (c *Blog)Put() {
 	//表单 与结构体绑定
 	if err := url.ParseForm(c.Input(), blogMoel); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		c.Error(err.Error())
+		c.Error("表单绑定错误"+err.Error())
 		return
 	}
 	//表单与结构体绑定
 	if err := url.ParseForm(c.Input(), blog_statistics); err != nil {
 		fmt.Println("ParseForm-err:", err)
-		c.Error(err.Error())
+		c.Error("表单绑定错误"+err.Error())
 		return
 	}
 	//时间判断

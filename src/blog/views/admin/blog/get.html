@@ -8,6 +8,11 @@
                             <div class="ibox-title">
                                 <h5>Markdown编辑器</h5>
                                 <div class="ibox-tools">
+                                    <span class="c_type">
+                                        <input class="i-checks" type="radio" name="type" value="0" {{if eq .info.Type 0 }}checked{{end}}>技术
+                                        <input class="i-checks"  type="radio" name="type" value="10017" {{if eq .info.Type 10017}}checked{{end}}>技术之外(生活)
+                                    </span>
+                                    |
                                     <span class="c_is_read">
                                         <input class="i-checks" type="radio" name="is_read" value="10014" {{if eq .info.IsRead 10014 }}checked{{end}}>未看
                                         <input class="i-checks"  type="radio" name="is_read" value="10015" {{if eq .info.IsRead 10015}}checked{{end}}>在看
