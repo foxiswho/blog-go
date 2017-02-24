@@ -84,6 +84,10 @@ bee run    #beego 要先安装
 
 数据库文件在:src/blog/db/blog-go.sql.zip中
 
+#项目配置
+数据库，端口，上传，七牛，CSDN等配置都在此处
+src/blog/conf/app.conf
+
 #src/blog/db/说明
 www.foxwho.com.start.sh 为项目启动文件
 start.sh 为自动部署编译文件
