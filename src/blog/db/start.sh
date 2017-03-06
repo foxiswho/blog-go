@@ -11,7 +11,7 @@ WWWROOT=/www/wwwroot
 #站点路径
 SITEPATH=$WWWROOT/$SITE
 
-#gopanth
+#gopath
 GO_PATH=/www/go
 
 #解压缩后文件夹
