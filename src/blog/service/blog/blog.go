@@ -158,7 +158,7 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 		}
 	}
 	o := db.NewDb()
-	affected, err := o.Insert(m)
+	affected, err := o.MustCols("type","is_relevant","is_jump","is_comment","is_read","is_del","is_open","status").Insert(m)
 	if err != nil {
 		return 0, fox.NewError("创建错误1：" + err.Error())
 	}
@@ -244,7 +244,7 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	m.Description = str.Substr(m.Description, 0, 255)
 	stat.SeoDescription = str.Substr(stat.SeoDescription, 0, 255)
 	o := db.NewDb()
-	num, err := o.Id(id).MustCols("type").Update(m)
+	num, err := o.Id(id).MustCols("type","is_relevant","is_jump","is_comment","is_read","is_del","is_open","status").Update(m)
 	if err != nil {
 		return 0, fox.NewError("更新错误：" + err.Error())
 	}
