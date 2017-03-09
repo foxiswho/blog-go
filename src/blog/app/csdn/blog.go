@@ -116,8 +116,12 @@ func (t *Blog) Create(b *mod.Blog, type_id int)(string,error){
 	art.AccessToken = acc.AccessToken
 	art.Tags = b.Blog.Tag
 	art.Id = 0
-	art.Content = b.Content
-	art.Description = b.Description
+	//csdn的人 真懒，不支持Markdown格式文本
+	//转换为 富文本格式内容
+	art.Content = string(editor.Markdown([]byte(b.Content)))
+	if len(b.Blog.Description) > 0 {
+		art.Description = b.Blog.Description
+	}
 	art.Title = b.Title
 	art.Type = "original"
 	//接口传输
