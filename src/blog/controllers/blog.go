@@ -42,6 +42,14 @@ func (c *Blog) Get() {
 		tmp := read["info"]
 		//interface变量转换为结构体
 		B := tmp.(*blog.Blog)
+		if B.Blog.IsOpen != 1 {
+			c.Error("信息 不存在")
+			return
+		}
+		if B.Blog.Status != 99 {
+			c.Error("信息 不存在")
+			return
+		}
 		fmt.Println(B)
 		//更新浏览次数
 		_, err := ser.UpdateRead(B.Blog.BlogId)
@@ -64,6 +72,8 @@ func (c *Blog) GetAll() {
 	//查询变量
 	query := make(map[string]interface{})
 	query["type=?"] = conf.TYPE_ARTICLE
+	query["is_open=?"] = 1
+	query["status=?"] = 99
 	//初始化
 	mode := blog.NewBlogService()
 	//分页
