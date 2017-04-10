@@ -1,5 +1,5 @@
-#GO语言博客
-#功能说明
+# GO语言博客
+# 功能说明
  * 文章 增删该查
  * 图片 上传
  * markdown 编辑器
@@ -12,7 +12,7 @@
  * CSDN博客同步简单版(csdn的人真懒，只能同步富文本，不能同步markdown的文本)
  * 阿里云自动部署
  
-#未来
+# 未来
  * 其他模块继续完善
     * 省市区
     * 角色和权限
@@ -23,18 +23,18 @@
     * 附件
     * 。。。。。。
     
-#问题
+# 问题
  * 1.beego 配置文件竟然不支持注释，是不是还没找到正确的注释使用方式呢？
 
-#前台界面
+# 前台界面
 ![index](http://img.foxwho.com/uploads/img0.png)
 
-#后台界面
+# 后台界面
 ![list](http://img.foxwho.com/uploads/img2.png)
 ![edi](http://img.foxwho.com/uploads/img1.png)
 
-#编译
-##GO环境变量
+# 编译
+## GO环境变量
 根据你自己目录设置
 ```shell
 export GOROOT=/usr/local/go
@@ -45,8 +45,13 @@ export GOPATH=/Volumes/work/go/blog-go
 export GOBIN=$GOPATH/bin
 export PATH=.:$PATH:$GOBIN:$GOPKG:$GOPATH/bin 
 ```
+#详细安装请看
 
-##新环境
+我的博客教程
+
+http://blog.csdn.net/fenglailea/article/details/70014052
+
+## 新环境
 
 先安装 beego 和其他依赖
 ```go
@@ -69,13 +74,13 @@ http://www.golangtc.com/download/package
 cd src/blog
 bee run    #beego 要先安装
 ```
-##环境已安装过了
+## 环境已安装过了
 直接进入项目目录 编译
 ```go
 cd src/blog
 bee run    #beego 要先安装
 ```
-#后台用户
+# 后台用户
 用户名：admin
 
 密码：111111
@@ -84,16 +89,21 @@ bee run    #beego 要先安装
 
 数据库文件在:src/blog/db/blog-go.sql.zip中
 
-#项目配置
+# 项目配置
 数据库，端口，上传，七牛，CSDN等配置都在此处
+```SHELL
 src/blog/conf/app.conf
-
-#src/blog/db/说明
+```
+# src/blog/db/说明
 www.foxwho.com.start.sh 为项目启动文件
+
 start.sh 为自动部署编译文件
+
 blog_go.sql.zip 数据库文件
+
 www.foxwho.com.conf 为nginx配置文件
-#用到组件
+
+# 用到组件
 go 框架：Beego
 
 orm框架：xorm和xormplus
@@ -105,7 +115,7 @@ orm框架：xorm和xormplus
 上传   ：webuploader
 
 
-#后台说明
+# 后台说明
 ## RESTFUL
 detail :查看页面
 
@@ -129,7 +139,7 @@ test.com/admin/type/add         [get] 添加 页面  【添加】
 test.com/admin/type             [post] 保存 数据 【添加】
 test.com/admin/type             [get] 列表 页面  【查询】
 ```
-#ORM 使用 xorm 和xormplus
+# ORM 使用 xorm 和xormplus
 安装（注意是2个）
 
 网址：http://www.xorm.io/
@@ -145,7 +155,7 @@ go get -u github.com/xormplus/xorm
 ```shell
 go get github.com/go-xorm/cmd/xorm
 ```
-#生成模型
+# 生成模型
 >templates/goxorm 可以修改此模版
 先把 src/github.com/go-xorm/cmd/xorm/templates 目录，复制到你的项目目录里，例如 我的项目目录为 src/blog 那么就复制到该目录下，然后执行此命令
 该目录下多余的文件夹可以删除（C++,objc,go）
