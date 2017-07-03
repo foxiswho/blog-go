@@ -31,7 +31,22 @@
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">{{.Name}}</label>
                                     <div class="col-sm-6">
+                                        {{if eq .Value 603}}
+                                            {{$type := .TypeForm}}
+                                            {{$content := .Content}}
+                                            {{$mark := .Mark}}
+                                            {{range $i,$v:=.SettingsRadio}}
+                                            <input type="{{$type}}" name="{{$mark}}" value="{{$v.Value}}"
+                                            {{if eq $v.Value $content}}
+                                            checked
+                                            {{end}}
+                                            > {{$v.Name}}
+                                            {{end}}
+                                        {{else if eq .Value 604}}
+                                        <textarea name="{{.Mark}}" class="form-control">{{.Content}}</textarea>
+                                        {{else}}
                                         <input type="text" placeholder="" name="{{.Mark}}" class="form-control" value="{{.Content}}">
+                                        {{end}}
                                     </div>
                                     <div class="col-sm-4">
                                         {{.Remark}}

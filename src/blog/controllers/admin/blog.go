@@ -54,7 +54,7 @@ func (c *Blog)List() {
 	//初始化
 	mod := blog.NewBlogService()
 	page, _ := c.GetInt("page")
-	data, err := mod.GetAll(where, []string{}, "blog_id desc", page, 20)
+	data, err := mod.GetAll(where, []string{}, "sort,blog_id desc", page, 20)
 	if err != nil {
 		c.Error(err.Error())
 		return
@@ -109,11 +109,12 @@ func (c *Blog)Add() {
 	mod := blog.NewBlogService()
 	//初始化状态
 	blogMod := model.NewBlog()
-	blogMod.Author = c.Site.GetString("AUTHOR")
+	blogMod.Author = c.Site.GetString("author")
 	blogMod.IsOpen = 1				//启用
 	blogMod.Status = 99				//发布
 	blogMod.IsRead = conf.READ_NOT	//未读
 	blogMod.TypeId = conf.ORIGINAL	//原创
+	blogMod.Type   = conf.TYPE_ARTICLE //文章
 	mod.Blog = blogMod
 	mod.BlogStatistics = &model.BlogStatistics{}
 	//模版参数设置

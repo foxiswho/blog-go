@@ -11,20 +11,24 @@ import (
 	"blog/fox/editor"
 	"blog/fox/str"
 	"blog/service/conf"
+	sitePage "blog/service/site"
+	"blog/service/admin"
 )
+
 //博客
 type Blog struct {
 	*model.BlogStatistics
 	*model.Blog
 	Tags []string
 }
+
 //快速初始化
 func NewBlogService() *Blog {
 	return new(Blog)
 }
 
 //详情
-func (c *Blog)Read(id int) (map[string]interface{}, error) {
+func (c *Blog) Read(id int) (map[string]interface{}, error) {
 	if id < 1 {
 		return nil, fox.NewError("ID 错误")
 	}
@@ -58,13 +62,20 @@ func (c *Blog)Read(id int) (map[string]interface{}, error) {
 		//初始化赋值
 		info.BlogStatistics = Statistics
 	}
+	site := admin.NewSiteService()
+	config := site.SiteConfig()
+	// markdown 换行
+	if config["markdown_auto_newline"] == "yes" {
+		info.Content = strings.Replace(info.Content, "  \n", "\n", -1)
+	}
 	m["info"] = info
 	m["title"] = info.Title
 	//fmt.Println(m)
 	return m, err
 }
+
 //根据 自定义URL 获取详情
-func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
+func (c *Blog) ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	if id == "" {
 		return nil, fox.NewError("URL 错误")
 	}
@@ -103,8 +114,59 @@ func (c *Blog)ReadByUrlRewrite(id string) (map[string]interface{}, error) {
 	return m, err
 }
 
+//上一条和下一条
+func (c *Blog) PrevAndNext(id int, type_id int) (maps map[string]interface{}, err error) {
+	if id < 1 {
+		return nil, fox.NewError("ID 错误")
+	}
+	maps = make(map[string]interface{})
+	//查询变量
+	query := make(map[string]interface{})
+	query["type=?"] = type_id
+	query["is_open=?"] = 1
+	query["status=?"] = 99
+	query["blog_id<?"] = id
+	//上一条
+	prev := new(model.Blog)
+	o := db.Filter(query)
+	o.OrderBy("blog_id DESC")
+	_, err = o.Get(prev)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("prev=============>", prev)
+	maps["prev"] = prev
+	if prev != nil && prev.BlogId > 0 {
+		maps["prev_is"] = true
+	} else {
+		maps["prev_is"] = false
+	}
+	//下一条
+	//查询变量
+	query = make(map[string]interface{})
+	query["type=?"] = type_id
+	query["is_open=?"] = 1
+	query["status=?"] = 99
+	query["blog_id>?"] = id
+	next := new(model.Blog)
+	o = db.Filter(query)
+	o.OrderBy("blog_id ASC")
+	_, err = o.Get(next)
+	if err != nil {
+		return nil, err
+	}
+	maps["next"] = next
+	fmt.Println("next==========>", next)
+	if next != nil && next.BlogId > 0 {
+		maps["next_is"] = true
+	} else {
+		maps["next_is"] = false
+	}
+	return maps, err
+}
+
 //创建
-func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
+func (c *Blog) Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 
 	fmt.Println("DATA:", m)
 	if len(m.Title) < 1 {
@@ -119,6 +181,7 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	if m.TypeId > 10005 {
 		return 0, fox.NewError("类别 错误")
 	}
+	m.Type = conf.TYPE_ARTICLE //文章
 	//时间
 	if m.TimeAdd.IsZero() {
 		m.TimeAdd = time.Now()
@@ -157,8 +220,15 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 			i++
 		}
 	}
+	site := admin.NewSiteService()
+	config := site.SiteConfig()
+	// markdown 换行
+	if config["markdown_auto_newline"] == "yes" {
+		m.Content = editor.MarkdownAutoNewline(m.Content)
+	}
+	fmt.Println(m)
 	o := db.NewDb()
-	affected, err := o.MustCols("type","is_relevant","is_jump","is_comment","is_read","is_del","is_open","status").Insert(m)
+	affected, err := o.MustCols("type", "is_relevant", "is_jump", "is_comment", "is_read", "is_del", "is_open", "status").Insert(m)
 	if err != nil {
 		return 0, fox.NewError("创建错误1：" + err.Error())
 	}
@@ -173,14 +243,27 @@ func (c *Blog)Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 		_, err := tagSer.CreateFromTags(m.BlogId, m.Tag, "")
 		fmt.Println("TAG:", err)
 	}
+	//页面尾部操作
+	if config["this_page_url"] == "yes" {
+		str := sitePage.GetPageTemplate(m.BlogId, m.Content)
+		tmp := &model.Blog{}
+		tmp.Content = str
+		num, err := o.Id(m.BlogId).Update(tmp)
+		fmt.Println("num:", num)
+		if err != nil {
+			fmt.Println("err:", err)
+		}
+	}
+
 	fmt.Println("DATA:", m)
 	fmt.Println("affected:", affected)
 	fmt.Println("Id:", m.BlogId)
 	fmt.Println("Statistics:", id2)
 	return m.BlogId, nil
 }
+
 //更新
-func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, error) {
+func (c *Blog) Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, error) {
 	if id < 1 {
 		return 0, fox.NewError("ID 错误")
 	}
@@ -240,11 +323,17 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 			i++
 		}
 	}
+	site := admin.NewSiteService()
+	config := site.SiteConfig()
+	// markdown 换行
+	if config["markdown_auto_newline"] == "yes" {
+		m.Content = editor.MarkdownAutoNewline(m.Content)
+	}
 	//截取
 	m.Description = str.Substr(m.Description, 0, 255)
 	stat.SeoDescription = str.Substr(stat.SeoDescription, 0, 255)
 	o := db.NewDb()
-	num, err := o.Id(id).MustCols("type","is_relevant","is_jump","is_comment","is_read","is_del","is_open","status").Update(m)
+	num, err := o.Id(id).MustCols("type", "is_relevant", "is_jump", "is_comment", "is_read", "is_del", "is_open", "status").Update(m)
 	if err != nil {
 		return 0, fox.NewError("更新错误：" + err.Error())
 	}
@@ -265,8 +354,9 @@ func (c *Blog)Update(id int, m *model.Blog, stat *model.BlogStatistics) (int, er
 	fmt.Println("Id:", id)
 	return id, nil
 }
+
 //更新
-func (c *Blog)UpdateById(m *model.Blog, cols ...interface{}) (num int64, err error) {
+func (c *Blog) UpdateById(m *model.Blog, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
 	if num, err = o.Id(m.BlogId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
@@ -274,8 +364,9 @@ func (c *Blog)UpdateById(m *model.Blog, cols ...interface{}) (num int64, err err
 	}
 	return 0, err
 }
+
 //更新
-func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interface{}) (num int64, err error) {
+func (c *Blog) UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interface{}) (num int64, err error) {
 	o := db.NewDb()
 	if num, err = o.Id(m.StatisticsId).Update(m, cols...); err == nil {
 		fmt.Println("Number of records updated in database:", num)
@@ -283,8 +374,9 @@ func (c *Blog)UpdateBlogStatisticsById(m *model.BlogStatistics, cols ...interfac
 	}
 	return 0, err
 }
+
 //删除
-func (c *Blog)Delete(id int) (bool, error) {
+func (c *Blog) Delete(id int) (bool, error) {
 	if id < 1 {
 		return false, fox.NewError("ID 错误")
 	}
@@ -307,8 +399,9 @@ func (c *Blog)Delete(id int) (bool, error) {
 	fmt.Println("num3:", num3)
 	return true, nil
 }
+
 //删除 扩展表数据
-func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {
+func (c *Blog) DeleteBlogStatisticsByBlogId(id int) (int64, error) {
 	o := db.NewDb()
 	mode := model.NewBlogStatistics()
 	mode.BlogId = id
@@ -318,17 +411,20 @@ func (c *Blog)DeleteBlogStatisticsByBlogId(id int) (int64, error) {
 	}
 	return num, err
 }
+
 //根据自定义伪静态查询
-func (c *Blog)GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
+func (c *Blog) GetBlogByUrlRewrite(id string) (v *model.Blog, err error) {
 	o := db.NewDb()
 	v = new(model.Blog)
+	v.UrlRewrite = id
 	if err = o.Find(v); err == nil {
 		return v, nil
 	}
 	return nil, err
 }
+
 //检测标题是否重复
-func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
+func (c *Blog) CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	if str == "" {
 		return false, fox.NewError("名称 不能为空")
 	}
@@ -351,8 +447,9 @@ func (c *Blog)CheckTitleById(cat_id int, str string, id int) (bool, error) {
 	}
 	return false, fox.NewError("已存在")
 }
+
 //列表
-func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
+func (c *Blog) GetAll(q map[string]interface{}, fields []string, orderBy string, page int, limit int) (*db.Paginator, error) {
 	mode := model.NewBlog()
 	data, err := mode.GetAll(q, fields, orderBy, page, limit)
 	if err != nil {
@@ -399,8 +496,9 @@ func (c *Blog)GetAll(q map[string]interface{}, fields []string, orderBy string, 
 
 	return data, nil
 }
+
 //更新 浏览数
-func (c *Blog)UpdateRead(id int) (int, error) {
+func (c *Blog) UpdateRead(id int) (int, error) {
 	if id < 1 {
 		return 0, fox.NewError("ID 错误")
 	}

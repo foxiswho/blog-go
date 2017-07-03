@@ -11,6 +11,7 @@ import (
 	"github.com/astaxie/beego"
 	"blog/controllers/admin"
 	"blog/controllers"
+	"blog/controllers/api"
 )
 
 func init() {
@@ -59,7 +60,12 @@ func init() {
 	beego.AddNamespace(ns)
 	//首页
 	beego.Router("/", &controllers.Blog{}, "get:GetAll")
+	beego.Router("/search/", &controllers.Blog{}, "get:GetAll")
 	beego.Router("/page/:page", &controllers.Blog{}, "get:GetAll")
 	beego.Router("/article/:id", &controllers.Blog{}, "get:Get")
 	beego.Router("/tag/:tag", &controllers.Tag{}, "get:GetAll")
+	//API
+	beego.Router("/api/blog/create", &api.Blog{}, "post:Create")
+	beego.Router("/api/blog/cat", &api.BlogCat{}, "get:GetAll")
+	beego.Router("/api/blog/tag", &api.BlogTag{}, "get:GetAll")
 }

@@ -34,6 +34,5 @@ func (c *Tag) GetAll() {
 		c.Data["data"] = data
 	}
 	//模版
-	c.TplName = "blog/index.html"
-
+	c.SetTpl("blog/index.html")
 }

@@ -35,7 +35,7 @@ func (c *BaseNoLogin) Initialization() {
 	//检测变量是否赋值成功
 	if c.Site!=nil {
 		//如果参数加载为nil,则独有配置文件中博客名称
-		c.Data["site_name"] = c.Site.GetString("SITE_NAME")
+		c.Data["site_name"] = c.Site.GetString("site_name")
 	}
 
 }

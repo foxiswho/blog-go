@@ -6,6 +6,62 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "CheckTitle",
+			Router: `/admin/check_title`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "List",
+			Router: `/menu`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Get",
+			Router: `/admin/:id`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Add",
+			Router: `/admin/add`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Post",
+			Router: `/admin`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Detail",
+			Router: `/admin/detail/:id`,
+			AllowHTTPMethods: []string{"get"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Put",
+			Router: `/admin/:id`,
+			AllowHTTPMethods: []string{"put"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminMenu"],
+		beego.ControllerComments{
+			Method: "Delete",
+			Router: `/admin/:id`,
+			AllowHTTPMethods: []string{"delete"},
+			Params: nil})
+
 	beego.GlobalControllerRouter["blog/controllers/admin:AdminRole"] = append(beego.GlobalControllerRouter["blog/controllers/admin:AdminRole"],
 		beego.ControllerComments{
 			Method: "List",

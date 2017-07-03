@@ -1,0 +1,56 @@
+{{template "av/blog/header.html" .}}
+<div id="page">
+    {{template "av/blog/left.html" .}}
+    <div class="page-content">
+        <div class="vlist posts">
+            {{range .data.Data}}
+            <div class="item" S="first">
+                <div class="item-inline item-title">
+                    <h3>
+                        {{if eq .TypeId 10003}}
+                        <label class="label label-primary">原</label>
+                        {{else if eq .TypeId 10004}}
+                        <label class="label label-info">议</label>
+                        {{else if eq .TypeId 10005}}
+                        <label class="label">转</label>
+                        {{end}}
+                        <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a></h3>
+                    <p class="info">发布时间： <time datetime="{{.TimeAdd}}" data-jstime="{{.TimeAdd}}" class="agotime">{{dateformat .TimeAdd "2006年01月02日 15:04"}}</time>
+                        <a class="author" title="作者">{{.Author}}</a>
+                        <span class="tags">
+                            {{range $i,$v:=.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
+                             {{end}}
+                        </span>
+                    </p>
+                        {{if eq .ModuleId 10019}}
+                        {{$len :=len .Description}}
+                        {{if gt $len 0}}
+                    <div class="typocn">
+                        <pre>{{.Description}}</pre>
+                    </div>
+                        {{end}}
+                        {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+        <div class="pagination">
+            <ul>
+                <li><a href="/page/1">首页</a></li>
+            {{if .data.FirstPageIs}}<li><a href="/page/{{.data.FirstPage}}">← 上一页</a></li>{{end}}
+                    {{$page:=.data.Page}}
+                    {{range $i,$v:=.data.Pages}}
+                    <li class="{{if eq $v $page}}active{{end}}"><a href="/page/{{$v}}"> {{$v}} </a></li>
+                    {{end}}
+            {{if .data.NextPageIs}}<li><a href="/page/{{.data.NextPage}}">下一页 →</a></li>{{end}}
+            {{if .data.LastPageIs}}<li><a href="/page/{{.data.LastPage}}">尾页</a></li>{{end}}
+            </ul>
+        </div>
+        {{template "av/blog/powered_by.html" .}}
+    </div>
+    {{template "av/blog/footer.html" .}}
+</div>
+{{template "av/blog/footer_js.html" .}}
+</body>
+</html>

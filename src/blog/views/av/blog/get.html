@@ -1,0 +1,82 @@
+{{template "av/blog/header.html" .}}
+<div id="page">
+    {{template "av/blog/left.html" .}}
+    <div class="page-content">
+        <div id="blog">
+            <div class="page-header large">
+                <h1>
+                    {{if eq .info.TypeId 10003}}
+                    <label class="label label-primary">原</label>
+                    {{else if eq .info.TypeId 10004}}
+                    <label class="label label-info">议</label>
+                    {{else if eq .info.TypeId 10005}}
+                    <label class="label">转</label>
+                    {{end}}
+                    <a href="/article/{{.info.Blog.BlogId}}" rel="nofollow">{{.info.Title}}</a></h1>
+            </div>
+            <p class="copyright">
+        <span class="pull-left">
+            日志未经声明，均为<a href="http://www.foxwho.com/" target="_blank">风.fox</a>原创。版权采用<a
+                rel="license" href="http://creativecommons.org/licenses/by-nc/2.5/cn/" target="_blank">『 知识共享署名-非商业性使用 2.5 许可协议』</a>进行许可。
+        </span>
+                <span class="share-btn pull-left">
+            <span class="addthis_toolbox addthis_default_style ">
+                <a class="addthis_button_twitter"></a>
+                <a class="addthis_button_facebook"></a>
+                <a class="addthis_button_google_plusone_share"></a>
+                <a class="addthis_button_sinaweibo"></a>
+                <a class="addthis_button_douban"></a>
+            </span>
+            <script type="text/javascript">var addthis_config = {"data_track_addressbar": false};</script>
+        </span>
+                <span class="pull-left">
+            <span id="google_translate_element"></span>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({
+                        pageLanguage: 'zh-CN',
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                    }, 'google_translate_element');
+                }
+            </script>
+        </span>
+            </p>
+            <article class="typo typocn">
+                {{$len :=len .info.Description}}
+                {{if gt $len 0}}
+                <pre>{{.info.Description}}{{if eq .info.ModuleId 10019}}<br/>来自：{{.info.UrlSource}}{{end}}</pre>
+                {{end}}
+                {{.Content |str2html}}
+                <p class="tags"> 　Tags :
+                    {{range $i,$v:=.info.Tags}}
+                    <a class="label tag" href="/tag/{{$v}}" title="{{$v}}">{{$v}}</a>
+                    {{end}}
+                </p>
+                {{template "av/blog/coffee.html" .}}
+            </article>
+            <div class="neighbors">
+                {{if .prev_is}}
+                <a href="/article/{{.prev.BlogId}}" class="prev"
+                   title="{{.prev.Title}}"><span
+                        class="icon-ext icon-arrow-left"></span></a>
+                {{end}}
+                <div class="postdate" title="本篇日志发布于：{{dateformat .info.TimeAdd "2006年01月02日 15:04"}}">
+                    <abbr class="gmtdate" title="本篇日志发布于：{{dateformat .info.TimeAdd "2006年01月02日 15:04"}}">
+                        <span class="month">{{dateformat .info.TimeAdd "01"}}月</span>
+                        <span class="day">{{dateformat .info.TimeAdd "02"}}</span>
+                    </abbr>
+                </div>
+            {{if .next_is}}
+                <a href="/article/{{.next.BlogId}}" class="next"
+                   title="{{.prev.Title}}"><span
+                        class="icon-ext icon-arrow-right"></span></a>
+            {{end}}
+            </div>
+        </div>
+        {{template "av/blog/powered_by.html" .}}
+    </div>
+    {{template "av/blog/footer.html" .}}
+</div>
+{{template "av/blog/footer_js.html" .}}
+</body>
+</html>

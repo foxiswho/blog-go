@@ -31,7 +31,7 @@ func (c *BaseNoLogin) Initialization() {
 	//检测是否存在
 	if c.Site!=nil{
 		//不存在，则，使用 配置文件中名称
-		c.Data["site_name"] = c.Site.GetString("SITE_NAME")
+		c.Data["site_name"] = c.Site.GetString("site_name")
 	}
 }
 //表单日期时间

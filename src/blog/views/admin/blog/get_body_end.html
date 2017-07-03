@@ -111,6 +111,7 @@
             });
             //标签
             $('.bootstrap-tagsinput > input').on('change', function (event) {
+                $(this).css('width','200px');
                 var $element = $(event.target),
                     $container = $element.closest('.bootstrap-tagsinput');
 

@@ -23,7 +23,9 @@ type Blog struct {
 	UrlRewrite  string    `json:"url_rewrite" xorm:"not null default '' index CHAR(255)"`
 	Description string    `json:"description" xorm:"not null default '' VARCHAR(255)"`
 	Content     string    `json:"content" xorm:"TEXT"`
-	Type        int       `json:"type" xorm:"not null default 0 INT(11)"`
+	Type        int       `json:"type" xorm:"not null default 0 index(type) INT(11)"`
+	ModuleId    int       `json:"module_id" xorm:"not null default 0 index(module_id) INT(11)"`
+	SourceId    int       `json:"source_id" xorm:"not null default 0 index(source_id) INT(11)"`
 	TypeId      int       `json:"type_id" xorm:"not null default 0 index(is_del) INT(11)"`
 	CatId       int       `json:"cat_id" xorm:"not null default 0 index(is_del) INT(11)"`
 	Tag         string    `json:"tag" xorm:"not null default '' VARCHAR(255)"`
@@ -54,6 +56,9 @@ func (c *Blog) GetAll(q map[string]interface{}, fields []string, orderBy string,
 		fmt.Println(err)
 		return nil, fox.NewError(err.Error())
 	}
+	//fmt.Println("count",int(count))
+	//fmt.Println("page",page)
+	//fmt.Println("limit",limit)
 	Query := db.Pagination(int(count), page, limit)
 	if count == 0 {
 		return Query, nil

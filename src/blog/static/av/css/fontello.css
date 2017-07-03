@@ -1,0 +1,182 @@
+@font-face {
+  font-family: 'fontello';
+  src: url("font/fontello.eot");
+  src: url("font/fontello.eot?#iefix") format('embedded-opentype'), url("font/fontello.woff") format('woff'), url("font/fontello.ttf") format('truetype'), url("font/fontello.svg#fontello") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="icon-social-"]:before,
+[class*=" icon-social-"]:before {
+  font-family: 'fontello';
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: 0.2em;
+  text-align: center;
+  opacity: 0.8;
+/* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+/* Animation center compensation - magrins should be symmetric */
+/* remove if not needed */
+  margin-left: 0.2em;
+/* you can be more comfortable with increased icons size */
+/* font-size: 120%; */
+/* Uncomment for 3D effect */
+/* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-social-duckduckgo:before { content: '\21'; } /* '!' */
+.icon-social-aim:before { content: '\22'; } /* '&quot;' */
+.icon-social-delicious:before { content: '\23'; } /* '#' */
+.icon-social-paypal:before { content: '\24'; } /* '$' */
+.icon-social-flattr:before { content: '\25'; } /* '%' */
+.icon-social-android:before { content: '\26'; } /* '&amp;' */
+.icon-social-eventful:before { content: '\27'; } /* ''' */
+.icon-social-smashmag:before { content: '\2a'; } /* '*' */
+.icon-social-gplus:before { content: '\2b'; } /* '+' */
+.icon-social-wikipedia:before { content: '\2c'; } /* ',' */
+.icon-social-lanyrd:before { content: '\2d'; } /* '-' */
+.icon-social-calendar:before { content: '\2e'; } /* '.' */
+.icon-social-stumbleupon:before { content: '\2f'; } /* '/' */
+.icon-social-fivehundredpx:before { content: '\30'; } /* '0' */
+.icon-social-pinterest:before { content: '\31'; } /* '1' */
+.icon-social-bitcoin:before { content: '\32'; } /* '2' */
+.icon-social-w3c:before { content: '\33'; } /* '3' */
+.icon-social-foursquare:before { content: '\34'; } /* '4' */
+.icon-social-html5:before { content: '\35'; } /* '5' */
+.icon-social-ie:before { content: '\36'; } /* '6' */
+.icon-social-call:before { content: '\37'; } /* '7' */
+.icon-social-grooveshark:before { content: '\38'; } /* '8' */
+.icon-social-ninetyninedesigns:before { content: '\39'; } /* '9' */
+.icon-social-forrst:before { content: '\3a'; } /* ':' */
+.icon-social-digg:before { content: '\3b'; } /* ';' */
+.icon-social-spotify:before { content: '\3d'; } /* '=' */
+.icon-social-reddit:before { content: '\3e'; } /* '&gt;' */
+.icon-social-guest:before { content: '\3f'; } /* '?' */
+.icon-social-gowalla:before { content: '\40'; } /* '@' */
+.icon-social-appstore:before { content: '\41'; } /* 'A' */
+.icon-social-blogger:before { content: '\42'; } /* 'B' */
+.icon-social-cc:before { content: '\43'; } /* 'C' */
+.icon-social-dribbble:before { content: '\44'; } /* 'D' */
+.icon-social-evernote:before { content: '\45'; } /* 'E' */
+.icon-social-flickr:before { content: '\46'; } /* 'F' */
+.icon-social-google:before { content: '\47'; } /* 'G' */
+.icon-social-viadeo:before { content: '\48'; } /* 'H' */
+.icon-social-instapaper:before { content: '\49'; } /* 'I' */
+.icon-social-weibo:before { content: '\4a'; } /* 'J' */
+.icon-social-klout:before { content: '\4b'; } /* 'K' */
+.icon-social-linkedin:before { content: '\4c'; } /* 'L' */
+.icon-social-meetup:before { content: '\4d'; } /* 'M' */
+.icon-social-vk:before { content: '\4e'; } /* 'N' */
+.icon-social-plancast:before { content: '\50'; } /* 'P' */
+.icon-social-disqus:before { content: '\51'; } /* 'Q' */
+.icon-social-rss:before { content: '\52'; } /* 'R' */
+.icon-social-skype:before { content: '\53'; } /* 'S' */
+.icon-social-twitter:before { content: '\54'; } /* 'T' */
+.icon-social-youtube:before { content: '\55'; } /* 'U' */
+.icon-social-vimeo:before { content: '\56'; } /* 'V' */
+.icon-social-windows:before { content: '\57'; } /* 'W' */
+.icon-social-xing:before { content: '\58'; } /* 'X' */
+.icon-social-yahoo:before { content: '\59'; } /* 'Y' */
+.icon-social-chrome:before { content: '\5b'; } /* '[' */
+.icon-social-email:before { content: '\5d'; } /* ']' */
+.icon-social-macstore:before { content: '\5e'; } /* '^' */
+.icon-social-myspace:before { content: '\5f'; } /* '_' */
+.icon-social-podcast:before { content: '\60'; } /* '`' */
+.icon-social-amazon:before { content: '\61'; } /* 'a' */
+.icon-social-steam:before { content: '\62'; } /* 'b' */
+.icon-social-cloudapp:before { content: '\63'; } /* 'c' */
+.icon-social-dropbox:before { content: '\64'; } /* 'd' */
+.icon-social-ebay:before { content: '\65'; } /* 'e' */
+.icon-social-facebook:before { content: '\66'; } /* 'f' */
+.icon-social-github:before { content: '\67'; } /* 'g' */
+.icon-social-googleplay:before { content: '\68'; } /* 'h' */
+.icon-social-itunes:before { content: '\69'; } /* 'i' */
+.icon-social-plurk:before { content: '\6a'; } /* 'j' */
+.icon-social-songkick:before { content: '\6b'; } /* 'k' */
+.icon-social-lastfm:before { content: '\6c'; } /* 'l' */
+.icon-social-gmail:before { content: '\6d'; } /* 'm' */
+.icon-social-pinboard:before { content: '\6e'; } /* 'n' */
+.icon-social-openid:before { content: '\6f'; } /* 'o' */
+.icon-social-quora:before { content: '\71'; } /* 'q' */
+.icon-social-soundcloud:before { content: '\73'; } /* 's' */
+.icon-social-tumblr:before { content: '\74'; } /* 't' */
+.icon-social-eventasaurus:before { content: '\76'; } /* 'v' */
+.icon-social-wordpress:before { content: '\77'; } /* 'w' */
+.icon-social-yelp:before { content: '\79'; } /* 'y' */
+.icon-social-intensedebate:before { content: '\7b'; } /* '{' */
+.icon-social-eventbrite:before { content: '\7c'; } /* '|' */
+.icon-social-scribd:before { content: '\7d'; } /* '}' */
+.icon-social-posterous:before { content: '\7e'; } /* '~' */
+.icon-social-stripe:before { content: '\a3'; } /* '£' */
+.icon-social-opentable:before { content: '\c7'; } /* 'Ç' */
+.icon-social-cart:before { content: '\c9'; } /* 'É' */
+.icon-social-print:before { content: '\d1'; } /* 'Ñ' */
+.icon-social-angellist:before { content: '\d6'; } /* 'Ö' */
+.icon-social-instagram:before { content: '\dc'; } /* 'Ü' */
+.icon-social-dwolla:before { content: '\e0'; } /* 'à' */
+.icon-social-appnet:before { content: '\e1'; } /* 'á' */
+.icon-social-statusnet:before { content: '\e2'; } /* 'â' */
+.icon-social-acrobat:before { content: '\e3'; } /* 'ã' */
+.icon-social-drupal:before { content: '\e4'; } /* 'ä' */
+.icon-social-buffer:before { content: '\e5'; } /* 'å' */
+.icon-social-pocket:before { content: '\e7'; } /* 'ç' */
+.icon-social-bitbucket:before { content: '\e9'; } /* 'é' */
+.icon-social-firefox:before { content: '\e840'; } /* '' */
+.icon-social-opera:before { content: '\e842'; } /* '' */
+.icon-social-pinterest-squared:before { content: '\f0d3'; } /* '' */
+.icon-social-gplus-squared:before { content: '\f0d4'; } /* '' */
+.icon-social-github-squared:before { content: '\e801'; } /* '' */
+.icon-social-github-circled:before { content: '\f301'; } /* '' */
+.icon-social-facebook-rect:before { content: '\e804'; } /* '' */
+.icon-social-twitter-bird:before { content: '\e805'; } /* '' */
+.icon-social-flickr-circled:before { content: '\f304'; } /* '' */
+.icon-social-twitter-squared:before { content: '\e802'; } /* '' */
+.icon-social-icq:before { content: '\e80c'; } /* '' */
+.icon-social-yandex:before { content: '\f305'; } /* '' */
+.icon-social-yandex-rect:before { content: '\e80d'; } /* '' */
+.icon-social-vimeo-circled:before { content: '\f307'; } /* '' */
+.icon-social-github-text:before { content: '\e80a'; } /* '' */
+.icon-social-googleplus-rect:before { content: '\e809'; } /* '' */
+.icon-social-twitter-circled:before { content: '\f30a'; } /* '' */
+.icon-social-vkontakte-rect:before { content: '\e80e'; } /* '' */
+.icon-social-linkedin-squared:before { content: '\e800'; } /* '' */
+.icon-social-odnoklassniki:before { content: '\e80f'; } /* '' */
+.icon-social-facebook-circled:before { content: '\f30d'; } /* '' */
+.icon-social-odnoklassniki-rect:before { content: '\e810'; } /* '' */
+.icon-social-facebook-squared:before { content: '\f30e'; } /* '' */
+.icon-social-vimeo-rect:before { content: '\e807'; } /* '' */
+.icon-social-gplus-circled:before { content: '\f310'; } /* '' */
+.icon-social-tumblr-rect:before { content: '\e808'; } /* '' */
+.icon-social-friendfeed:before { content: '\e811'; } /* '' */
+.icon-social-pinterest-circled:before { content: '\f313'; } /* '' */
+.icon-social-friendfeed-rect:before { content: '\e812'; } /* '' */
+.icon-social-tumblr-circled:before { content: '\f316'; } /* '' */
+.icon-social-deviantart:before { content: '\e814'; } /* '' */
+.icon-social-jabber:before { content: '\f317'; } /* '' */
+.icon-social-linkedin-circled:before { content: '\f319'; } /* '' */
+.icon-social-lastfm-rect:before { content: '\e816'; } /* '' */
+.icon-social-linkedin-rect:before { content: '\e817'; } /* '' */
+.icon-social-dribbble-circled:before { content: '\f31c'; } /* '' */
+.icon-social-stumbleupon-circled:before { content: '\f31f'; } /* '' */
+.icon-social-instagram-filled:before { content: '\e81a'; } /* '' */
+.icon-social-lastfm-circled:before { content: '\f322'; } /* '' */
+.icon-social-rdio:before { content: '\f324'; } /* '' */
+.icon-social-rdio-circled:before { content: '\f325'; } /* '' */
+.icon-social-spotify-circled:before { content: '\f328'; } /* '' */
+.icon-social-qq:before { content: '\f32a'; } /* '' */
+.icon-social-skype-circled:before { content: '\f33a'; } /* '' */
+.icon-social-renren:before { content: '\f33c'; } /* '' */
+.icon-social-sina-weibo:before { content: '\f33f'; } /* '' */
+.icon-social-picasa:before { content: '\f345'; } /* '' */
+.icon-social-mixi:before { content: '\f34b'; } /* '' */
+.icon-social-behance:before { content: '\f34e'; } /* '' */
+.icon-social-google-circles:before { content: '\f351'; } /* '' */
+.icon-social-vkontakte:before { content: '\f354'; } /* '' */
+.icon-social-smashing:before { content: '\f357'; } /* '' */
+.icon-social-db-shape:before { content: '\f600'; } /* '' */
+.icon-social-sweden:before { content: '\f601'; } /* '' */
+.icon-social-logo-db:before { content: '\f603'; } /* '' */

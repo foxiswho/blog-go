@@ -22,7 +22,7 @@ func (c *Type)Query(type_id int) (*db.Paginator, error) {
 	query := make(map[string]interface{})
 	query["type_id"] = type_id
 	mod := model.NewType()
-	data, err := mod.GetAll(query, fields, "id desc", 0, 9999)
+	data, err := mod.GetAll(query, fields, "id asc", 0, 9999)
 	//fmt.Println(data)
 	fmt.Println(err)
 	return data, err
