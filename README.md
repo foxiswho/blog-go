@@ -11,6 +11,7 @@
  * CSDN登陆及绑定
  * CSDN博客同步简单版(csdn的人真懒，只能同步富文本，不能同步markdown的文本)
  * 阿里云自动部署
+ * 博客网摘 
  
 # 未来
  * 其他模块继续完善
@@ -22,7 +23,12 @@
     * 标签
     * 附件
     * 。。。。。。
-    
+# 博客网摘
+直接收藏 网址到 博客里
+
+foxwho 博客网摘 
+chrome 插件地址 https://chrome.google.com/webstore/detail/diaphlmmfnagdgicohlhbcimoioeafnc
+
 # 问题
  * 1.beego 配置文件竟然不支持注释，是不是还没找到正确的注释使用方式呢？
 
