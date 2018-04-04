@@ -1,5 +1,5 @@
-{{template "blog/header.html" .}}
-{{template "blog/left.html" .}}
+{{template "blog/blog/header.html" .}}
+{{template "blog/blog/left.html" .}}
 <section id="main" class="index" style="display: block">
     <div class="container">
         <div id="article-list">
@@ -51,10 +51,10 @@
                 {{if .data.LastPageIs}}<a href="/page/{{.data.LastPage}}">下一页 →</a>{{end}}
             </div>
         </div>
-        {{template "blog/footer.html" .}}
+        {{template "blog/blog/footer.html" .}}
     </div>
 </section>
-{{template "blog/footer_js.html" .}}
+{{template "blog/blog/footer_js.html" .}}
 <link rel="stylesheet" href="http://cdn.bootcss.com/highlight.js/8.0/styles/monokai_sublime.min.css">
 <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
 <script>
