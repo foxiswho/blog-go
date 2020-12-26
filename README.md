@@ -4,6 +4,9 @@
 
 使用 go mod ,go 1.15.x
 
+# 升级说明
+本版本没有任何功能增加,只是升级为 go mod和beego框架
+
 # 功能说明
  * 文章 增删该查
  * 图片 上传
@@ -51,7 +54,7 @@ export PATH=.:$PATH:$GOBIN:$GOPKG:$GOPATH/bin
 export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
 ```
-#详细安装请看
+# 详细安装请看
 
 新版暂时未制作教程
 ## 拉取代码
