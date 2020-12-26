@@ -1,0 +1,136 @@
+{{template "admin/public/header.html" .}}
+    <div class="wrapper wrapper-content  animated fadeInRight blog">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="search-form">
+                    <form action="?" method="get">
+                        <div class="input-group">
+                            <input type="text" placeholder="关键词" name="wd" class="form-control input-lg" value="{{.wd}}">
+                            <div class="input-group-btn">
+                                <button class="btn btn-lg btn-primary" type="submit">
+                                    搜索
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                {{range .data.Data}}
+                <div class="ibox" id="d_{{.Blog.BlogId}}">
+                    <div class="ibox-content">
+                        <a href="/article/{{.Blog.BlogId}}" class="btn-link" target="_blank">
+                            <h2>
+                                {{if eq .TypeId 10003}}
+                                <label class="label label-primary">原</label>
+                                {{else if eq .TypeId 10004}}
+                                <label class="label label-info">议</label>
+                                {{else if eq .TypeId 10005}}
+                                <label class="label">转</label>
+                                {{end}}
+                                {{if eq .IsRead 10016}}
+                                <label class="label label-primary">已</label>
+                                {{else if eq .IsRead 10015}}
+                                <label class="label label-info">在</label>
+                                {{else}}
+                                <label class="label">未</label>
+                                {{end}}
+                                {{.Title}}
+                                </h2>
+                        </a>
+                        <div class="small m-b-xs">
+                            <strong>{{.Author}}</strong> <span class="text-muted"><i class="fa fa-clock-o"></i> {{dateformat .TimeAdd "2006-01-02 15:04:05"}}</span>
+                            <span class="text-muted"><i class="fa fa-comments-o"></i> {{.Comment}} 评论</span>
+                            <span class="text-muted"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}} 浏览</span>
+                        </div>
+                        <p>
+                            {{.Description}}
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>标签：</h5>
+                                {{range $i,$v:=.Tags}}
+                                <button class="btn btn-primary btn-xs" type="button">{{$v}}</button>
+                                {{end}}
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class=" text-right">
+                                    <h5>操作</h5>
+                                    <a href="github.com/foxiswho/blog-go/blog/{{.Blog.BlogId}}" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-paste"></i> 编辑</a>
+                                    <a href="github.com/foxiswho/blog-go/blog/{{.Blog.BlogId}}" class="btn btn-danger btn-xs del" ><i class="fa fa-times"></i> 删除</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+                <div id="page">
+                    <ul class="pagination" id="pageUl">
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{{template "admin/public/footer.html" .}}
+<script src="{{.__static__}}plugin/bootstrap-paginator.js"></script>
+<script>
+    $(function () {
+        $("#pageUl").bootstrapPaginator({
+            currentPage: '{{.data.Page}}',
+            totalPages: '{{.data.TotalPage}}',
+            bootstrapMajorVersion: 3,
+            size: "small",
+            itemTexts: function (type, page, current) {
+                switch (type) {
+                    case "first": return "首页";
+                    case "prev": return "上一页";
+                    case "next": return "下一页";
+                    case "last": return "末页";
+                    case "page": return page;
+                }
+            },
+            onPageClicked: function(e,originalEvent,type,page){
+                var wd=$('wd').value();
+                var url="?page=" + page;
+                if (wd!=''){
+                    url+="&wd="+encodeURIComponent(wd);
+                }
+                window.location.href = url;
+            }
+        });
+        $('a.del').click(function (e) {
+            e.preventDefault();
+            var $this=$(this);
+            var url=$this.attr('href');
+            //询问框
+            parent.layer.confirm('你确定要删除该条信息？', {
+                icon: 0,
+                btn: ['确定','取消'], //按钮
+                shade: false //不显示遮罩
+            }, function(){
+//                parent.layer.msg('的确很重要', {icon: 1});
+                $.ajax({
+                    url:url,
+                    dataType:'json',
+                    method:"DELETE"
+                }).done(function (data) {
+                    console.log(data);
+                    if(data.code==1){
+                        layer.tips(data.info,$this);
+                        $("#"+url.replace("github.com/foxiswho/blog-go/blog/","d_")).hide(3000);
+                    }else{
+                        layer.tips(data.info,$this);
+                    }
+                }).fail(function(){
+                    alert("系统错误");
+                });
+            }, function(){
+//                parent.layer.msg('奇葩么么哒', {shift: 6});
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

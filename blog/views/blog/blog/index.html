@@ -1,0 +1,65 @@
+{{template "github.com/foxiswho/blog-go/blog/blog/header.html" .}}
+{{template "github.com/foxiswho/blog-go/blog/blog/left.html" .}}
+<section id="main" class="index" style="display: block">
+    <div class="container">
+        <div id="article-list">
+            {{range .data.Data}}
+            <article class="article">
+                <div class="row">
+                    <header class="header">
+                        <h3 class="title">
+                            {{if eq .TypeId 10003}}
+                            <label class="label label-primary">原</label>
+                            {{else if eq .TypeId 10004}}
+                            <label class="label label-info">议</label>
+                            {{else if eq .TypeId 10005}}
+                            <label class="label">转</label>
+                            {{end}}
+                            <a href="/article/{{.Blog.BlogId}}">{{.Title}}</a>
+                        </h3>
+                    </header>
+                    <section class=" markdown-body editormd-html-preview">
+                        {{.Content |str2html}}
+                    </section>
+                    <aside class="aside clearfix">
+                        <span class="date">
+                            <span class="year">{{dateformat .TimeAdd "2006"}}</span>/
+                            <span class="month">{{dateformat .TimeAdd "01"}}</span>/
+                            <span class="day">{{dateformat .TimeAdd "02"}}</span>
+                        </span>
+                        <a class="day"><i class="fa fa-comments-o"></i> {{.Comment}}</a>
+                        <a class="day"><i class="fa fa-eye"></i> {{.BlogStatistics.Read}}</a>
+                        <a class="author" title="作者">{{.Author}}</a>
+                        <span class="tags">
+                            {{range $i,$v:=.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
+                             {{end}}
+                        </span>
+                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.Blog.BlogId}}">详情</a>
+                    </aside>
+                </div>
+            </article>
+            {{end}}
+            <div class="article-pager">
+                {{if .data.FirstPageIs}}<a href="/page/{{.data.FirstPage}}">← 首页</a>{{end}}
+                <span class="current">
+                    {{$page:=.data.Page}}
+                    {{range $i,$v:=.data.Pages}}
+                    <a href="/page/{{$v}}" class="{{if eq $v $page}}current{{end}}"> {{$v}} </a>
+                    {{end}}
+                </span>
+                {{if .data.LastPageIs}}<a href="/page/{{.data.LastPage}}">下一页 →</a>{{end}}
+            </div>
+        </div>
+        {{template "github.com/foxiswho/blog-go/blog/blog/footer.html" .}}
+    </div>
+</section>
+{{template "github.com/foxiswho/blog-go/blog/blog/footer_js.html" .}}
+<link rel="stylesheet" href="http://cdn.bootcss.com/highlight.js/8.0/styles/monokai_sublime.min.css">
+<script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
+<script>
+    //代码高亮
+    hljs.initHighlightingOnLoad();
+</script>
+</body>
+</html>

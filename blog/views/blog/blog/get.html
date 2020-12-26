@@ -1,0 +1,55 @@
+{{template "github.com/foxiswho/blog-go/blog/blog/header.html" .}}
+{{template "github.com/foxiswho/blog-go/blog/blog/left.html" .}}
+<section id="main">
+    <div class="container">
+        <div id="article-single">
+            <article class="article">
+                <div class="row">
+                    <header class="header">
+                        <h3 class="title">
+                            {{if eq .info.TypeId 10003}}
+                            <label class="label label-primary">原</label>
+                            {{else if eq .info.TypeId 10004}}
+                            <label class="label label-info">议</label>
+                            {{else if eq .info.TypeId 10005}}
+                            <label class="label">转</label>
+                            {{end}}
+                            {{.info.Title}}
+                        </h3>
+                    </header>
+                    <aside class="aside clearfix">
+                        <span class="date">
+                           <span class="year">{{dateformat .info.TimeAdd "2006"}}</span>/
+                            <span class="month">{{dateformat .info.TimeAdd "01"}}</span>/
+                            <span class="day">{{dateformat .info.TimeAdd "02"}}</span>
+                        </span>
+                        <a class="day"><i class="fa fa-comments-o"></i> {{.info.Comment}}</a>
+                        <a class="day"><i class="fa fa-eye"></i> {{.info.BlogStatistics.Read}}</a>
+                        <a class="author" title="作者">{{.info.Author}}</a>
+                        <span class="tags">
+                            {{range $i,$v:=.info.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
+                             {{end}}
+                        </span>
+                    </aside>
+                    <section class="brief">
+                        {{.Content |str2html}}
+                    </section>
+                </div>
+            </article>
+        </div>
+
+        <!--<section id="comment">-->
+            <!--<div class="row">-->
+                <!--<div class="col-md-10 col-md-offset-1">-->
+                    <!--<div id="disqus_thread"></div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</section>-->
+
+        {{template "github.com/foxiswho/blog-go/blog/blog/footer.html" .}}
+    </div>
+</section>
+{{template "github.com/foxiswho/blog-go/blog/blog/footer_js.html" .}}
+</body>
+</html>
