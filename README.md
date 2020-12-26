@@ -61,14 +61,11 @@ http://blog.csdn.net/fenglailea/article/details/70014052
 
 先安装 beego 和其他依赖
 ```go
-go get github.com/astaxie/beego
-go get github.com/beego/bee
-go get github.com/astaxie/beego/cache
+go get github.com/foxiswho/blog-go
+//
 go get github.com/go-xorm/xorm
 go get -u github.com/xormplus/xorm
 go get github.com/go-xorm/cmd/xorm
-go get -u github.com/qiniu/api.v7
-go get github.com/russross/blackfriday
 ```
 >如果`golang.org/x/net/context`无法下载使用下面下载地址
 http://www.golangtc.com/static/download/packages/golang.org.x.net.tar.gz
