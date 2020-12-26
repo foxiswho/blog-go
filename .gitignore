@@ -17,3 +17,4 @@ src/github.com/deepzz0/goblog/.idea
 /routers/commentsRouter.go
 /lastupdate.tmp
 /blog-go
+blog.iml
