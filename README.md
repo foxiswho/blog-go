@@ -1,4 +1,7 @@
 # GO语言博客
+
+使用 框架 beego v2.0.1
+
 # 功能说明
  * 文章 增删该查
  * 图片 上传
@@ -29,9 +32,6 @@
 foxwho 博客网摘 
 chrome 插件地址 https://chrome.google.com/webstore/detail/diaphlmmfnagdgicohlhbcimoioeafnc
 
-# 问题
- * 1.beego 配置文件竟然不支持注释，是不是还没找到正确的注释使用方式呢？
-
 # 前台界面
 ![index](http://img.foxwho.com/uploads/img0.png)
 
@@ -44,43 +44,35 @@ chrome 插件地址 https://chrome.google.com/webstore/detail/diaphlmmfnagdgicoh
 根据你自己目录设置
 ```shell
 export GOROOT=/usr/local/go
-export GOPKG=$GOROOT/pkg/tool/darwin_amd64
-export GOARCH=amd64
-export GOOS=darwin
-export GOPATH=/Volumes/work/go/blog-go
 export GOBIN=$GOPATH/bin
 export PATH=.:$PATH:$GOBIN:$GOPKG:$GOPATH/bin 
+export GOPROXY=https://goproxy.cn
+export GO111MODULE=on
 ```
 #详细安装请看
 
-我的博客教程
-
-http://blog.csdn.net/fenglailea/article/details/70014052
+新版暂时未制作教程
 
 ## 新环境
 
 先安装 beego 和其他依赖
 ```go
 go get github.com/foxiswho/blog-go
-//
+
+cd blog-go
+// 工具安装
+go get -u github.com/beego/bee/v2
 go get github.com/go-xorm/xorm
 go get -u github.com/xormplus/xorm
 go get github.com/go-xorm/cmd/xorm
 ```
->如果`golang.org/x/net/context`无法下载使用下面下载地址
-http://www.golangtc.com/static/download/packages/golang.org.x.net.tar.gz
-或者使用下面网址中按步骤下载
-http://www.golangtc.com/download/package
-
 然后进入项目目录
 ```go
-cd src/blog
 bee run    #beego 要先安装
 ```
 ## 环境已安装过了
 直接进入项目目录 编译
 ```go
-cd src/blog
 bee run    #beego 要先安装
 ```
 # 后台用户
@@ -90,14 +82,14 @@ bee run    #beego 要先安装
 
 登陆地址 : /admin/login
 
-数据库文件在:src/blog/db/blog_go.sql.zip中
+数据库文件在:db/blog_go.sql.zip中
 
 # 项目配置
 数据库，端口，上传，七牛，CSDN等配置都在此处
 ```SHELL
-src/blog/conf/app.conf
+conf/app.conf
 ```
-# src/blog/db/说明
+# db/说明
 www.foxwho.com.start.sh 为项目启动文件
 
 start.sh 为自动部署编译文件
