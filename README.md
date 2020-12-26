@@ -52,13 +52,12 @@ export GO111MODULE=on
 #详细安装请看
 
 新版暂时未制作教程
-
-## 新环境
-
-先安装 beego 和其他依赖
+## 拉取代码
 ```go
-go get github.com/foxiswho/blog-go
-
+git clone https://github.com/foxiswho/blog-go
+```
+## 新环境 工具安装
+```go
 cd blog-go
 // 工具安装
 go get -u github.com/beego/bee/v2
