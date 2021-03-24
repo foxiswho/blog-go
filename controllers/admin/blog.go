@@ -143,18 +143,19 @@ func (c *Blog)Add() {
 //保存
 // @router /blog [post]
 func (c *Blog)Post() {
-	blogModel := model.NewBlog()
+	blogModel := model.Blog{}
 	//参数传递
-	blog_statistics := model.NewBlogStatistics()
+	blog_statistics := model.BlogStatistics{}
 	//表单结构体绑定
 	if err := c.ParseForm(&blogModel); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
 		return
 	}
+	fmt.Println("bmp:",blogModel)
 	//表单结构体绑定
 	if err := c.ParseForm(&blog_statistics); err != nil {
-		fmt.Println("ParseForm-err:", err)
+		fmt.Println("ParseForm-err2:", err)
 		c.Error(err.Error())
 		return
 	}
@@ -166,9 +167,11 @@ func (c *Blog)Post() {
 			blogModel.TimeAdd = date
 		}
 	}
+	fmt.Println("blogModel:",&blogModel)
+	fmt.Println("blog_statistics:",&blog_statistics)
 	//创建
 	serv := blog.NewBlogService()
-	id, err := serv.Create(blogModel, blog_statistics)
+	id, err := serv.Create(&blogModel, &blog_statistics)
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -193,8 +196,8 @@ func (c *Blog)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogMoel := model.NewBlog()
-	blog_statistics := model.NewBlogStatistics()
+	blogMoel := model.Blog{}
+	blog_statistics := model.BlogStatistics{}
 	//表单 与结构体绑定
 	if err := c.ParseForm(&blogMoel); err != nil {
 		fmt.Println("ParseForm-err:", err)
@@ -217,7 +220,7 @@ func (c *Blog)Put() {
 	}
 	//更新
 	ser := blog.NewBlogService()
-	_, err := ser.Update(int_id, blogMoel, blog_statistics)
+	_, err := ser.Update(int_id, &blogMoel, &blog_statistics)
 	if err != nil {
 		c.Error(err.Error())
 	} else {

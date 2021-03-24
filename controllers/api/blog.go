@@ -29,9 +29,9 @@ func (c *Blog) Create() {
 		return
 	}
 
-	blogModel := model.NewBlog()
+	blogModel := model.Blog{}
 	//参数传递
-	blog_statistics := model.NewBlogStatistics()
+	blog_statistics := model.BlogStatistics{}
 	//表单结构体绑定
 	if err := c.ParseForm(&blogModel); err != nil {
 		fmt.Println("ParseForm-err:", err)
@@ -74,7 +74,7 @@ func (c *Blog) Create() {
 	blogModel.Url = blogModel.UrlSource
 	//创建
 	serv := blog.NewBlogService()
-	id, err := serv.Create(blogModel, blog_statistics)
+	id, err := serv.Create(&blogModel, &blog_statistics)
 	if err != nil {
 		c.Error(err.Error())
 	} else {

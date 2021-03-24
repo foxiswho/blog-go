@@ -76,7 +76,7 @@ func (c *Blog) Get() {
 		c.Data["next_is"] = prevNext["next_is"]
 	}
 	//模版
-	c.SetTpl("github.com/foxiswho/blog-go/blog/get.html")
+	c.SetTpl("blog/get.html")
 }
 
 //博客首页，列表页面
@@ -111,5 +111,5 @@ func (c *Blog) GetAll() {
 		fmt.Println("data.Pages",data.Pages)
 	}
 	//模版
-	c.SetTpl("github.com/foxiswho/blog-go/blog/index.html")
+	c.SetTpl("blog/index.html")
 }

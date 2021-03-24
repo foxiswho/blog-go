@@ -65,7 +65,7 @@ func (c *BlogCat)Add() {
 //保存
 // @router /blog/cat [post]
 func (c *BlogCat)Post() {
-	blogModel := model.NewBlog()
+	blogModel := model.Blog{}
 
 	//参数传递
 	if err := c.ParseForm(&blogModel); err != nil {
@@ -80,7 +80,7 @@ func (c *BlogCat)Post() {
 	}
 	//创建
 	serv := blog.NewBlogCatService()
-	id, err := serv.Create(blogModel)
+	id, err := serv.Create(&blogModel)
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -95,7 +95,7 @@ func (c *BlogCat)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	blogModel := model.NewBlog()
+	blogModel := model.Blog{}
 	if err := c.ParseForm(&blogModel); err != nil {
 		c.Error(err.Error())
 		return
@@ -108,7 +108,7 @@ func (c *BlogCat)Put() {
 	}
 	//更新
 	ser := blog.NewBlogCatService()
-	_, err := ser.Update(int_id, blogModel)
+	_, err := ser.Update(int_id, &blogModel)
 	if err != nil {
 		c.Error(err.Error())
 	} else {

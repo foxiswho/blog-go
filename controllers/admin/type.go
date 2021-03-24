@@ -102,7 +102,7 @@ func (c *Type)Add() {
 //保存
 // @router /type [post]
 func (c *Type)Post() {
-	mod := model.NewType()
+	mod := model.Type{}
 	//参数传递
 	if err := c.ParseForm(&mod); err != nil {
 		c.Error(err.Error())
@@ -110,7 +110,7 @@ func (c *Type)Post() {
 	}
 	//创建
 	ser := admin.NewTypeService()
-	id, err := ser.Create(mod)
+	id, err := ser.Create(&mod)
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -145,13 +145,13 @@ func (c *Type)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	mod := model.NewType()
+	mod := model.Type{}
 	if err := c.ParseForm(&mod); err != nil {
 		c.Error(err.Error())
 	}
 	//更新
 	ser := admin.NewTypeService()
-	_, err := ser.Update(int_id, mod)
+	_, err := ser.Update(int_id, &mod)
 	if err != nil {
 		c.Error(err.Error())
 	} else {

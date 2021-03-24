@@ -68,7 +68,7 @@ cd blog-go
 go get -u github.com/beego/bee/v2
 go get github.com/go-xorm/xorm
 go get -u github.com/xormplus/xorm
-go get github.com/go-xorm/cmd/xorm
+go get xorm.io/xorm
 ```
 然后进入项目目录
 ```go

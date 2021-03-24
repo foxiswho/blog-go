@@ -97,9 +97,9 @@ func (c *AdminUser)Add() {
 // @router /admin [post]
 func (c *AdminUser)Post() {
 	//初始化
-	mod := model.NewAdmin()
+	mod := model.Admin{}
 	//初始化
-	modExt := model.NewAdminStatus()
+	modExt := model.AdminStatus{}
 	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := c.ParseForm(&mod); err != nil {
 		//错误输出
@@ -121,7 +121,7 @@ func (c *AdminUser)Post() {
 	//初始化
 	serv := admin.NewAdminUserService()
 	//保存到数据库
-	id, err := serv.Create(mod, modExt)
+	id, err := serv.Create(&mod, &modExt)
 	//错误检测
 	if err != nil {
 		c.Error(err.Error())
@@ -146,8 +146,8 @@ func (c *AdminUser)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//初始化
-	mod := model.NewAdmin()
-	modExt := model.NewAdminStatus()
+	mod := model.Admin{}
+	modExt := model.AdminStatus{}
 	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := c.ParseForm(&mod); err != nil {
 		fmt.Println("ParseForm-err:", err)
@@ -163,7 +163,7 @@ func (c *AdminUser)Put() {
 	//初始化
 	ser := admin.NewAdminUserService()
 	//更新数据
-	_, err := ser.Update(int_id, mod, modExt)
+	_, err := ser.Update(int_id, &mod, &modExt)
 	//错误检测
 	if err != nil {
 		c.Error(err.Error())

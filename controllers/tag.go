@@ -34,5 +34,5 @@ func (c *Tag) GetAll() {
 		c.Data["data"] = data
 	}
 	//模版
-	c.SetTpl("github.com/foxiswho/blog-go/blog/index.html")
+	c.SetTpl("blog/index.html")
 }

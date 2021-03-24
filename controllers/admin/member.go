@@ -84,9 +84,9 @@ func (c *Member)Add() {
 //保存
 // @router /member [post]
 func (c *Member)Post() {
-	mod := model.NewMember()
+	mod := model.Member{}
 	//参数传递
-	modExt := model.NewMemberStatus()
+	modExt := model.MemberStatus{}
 	if err := c.ParseForm(&mod); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
@@ -102,7 +102,7 @@ func (c *Member)Post() {
 	//mod.Ip=c.Ctx.Input.IP()
 	//创建
 	serv := member.NewMemberService()
-	id, err := serv.Create(mod, modExt)
+	id, err := serv.Create(&mod, &modExt)
 	if err != nil {
 		c.Error(err.Error())
 	} else {
@@ -124,8 +124,8 @@ func (c *Member)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//参数传递
-	mod := model.NewMember()
-	modExt := model.NewMemberStatus()
+	mod := model.Member{}
+	modExt := model.MemberStatus{}
 	if err := c.ParseForm(&mod); err != nil {
 		fmt.Println("ParseForm-err:", err)
 		c.Error(err.Error())
@@ -138,7 +138,7 @@ func (c *Member)Put() {
 	}
 	//更新
 	ser := member.NewMemberService()
-	_, err := ser.Update(int_id, mod, modExt)
+	_, err := ser.Update(int_id, &mod, &modExt)
 	if err != nil {
 		c.Error(err.Error())
 	} else {

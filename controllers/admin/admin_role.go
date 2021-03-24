@@ -63,7 +63,7 @@ func (c *AdminRole)Add() {
 // @router /admin_role [post]
 func (c *AdminRole)Post() {
 	//初始化
-	mod := model.NewType()
+	mod := model.Type{}
 	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := c.ParseForm(&mod); err != nil {
 		//错误显示
@@ -74,7 +74,7 @@ func (c *AdminRole)Post() {
 	//创建，初始化
 	ser := admin.NewTypeService()
 	//保存到数据库创建记录
-	id, err := ser.Create(mod)
+	id, err := ser.Create(&mod)
 	//错误检测
 	if err != nil {
 		c.Error(err.Error())
@@ -116,7 +116,7 @@ func (c *AdminRole)Put() {
 	id := c.Ctx.Input.Param(":id")
 	int_id, _ := strconv.Atoi(id)
 	//初始化
-	mod := model.NewType()
+	mod := model.Type{}
 	//参数传递，表单值 自动保存到结构体对应的属性中,根据 tag 中的form
 	if err := c.ParseForm(&mod); err != nil {
 		//错误输出
@@ -127,7 +127,7 @@ func (c *AdminRole)Put() {
 	//初始化
 	ser := admin.NewTypeService()
 	//更新
-	_, err := ser.Update(int_id, mod)
+	_, err := ser.Update(int_id, &mod)
 	//错误检测
 	if err != nil {
 		c.Error(err.Error())

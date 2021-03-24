@@ -169,6 +169,7 @@ func (c *Blog) PrevAndNext(id int, type_id int) (maps map[string]interface{}, er
 func (c *Blog) Create(m *model.Blog, stat *model.BlogStatistics) (int, error) {
 
 	fmt.Println("DATA:", m)
+	fmt.Println("DATA-:", stat)
 	if len(m.Title) < 1 {
 		return 0, fox.NewError("标题 不能为空")
 	}
