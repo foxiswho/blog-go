@@ -7,7 +7,7 @@ import (
 )
 
 type MemberGroupExt struct {
-	GroupId int `json:"group_id" xorm:"not null pk autoincr INT(10)"`
+	GroupId int `form:"group_id" json:"group_id" xorm:"not null pk autoincr INT(10)"`
 }
 
 //初始化

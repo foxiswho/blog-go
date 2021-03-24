@@ -8,18 +8,18 @@ import (
 )
 
 type Log struct {
-	LogId      int       `json:"log_id" xorm:"not null pk autoincr INT(11)"`
-	Id         int       `json:"id" xorm:"not null default 0 index INT(11)"`
-	Aid        int       `json:"aid" xorm:"not null default 0 index INT(11)"`
-	Uid        int       `json:"uid" xorm:"not null default 0 index INT(11)"`
-	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	Mark       string    `json:"mark" xorm:"not null default '' CHAR(32)"`
-	Data       string    `json:"data" xorm:"TEXT"`
-	No         string    `json:"no" xorm:"not null default '' index CHAR(50)"`
-	TypeLogin  int       `json:"type_login" xorm:"not null default 0 index INT(11)"`
-	TypeClient int       `json:"type_client" xorm:"not null default 0 index INT(11)"`
-	Ip         string    `json:"ip" xorm:"not null default '' CHAR(20)"`
-	Msg        string    `json:"msg" xorm:"VARCHAR(255)"`
+	LogId      int       `form:"log_id" json:"log_id" xorm:"not null pk autoincr INT(11)"`
+	Id         int       `form:"id" json:"id" xorm:"not null default 0 index INT(11)"`
+	Aid        int       `form:"aid" json:"aid" xorm:"not null default 0 index INT(11)"`
+	Uid        int       `form:"uid" json:"uid" xorm:"not null default 0 index INT(11)"`
+	TimeAdd    time.Time `form:"time_add" json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Mark       string    `form:"mark" json:"mark" xorm:"not null default '' CHAR(32)"`
+	Data       string    `form:"data" json:"data" xorm:"TEXT"`
+	No         string    `form:"no" json:"no" xorm:"not null default '' index CHAR(50)"`
+	TypeLogin  int       `form:"type_login" json:"type_login" xorm:"not null default 0 index INT(11)"`
+	TypeClient int       `form:"type_client" json:"type_client" xorm:"not null default 0 index INT(11)"`
+	Ip         string    `form:"ip" json:"ip" xorm:"not null default '' CHAR(20)"`
+	Msg        string    `form:"msg" json:"msg" xorm:"VARCHAR(255)"`
 }
 
 //初始化

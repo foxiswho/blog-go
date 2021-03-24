@@ -8,14 +8,14 @@ import (
 )
 
 type App struct {
-	AppId   int       `json:"app_id" xorm:"not null pk autoincr INT(11)"`
-	TypeId  int       `json:"type_id" xorm:"not null default 0 unique INT(11)"`
-	Name    string    `json:"name" xorm:"not null default '' VARCHAR(100)"`
-	Mark    string    `json:"mark" xorm:"not null default '' CHAR(32)"`
-	Setting string    `json:"setting" xorm:"VARCHAR(5000)"`
-	Remark  string    `json:"remark" xorm:"VARCHAR(255)"`
-	TimeAdd time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	IsDel   int       `json:"is_del" xorm:"not null default 0 INT(11)"`
+	AppId   int       `form:"app_id" json:"app_id" xorm:"not null pk autoincr INT(11)"`
+	TypeId  int       `form:"type_id" json:"type_id" xorm:"not null default 0 unique INT(11)"`
+	Name    string    `form:"name" json:"name" xorm:"not null default '' VARCHAR(100)"`
+	Mark    string    `form:"mark" json:"mark" xorm:"not null default '' CHAR(32)"`
+	Setting string    `form:"setting" json:"setting" xorm:"VARCHAR(5000)"`
+	Remark  string    `form:"remark" json:"remark" xorm:"VARCHAR(255)"`
+	TimeAdd time.Time `form:"time_add" json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	IsDel   int       `form:"is_del" json:"is_del" xorm:"not null default 0 INT(11)"`
 }
 
 //初始化

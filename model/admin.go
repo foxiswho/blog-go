@@ -8,21 +8,21 @@ import (
 )
 
 type Admin struct {
-	Aid        int       `json:"aid" xorm:"not null pk autoincr INT(11)"`
-	Username   string    `json:"username" xorm:"not null default '' index CHAR(30)"`
-	Password   string    `json:"password" xorm:"not null default '' CHAR(32)"`
-	Mail       string    `json:"mail" xorm:"not null default '' VARCHAR(80)"`
-	Salt       string    `json:"salt" xorm:"not null default '' VARCHAR(10)"`
-	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	TimeUpdate time.Time `json:"time_update" xorm:"TIMESTAMP"`
-	Ip         string    `json:"ip" xorm:"not null default '' CHAR(15)"`
-	JobNo      string    `json:"job_no" xorm:"not null default '' VARCHAR(15)"`
-	NickName   string    `json:"nick_name" xorm:"not null default '' VARCHAR(50)"`
-	TrueName   string    `json:"true_name" xorm:"not null default '' VARCHAR(50)"`
-	Qq         string    `json:"qq" xorm:"not null default '' VARCHAR(50)"`
-	Phone      string    `json:"phone" xorm:"not null default '' VARCHAR(50)"`
-	Mobile     string    `json:"mobile" xorm:"not null default '' VARCHAR(20)"`
-	IsDel      int       `json:"is_del" xorm:"not null default 0 index TINYINT(1)"`
+	Aid        int       `form:"aid" json:"aid" xorm:"not null pk autoincr INT(11)"`
+	Username   string    `form:"username" json:"username" xorm:"not null default '' index CHAR(30)"`
+	Password   string    `form:"password" json:"password" xorm:"not null default '' CHAR(32)"`
+	Mail       string    `form:"mail" json:"mail" xorm:"not null default '' VARCHAR(80)"`
+	Salt       string    `form:"salt" json:"salt" xorm:"not null default '' VARCHAR(10)"`
+	TimeAdd    time.Time `form:"time_add" json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	TimeUpdate time.Time `form:"time_update" json:"time_update" xorm:"TIMESTAMP"`
+	Ip         string    `form:"ip" json:"ip" xorm:"not null default '' CHAR(15)"`
+	JobNo      string    `form:"job_no" json:"job_no" xorm:"not null default '' VARCHAR(15)"`
+	NickName   string    `form:"nick_name" json:"nick_name" xorm:"not null default '' VARCHAR(50)"`
+	TrueName   string    `form:"true_name" json:"true_name" xorm:"not null default '' VARCHAR(50)"`
+	Qq         string    `form:"qq" json:"qq" xorm:"not null default '' VARCHAR(50)"`
+	Phone      string    `form:"phone" json:"phone" xorm:"not null default '' VARCHAR(50)"`
+	Mobile     string    `form:"mobile" json:"mobile" xorm:"not null default '' VARCHAR(20)"`
+	IsDel      int       `form:"is_del" json:"is_del" xorm:"not null default 0 index TINYINT(1)"`
 }
 
 //初始化

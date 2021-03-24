@@ -8,15 +8,15 @@ import (
 )
 
 type AdminStatus struct {
-	StatusId   int       `json:"status_id" xorm:"not null pk autoincr INT(11)"`
-	Aid        int       `json:"aid" xorm:"not null default 0 INT(11)"`
-	LoginTime  time.Time `json:"login_time" xorm:"TIMESTAMP <-" `
-	LoginIp    string    `json:"login_ip" xorm:"not null default '' CHAR(20)"`
-	Login      int       `json:"login" xorm:"not null default 0 INT(11)"`
-	AidAdd     int       `json:"aid_add" xorm:"not null default 0 INT(11)"`
-	AidUpdate  int       `json:"aid_update" xorm:"not null default 0 INT(11)"`
-	TimeUpdate time.Time `json:"time_update" xorm:"TIMESTAMP <-"`
-	Remark     string    `json:"remark" xorm:"not null default '' VARCHAR(255)"`
+	StatusId   int       `form:"status_id" json:"status_id" xorm:"not null pk autoincr INT(11)"`
+	Aid        int       `form:"aid" json:"aid" xorm:"not null default 0 INT(11)"`
+	LoginTime  time.Time `form:"login_time" json:"login_time" xorm:"TIMESTAMP <-" `
+	LoginIp    string    `form:"login_ip" json:"login_ip" xorm:"not null default '' CHAR(20)"`
+	Login      int       `form:"login" json:"login" xorm:"not null default 0 INT(11)"`
+	AidAdd     int       `form:"aid_add" json:"aid_add" xorm:"not null default 0 INT(11)"`
+	AidUpdate  int       `form:"aid_update" json:"aid_update" xorm:"not null default 0 INT(11)"`
+	TimeUpdate time.Time `form:"time_update" json:"time_update" xorm:"TIMESTAMP <-"`
+	Remark     string    `form:"remark" json:"remark" xorm:"not null default '' VARCHAR(255)"`
 }
 
 //初始化

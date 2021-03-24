@@ -8,15 +8,15 @@ import (
 )
 
 type BlogSyncMapping struct {
-	MapId      int       `json:"map_id" xorm:"not null pk autoincr INT(11)"`
-	BlogId     int       `json:"blog_id" xorm:"not null default 0 INT(11)"`
-	TypeId     int       `json:"type_id" xorm:"not null default 0 INT(11)"`
-	Id         string    `json:"id" xorm:"not null default '' VARCHAR(64)"`
-	TimeUpdate time.Time `json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
-	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
-	Mark       string    `json:"mark" xorm:"not null default '' CHAR(32)"`
-	IsSync     int       `json:"is_sync" xorm:"not null default 0 TINYINT(1)"`
-	Extend     string    `json:"extend" xorm:"VARCHAR(5000)"`
+	MapId      int       `form:"map_id" json:"map_id" xorm:"not null pk autoincr INT(11)"`
+	BlogId     int       `form:"blog_id" json:"blog_id" xorm:"not null default 0 INT(11)"`
+	TypeId     int       `form:"type_id" json:"type_id" xorm:"not null default 0 INT(11)"`
+	Id         string    `form:"id" json:"id" xorm:"not null default '' VARCHAR(64)"`
+	TimeUpdate time.Time `form:"time_update" json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
+	TimeAdd    time.Time `form:"time_add" json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP <-"`
+	Mark       string    `form:"mark" json:"mark" xorm:"not null default '' CHAR(32)"`
+	IsSync     int       `form:"is_sync" json:"is_sync" xorm:"not null default 0 TINYINT(1)"`
+	Extend     string    `form:"extend" json:"extend" xorm:"VARCHAR(5000)"`
 }
 
 //初始化

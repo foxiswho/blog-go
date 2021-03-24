@@ -7,19 +7,19 @@ import (
 )
 
 type MemberProfile struct {
-	ProfileId   int    `json:"profile_id" xorm:"not null pk autoincr INT(11)"`
-	Uid         int    `json:"uid" xorm:"not null default 0 index INT(11)"`
-	Sex         int    `json:"sex" xorm:"not null default 1 TINYINT(1)"`
-	Job         string `json:"job" xorm:"not null default '' VARCHAR(50)"`
-	Qq          string `json:"qq" xorm:"not null default '' VARCHAR(20)"`
-	Phone       string `json:"phone" xorm:"not null default '' VARCHAR(20)"`
-	County      int    `json:"county" xorm:"not null default 1 INT(11)"`
-	Province    int    `json:"province" xorm:"not null default 0 INT(11)"`
-	City        int    `json:"city" xorm:"not null default 0 INT(11)"`
-	District    int    `json:"district" xorm:"not null default 0 INT(11)"`
-	Address     string `json:"address" xorm:"not null default '' VARCHAR(255)"`
-	Wechat      string `json:"wechat" xorm:"not null default '' VARCHAR(20)"`
-	RemarkAdmin string `json:"remark_admin" xorm:"TEXT"`
+	ProfileId   int    `form:"profile_id" json:"profile_id" xorm:"not null pk autoincr INT(11)"`
+	Uid         int    `form:"uid" json:"uid" xorm:"not null default 0 index INT(11)"`
+	Sex         int    `form:"sex" json:"sex" xorm:"not null default 1 TINYINT(1)"`
+	Job         string `form:"job" json:"job" xorm:"not null default '' VARCHAR(50)"`
+	Qq          string `form:"qq" json:"qq" xorm:"not null default '' VARCHAR(20)"`
+	Phone       string `form:"phone" json:"phone" xorm:"not null default '' VARCHAR(20)"`
+	County      int    `form:"county" json:"county" xorm:"not null default 1 INT(11)"`
+	Province    int    `form:"province" json:"province" xorm:"not null default 0 INT(11)"`
+	City        int    `form:"city" json:"city" xorm:"not null default 0 INT(11)"`
+	District    int    `form:"district" json:"district" xorm:"not null default 0 INT(11)"`
+	Address     string `form:"address" json:"address" xorm:"not null default '' VARCHAR(255)"`
+	Wechat      string `form:"wechat" json:"wechat" xorm:"not null default '' VARCHAR(20)"`
+	RemarkAdmin string `form:"remark_admin" json:"remark_admin" xorm:"TEXT"`
 }
 
 //初始化

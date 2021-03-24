@@ -7,13 +7,13 @@ import (
 )
 
 type BlogStatistics struct {
-	StatisticsId   int    `json:"statistics_id" xorm:"not null pk autoincr INT(11)"`
-	BlogId         int    `json:"blog_id" xorm:"not null default 0 index INT(11)"`
-	Comment        int    `json:"comment" xorm:"not null default 0 INT(11)"`
-	Read           int    `json:"read" xorm:"not null default 0 INT(11)"`
-	SeoTitle       string `json:"seo_title" xorm:"not null default '' VARCHAR(255)"`
-	SeoDescription string `json:"seo_description" xorm:"not null default '' VARCHAR(255)"`
-	SeoKeyword     string `json:"seo_keyword" xorm:"not null default '' VARCHAR(255)"`
+	StatisticsId   int    `form:"statistics_id" json:"statistics_id" xorm:"not null pk autoincr INT(11)"`
+	BlogId         int    `form:"blog_id" json:"blog_id" xorm:"not null default 0 index INT(11)"`
+	Comment        int    `form:"comment" json:"comment" xorm:"not null default 0 INT(11)"`
+	Read           int    `form:"read" json:"read" xorm:"not null default 0 INT(11)"`
+	SeoTitle       string `form:"seo_title" json:"seo_title" xorm:"not null default '' VARCHAR(255)"`
+	SeoDescription string `form:"seo_description" json:"seo_description" xorm:"not null default '' VARCHAR(255)"`
+	SeoKeyword     string `form:"seo_keyword" json:"seo_keyword" xorm:"not null default '' VARCHAR(255)"`
 }
 
 //初始化

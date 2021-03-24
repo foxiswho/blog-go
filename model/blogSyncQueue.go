@@ -8,14 +8,14 @@ import (
 )
 
 type BlogSyncQueue struct {
-	QueueId    int       `json:"queue_id" xorm:"not null pk autoincr INT(11)"`
-	BlogId     int       `json:"blog_id" xorm:"not null default 0 INT(11)"`
-	TypeId     int       `json:"type_id" xorm:"not null default 0 INT(11)"`
-	Status     int       `json:"status" xorm:"not null default 0 TINYINT(3)"`
-	TimeUpdate time.Time `json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	TimeAdd    time.Time `json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
-	Msg        string    `json:"msg" xorm:"not null default '' VARCHAR(255)"`
-	MapId      int       `json:"map_id" xorm:"not null default 0 INT(11)"`
+	QueueId    int       `form:"queue_id" json:"queue_id" xorm:"not null pk autoincr INT(11)"`
+	BlogId     int       `form:"blog_id" json:"blog_id" xorm:"not null default 0 INT(11)"`
+	TypeId     int       `form:"type_id" json:"type_id" xorm:"not null default 0 INT(11)"`
+	Status     int       `form:"status" json:"status" xorm:"not null default 0 TINYINT(3)"`
+	TimeUpdate time.Time `form:"time_update" json:"time_update" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	TimeAdd    time.Time `form:"time_add" json:"time_add" xorm:"default 'CURRENT_TIMESTAMP' TIMESTAMP"`
+	Msg        string    `form:"msg" json:"msg" xorm:"not null default '' VARCHAR(255)"`
+	MapId      int       `form:"map_id" json:"map_id" xorm:"not null default 0 INT(11)"`
 }
 
 //初始化
