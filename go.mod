@@ -13,22 +13,15 @@ require (
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-sql-driver/mysql v1.5.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/lib/pq v1.10.0 // indirect
-	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/qiniu/api.v7/v7 v7.8.0
 	github.com/russross/blackfriday v1.6.0
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/xormplus/builder v0.0.0-20200331055651-240ff40009be // indirect
 	github.com/xormplus/xorm v0.0.0-20210107091022-175d736afaae
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
-	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
-	golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 // indirect
-	golang.org/x/text v0.3.5 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/flosch/pongo2.v3 v3.0.0-20141028000813-5e81b817a0c4 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
