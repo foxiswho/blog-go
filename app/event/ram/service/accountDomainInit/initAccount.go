@@ -144,7 +144,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	t.sp.authDb.Create(&authorizationEntity)
 	//
 	//记录文件日志
-	dataFilePg.NewAccountFileRecord(t.sp.pg, dataFilePg.MakeContent(typeDomainPg.System.Index(), save.Account, pwd)).Write()
+	dataFilePg.NewAccountFileRecord(t.sp.pg, dataFilePg.MakeContent(save.Account, pwd, typeDomainPg.System.Index())).Write()
 }
 
 func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
