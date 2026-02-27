@@ -1,0 +1,68 @@
+{{ define "blog/blog/index.tpl" }}
+{{template "blog/blog/header.tpl" .}}
+{{template "blog/blog/left.tpl" .}}
+<section id="main" class="index" style="display: block">
+    <div class="container">
+        <div id="article-list">
+            {{range .data.Data}}
+            <article class="article">
+                <div class="row">
+                    <header class="header">
+                        <h3 class="title">
+                            {{if eq .TypeContent "original"}}
+                            <label class="label label-primary">原</label>
+                            {{else if eq .TypeContent "translation"}}
+                            <label class="label label-info">译</label>
+                            {{else if eq .TypeContent "repost"}}
+                            <label class="label">转</label>
+                            {{end}}
+                            <a href="/article/{{.ID}}">{{.Name}}</a>
+                        </h3>
+                    </header>
+                    <section class=" markdown-body editormd-html-preview">
+                        {{.Description}}
+                    </section>
+                    <aside class="aside clearfix">
+                        <span class="date">
+                            <span class="year">{{dateformat .CreateAt "2006"}}</span>/
+                            <span class="month">{{dateformat .CreateAt "01"}}</span>/
+                            <span class="day">{{dateformat .CreateAt "02"}}</span>
+                        </span>
+                        <a class="day"><i class="fa fa-comments-o"></i> {{.Statistics.Comment}}</a>
+                        <a class="day"><i class="fa fa-eye"></i> {{.Statistics.Read}}</a>
+                        <a class="author" title="作者">{{.Author}}</a>
+                        <span class="tags">
+                            {{range $i,$v:=.Tags}}
+                            <a class="tag" href="/tag/{{$v}}">{{$v}}</a>
+                             {{end}}
+                        </span>
+                        <a class="btn btn-primary btn-lg pull-right" href="/article/{{.ID}}">详情</a>
+                    </aside>
+                </div>
+            </article>
+            {{end}}
+            <div class="article-pager">
+                {{if .data.Pageable.FirstPageIs }}<a href="/?pageNum={{.data.Pageable.FirstPage}}">首页</a>{{end}}
+                <span class="current">
+                    {{$page:=.data.Pageable.PageNum}}
+                    {{range $i,$v:=.data.Pageable.Pages}}
+                    <a href="/?pageNum={{$v}}" class="{{if eq $v $page}}current{{end}}"> {{$v}} </a>
+                    {{end}}
+                </span>
+                {{if .data.Pageable.NextPageIs}}<a href="/?pageNum={{.data.Pageable.NextPage}}">下一页 →</a>{{end}}
+                {{if .data.Pageable.LastPageIs}}<a href="/?pageNum={{.data.Pageable.LastPage}}">尾页</a>{{end}}
+            </div>
+        </div>
+        {{template "blog/blog/footer.tpl" .}}
+    </div>
+</section>
+{{template "blog/blog/footer_js.tpl" .}}
+<link rel="stylesheet" href="/assets/static/uno/monokai_sublime.min.css">
+<script src="/assets/static/uno/highlight.min.js"></script>
+<script>
+    //代码高亮
+    hljs.initHighlightingOnLoad();
+</script>
+</body>
+</html>
+{{end}}

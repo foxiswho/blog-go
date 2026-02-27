@@ -1,0 +1,18 @@
+package modRamAccountLoginLog
+
+import (
+	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+)
+
+type QueryCt struct {
+	model.BaseQueryCt
+	Ano           string         `json:"ano" label:"编号" `
+	LoginSource   string         `json:"loginSource" label:"登录来源" `
+	AppNo         string         `json:"appNo" label:"应用编号" `
+	Client        string         `json:"client" label:"客户端" `
+	TenantNo      string         `json:"tenantNo" label:"租户编号" `
+	System        string         `json:"system" label:"系统" `
+	Ip            string         `json:"ip" label:"ip" `
+	CreateAtRange []*typePg.Time `json:"createAtRange" label:"创建时间" `
+}

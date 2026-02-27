@@ -1,0 +1,26 @@
+<Configuration>
+    <Properties>
+        <Property name="bufferCap">1KB</Property>
+        <Property name="bufferSize">1000</Property>
+        <Property name="LayoutBufferSize">100KB</Property>
+    </Properties>
+    <Appenders>
+        <File name="file" fileName="./data/logs/log.txt">
+            <JSONLayout/>
+        </File>
+        <Console name="console">
+            <TextLayout/>
+<!--            <JSONLayout bufferSize="${LayoutBufferSize}"/>-->
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="warn">
+            <AppenderRef ref="console"/>
+<!--            <AppenderRef ref="file"/>-->
+        </Root>
+        <Logger name="logger" level="debug" tags="_pg_*_*">
+            <AppenderRef ref="console"/>
+<!--            <AppenderRef ref="file"/>-->
+        </Logger>
+    </Loggers>
+</Configuration>

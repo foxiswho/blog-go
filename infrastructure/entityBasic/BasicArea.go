@@ -1,0 +1,40 @@
+package entityBasic
+
+import (
+	"time"
+)
+
+// BasicAreaEntity 城市
+type BasicAreaEntity struct {
+	ID          int64      `gorm:"column:id;type:bigserial;primaryKey;autoIncrement:true" json:"id" comment:"" `
+	No          string     `gorm:"column:no;type:varchar(80);index;default:;comment:编号" json:"no" comment:"编号" `
+	Name        string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `                                                                                          // 名称
+	NameFl      string     `gorm:"column:name_fl;type:varchar(255);comment:名称外文" json:"name_fl" comment:"名称外文" `                                                                                // 名称外文
+	Code        string     `gorm:"column:code;type:varchar(80);comment:标记" json:"code" comment:"标记" `                                                                                           // 编号代号
+	NameFull    string     `gorm:"column:name_full;type:varchar(255);comment:全称" json:"name_full" comment:"全称" `                                                                                // 全称
+	State       int8       `gorm:"column:state;type:int2;not null;index;default:1;comment:1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" json:"state" comment:"1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" ` // 1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)
+	Description string     `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `                                                                            // 描述
+	CreateAt    *time.Time `gorm:"column:create_at;type:timestamptz;index;autoCreateTime;default:current_timestamp;comment:创建时间" json:"create_at" comment:"创建时间" `                              // 创建时间
+	UpdateAt    *time.Time `gorm:"column:update_at;type:timestamptz;autoUpdateTime;comment:更新时间" json:"update_at" comment:"更新时间" `                                                              // 更新时间
+	CreateBy    string     `gorm:"column:create_by;type:varchar(80);index;default:;comment:创建人" json:"create_by" comment:"创建人" `
+	UpdateBy    string     `gorm:"column:update_by;type:varchar(80);default:;comment:更新人" json:"update_by" comment:"更新人" `
+	Sort        int64      `gorm:"column:sort;type:bigint;not null;default:0;;comment:排序" json:"sort" comment:"排序" `  // 排序
+	ParentId    string     `gorm:"column:parent_id;type:varchar(80);index;comment:上级" json:"parent_id" comment:"上级" ` // 上级
+	IdLink      string     `gorm:"column:id_link;type:varchar(5000);comment:上级" json:"id_link" comment:"上级链" `
+	ParentNo    string     `gorm:"column:parent_no;type:varchar(80);index;default:;comment:上级编号" json:"parent_no" comment:"上级编号" `
+	NoLink      string     `gorm:"column:no_link;type:text;comment:上级编号" json:"no_link" comment:"上级编号" `
+	Type        string     `gorm:"column:type;type:varchar(80);comment:类型正常别名合并" json:"type" comment:"类型正常别名合并" `
+	Source      string     `gorm:"column:source;type:varchar(80);comment:源" json:"source" comment:"源" `
+	ZipCode     string     `gorm:"column:zip_code;type:varchar(80);comment:邮编" json:"zip_code" comment:"邮编" `
+	AreaCode    string     `gorm:"column:area_code;type:varchar(80);comment:区号" json:"area_code" comment:"区号" `
+	CountryNo   string     `gorm:"column:country_no;type:varchar(80);comment:国家编号" json:"country_no" comment:"国家编号" `
+}
+
+// TableName RamGroupEntity's table name
+func (*BasicAreaEntity) TableName() string {
+	return "basic_area"
+}
+
+func (*BasicAreaEntity) TableComment() string {
+	return "城市"
+}

@@ -1,0 +1,41 @@
+{{ define "blog/blog/header.tpl" }}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>{{if .title}}{{.title}}-{{end}}{{.siteName}}</title>
+    <meta name="keyword" content="{{.keyword}}"/>
+    <meta name="description" content="{{.description}}"/>
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/static/uno/style.css"/>
+    <link rel="stylesheet" href="/assets/static/uno/prism.css"/>
+    <link rel="stylesheet" href="/assets/static/plugin/editor.md/css/editormd.preview.css"/>
+    <style>
+        pre[class*="language-"].line-numbers {
+            padding-left: inherit;
+        }
+        .markdown-body pre code {
+            display: block;
+        }
+        .editormd-preview-container, .editormd-html-preview {
+            background-color: #f9f9f9;
+        }
+        .article header h3.title label {
+            text-transform: uppercase;
+            background-color: rgba(175, 178, 183, 0.7);
+            border-radius: .25rem;
+            transition: all 350ms;
+            padding: .2rem .36rem;
+            font-size: 1.55rem;
+            color: #000;
+            margin-left: -15px;
+        }
+        .article header h3.title label.label-primary,.article header h3.title label.label-info {
+            background-color: rgba(0, 68, 204, .7);
+            color: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+{{end}}

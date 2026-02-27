@@ -1,0 +1,115 @@
+[server]
+# 端口
+port = 9981
+# 不带 / 后缀
+domain = "http://localhost:9981"
+
+# 数据库
+[database]
+# 是否启用
+enabled = true
+# postgres
+url = "host=localhost user=postgres password=postgres dbname=blog_go port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+
+# 域模块
+[pg.domain]
+#  系统后台启用
+system = true
+
+#后台管理员
+[pg.jwt.admin]
+secret = "s1s1ssssaaa234324324324dsfdfs"
+# 过期时间，单位 分钟 1440:1天
+expire = 991440
+
+#前台用户
+[pg.jwt.user]
+secret = "b2bb2bbbbbb234324324324dsfdfs"
+# 过期时间，单位 分钟
+expire = 991440
+
+#前台用户
+[pg.jwt.web]
+secret = "b3bbb3bbbbb234324324324dsfdfs"
+# 过期时间，单位 分钟
+expire = 991440
+# cookie 是否开启
+cookieOn = true
+
+
+#数据
+[pg.data]
+#点击删除时是否直接删除
+delete = true
+#注册参数
+# 身份编号，例如身份证号
+[pg.register.identityCode]
+#必填
+required = false
+#租户下唯一
+unique = false
+
+[pg.profiles]
+active = "develop"
+include = "develop"
+
+[pg.multiTenant]
+contain = []
+not = []
+[pg.multi.tenant]
+contain = []
+not = []
+[pg.multi.org]
+contain = []
+not = []
+[pg.multi.merchant]
+contain = []
+not = []
+[pg.multi.store]
+contain = []
+not = []
+[pg.multi.owner]
+contain = []
+not = []
+
+[pg.attachment]
+# file system
+dir = "attachment"
+# 创建目录权限代号
+mkdirPermission = 777
+# 附件存储域名 不带 / 后缀
+domain = ""
+[pg.attachment.minio]
+# minio
+minio.enable = false
+minio.host = "127.0.0.1"
+minio.port = 9000
+minio.access = ""
+minio.secret = ""
+minio.secure = false
+minio.bucket = "gs-demo"
+
+[pg.redis]
+# 是否启用
+enabled = true
+host = "127.0.0.1"
+port = 6379
+addrs = ["127.0.0.1:6379"]
+database = 0
+username = ""
+password = ""
+
+[mail]
+host = "127.0.0.1"
+port = 12345
+username = ""
+authCode = ""
+smtpAuth = ""
+from = ""
+[pg.rocketmq]
+nameServers = ["127.0.0.1:9876"]
+
+# 目录
+[pg.directory]
+# 数据文件目录，静态文件
+data = "data"

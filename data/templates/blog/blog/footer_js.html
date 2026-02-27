@@ -1,0 +1,19 @@
+{{ define "blog/blog/footer_js.tpl" }}
+<script src="/assets/static/uno/jquery-2.1.4.min.js"></script>
+<script src="/assets/static/uno/prism.min.js"></script>
+<script>
+    $(function () {
+//        $(".navigation li.active a").on("click", function () {
+//            var $cover = $('.cover');
+//            var $main = $('#main');
+//            $cover.hasClass("index") ? $cover.removeClass("index") && $main.show() : $cover.addClass("index") && $main.hide();
+//            return false;
+//        });
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $("pre code").addClass("line-numbers language-")
+    });
+</script>
+{{end}}
