@@ -44,6 +44,10 @@ cd blog-go
 ```bash
 go mod tidy
 ```
+### 不编译，直接运行
+```bash
+go run main.go
+```
 ### 编译打包
 编译 可以在 linux 系统中运行的程序
 #### 方式一
