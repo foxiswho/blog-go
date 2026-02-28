@@ -28,19 +28,19 @@ jobs:
         goarch: [amd64] # 需要打包的架构
     steps:
       # 拉取代码
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          # 拉取手动指定的分支
-          ref: ${{ github.event.inputs.branch }}
+#      - name: Checkout code
+#        uses: actions/checkout@v6
+#        with:
+#          fetch-depth: 0
+#          # 拉取手动指定的分支
+#          ref: ${{ github.event.inputs.branch }}
 
 #      - name: Install dependencies
 #        shell: bash
 #        run: go mod tidy
 
-      - name: List downloaded files (调试用)
-        run: ls -R ./
+#      - name: List downloaded files (调试用)
+#        run: ls -R ./
 
       - name: build
         uses: wangyoucao577/go-release-action@v1
