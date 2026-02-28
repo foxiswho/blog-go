@@ -41,7 +41,7 @@ jobs:
 
 #      - name: List downloaded files (调试用)
 #        run: ls -R ./
-
+      # 工具默认不会自动创建 Tag/Release，只能往「已存在的 Release（绑定对应 Tag）」上传产物
       - name: build
         uses: wangyoucao577/go-release-action@v1
         with:
@@ -62,7 +62,7 @@ jobs:
           #extra_files: README.md config.dev.json # 需要包含的额外文件
           #是否上传产物到 Release（默认 true）；
           #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
-          upload: false
+          upload: true
 
       - name: List
         run: ls -R ./
