@@ -1,0 +1,59 @@
+
+name: 编译-linux-amd64
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '指定要打包的分支 main'
+        required: false
+        default: 'main'
+        type: string
+env:
+  HUSKY: '0'
+  ZIP_NAME: "blogGo"
+
+jobs:
+  build-go-binary:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin] # 需要打包的系统
+        goarch: [amd64, arm64] # 需要打包的架构
+        exclude: # 排除某些平台和架构
+          - goarch: arm64
+            goos: windows
+    steps:
+      # 拉取代码
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          # 拉取手动指定的分支
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Install dependencies
+        shell: bash
+        run: go mod tidy
+
+      - name: build
+        uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # 一个默认的变量，用来实现往 Release 中添加文件
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          # 可以指定编译使用的 Golang 版本
+          goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
+          binary_name: ${{ env.ZIP_NAME }} # 可以指定二进制文件的名称
+          build_flags: "-a -ldflags '-extldflags \"-static\"'"
+          # 项目目录
+          project_path: "./cmd/test-binary"
+          #extra_files: README.md config.dev.json # 需要包含的额外文件
+      # 可选：上传打包产物，方便手动下载
+      - name: 上传打包产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog
+          path: ./${{ env.ZIP_NAME }}
+          retention-days: 1 # 产物保留7天，可按需调整
