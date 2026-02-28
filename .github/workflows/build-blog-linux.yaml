@@ -28,12 +28,12 @@ jobs:
         goarch: [amd64] # 需要打包的架构
     steps:
       # 拉取代码
-#      - name: Checkout code
-#        uses: actions/checkout@v6
-#        with:
-#          fetch-depth: 0
-#          # 拉取手动指定的分支
-#          ref: ${{ github.event.inputs.branch }}
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          # 拉取手动指定的分支
+          ref: ${{ github.event.inputs.branch }}
 
 #      - name: Install dependencies
 #        shell: bash
