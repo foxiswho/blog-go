@@ -1,5 +1,5 @@
-
-name: 编译
+# 编译二进制
+name: Build Binary
 
 on:
   # 手动触发

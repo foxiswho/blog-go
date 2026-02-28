@@ -1,0 +1,69 @@
+
+name: 编译-linux-amd64-debug
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '指定要打包的分支 main'
+        required: false
+        default: 'main'
+        type: string
+      release_tag:
+        description: 'Release版本Tag（如v1.0.0，为空则仅保存产物不上传Release）'
+        default: 'v0.0.1'
+        required: false
+        type: string
+env:
+  HUSKY: '0'
+  BINARY_NAME: "blogGo"
+
+jobs:
+  build-go-binary:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux] # 需要打包的系统
+        goarch: [amd64] # 需要打包的架构
+    steps:
+      # 拉取代码
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          # 拉取手动指定的分支
+          ref: ${{ github.event.inputs.branch }}
+      # 安装 Go
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          check-latest: true
+          go-version-file: 'go.mod'
+          #go-version: 1.26
+      # 验证Go版本（调试用）
+      - name: Verify Go version
+        run: |
+          go version
+          go env
+
+      - name: Install dependencies
+        shell: bash
+        run: go mod tidy
+#      - name: List downloaded files (调试用)
+#        run: ls -R ./
+
+      - name: Build Go binary
+        shell: bash
+        run: |
+          go build -a -ldflags '-extldflags "-static"' -o ${{ env.BINARY_NAME }}
+
+      - name: List
+        run: ls -R ./
+        #可选：上传打包产物，方便手动下载
+      - name: 上传打包产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog
+          path: ./blogGo
+          retention-days: 1 # 产物保留7天，可按需调整
