@@ -56,10 +56,10 @@ jobs:
       - name: Build Go binary
         shell: bash
         run: |
-          go build -a -ldflags '-extldflags "-static"' -o ${{ env.BINARY_NAME }}
+          go build -v -a -ldflags '-extldflags "-static"' -o ${{ env.BINARY_NAME }}
 
       - name: List
-        run: ls -R ./
+        run: ls -la ./
         #可选：上传打包产物，方便手动下载
       - name: 上传打包产物
         uses: actions/upload-artifact@v4
