@@ -62,7 +62,7 @@ jobs:
           #extra_files: README.md config.dev.json # 需要包含的额外文件
           #是否上传产物到 Release（默认 true）；
           #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
-          #upload
+          upload: false
 
       - name: List
         run: ls -R ./
