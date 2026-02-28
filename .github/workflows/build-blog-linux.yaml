@@ -56,20 +56,20 @@ jobs:
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
           release_tag: ${{ github.event.inputs.release_tag }}
           release_name: ${{ github.event.inputs.release_tag }}
-          overwrite: false  # 覆盖同名Tag的Release产物
+          overwrite: true  # 覆盖同名Tag的Release产物
           # 项目目录
           #project_path: "./cmd/test-binary"
           #extra_files: README.md config.dev.json # 需要包含的额外文件
           #是否上传产物到 Release（默认 true）；
           #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
-          upload: true
+          upload: false
 
       - name: List
         run: ls -R ./
-      # 可选：上传打包产物，方便手动下载
-#      - name: 上传打包产物
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: blog
-#          path: ./${{ env.BINARY_NAME }}
-#          retention-days: 1 # 产物保留7天，可按需调整
+        #可选：上传打包产物，方便手动下载
+      - name: 上传打包产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog
+          path: ./blogGo*
+          retention-days: 1 # 产物保留7天，可按需调整

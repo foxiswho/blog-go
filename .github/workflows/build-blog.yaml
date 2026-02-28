@@ -10,9 +10,14 @@ on:
         required: false
         default: 'main'
         type: string
+      release_tag:
+        description: 'Release版本Tag（如v1.0.0，为空则仅保存产物不上传Release）'
+        default: 'v0.0.1'
+        required: false
+        type: string
 env:
   HUSKY: '0'
-  ZIP_NAME: "blogGo"
+  BINARY_NAME: "blogGo"
 
 jobs:
   build-go-binary:
@@ -33,10 +38,7 @@ jobs:
           # 拉取手动指定的分支
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Install dependencies
-        shell: bash
-        run: go mod tidy
-
+      # 工具默认不会自动创建 Tag/Release，只能往「已存在的 Release（绑定对应 Tag）」上传产物
       - name: build
         uses: wangyoucao577/go-release-action@v1
         with:
@@ -45,15 +47,19 @@ jobs:
           goarch: ${{ matrix.goarch }}
           # 可以指定编译使用的 Golang 版本
           goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
-          binary_name: ${{ env.ZIP_NAME }} # 可以指定二进制文件的名称
-          build_flags: "-a -ldflags '-extldflags \"-static\"'"
+          binary_name: ${{ env.BINARY_NAME }} # 可以指定二进制文件的名称
+          build_flags: "-a"
+          ldflags: '-extldflags "-static"'
+          # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
+          release_tag: ${{ github.event.inputs.release_tag }}
+          release_name: ${{ github.event.inputs.release_tag }}
+          overwrite: true  # 覆盖同名Tag的Release产物
           # 项目目录
-          project_path: "./cmd/test-binary"
+          #project_path: "./cmd/test-binary"
           #extra_files: README.md config.dev.json # 需要包含的额外文件
-      # 可选：上传打包产物，方便手动下载
-      - name: 上传打包产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: blog
-          path: ./${{ env.ZIP_NAME }}
-          retention-days: 1 # 产物保留7天，可按需调整
+          #是否上传产物到 Release（默认 true）；
+          #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
+          upload: true
+
+      - name: List
+        run: ls -R ./
