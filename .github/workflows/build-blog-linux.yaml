@@ -34,6 +34,9 @@ jobs:
         shell: bash
         run: go mod tidy
 
+      - name: List downloaded files (调试用)
+        run: ls -R ./
+
       - name: build
         uses: wangyoucao577/go-release-action@v1
         with:
@@ -46,7 +49,7 @@ jobs:
           build_flags: "-a"
           ldflags: '-extldflags "-static"'
           # 项目目录
-          project_path: "./cmd/test-binary"
+          #project_path: "./cmd/test-binary"
           #extra_files: README.md config.dev.json # 需要包含的额外文件
       # 可选：上传打包产物，方便手动下载
       - name: 上传打包产物
