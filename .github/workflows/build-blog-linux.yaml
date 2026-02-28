@@ -35,9 +35,9 @@ jobs:
           # 拉取手动指定的分支
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Install dependencies
-        shell: bash
-        run: go mod tidy
+#      - name: Install dependencies
+#        shell: bash
+#        run: go mod tidy
 
       - name: List downloaded files (调试用)
         run: ls -R ./
