@@ -1,5 +1,5 @@
 
-name: 编译-linux-amd64
+name: 编译
 
 on:
   # 手动触发
