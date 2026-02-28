@@ -54,12 +54,15 @@ jobs:
           build_flags: "-a"
           ldflags: '-extldflags "-static"'
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
-          tag_name: ${{ github.event.inputs.release_tag }}
+          release_tag: ${{ github.event.inputs.release_tag }}
           release_name: ${{ github.event.inputs.release_tag }}
           overwrite: false  # 覆盖同名Tag的Release产物
           # 项目目录
           #project_path: "./cmd/test-binary"
           #extra_files: README.md config.dev.json # 需要包含的额外文件
+          #是否上传产物到 Release（默认 true）；
+          #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
+          #upload
 
       - name: List
         run: ls -R ./
