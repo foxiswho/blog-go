@@ -55,8 +55,8 @@ jobs:
           ldflags: '-extldflags "-static"'
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
           tag_name: ${{ github.event.inputs.release_tag }}
-          release_name: "Release ${{ github.event.inputs.release_tag }}"
-          overwrite: true  # 覆盖同名Tag的Release产物
+          release_name: ${{ github.event.inputs.release_tag }}
+          overwrite: false  # 覆盖同名Tag的Release产物
           # 项目目录
           #project_path: "./cmd/test-binary"
           #extra_files: README.md config.dev.json # 需要包含的额外文件
@@ -64,9 +64,9 @@ jobs:
       - name: List
         run: ls -R ./
       # 可选：上传打包产物，方便手动下载
-      - name: 上传打包产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: blog
-          path: ./${{ env.BINARY_NAME }}
-          retention-days: 1 # 产物保留7天，可按需调整
+#      - name: 上传打包产物
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: blog
+#          path: ./${{ env.BINARY_NAME }}
+#          retention-days: 1 # 产物保留7天，可按需调整
