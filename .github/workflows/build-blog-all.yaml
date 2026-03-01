@@ -1,5 +1,5 @@
-# 编译二进制
-name: Build Binary
+# 打包所有，包括项目程序，后台前端模块 sys,manage
+name: Build all
 
 on:
   # 手动触发
@@ -53,7 +53,8 @@ jobs:
           REMOTE_ZIP_NAME="manage.zip"
           
           # 用curl下载（添加重试机制，避免网络波动）
-          curl --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
+          curl -fL --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
+          ls -la ./xf
           
           # 验证文件是否下载成功（可选）
           if [ ! -f "./tmp/$REMOTE_ZIP_NAME" ]; then
@@ -61,14 +62,14 @@ jobs:
             exit 1
           fi
           echo "远程ZIP下载完成：$REMOTE_ZIP_NAME"
-          unzip -o $REMOTE_ZIP_NAME -d ./xf/manage
+          unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/manage
           
           # 定义远程ZIP URL和本地保存名称
           REMOTE_ZIP_URL="https://github.com/foxiswho/blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-sys-dist-subdirectory.zip"
           REMOTE_ZIP_NAME="sys.zip"
           
           # 用curl下载（添加重试机制，避免网络波动）
-          curl --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
+          curl -fL --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
           
           # 验证文件是否下载成功（可选）
           if [ ! -f "./tmp/$REMOTE_ZIP_NAME" ]; then
@@ -76,7 +77,7 @@ jobs:
             exit 1
           fi
           echo "远程ZIP下载完成：$REMOTE_ZIP_NAME"
-          unzip -o $REMOTE_ZIP_NAME -d ./xf/sys
+          unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/sys
           
           ls -la ./xf
           
