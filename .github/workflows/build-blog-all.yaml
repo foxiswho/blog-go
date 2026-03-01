@@ -80,6 +80,10 @@ jobs:
           unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/sys
           
           ls -la ./xf
+          mkdir -p ./data/nginx
+          cp -rf ./scripts/nginx*  ./data/nginx
+          ls -la ./data
+          ls -la ./data/nginx
           
 
       # 工具默认不会自动创建 Tag/Release，只能往「已存在的 Release（绑定对应 Tag）」上传产物
@@ -99,14 +103,16 @@ jobs:
           release_name: ${{ github.event.inputs.release_tag }}
           # 覆盖同名 Tag 的 Release 产物
           overwrite: true
-          asset_name: ${{ env.BINARY_NAME }}-${{ github.event.inputs.release_tag }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: ${{ env.BINARY_NAME }}-all-${{ github.event.inputs.release_tag }}-${{ matrix.goos }}-${{ matrix.goarch }}
           # 项目目录
           #project_path: "./cmd/test-binary"
           # 需要包含的额外文件 或文件夹
-          extra_files: ./xf
+          extra_files: ./xf ./data
           #是否上传产物到 Release（默认 true）；
           #设为 false 时，仅编译不上传，留给后续步骤处理（如签名）
           upload: true
 
       - name: List
-        run: ls -R ./
+        run: |
+          ls -la ./
+          echo "ok"
