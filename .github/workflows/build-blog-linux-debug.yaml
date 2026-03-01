@@ -62,7 +62,7 @@ jobs:
         run: ls -la ./
         #可选：上传打包产物，方便手动下载
       - name: 上传打包产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: blog
           path: ./blogGo

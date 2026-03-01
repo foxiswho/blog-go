@@ -51,7 +51,7 @@ func init() {
 	// 指定配置文件目录, 如果不设置，默认 conf 目录
 	_ = os.Setenv("GS_SPRING_APP_CONFIG-LOCAL_DIR", "./data/config")
 	// gin 静态文件路径
-	ginServer.GetInstance().Static("/assets", "./assets")
+	ginServer.GetInstance().Static("/assets", "./data/assets")
 	ginServer.GetInstance().Static("/attachment", "./data/attachment")
 	funcMap := template.FuncMap{
 		"unescaped":  templatePg.Unescaped,
