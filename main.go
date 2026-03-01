@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"html/template"
 	"os"
+	"runtime"
 
 	"github.com/farseer-go/eventBus"
 	fsE "github.com/farseer-go/fs"
 	_ "github.com/foxiswho/blog-go/app"
+	"github.com/foxiswho/blog-go/cmd"
 	_ "github.com/foxiswho/blog-go/middleware"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -48,6 +51,20 @@ func init() {
 	//gs.SetActiveProfiles("dev")
 	//关闭 案例 serverPg
 	gs.EnableSimplePProfServer(false)
+
+}
+func main() {
+
+	// 构建信息，golang版本 commit id 时间
+	var version bool
+	flag.BoolVar(&version, "v", false, "version")
+	flag.Parse()
+	if version {
+		fmt.Printf("go version: %s\nBuild version: %s\nBuild commit: %s\nBuild time: %s\n",
+			runtime.Version(), cmd.BuildVersion, cmd.BuildGitCommit, cmd.BuildTime)
+		return
+	}
+
 	// 指定配置文件目录, 如果不设置，默认 conf 目录
 	_ = os.Setenv("GS_SPRING_APP_CONFIG-LOCAL_DIR", "./data/config")
 	// gin 静态文件路径
@@ -62,8 +79,7 @@ func init() {
 	ginServer.GetInstance().LoadHTMLGlob("data/templates/**/**/*")
 	//html := template.Must(template.ParseFiles("file1", "file2"))
 	//ginServer.GetInstance().SetHTMLTemplate(html)
-}
-func main() {
+
 	syslog.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
 	//服务，传入配置 端口
 	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server.port}")).AsServer()

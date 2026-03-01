@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/foxiswho/blog-go/app/system/ram/controller"
+	"github.com/foxiswho/blog-go/cmd"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
 	"github.com/go-spring/spring-core/gs"
@@ -14,5 +15,6 @@ func init() {
 		group := r.Group("/pg2lq/sys/public", authPg.GroupSystemMiddleware(s.Sp))
 		group.GET("/info", s.Public)
 		group.POST("/password", s.UpdatePassword)
+		group.POST("/envInfoPublic", cmd.GetVersion)
 	}))
 }

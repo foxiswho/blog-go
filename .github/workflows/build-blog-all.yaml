@@ -43,6 +43,30 @@ jobs:
           fetch-depth: 0
           # 拉取手动指定的分支
           ref: ${{ github.event.inputs.branch }}
+
+      - name: Get formatted timestamp
+        id: get_formatted_ts
+        run: |
+          # 格式：年-月-日_时-分-秒（如 2024-05-20_14-30-25）
+          FORMATTED_TS=$(date +"%Y-%m-%d_%H-%M-%S")
+          # 紧凑格式：年月日时分秒（如 20240520143025）
+          COMPACT_TS=$(date +"%Y%m%d%H%M%S")
+          # 输出变量
+          echo "formatted=$FORMATTED_TS" >> $GITHUB_OUTPUT
+          echo "compact=$COMPACT_TS" >> $GITHUB_OUTPUT
+      - name: ldflags formatted
+        id: ldflags
+        run: |
+          ldflags=-s -w -extldflags "-static" -X "main.UserName=" -X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}" -X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ GITHUB_SHA }}" -X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"
+          # 输出变量
+          echo "ldflags=$ldflags" >> $GITHUB_OUTPUT
+          echo $ldflags
+
+      - name: Use formatted timestamp
+        run: |
+          echo "格式化时间戳: ${{ steps.get_formatted_ts.outputs.formatted }}"
+          echo "紧凑时间戳: ${{ steps.get_formatted_ts.outputs.compact }}"
+          echo "ldflags参数: ${{ steps.ldflags.outputs.ldflags }}"
       # 步骤2：下载远程ZIP文件（GitHub Releases的文件）
       - name: Download blog-go-frontend GitHub Releases
         run: |
@@ -99,8 +123,8 @@ jobs:
           # 可以指定编译使用的 Golang 版本
           goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
           binary_name: ${{ env.BINARY_NAME }} # 可以指定二进制文件的名称
-          build_flags: "-a"
-          ldflags: '-extldflags "-static"'
+          build_flags: '-a -gcflags="all=-trimpath=${PWD}" -asmflags="all=-trimpath=${PWD}" -trimpath'
+          ldflags: "${{ steps.ldflags.outputs.ldflags }}"
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
           release_tag: ${{ github.event.inputs.release_tag }}
           release_name: ${{ github.event.inputs.release_tag }}
