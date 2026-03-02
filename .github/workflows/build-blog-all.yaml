@@ -45,76 +45,29 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Get formatted timestamp
-        id: get_formatted_ts
+        id: container_shell
         run: |
           # 格式：年-月-日_时-分-秒（如 2024-05-20_14-30-25）
           FORMATTED_TS=$(date +"%Y-%m-%d_%H-%M-%S")
           # 紧凑格式：年月日时分秒（如 20240520143025）
           COMPACT_TS=$(date +"%Y%m%d%H%M%S")
+          # 工作目录
+          WORK_DIR=$(pwd)
+          # ldflags
+          ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
           # 输出变量
           echo "formatted=$FORMATTED_TS" >> $GITHUB_OUTPUT
           echo "compact=$COMPACT_TS" >> $GITHUB_OUTPUT
-      - name: ldflags formatted
-        id: ldflags
-        run: |
-          ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"  '
-          # 输出变量
+          echo "workDir=$WORK_DIR" >> $GITHUB_OUTPUT
           echo "ldflags=$ldflags" >> $GITHUB_OUTPUT
-          echo $ldflags
-
-      - name: Use formatted timestamp
-        run: |
-          echo "格式化时间戳: ${{ steps.get_formatted_ts.outputs.formatted }}"
-          echo "紧凑时间戳: ${{ steps.get_formatted_ts.outputs.compact }}"
-          echo "ldflags参数: ${{ steps.ldflags.outputs.ldflags }}"
-      # 步骤2：下载远程ZIP文件（GitHub Releases的文件）
-      - name: Download blog-go-frontend GitHub Releases
-        run: |
-          mkdir -p ./tmp
-          mkdir -p ./xf
-          # 定义远程ZIP URL和本地保存名称
-          REMOTE_ZIP_URL="https://github.com/foxiswho/blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-manage-dist-subdirectory.zip"
-          REMOTE_ZIP_NAME="manage.zip"
-          
-          # 用curl下载（添加重试机制，避免网络波动）
-          curl -fL --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
-          ls -la ./xf
-          
-          # 验证文件是否下载成功（可选）
-          if [ ! -f "./tmp/$REMOTE_ZIP_NAME" ]; then
-            echo "远程ZIP下载失败！"
-            exit 1
-          fi
-          echo "远程ZIP下载完成：$REMOTE_ZIP_NAME"
-          unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/manage
-          
-          # 定义远程ZIP URL和本地保存名称
-          REMOTE_ZIP_URL="https://github.com/foxiswho/blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-sys-dist-subdirectory.zip"
-          REMOTE_ZIP_NAME="sys.zip"
-          
-          # 用curl下载（添加重试机制，避免网络波动）
-          curl -fL --retry 3 --fail -o ./tmp/$REMOTE_ZIP_NAME $REMOTE_ZIP_URL
-          
-          # 验证文件是否下载成功（可选）
-          if [ ! -f "./tmp/$REMOTE_ZIP_NAME" ]; then
-            echo "远程ZIP下载失败！"
-            exit 1
-          fi
-          echo "远程ZIP下载完成：$REMOTE_ZIP_NAME"
-          unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/sys
-          
-          ls -la ./xf
-          mkdir -p ./data/nginx
-          mkdir -p ./data/supervisor
-          cp -rf ./scripts/nginx*  ./data/nginx/
-          cp -rf ./scripts/supervisor*  ./data/supervisor/
-          ls -la ./data
-          ls -la ./data/nginx
-          ls -la ./data/supervisor
-          
+          #
+          echo "格式化时间戳: ${{ steps.container_shell.outputs.formatted }}"
+          echo "紧凑时间戳: ${{ steps.container_shell.outputs.compact }}"
+          echo "ldflags 参数: ${{ steps.container_shell.outputs.ldflags }}"
+          echo "workDir 参数: ${{ steps.container_shell.outputs.workDir }}"
 
       # 工具默认不会自动创建 Tag/Release，只能往「已存在的 Release（绑定对应 Tag）」上传产物
       - name: build
@@ -127,8 +80,8 @@ jobs:
           #goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
           goversion: "1.26.0"
           binary_name: ${{ env.BINARY_NAME }} # 可以指定二进制文件的名称
-          build_flags: '-a -gcflags="all=-trimpath=${PWD}" -asmflags="all=-trimpath=${PWD}" -trimpath'
-          ldflags: "${{ steps.ldflags.outputs.ldflags }}"
+          build_flags: '-a -gcflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -asmflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -trimpath'
+          ldflags: "${{ steps.container_shell.outputs.ldflags }}"
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
           release_tag: ${{ github.event.inputs.release_tag }}
           release_name: ${{ github.event.inputs.release_tag }}
