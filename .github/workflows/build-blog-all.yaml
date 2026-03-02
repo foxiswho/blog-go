@@ -59,7 +59,7 @@ jobs:
         run: |
           ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
           #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ secrets.GITHUB_SHA }}"  '
+          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
           #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"  '
           # 输出变量
           echo "ldflags=$ldflags" >> $GITHUB_OUTPUT
