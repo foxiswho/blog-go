@@ -80,7 +80,7 @@ jobs:
           #goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
           goversion: "1.26.0"
           binary_name: ${{ env.BINARY_NAME }} # 可以指定二进制文件的名称
-          build_flags: '-a -gcflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -asmflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -trimpath'
+          build_flags: -a -gcflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -asmflags="all=-trimpath=${{ steps.container_shell.outputs.workDir }}" -trimpath
           ldflags: "${{ steps.container_shell.outputs.ldflags }}"
           # 仅当填写了release_tag时，才上传到Release（避免Tag缺失报错）
           release_tag: ${{ github.event.inputs.release_tag }}
