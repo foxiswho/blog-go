@@ -57,7 +57,10 @@ jobs:
       - name: ldflags formatted
         id: ldflags
         run: |
-          ldflags='-s -w -extldflags "-static" -X "main.UserName=" -X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}" -X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ GITHUB_SHA }}" -X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"'
+          ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ GITHUB_SHA }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"  '
           # 输出变量
           echo "ldflags=$ldflags" >> $GITHUB_OUTPUT
           echo $ldflags
