@@ -53,7 +53,7 @@ jobs:
           ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
           ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
           #
-          build_flags="-a -gcflags='all=-trimpath=${WORK_DIR }' "
+          build_flags="-a -gcflags='all=-trimpath=${WORK_DIR}' "
           build_flags=$(build_flags)" -asmflags='all=-trimpath=${WORK_DIR}' -trimpath"
           # 输出变量
           echo "formatted=$FORMATTED_TS" >> $GITHUB_OUTPUT
