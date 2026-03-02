@@ -15,6 +15,6 @@ func init() {
 		group := r.Group("/pg2lq/manage/public", authPg.GroupManageMiddleware(s.Sp))
 		group.GET("/info", s.Public)
 		group.POST("/password", s.UpdatePassword)
-		group.POST("/envInfoPublic", cmd.GetVersion)
+		group.GET("/envInfoPublic", cmd.GetVersion)
 	}))
 }
