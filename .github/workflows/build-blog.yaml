@@ -93,4 +93,4 @@ jobs:
           upload: true
 
       - name: List
-        run: ls -R ./
+        run: ls -la ./
