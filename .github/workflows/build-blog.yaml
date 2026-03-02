@@ -52,9 +52,9 @@ jobs:
         id: ldflags
         run: |
           ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
-          #ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
+          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.get_formatted_ts.outputs.compact }}"  '
           # 输出变量
           echo "ldflags=$ldflags" >> $GITHUB_OUTPUT
           echo $ldflags
@@ -73,7 +73,8 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           # 可以指定编译使用的 Golang 版本
-          goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
+          #goversion: "https://golang.google.cn/dl/go1.26.0.linux-amd64.tar.gz"
+          goversion: "1.26.0"
           binary_name: ${{ env.BINARY_NAME }} # 可以指定二进制文件的名称
           build_flags: '-a -gcflags="all=-trimpath=${PWD}" -asmflags="all=-trimpath=${PWD}" -trimpath'
           ldflags: "${{ steps.ldflags.outputs.ldflags }}"
