@@ -36,3 +36,15 @@ func (c *BlogCollectRepository) FindAllByUrlSourceMd5(code string) (infos []*ent
 	}
 	return infos, true
 }
+
+func (c *BlogCollectRepository) FindAllByUrlSourceMd5In(code []string) (infos []*entityBlog.BlogCollectEntity, result bool) {
+	tx := c.Db().Where("url_source_md5 in ?", code).Find(&infos)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return infos, true
+}

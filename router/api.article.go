@@ -26,5 +26,6 @@ func init() {
 		r := ginServer.GinServerDefault
 		group := r.Group("/api/collect", authPg.GroupApiMiddleware(c.Sp))
 		group.POST("/push", c.Push)
+		group.POST("/pushAll", c.PushAll)
 	}))
 }
