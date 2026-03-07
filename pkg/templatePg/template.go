@@ -39,6 +39,13 @@ func MakeHtmlObjDefaultMap() map[string]any {
 	return mapDefault
 }
 
+// WithHtmlObjSet 这 html obj 数据
+func WithHtmlObjSet(field string, value any) Option {
+	return func(tp *TemplateParameter) {
+		tp.HtmlObj[field] = value
+	}
+}
+
 // WithSitePage 设置网站信息
 func WithSitePage(obj SitePage) Option {
 	return func(tp *TemplateParameter) {

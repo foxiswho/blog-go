@@ -984,6 +984,16 @@ img.wp-post-image{
     text-transform: uppercase;
     letter-spacing: 2px;
 }
+.post-content .entry-header .entry-title{
+    margin-top: 20px;
+    font-weight: bolder;
+}
+.post-content .entry-header h2{
+    font-size: 1.6rem;
+}
+.post-content .entry-header h1{
+    font-size: 2.3rem;
+}
 
 .entry-title{
     margin-bottom: 14px;
@@ -2162,4 +2172,11 @@ body.dark,
 
 .dark .main-navigation .menu-toggle .icon-bar {
     background-color: rgba(255,255,255,0.87);
+}
+
+
+@media (min-width: 1800px) {
+   h2,.h2 {
+       font-size: 2rem;
+   }
 }

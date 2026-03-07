@@ -1,7 +1,6 @@
 package templatePg
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/foxiswho/blog-go/pkg/configPg"
@@ -66,7 +65,7 @@ func HTML(ctx *gin.Context, file string, opts ...Option) {
 	param.HtmlObj["pg"] = pg
 	param.HtmlObj["server"] = server
 	//
-	fmt.Printf("模版HtmlObj: %+v\n", param.HtmlObj)
+	//fmt.Printf("模版HtmlObj: %+v\n", param.HtmlObj)
 	ctx.HTML(param.Code, themeByPg(pg, file), param.HtmlObj)
 }
 

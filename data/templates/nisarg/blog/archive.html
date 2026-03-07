@@ -1,0 +1,16 @@
+{{ define "nisarg/blog/archive.html" }}
+{{template "nisarg/blog/header.html" .}}
+<div class="container">
+	<div class="row">
+		<header class="archive-page-header">
+			<h3 class="archive-page-title">Browsed by<br>月度归档： {{.subTitle}}</h3>
+<!--			<div class="taxonomy-description"></div>-->
+		</header><!-- .page-header -->
+		<div id="primary" class="col-md-9 content-area">
+			{{template "nisarg/blog/page_list.html" .}}
+		</div><!-- #primary -->
+		{{template "nisarg/blog/sidebar.html" .}}
+	</div><!--row-->
+</div><!--.container-->
+{{template "nisarg/blog/footer.html" .}}
+{{end}}

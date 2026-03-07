@@ -1,0 +1,103 @@
+{{ define "nisarg/blog/page_list.html" }}
+<main id="main" class="site-main" role="main">
+    {{if and .dataIs ( gt .data.Total 0) }}
+    <!--					{{if .IsHome}}-->
+    <!--						<header>-->
+    <!--							<h1 class="page-title screen-reader-text">{{.PageTitle}}</h1>-->
+    <!--						</header>-->
+    <!--					{{end}}-->
+    {{range .data.Data}}
+    <article id="post-{{.ID}}" class="post-content">
+        <!--						<span class="sticky-post">Featured</span>-->
+        <!--						&lt;!&ndash; <div class="featured-image">-->
+        <!--							<img src="" alt="{{.Name}}" />-->
+        <!--						</div> &ndash;&gt;-->
+        <header class="entry-header">
+            <span class="screen-reader-text">{{.Name}}</span>
+            <h2 class="entry-title">
+                <a href="{{$.sitePage.SiteUrl}}/article/{{.ID}}" rel="bookmark">{{.Name}}</a>
+            </h2>
+            <div class="entry-meta">
+                <h5 class="entry-date">
+                    <i class="fa fa-calendar-o"></i>
+                    <a href="{{$.sitePage.SiteUrl}}/article/{{.ID}}" title="{{dateformat .CreateAt "1504"}}" rel="bookmark">
+                    <time class="entry-date" datetime="{{dateformat .CreateAt "2006-01-02T15:04:05"}}+08:00" pubdate>{{dateformat .CreateAt "2006年01月02日"}} </time>
+                    </a>
+                    <span class="byline"><span class="sep"></span><i class="fa fa-user"></i>
+									<span class="author vcard">
+										<a class="url fn n" href="{{$.sitePage.SiteUrl}}/article/author/{{.Author}}" title="View all posts by {{.Author}}" rel="author">{{.Author}}</a>
+									</span></span>
+                    <i class="fa fa-comments-o"></i>
+                    <span class="screen-reader-text">评论 </span>
+                    <a href="{{$.sitePage.SiteUrl}}/article/{{.ID}}#comments" class="comments-link" >{{.Statistics.Comment}} 条评论</a>
+                    <i class="fa fa-users" style="margin-left:10px;"></i> {{.Statistics.Read}} 人阅读
+                </h5>
+            </div><!-- .entry-meta -->
+        </header><!-- .entry-header -->
+        <div class="entry-summary">
+            {{unescaped .ContentConv}}
+
+            <p> <a href="{{$.sitePage.SiteUrl}}/article/{{.ID}}#more-22422" class="more-link">&#8230;</p>
+            <p class="read-more">
+                <a class="btn btn-default" href="{{$.sitePage.SiteUrl}}/article/{{.ID}}"> 阅读全文
+                    <span class="screen-reader-text">  Read More</span>
+                </a></p>
+            <p></a></p>
+            <div id="post-ratings-22422" class="post-ratings" data-nonce="8a6fe4e045">
+                <img id="rating_22422_1" src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/stars_crystal/rating_on.gif" alt="好烂啊" title="好烂啊"
+                     onmouseover="if (!window.__cfRLUnblockHandlers) return false; current_rating(22422, 1, '好烂啊');" onmouseout="if (!window.__cfRLUnblockHandlers) return false; ratings_off(4.3, 5, 0);" onclick="if (!window.__cfRLUnblockHandlers) return false; rate_post();" onkeypress="if (!window.__cfRLUnblockHandlers) return false; rate_post();" style="cursor: pointer; border: 0px;" data-cf-modified-95ceb3b148cf599f5707ed8d-="" /><img id="rating_22422_2" src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/stars_crystal/rating_on.gif" alt="有点差" title="有点差" onmouseover="if (!window.__cfRLUnblockHandlers) return false; current_rating(22422, 2, '有点差');" onmouseout="if (!window.__cfRLUnblockHandlers) return false; ratings_off(4.3, 5, 0);" onclick="if (!window.__cfRLUnblockHandlers) return false; rate_post();" onkeypress="if (!window.__cfRLUnblockHandlers) return false; rate_post();" style="cursor: pointer; border: 0px;" data-cf-modified-95ceb3b148cf599f5707ed8d-="" /><img id="rating_22422_3" src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/stars_crystal/rating_on.gif" alt="凑合看看" title="凑合看看" onmouseover="if (!window.__cfRLUnblockHandlers) return false; current_rating(22422, 3, '凑合看看');" onmouseout="if (!window.__cfRLUnblockHandlers) return false; ratings_off(4.3, 5, 0);" onclick="if (!window.__cfRLUnblockHandlers) return false; rate_post();" onkeypress="if (!window.__cfRLUnblockHandlers) return false; rate_post();" style="cursor: pointer; border: 0px;" data-cf-modified-95ceb3b148cf599f5707ed8d-="" /><img id="rating_22422_4" src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/stars_crystal/rating_on.gif" alt="还不错" title="还不错" onmouseover="if (!window.__cfRLUnblockHandlers) return false; current_rating(22422, 4, '还不错');" onmouseout="if (!window.__cfRLUnblockHandlers) return false; ratings_off(4.3, 5, 0);" onclick="if (!window.__cfRLUnblockHandlers) return false; rate_post();" onkeypress="if (!window.__cfRLUnblockHandlers) return false; rate_post();" style="cursor: pointer; border: 0px;" data-cf-modified-95ceb3b148cf599f5707ed8d-="" /><img id="rating_22422_5" src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/stars_crystal/rating_half.gif" alt="很精彩" title="很精彩" onmouseover="if (!window.__cfRLUnblockHandlers) return false; current_rating(22422, 5, '很精彩');" onmouseout="if (!window.__cfRLUnblockHandlers) return false; ratings_off(4.3, 5, 0);" onclick="if (!window.__cfRLUnblockHandlers) return false; rate_post();" onkeypress="if (!window.__cfRLUnblockHandlers) return false; rate_post();" style="cursor: pointer; border: 0px;" data-cf-modified-95ceb3b148cf599f5707ed8d-="" /> (<strong>653</strong> 人打了分，平均分： <strong>4.31</strong> )<br /><span class="post-ratings-text" id="ratings_22422_text"></span></div>
+            <div id="post-ratings-22422-loading" class="post-ratings-loading"><img src="https://coolshell.cn/wp-content/plugins/wp-postratings/images/loading.gif" width="16" height="16" class="post-ratings-image" />Loading...</div>
+        </div><!-- .entry-summary -->
+        <footer class="entry-footer">
+            <!--							<a href="{{$.sitePage.SiteUrl}}/article/{{.ID}}" class="read-more">阅读全文</a>-->
+        </footer><!-- .entry-footer -->
+    </article><!-- #post-## -->
+    {{end}}
+    {{else}}
+    <div class="no-content">
+        <h3>暂无内容</h3>
+        <p>抱歉，没有找到符合条件的内容.</p>
+    </div>
+    {{end}}
+
+    {{if and .dataIs ( gt .data.Total 0) }}
+    <nav class="navigation posts-navigation" role="navigation">
+        <h2 class="screen-reader-text">Posts navigation</h2>
+        <div class="nav-links">
+            <div class="row">
+                <div class='wp-pagenavi' role='navigation'>
+                    <span class='pages'>第 {{.data.Pageable.PageNum}} / {{.data.Pageable.TotalPage}} 页</span>
+                    {{if .data.Pageable.FirstPageIs }}
+                    <a class="page larger" title="第 2 页" href="{{.sitePage.SiteUrl}}/page/{{.data.Pageable.FirstPage}}">首页</a>
+                    {{end}}
+                    {{$page:=.data.Pageable.PageNum}}
+                    {{range $i,$v:=.data.Pageable.Pages}}
+                    {{if eq $v $page}}
+                    <span aria-current='page' class='current' xx="{{$i}}">{{$v}}</span>
+                    {{else if gt $v $page}}
+                    <a class="page larger" title="第 {{$v}} 页" href="{{$.sitePage.SiteUrl}}/page/{{$v}}">{{$v}}</a>
+                    {{else}}
+                    <a class="page larger" title="第 {{$v}} 页" href="{{$.sitePage.SiteUrl}}/page/{{$v}}">{{$v}}</a>
+                    {{end}}
+                    {{end}}
+                    <!--	<span class='extend'>...</span>-->
+                    {{if .data.Pageable.NextPageIs}}
+                    <a class="nextpostslink" rel="next" aria-label="下一页" href="{{.sitePage.SiteUrl}}/page/{{.data.Pageable.NextPage}}">»</a>
+                    {{end}}
+                    {{if .data.Pageable.LastPageIs}}
+                    <a class="last" aria-label="Last Page" href="{{.sitePage.SiteUrl}}/page/{{.data.Pageable.LastPage}}">末页</a>
+                    {{end}}
+                </div>
+                <!--
+                <div class="col-md-6"><p> </p></div>
+
+
+                <div class="col-md-6 prev-post">
+                <a href="{{.sitePage.SiteUrl}}/page/2" >OLDER POST<i class="fa fa-angle-double-right"></i></a>				</div>
+                -->
+            </div>
+        </div><!-- .nav-links -->
+    </nav><!-- .navigation -->
+    {{end}}
+</main><!-- #main -->
+{{end}}

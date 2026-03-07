@@ -25,10 +25,10 @@ import (
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
-	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"golang.org/x/exp/slices"
 )
 
 func init() {
@@ -66,15 +66,19 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		return rt.ErrorMessage("数据不存在")
 	}
 	var stat modBlogArticle.StatisticsVo
-	byId, result := c.statDb.FindById(find.ID)
-	if result {
-		copier.Copy(&stat, &byId)
+	{
+		byId, result := c.statDb.FindById(find.ID)
+		if result {
+			copier.Copy(&stat, &byId)
+		}
 	}
 	c.log.Infof("find=%+v", find)
 	var info modBlogArticle.DetailVo
 	copier.Copy(&info, &find)
 	//
+	catNo := make([]string, 0)
 	tags := make([]string, 0)
+	info.Category = make([]*entityBlog.BlogArticleCategoryEntity, 0)
 	info.Tags = make([]string, 0)
 	info.Where = make([]string, 0)
 	info.AttachmentsMap = make(map[string]string)
@@ -86,6 +90,29 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		err := json.Unmarshal([]byte(find.Attachments), &imagesMap)
 		if err == nil {
 			info.AttachmentsMap = imagesMap
+		}
+	}
+	if strPg.IsNotBlank(find.CategoryNo) {
+		catNo = append(catNo, find.CategoryNo)
+	}
+	if nil != find.Categorys.Data() {
+		tmp := find.Categorys.Data()
+		if len(tmp) > 0 {
+			for _, tag := range tmp {
+				if strPg.IsNotBlank(tag) && !slices.Contains(catNo, tag) {
+					catNo = append(catNo, tag)
+				}
+			}
+		}
+	}
+	if len(catNo) > 0 {
+		{
+			cat, result := c.catDb.FindAllByNoIn(catNo)
+			if result {
+				for _, item := range cat {
+					info.Category = append(info.Category, item)
+				}
+			}
 		}
 	}
 	//标签
@@ -185,8 +212,8 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		raw := markdownPg.Markdown([]byte(find.Content))
 		info.ContentConv = raw.String()
 	}
-	syslog.Infof(context.Background(), syslog.TagAppDef, "info:%+v", info)
-	syslog.Infof(context.Background(), syslog.TagAppDef, "info.create:%+v", datetimePg.Format(info.CreateAt, "2006"))
+	//syslog.Infof(context.Background(), syslog.TagAppDef, "info:%+v", info)
+	//syslog.Infof(context.Background(), syslog.TagAppDef, "info.create:%+v", datetimePg.Format(info.CreateAt, "2006"))
 	return rt.OkData(info)
 }
 
@@ -223,6 +250,10 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
+		// 时间区间查询
+		if nil != ct.CreateAtStart && nil != ct.CreateAtEnd {
+			p.Condition.Where("create_at between ? and ?", ct.CreateAtStart, ct.CreateAtEnd)
+		}
 		//标签
 		if nil != ct.TagsQuery && len(ct.TagsQuery) > 0 {
 			for _, tag := range ct.TagsQuery {
@@ -232,6 +263,18 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 					p.Condition.Where("tags @> ?", get)
 				} else {
 					p.Condition.Where("tags @> ?", "[\""+tag+"\"]")
+				}
+			}
+		}
+		//多分类
+		if nil != ct.CategoryQuery && len(ct.CategoryQuery) > 0 {
+			for _, tag := range ct.CategoryQuery {
+				//获取缓存，得到 编号
+				get, b := c.rdu.Get(ctx, utilsBlog.TagCacheKey(tag))
+				if b {
+					p.Condition.Where("categorys @> ?", get)
+				} else {
+					p.Condition.Where("categorys @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}

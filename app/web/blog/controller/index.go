@@ -2,8 +2,6 @@ package controller
 
 import (
 	"context"
-	"net/http"
-	"strings"
 
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
@@ -26,7 +24,8 @@ func (c *IndexController) Index(ctx *gin.Context) {
 	ctx.Bind(&ct)
 	//
 	rt := c.sv.Query(ctx, ct)
-	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
+	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data.Pageable)
+	//fmt.Printf("Data: %+v\n", rt.Data.Pageable)
 	// 模版
 	templatePg.HTML(ctx, "blog/index",
 		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
@@ -39,45 +38,22 @@ func (c *IndexController) Index(ctx *gin.Context) {
 }
 
 func (c *IndexController) Page(ctx *gin.Context) {
-
+	param := ctx.Param("page")
 	var ct modBlogArticle.QueryCt
-	ctx.Bind(&ct)
-	//
-	hMap := gin.H{
-		"title":  "首页",
-		"ctxPg":  templatePg.NewHttpPg(ctx),
-		"dataIs": false,
+	ct.PageSize = 20
+	ct.PageNum = strPg.ToInt64(param)
+	if ct.PageNum < 1 {
+		ct.PageNum = 1
 	}
 	//
 	rt := c.sv.Query(ctx, ct)
-	if rt.SuccessIs() {
-		hMap["dataIs"] = true
-		hMap["data"] = rt.Data
-	}
-	//syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
-	ctx.HTML(http.StatusOK, "blog/blog/index.tpl", hMap)
-}
-
-func (c *IndexController) Tag(ctx *gin.Context) {
-	hMap := gin.H{
-		"title":  "标签",
-		"ctxPg":  templatePg.NewHttpPg(ctx),
-		"dataIs": false,
-	}
-	param := ctx.Param("tag")
-	param = strings.TrimSpace(param)
-	if strPg.IsNotBlank(param) {
-		var ct modBlogArticle.QueryCt
-		ct.TagsQuery = make([]string, 0)
-		ct.TagsQuery = append(ct.TagsQuery, param)
-		//
-		//
-		rt := c.sv.Query(ctx, ct)
-		if rt.SuccessIs() {
-			hMap["dataIs"] = true
-			hMap["data"] = rt.Data
-		}
-		syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
-	}
-	ctx.HTML(http.StatusOK, "blog/blog/index.tpl", hMap)
+	// 模版
+	templatePg.HTML(ctx, "blog/index",
+		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
+		templatePg.WithSitePage(templatePg.SitePage{
+			Title:       "博客",
+			Description: "博客",
+			Keywords:    "博客",
+			SiteName:    "博客",
+		}))
 }
