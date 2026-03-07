@@ -9,15 +9,15 @@ import (
 
 type Vo struct {
 	ID             typePg.Uint64String          `json:"id" label:"id" `
-	Name           string                       `json:"name" label:"名称" `       // 名称
+	Name           string                       `json:"name" label:"名称" `     // 名称
 	NameFl         string                       `json:"nameFl" label:"名称外文" ` // 名称外文
 	No             string                       `json:"no" label:"编号代号" `
-	NameFull       string                       `json:"nameFull" label:"全称" `          // 全称
+	NameFull       string                       `json:"nameFull" label:"全称" `      // 全称
 	State          typePg.Int8                  `json:"state" label:"状态:1启用;2禁用" ` // 状态:1启用;2禁用
-	Description    string                       `json:"description" label:"描述" `       // 描述
-	CreateAt       time.Time                    `json:"createAt" label:"创建时间" `      // 创建时间
-	CreateBy       string                       `json:"createBy" label:"创建人" `        // 创建人
-	UpdateBy       string                       `json:"updateBy" label:"更新人" `        // 更新人
+	Description    string                       `json:"description" label:"描述" `   // 描述
+	CreateAt       time.Time                    `json:"createAt" label:"创建时间" `    // 创建时间
+	CreateBy       string                       `json:"createBy" label:"创建人" `     // 创建人
+	UpdateBy       string                       `json:"updateBy" label:"更新人" `     // 更新人
 	CategoryNo     string                       `json:"categoryNo" label:"分类" `
 	CategoryName   string                       `json:"categoryName" label:"分类" `
 	TypeContent    string                       `json:"typeContent" label:"内容类型" `

@@ -4,10 +4,13 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/farseer-go/eventBus"
+	"github.com/foxiswho/blog-go/app/event/blog/model/modEventBlogArticleCategory"
 	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogCategory"
 	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
 	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
+	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
@@ -254,6 +257,21 @@ func (c *BlogCategoryService) CacheOverride(ctx *gin.Context) {
 		}
 	}
 	maps = nil
+}
+
+// CacheAll 缓存重载
+//
+//	@Description:
+//	@receiver c
+func (c *BlogCategoryService) CacheAll(ctx *gin.Context) {
+	//保存到数据库
+	err := eventBus.PublishEventAsync(constEventBusPg.BlogArticleCategoryCache, modEventBlogArticleCategory.CacheDto{
+		IsThisTenantAll: true,
+	})
+	if err != nil {
+		c.log.Errorf("copier.Copy error: %+v", err)
+		return
+	}
 }
 
 // Detail 详情

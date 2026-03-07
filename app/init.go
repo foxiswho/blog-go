@@ -2,6 +2,7 @@ package app
 
 import (
 	_ "github.com/foxiswho/blog-go/app/event/basic"
+	_ "github.com/foxiswho/blog-go/app/event/blog"
 	_ "github.com/foxiswho/blog-go/app/event/ram"
 	_ "github.com/foxiswho/blog-go/app/manage/domainBasic"
 	_ "github.com/foxiswho/blog-go/app/manage/domainBlog"
