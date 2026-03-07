@@ -3,17 +3,26 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"strings"
 
+	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicAttachment"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/modAttachment"
 	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
 	"github.com/foxiswho/blog-go/pkg/configPg"
+	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/numberPg"
+	"github.com/pangu-2/go-tools/tools/strPg"
+	"gorm.io/gorm"
 
 	"io"
 	"net/http"
@@ -149,6 +158,103 @@ func (c *BasicAttachmentService) UploadLink(ctx *gin.Context, ct modBasicAttachm
 	return rg.OkData(data)
 }
 
+// ListByOwner 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttachment.ListFileOwnerCt) (rt rg.Rs[modBasicAttachment.ListFIleOwnerVo]) {
+	data := modBasicAttachment.ListFIleOwnerVo{}
+	data.GroupData = make(map[string][]modBasicAttachment.Vo)
+	data.Data = make([]modBasicAttachment.Vo, 0)
+	//
+	fileOwner := make([]string, 0)
+	mapOwner := make(map[string]string)
+	key := ""
+	if nil != ct.GroupData {
+		for _, item := range ct.GroupData {
+			key = strings.TrimSpace(item.FileOwner)
+			if strPg.IsNotBlank(key) && strPg.IsNotBlank(item.Group) {
+				fileOwner = append(fileOwner, key)
+				mapOwner[key] = strings.TrimSpace(item.Group)
+			}
+		}
+	} else if nil != ct.FileOwner {
+		for _, item := range ct.FileOwner {
+			key = strings.TrimSpace(item)
+			if strPg.IsNotBlank(key) {
+				fileOwner = append(fileOwner, key)
+			}
+		}
+	}
+	if len(fileOwner) > 0 {
+		r := c.sv
+		var query entityBasic.BasicAttachmentEntity
+		//
+		query.State = enumStatePg.ENABLE.Index()
+		//
+		var con repositoryPg.Condition = func(db *gorm.DB) *gorm.DB {
+			db = db.Order("create_at desc")
+			db.Where("file_owner in ?", fileOwner)
+			return db
+		}
+		infos := r.FindAll(query, con)
+		if nil != infos {
+			//字段赋值
+			for _, item := range infos {
+				var vo modBasicAttachment.Vo
+				copier.Copy(&vo, &item)
+				vo.Url = item.Domain + item.File
+				//分组
+				if len(mapOwner) > 0 {
+					if group, ok := mapOwner[item.FileOwner]; ok {
+						if _, b := data.GroupData[group]; !b {
+							data.GroupData[group] = make([]modBasicAttachment.Vo, 0)
+						}
+						data.GroupData[group] = append(data.GroupData[group], vo)
+					}
+				} else {
+					data.Data = append(data.Data, vo)
+				}
+			}
+		}
+	}
+
+	rt.Data = data
+	return rt.Ok()
+}
+
+// DelByOwner 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicAttachmentService) DelByOwner(ctx *gin.Context, ct modBasicAttachment.DelFileOwnerCt) (rt rg.Rs[string]) {
+	if strPg.IsBlank(ct.FileOwner) {
+		return rt.ErrorMessage("文件拥有者参数错误")
+	}
+	if nil == ct.Nos || len(ct.Nos) < 1 {
+		return rt.ErrorMessage("请选择要删除的文件")
+	}
+	nos := make([]string, 0)
+	for _, item := range ct.Nos {
+		item = strings.TrimSpace(item)
+		if strPg.IsNotBlank(item) {
+			nos = append(nos, item)
+		}
+	}
+	if len(nos) < 1 {
+		return rt.ErrorMessage("请选择要删除的文件")
+	}
+	if c.sv.Config().Data.Delete {
+		c.sv.DeleteByIdAndFileOwner(nos, strings.TrimSpace(ct.FileOwner))
+	} else {
+		c.sv.UpdateByIdAndFileOwnerSetState13(nos, strings.TrimSpace(ct.FileOwner))
+	}
+	rt.Data = "删除成功"
+	return rt.Ok()
+}
+
 // Query 查询
 //
 //	@Description:
@@ -164,6 +270,12 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicAttachmentEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
+			if c.PageSize <= 0 {
+				c.PageSize = 20
+			}
+			if c.PageNum <= 0 {
+				c.PageNum = 1
+			}
 		}
 		p.Condition = r.DbModel().Order("create_at DESC")
 		//自定义查询
@@ -192,6 +304,163 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 		pg.Pageable = page.Pageable
 		rt.Data = pg
 		return rt.Ok()
+	}
+	return rt.Ok()
+}
+
+// MakeFileOwner 设置文件拥有者/file token/ 文件归属
+func (c *BasicAttachmentService) MakeFileOwner(ctx *gin.Context, ct modBasicAttachment.MakeFileOwnerCt) (rt rg.Rs[modBasicAttachment.MakeFileOwner]) {
+	vo := modBasicAttachment.MakeFileOwner{}
+	prefix := ""
+	if len(ct.Mark) > 0 {
+		if ":auto" == ct.Mark {
+			prefix = "default-"
+		} else {
+			str := strutil.Substring(ct.Mark, 0, 1)
+			if str != ":" {
+				prefix = strings.TrimSpace(ct.Mark) + "-"
+			}
+		}
+	} else {
+		prefix = "default-"
+	}
+	vo.FileOwner = noPg.MakeNo(prefix)
+	rt.Data = vo
+	return rt.Ok()
+}
+
+// MakeFileOwnerAll 设置文件拥有者/file token/ 文件归属
+func (c *BasicAttachmentService) MakeFileOwnerAll(ctx *gin.Context, ct modBasicAttachment.MakeFileOwnerAllCt) (rt rg.Rs[[]modBasicAttachment.MakeFileOwner]) {
+	data := make([]modBasicAttachment.MakeFileOwner, 0)
+	if ct.Rule != nil && len(ct.Rule) > 0 {
+		for _, item := range ct.Rule {
+			vo := modBasicAttachment.MakeFileOwner{}
+			prefix := ""
+			if len(item.Mark) > 0 {
+				if ":auto" == item.Mark {
+					prefix = "default-"
+				} else {
+					str := strutil.Substring(item.Mark, 0, 1)
+					if str != ":" {
+						prefix = strings.TrimSpace(item.Mark) + "-"
+					}
+				}
+			} else {
+				prefix = "default-"
+			}
+			vo.FileOwner = noPg.MakeNo(prefix)
+			vo.Mark = item.Mark
+			//
+			data = append(data, vo)
+		}
+	} else if ct.Num > 0 || ct.Num == 0 {
+		num := ct.Num
+		if num <= 0 {
+			num = 1
+		}
+		prefix := ""
+		for i := int32(0); i < num; i++ {
+			vo := modBasicAttachment.MakeFileOwner{}
+			prefix = ""
+			if len(ct.Mark) > 0 {
+				if ":auto" == ct.Mark {
+					prefix = "default-"
+				} else {
+					str := strutil.Substring(ct.Mark, 0, 1)
+					if str != ":" {
+						prefix = strings.TrimSpace(ct.Mark) + "-"
+					}
+				}
+			} else {
+				prefix = "default-"
+			}
+			vo.FileOwner = noPg.MakeNo(prefix)
+			vo.Mark = ct.Mark
+			//
+			data = append(data, vo)
+		}
+	}
+	rt.Data = data
+	return rt.Ok()
+}
+
+// UpdateByFileOwner 批量更新文件拥有者
+func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasicAttachment.UpdateByFileOwner) (rt rg.Rs[string]) {
+	if ct.Data == nil || len(ct.Data) < 1 {
+		return rt.ErrorMessage("请选择要更新的文件")
+	}
+	ids := make([]string, 0)
+	mapOwner := make(map[string][]string)
+	for key, item := range ct.Data {
+		if nil != item && len(item) > 0 {
+			mapOwner[key] = make([]string, 0)
+			for _, str := range item {
+				str = strings.TrimSpace(str)
+				if strPg.IsNotBlank(str) {
+					mapOwner[key] = append(mapOwner[key], str)
+					ids = append(ids, str)
+				}
+			}
+		}
+	}
+	//查询这个id，如果文件已经拥有者，那么复制一个新纪录
+	if len(mapOwner) > 0 {
+		data := make([]*entityBasic.BasicAttachmentEntity, 0)
+		mapAtt := make(map[string]*entityBasic.BasicAttachmentEntity)
+		if len(ids) > 0 {
+			var query entityBasic.BasicAttachmentEntity
+			query.State = enumStatePg.ENABLE.Index()
+			//
+			infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+				db = db.Order("create_at desc")
+				db.Where("id in ?", ids)
+				return db
+			}))
+			if infos != nil && len(infos) > 0 {
+				for _, item := range infos {
+					//存在文件拥有者
+					if strPg.IsNotBlank(item.FileOwner) {
+						mapAtt[numberPg.Int64ToString(item.ID)] = item
+					}
+				}
+			}
+		}
+		mapOwnerNew := make(map[string][]string)
+		filter := make([]string, 0)
+		for key, item := range mapOwner {
+			if nil != item && len(item) > 0 {
+				filter = make([]string, 0)
+				for _, str := range item {
+					if obj, ok := mapAtt[str]; ok {
+						//存在文件拥有者
+						obj.ID = 0
+						obj.FileOwner = key
+						obj.TypeData = "copy"
+						data = append(data, obj)
+					} else {
+						//不存在文件拥有者
+						filter = append(filter, str)
+					}
+				}
+				if len(filter) > 0 {
+					fmt.Printf("不存在文件拥有者:%+v\n", filter)
+					mapOwnerNew[key] = filter
+				}
+			}
+		}
+		if len(data) > 0 {
+			c.sv.DbModel().Create(data)
+		}
+		if len(mapOwnerNew) > 0 {
+			for key, item := range mapOwnerNew {
+				fmt.Printf("不存在文件拥有者:%+v\n", item)
+				c.sv.UpdateByIdSetFileOwner(item, key)
+			}
+		}
+		clear(filter)
+		clear(data)
+		clear(mapAtt)
+		clear(mapOwnerNew)
 	}
 	return rt.Ok()
 }

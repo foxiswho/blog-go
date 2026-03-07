@@ -137,7 +137,7 @@ func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt 
 		}
 		// 判断创始人是否已经绑定过租户
 		{
-			_, result := r.FindByFounder(ct.Founder)
+			_, result := r.FindByFounderAndNotIdString(ct.Founder, ct.ID.ToString())
 			if result {
 				return rt.ErrorMessage("该帐户已绑定租户")
 			}

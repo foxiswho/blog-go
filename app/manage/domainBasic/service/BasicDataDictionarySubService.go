@@ -18,7 +18,6 @@ import (
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
-	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -57,32 +56,47 @@ func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBas
 	}
 	r := c.sv
 	//
+	parent, b := r.FindByCode(ct.TypeCode)
+	if !b {
+		return rt.ErrorMessage("父级码值不存在")
+	}
 	//
 	var info entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&info, &ct)
 	//
 	info.Code = strings.Trim(info.Code, "")
 	info.Value = info.Code
-	info.TypeUniqueMd5 = cryptPg.Md5(info.TypeCode + ":" + info.Code)
+	info.TypeUniqueMd5 = parent.TypeUniqueMd5
+	info.TypeCode = parent.Code
 	if nil != ct.Range && len(ct.Range) > 0 {
 		info.Range = slice.Join(ct.Range, ",")
 	}
-	info.OwnerNo = "0"
+	info.OwnerNo = parent.OwnerNo
 	if ct.ID < 1 {
-		_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, "0", info.OwnerNo)
-		if result {
-			return rt.ErrorMessage("码值已存在")
+		{
+			_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, "0", info.OwnerNo)
+			if result {
+				return rt.ErrorMessage("码值已存在")
+			}
 		}
 		c.log.Infof("info%+v", info)
-		r.Create(&info)
-		c.log.Infof("save=%+v", info)
-	} else {
-		_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, ct.ID.ToString(), info.OwnerNo)
-		if result {
-			return rt.ErrorMessage("码值已存在")
+		err, _ := r.Create(&info)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
 		}
 		c.log.Infof("save=%+v", info)
-		r.Update(info, info.ID)
+	} else {
+		{
+			_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, ct.ID.ToString(), info.OwnerNo)
+			if result {
+				return rt.ErrorMessage("码值已存在")
+			}
+		}
+		c.log.Infof("save=%+v", info)
+		err := r.Update(info, info.ID)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
+		}
 	}
 
 	return rg.OkData(numberPg.Int64ToString(info.ID))
@@ -242,11 +256,11 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.Vo]]) {
+func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.VoData]]) {
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
-	slice := make([]modBasicDataDictionary.Vo, 0)
+	slice := make([]modBasicDataDictionary.VoData, 0)
 	rt.Data.Data = slice
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
@@ -260,7 +274,10 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 		p.Condition = r.DbModel().Order("sort,create_at asc")
 		//自定义查询
 		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+			p.Condition.Where("name like ?", "%"+ct.Wd+"%").
+				Or("code like ?", "%"+ct.Wd+"%").
+				Or("name_fl like ?", "%"+ct.Wd+"%").
+				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
 	})
 	if nil != err {
@@ -268,8 +285,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.Vo]) {
+		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.VoData]) {
 			c.TotalPage = page.TotalPage
 			c.Total = page.Total
 			c.PageSize = page.PageSize
@@ -277,24 +293,26 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 		})
 		ids := make([]string, 0)
 		for _, item := range page.Data {
-			ids = append(ids, item.Code)
+			if strPg.IsNotBlank(item.TypeCode) {
+				ids = append(ids, item.TypeCode)
+			}
 		}
 		mapBasic := make(map[string]*entityBasic.BasicDataDictionaryEntity)
 		if len(ids) > 0 {
 			infos, b := r.FindAllByCodeIn(ids)
 			if !b {
 				for _, item := range infos {
-					mapBasic[item.Code] = item
+					mapBasic[item.TypeCode] = item
 				}
 			}
 		}
 
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modBasicDataDictionary.Vo
+			var vo modBasicDataDictionary.VoData
 			copier.Copy(&vo, &item)
 			//
-			if obj, ok := mapBasic[item.Code]; ok {
+			if obj, ok := mapBasic[item.TypeCode]; ok {
 				vo.TypeCodeName = obj.Name
 			}
 			slice = append(slice, vo)

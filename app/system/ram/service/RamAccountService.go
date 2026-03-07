@@ -256,13 +256,15 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		if nil != ct.Departments && len(ct.Departments) > 0 {
 			depInfo, result := depDb.FindAllByNoLinkArr(ct.Departments)
 			if result {
+				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
-						p.Condition.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					} else {
-						p.Condition.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					}
 				}
+				p.Condition.Where(sqlDb)
 			} else {
 				p.Condition.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 			}
@@ -271,13 +273,15 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		if nil != ct.Roles && len(ct.Roles) > 0 {
 			depInfo, result := roleDb.FindAllByNoIn(ct.Roles)
 			if result {
+				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
-						p.Condition.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					} else {
-						p.Condition.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					}
 				}
+				p.Condition.Where(sqlDb)
 			} else {
 				p.Condition.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 			}
@@ -287,13 +291,15 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Levels && len(ct.Levels) > 0 {
 				depInfo, result := levelDb.FindAllByNoIn(ct.Levels)
 				if result {
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							p.Condition.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						} else {
-							p.Condition.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
+					p.Condition.Where(sqlDb)
 				} else {
 					p.Condition.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 				}
@@ -304,13 +310,15 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Groups && len(ct.Groups) > 0 {
 				depInfo, result := groupDb.FindAllByNoIn(ct.Groups)
 				if result {
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							p.Condition.Where("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						} else {
-							p.Condition.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
+					p.Condition.Where(sqlDb)
 				}
 			}
 		}
@@ -319,13 +327,15 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Teams && len(ct.Teams) > 0 {
 				depInfo, result := teamDb.FindAllByNoIn(ct.Teams)
 				if result {
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							p.Condition.Where("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						} else {
-							p.Condition.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
+					p.Condition.Where(sqlDb)
 				}
 			}
 		}

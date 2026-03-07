@@ -113,3 +113,10 @@ nameServers = ["127.0.0.1:9876"]
 [pg.directory]
 # 数据文件目录，静态文件
 data = "data"
+
+# 模版 主题
+[pg.template]
+# 主题名称
+theme = "nisarg"
+# 后缀 例如 .html
+suffix = ".html"

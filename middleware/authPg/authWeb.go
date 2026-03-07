@@ -43,6 +43,8 @@ func GroupWebMiddleware(m *GroupWebMiddlewareSp) gin.HandlerFunc {
 		}
 		syslog.Infof(context.Background(), syslog.TagAppDef, "租户.no => %+v", val)
 		c.Set(constHeaderPg.WebTenantNo, val)
+		c.Set(constHeaderPg.WebTemplatePg, m.pg)
+		c.Set(constHeaderPg.WebTemplatePgServer, m.server)
 		c.Next()
 	}
 }

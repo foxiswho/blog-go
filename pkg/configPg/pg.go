@@ -7,7 +7,7 @@ type Pg struct {
 	Jwt    pg.Jwt    `json:"jwt" value:"${jwt}"`
 	Redis  pg.Redis  `json:"redis" value:"${redis}"`
 	//Upload        pg.Upload        `json:"upload" value:"${upload}"`
-	//Template      pg.Template      `json:"template" value:"${template}"`
+	Template pg.Template `json:"template" value:"${template}"`
 	//Elasticsearch pg.Elasticsearch `json:"elasticsearch" value:"${elasticsearch}"`
 	MultiTenant pg.MultiItem  `json:"multiTenant" value:"${multiTenant}" toml:"multiTenant"` //租户表
 	Multi       pg.Multi      `json:"multi" value:"${multi}" toml:"multi"`                   //多租户/商户表

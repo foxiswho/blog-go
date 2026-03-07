@@ -401,6 +401,12 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 					}
 				}
 			}
+			if strPg.IsNotBlank(item.Content) {
+				// 截取前1000个有效文字（图片不计，代码段完整）
+				truncated := markdownPg.TruncateMarkdown(item.Content, 1000)
+				raw := markdownPg.Markdown([]byte(truncated))
+				vo.ContentConv = raw.String()
+			}
 			//
 			slice = append(slice, vo)
 		}

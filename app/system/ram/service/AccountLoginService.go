@@ -90,6 +90,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", ct.Password, userPg.PasswordSalt(ct.Password, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
 		return rt.ErrorMessage("账号密码错误")
 	}
+	//
 	now := time.Now()
 	//租户默认
 	mult := multiTenantPg.MultiTenantPg{
@@ -100,23 +101,25 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	isMakeNewKey := false
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	no, r := c.sessionAk.FindByNoAndState(typeDomainPg.System.Index())
-	if !r {
-		privatePubKey = authTokenPg.MakePublicPrivateKey()
-		isMakeNewKey = true
-	} else {
-		if strPg.IsBlank(no.Data) {
+	{
+		no, r := c.sessionAk.FindByNoAndState(typeDomainPg.System.Index())
+		if !r {
 			privatePubKey = authTokenPg.MakePublicPrivateKey()
 			isMakeNewKey = true
 		} else {
-			var privatePubKeyEnt entityRam.RamAsaJsonPrivatePublicKey
-			err := json.Unmarshal([]byte(no.Data), &privatePubKeyEnt)
-			if err != nil {
+			if strPg.IsBlank(no.Data) {
 				privatePubKey = authTokenPg.MakePublicPrivateKey()
 				isMakeNewKey = true
 			} else {
-				privatePubKey.PrivateKey = privatePubKeyEnt.Private
-				privatePubKey.PublicKey = privatePubKeyEnt.Public
+				var privatePubKeyEnt entityRam.RamAsaJsonPrivatePublicKey
+				err := json.Unmarshal([]byte(no.Data), &privatePubKeyEnt)
+				if err != nil {
+					privatePubKey = authTokenPg.MakePublicPrivateKey()
+					isMakeNewKey = true
+				} else {
+					privatePubKey.PrivateKey = privatePubKeyEnt.Private
+					privatePubKey.PublicKey = privatePubKeyEnt.Public
+				}
 			}
 		}
 	}

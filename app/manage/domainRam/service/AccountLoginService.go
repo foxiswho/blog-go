@@ -91,6 +91,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//
+	now := time.Now()
 	//租户默认
 	mult := multiTenantPg.MultiTenantPg{
 		TenantNo: make([]string, 0),
@@ -168,8 +169,6 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 			cacheAuthPubPrivPg.Set(key, dataKey)
 		}
 	}
-	//
-	now := time.Now()
 	//记录登录日志
 	{
 		var tmp entityRam.RamAccountEntity

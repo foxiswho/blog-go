@@ -25,19 +25,17 @@ func (c *IndexController) Index(ctx *gin.Context) {
 	var ct modBlogArticle.QueryCt
 	ctx.Bind(&ct)
 	//
-	hMap := gin.H{
-		"title":  "首页",
-		"ctxPg":  templatePg.NewHttpPg(ctx),
-		"dataIs": false,
-	}
-	//
 	rt := c.sv.Query(ctx, ct)
-	if rt.SuccessIs() {
-		hMap["dataIs"] = true
-		hMap["data"] = rt.Data
-	}
 	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
-	ctx.HTML(http.StatusOK, "blog/blog/index.tpl", hMap)
+	// 模版
+	templatePg.HTML(ctx, "blog/index",
+		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
+		templatePg.WithSitePage(templatePg.SitePage{
+			Title:       "博客",
+			Description: "博客",
+			Keywords:    "博客",
+			SiteName:    "博客",
+		}))
 }
 
 func (c *IndexController) Page(ctx *gin.Context) {
@@ -56,7 +54,7 @@ func (c *IndexController) Page(ctx *gin.Context) {
 		hMap["dataIs"] = true
 		hMap["data"] = rt.Data
 	}
-	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
+	//syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data)
 	ctx.HTML(http.StatusOK, "blog/blog/index.tpl", hMap)
 }
 

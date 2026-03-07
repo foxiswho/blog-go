@@ -250,7 +250,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		if nil != ct.Departments && len(ct.Departments) > 0 {
 			depInfo, result := depDb.FindAllByNoLinkArr(ct.Departments)
 			if result {
-				sqlDb := r.Db()
+				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
 						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
@@ -267,7 +267,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		if nil != ct.Roles && len(ct.Roles) > 0 {
 			depInfo, result := roleDb.FindAllByNoIn(ct.Roles)
 			if result {
-				sqlDb := r.Db()
+				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
 						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
@@ -285,7 +285,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Levels && len(ct.Levels) > 0 {
 				depInfo, result := levelDb.FindAllByNoIn(ct.Levels)
 				if result {
-					sqlDb := r.Db()
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
 							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
@@ -304,7 +304,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Groups && len(ct.Groups) > 0 {
 				depInfo, result := groupDb.FindAllByNoIn(ct.Groups)
 				if result {
-					sqlDb := r.Db()
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
 							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
@@ -321,7 +321,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.Teams && len(ct.Teams) > 0 {
 				depInfo, result := teamDb.FindAllByNoIn(ct.Teams)
 				if result {
-					sqlDb := r.Db()
+					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
 							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
@@ -700,6 +700,22 @@ func (c *RamAccountService) ExistMail(ctx *gin.Context, ct model.BaseExistWdCt[s
 		return rt.ErrorMessage("查询内容不能为空")
 	}
 	_, result := c.sv.FindByMailAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
+}
+
+// ExistCode 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *RamAccountService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string], tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("查询内容不能为空")
+	}
+	_, result := c.sv.FindByCodeAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

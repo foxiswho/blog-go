@@ -37,6 +37,18 @@ func (c *TcTenantRepository) FindByFounder(no string) (info *entityTc.TcTenantEn
 	return info, true
 }
 
+func (c *TcTenantRepository) FindByFounderAndNotIdString(no string, id string) (info *entityTc.TcTenantEntity, result bool) {
+	tx := c.Db().Where("founder=?", no).Where("id<>?", id).First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
 func (c *TcTenantRepository) FindByTenantAndFounder(no string) (info *entityTc.TcTenantEntity, result bool) {
 	tx := c.Db().Where("founder=?", no).First(&info)
 	if tx.Error != nil {

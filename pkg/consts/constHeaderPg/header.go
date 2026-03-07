@@ -20,4 +20,7 @@ const (
 	CookieName          = "token"
 	//
 	WebTenantNo = "web-tenant-no"
+	// web 模板 Pg 存储
+	WebTemplatePg       = "web-template-pg"
+	WebTemplatePgServer = "web-template-pg.server"
 )

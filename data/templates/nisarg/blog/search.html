@@ -1,0 +1,84 @@
+{{ define "nisarg/blog/search.html" }}
+{{template "nisarg/blog/header.html" .}}
+	<div class="container">
+		<div class="row">
+			<div id="primary" class="col-md-9 content-area">
+				<main id="main" class="site-main" role="main">
+				{{if .Posts}}
+					{{if .IsHome}}
+						<header>
+							<h1 class="page-title screen-reader-text">{{.PageTitle}}</h1>
+						</header>
+					{{end}}
+
+					{{range .Posts}}
+					<article id="post-{{.ID}}" class="post-content">
+						{{if .IsSticky}}
+						<span class="sticky-post">Featured</span>
+						{{end}}
+						{{if .FeaturedImg}}
+						<!-- <div class="featured-image">
+							<img src="{{.FeaturedImg}}" alt="{{.Title}}" />
+						</div> -->
+						{{end}}
+						<header class="entry-header">
+							<span class="screen-reader-text">{{.Title}}</span>
+							<h2 class="entry-title">
+								<a href="{{.Permalink}}" rel="bookmark">{{.Title}}</a>
+							</h2>
+							<div class="entry-meta">
+								<h5 class="entry-date">
+									<i class="fa fa-calendar-o"></i> 
+									<a href="https://coolshell.cn/articles/22422.html" title="17:52" rel="bookmark">
+										<time class="entry-date" datetime="2023-05-08T17:52:06+08:00" pubdate>2023年05月08日 </time>
+									</a>
+									<span class="byline"><span class="sep"></span><i class="fa fa-user"></i>
+<span class="author vcard">
+	<a class="url fn n" href="https://coolshell.cn/articles/author/haoel" title="View all posts by 陈皓" rel="author">陈皓</a>
+</span></span> 
+<i class="fa fa-comments-o"></i>
+<span class="screen-reader-text">评论 </span> 
+<a href="https://coolshell.cn/articles/22422.html#comments" class="comments-link" >571 条评论</a> 
+<i class="fa fa-users" style="margin-left:10px;"></i> 406,827 人阅读</h5>
+							</div><!-- .entry-meta -->
+						</header><!-- .entry-header -->
+						<div class="entry-summary">
+							{{.Excerpt}}
+<p class="read-more"><a class="btn btn-default" href="https://coolshell.cn/articles/17607.html"> Read More<span class="screen-reader-text">  Read More</span></a></p>
+						</div><!-- .entry-summary -->
+						<footer class="entry-footer">
+							
+						</footer><!-- .entry-footer -->
+					</article><!-- #post-## -->
+					{{end}}
+				{{else}}
+					<div class="no-content">
+						<h3>No posts found</h3>
+						<p>Sorry, no posts matched your criteria.</p>
+					</div>
+				{{end}}
+				<nav class="navigation posts-navigation" role="navigation">
+		<h2 class="screen-reader-text">Posts navigation</h2>
+		<div class="nav-links">
+
+			<div class="row">
+
+<div class='wp-pagenavi' role='navigation'>
+<span class='pages'>第 1 / 74 页</span><span aria-current='page' class='current'>1</span><a class="page larger" title="第 2 页" href="https://coolshell.cn/page/2">2</a><a class="page larger" title="第 3 页" href="https://coolshell.cn/page/3">3</a><a class="page larger" title="第 4 页" href="https://coolshell.cn/page/4">4</a><a class="page larger" title="第 5 页" href="https://coolshell.cn/page/5">5</a><a class="page larger" title="第 6 页" href="https://coolshell.cn/page/6">6</a><a class="page larger" title="第 7 页" href="https://coolshell.cn/page/7">7</a><a class="page larger" title="第 8 页" href="https://coolshell.cn/page/8">8</a><a class="page larger" title="第 9 页" href="https://coolshell.cn/page/9">9</a><a class="page larger" title="第 10 页" href="https://coolshell.cn/page/10">10</a><span class='extend'>...</span><a class="larger page" title="第 20 页" href="https://coolshell.cn/page/20">20</a><a class="larger page" title="第 30 页" href="https://coolshell.cn/page/30">30</a><a class="larger page" title="第 40 页" href="https://coolshell.cn/page/40">40</a><a class="larger page" title="第 50 页" href="https://coolshell.cn/page/50">50</a><a class="larger page" title="第 60 页" href="https://coolshell.cn/page/60">60</a><span class='extend'>...</span><a class="nextpostslink" rel="next" aria-label="下一页" href="https://coolshell.cn/page/2">»</a><a class="last" aria-label="Last Page" href="https://coolshell.cn/page/74">末页 »</a>
+</div><!--
+				<div class="col-md-6"><p> </p></div>			
+			
+					
+				<div class="col-md-6 prev-post">		
+				<a href="https://coolshell.cn/page/2" >OLDER POST<i class="fa fa-angle-double-right"></i></a>				</div>
+				-->
+			</div>		
+		</div><!-- .nav-links -->
+	</nav><!-- .navigation -->
+				</main><!-- #main -->
+			</div><!-- #primary -->
+		{{template "nisarg/blog/sidebar.html" .}}
+		</div><!--row-->
+	</div><!--.container-->
+{{template "nisarg/blog/footer.html" .}}
+{{end}}

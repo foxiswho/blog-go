@@ -1,0 +1,195 @@
+{{ define "nisarg/blog/header.html" }}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<title>{{.sitePage.Title}}</title>
+<meta name="description" content="{{.sitePage.Description}}" />
+<meta name="keywords" content="{{.sitePage.Keywords}}" />
+<meta name="robots" content="max-image-preview:large" />
+	<link rel="canonical" href="{{.sitePage.SiteUrl}}" />
+	<link rel="next" href="{{.sitePage.SiteUrl}}/page/2" />
+<!--	<meta name="generator" content="All in One SEO (AIOSEO) 4.3.6.1 " />-->
+	<meta property="og:locale" content="zh_CN" />
+	<meta property="og:site_name" content="{{.sitePage.Title}}" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="{{.sitePage.Title}}" />
+	<meta property="og:description" content="{{.sitePage.Description}}" />
+	<meta property="og:url" content="{{.sitePage.SiteUrl}}" />
+	<meta property="og:image" content="{{.sitePage.SiteLogo}}" />
+	<meta property="og:image:secure_url" content="{{.sitePage.SiteLogo}}" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="{{.sitePage.Title}}" />
+	<meta name="twitter:description" content="{{.sitePage.Description}}" />
+	<meta name="twitter:image" content="{{.sitePage.SiteLogo}}" />
+<!-- 静态文件引用 -->
+<link rel="stylesheet" href="/assets/static/nisarg/css/bootstrap.css" />
+<link rel="stylesheet" href="/assets/static/nisarg/font-awesome/css/font-awesome.css" />
+<link rel="stylesheet" href="/assets/static/nisarg/style.css" />
+<style id='nisarg-style-inline-css' type='text/css'>
+	/* Color Scheme */
+
+	/* Accent Color */
+
+	a:active,
+	a:hover,
+	a:focus {
+	    color: #009688;
+	}
+
+	.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+		color: #009688;
+	}
+
+	
+	.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+		color: #009688;			
+	}
+
+	@media (min-width: 768px){
+		.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+			border-top: 4px solid #009688;
+		}		
+	}
+
+	.dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus {	    
+	    background-color: #009688;
+	}
+
+
+	.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+		color: #009688;
+	}
+
+	.navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover,
+	.navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus {
+		color: #fff;
+		background-color: #009688;
+	}
+
+	.navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+	 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, 
+	 .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+		background-color: #fff;
+		color: #009688;
+	}
+
+	@media (max-width: 767px) {
+		.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+			background-color: #009688;
+			color: #fff;
+		}
+	}
+
+	.sticky-post{
+	    background: #009688;
+	    color:white;
+	}
+	
+	.entry-title a:hover,
+	.entry-title a:focus{
+	    color: #009688;
+	}
+
+	.entry-header .entry-meta::after{
+	    background: #009688;
+	}
+
+	.fa {
+		color: #009688;
+	}
+
+	.btn-default{
+		/* border-bottom: 1px solid #009688; */
+	}
+
+	.btn-default:hover, .btn-default:focus{
+	    border-bottom: 1px solid #009688;
+	    background-color: #009688;
+	}
+
+	.nav-previous:hover, .nav-next:hover{
+	    border: 1px solid #009688;
+	    background-color: #009688;
+	}
+
+	.next-post a:hover,.prev-post a:hover{
+	    color: #009688;
+	}
+
+	.posts-navigation .next-post a:hover .fa, .posts-navigation .prev-post a:hover .fa{
+	    color: #009688;
+	}
+
+
+	#secondary .widget-title::after{
+		background-color: #009688;
+	    content: "";
+	    position: absolute;
+	    width: 75px;
+	    display: block;
+	    height: 4px;    
+	    bottom: -15px;
+	}
+
+	#secondary .widget a:hover,
+	#secondary .widget a:focus{
+		color: #009688;
+	}
+
+	#secondary .widget_calendar tbody a {
+	    background-color: #009688;
+	    color: #fff;
+	    padding: 0.2em;
+	}
+
+	#secondary .widget_calendar tbody a:hover{
+	    background-color: #009688;
+	    color: #fff;
+	    padding: 0.2em;
+	}	
+
+</style>
+</head>
+<body>
+<div id="page" class="hfeed site">
+<header id="masthead" role="banner">
+	<nav id="site-navigation" class="main-navigation navbar-default navbar fixed-top navbar-expand-lg p-0" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="container" id="navigation_menu">
+			<div class="navbar-header">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="navbar-toggler-icon"></span>
+					<span class="navbar-toggler-icon"></span>
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<a class="navbar-brand" href="/" style="height: 50px;">
+					<div class="blog_logo"></div>
+					{{.sitePage.SiteName}}</a>
+			</div>
+			<div class="navbar-nav flex-row order-md-last" id="navbarNav">
+				<ul class="primary-menu navbar-nav">
+					<li class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item current_page_item menu-item-20 active"><a class="nav-link" href="/" aria-current="page">Home</a></li>
+					<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-21"><a class="nav-link" href="/about">About</a></li>
+					<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-21"><a class="nav-link" href="/contact">Contact</a></li>
+				</ul>
+			</div>
+		</div><!--#container-->
+	</nav>
+	<div id="cc_spacer" style="height: 50px;"></div><!-- used to clear fixed navigation by the themes js -->
+
+	<div class="site-header">
+		<div class="site-branding">
+			<a class="home-link" href="/" title="{{.sitePage.SiteName}}" rel="home">
+				<h1 class="site-title">{{.sitePage.SiteName}}</h1>
+				<h2 class="site-description">{{.sitePage.SiteDescription}}</h2>
+			</a>
+		</div><!--.site-branding-->
+	</div><!--.site-header-->
+
+</header>
+<div id="content" class="site-content">
+{{end}}
