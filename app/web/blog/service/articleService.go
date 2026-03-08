@@ -6,9 +6,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
+	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
 	"github.com/foxiswho/blog-go/app/manage/domainBlog/service/blogArticle"
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/utilsBlog"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
@@ -21,6 +22,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumApprovedPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/sdk/blog/key/blogKeyPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -45,6 +47,7 @@ type ArticleService struct {
 	log       *log2.Logger                                    `autowire:"?"`
 	tagsRelat *repositoryBasic.BasicTagsRelationRepository    `autowire:"?"`
 	rdu       *rdsPg.BatchString                              `autowire:"?"`
+	catCore   *serviceCore.CoreArticleCategory                `autowire:"?"`
 }
 
 // Detail 详情
@@ -66,19 +69,24 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		return rt.ErrorMessage("数据不存在")
 	}
 	var stat modBlogArticle.StatisticsVo
-	{
-		byId, result := c.statDb.FindById(find.ID)
-		if result {
-			copier.Copy(&stat, &byId)
+	//统计
+	if strPg.IsNotBlank(find.No) {
+		{
+			tmp, result2 := c.statDb.FindByArticleNo(find.No)
+			if result2 {
+				copier.Copy(&stat, tmp)
+			}
 		}
 	}
 	c.log.Infof("find=%+v", find)
 	var info modBlogArticle.DetailVo
-	copier.Copy(&info, &find)
+	copier.Copy(&info, find)
+	//
+	info.Statistics = stat
 	//
 	catNo := make([]string, 0)
 	tags := make([]string, 0)
-	info.Category = make([]*entityBlog.BlogArticleCategoryEntity, 0)
+	info.CategoryObj = make([]*modBlogArticleCategory.Cache, 0)
 	info.Tags = make([]string, 0)
 	info.Where = make([]string, 0)
 	info.AttachmentsMap = make(map[string]string)
@@ -107,10 +115,16 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 	}
 	if len(catNo) > 0 {
 		{
-			cat, result := c.catDb.FindAllByNoIn(catNo)
-			if result {
-				for _, item := range cat {
-					info.Category = append(info.Category, item)
+			//cat, result := c.catDb.FindAllByNoIn(catNo)
+			//if result {
+			//	for _, item := range cat {
+			//		info.CategoryObj = append(info.CategoryObj, item)
+			//	}
+			//}
+			tmp, b := c.catCore.GetAllByKeysRetMap(ctx, catNo, find.TenantNo)
+			if b {
+				for _, item := range tmp {
+					info.CategoryObj = append(info.CategoryObj, item)
 				}
 			}
 		}
@@ -197,17 +211,6 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		}
 	}
 
-	//统计
-	if strPg.IsNotBlank(find.No) {
-		stat, result2 := c.statDb.FindByArticleNo(find.No)
-		if result2 {
-			info.Statistics.Comment = stat.Comment
-			info.Statistics.Read = stat.Read
-			info.Statistics.SeoKeywords = stat.SeoKeywords
-			info.Statistics.SeoDescription = stat.SeoDescription
-			info.Statistics.PageTitle = stat.PageTitle
-		}
-	}
 	if strPg.IsNotBlank(find.Content) {
 		raw := markdownPg.Markdown([]byte(find.Content))
 		info.ContentConv = raw.String()
@@ -225,9 +228,9 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogArticle.Vo]]) {
 	var query entityBlog.BlogArticleEntity
 	copier.Copy(&query, &ct)
-	no := webPg.GetTenantNo(ctx)
-	if strPg.IsNotBlank(no) {
-		query.TenantNo = no
+	tenantNo := webPg.GetTenantNo(ctx)
+	if strPg.IsNotBlank(tenantNo) {
+		query.TenantNo = tenantNo
 	}
 	//启用
 	query.State = enumStatePg.ENABLE.Index()
@@ -257,11 +260,7 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		//标签
 		if nil != ct.TagsQuery && len(ct.TagsQuery) > 0 {
 			for _, tag := range ct.TagsQuery {
-				//获取缓存，得到 标签编号
-				get, b := c.rdu.Get(ctx, utilsBlog.TagCacheKey(tag))
-				if b {
-					p.Condition.Where("tags @> ?", get)
-				} else {
+				if strPg.IsNotBlank(tag) {
 					p.Condition.Where("tags @> ?", "[\""+tag+"\"]")
 				}
 			}
@@ -270,9 +269,9 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		if nil != ct.CategoryQuery && len(ct.CategoryQuery) > 0 {
 			for _, tag := range ct.CategoryQuery {
 				//获取缓存，得到 编号
-				get, b := c.rdu.Get(ctx, utilsBlog.TagCacheKey(tag))
+				get, b := c.rdu.Get(ctx, blogKeyPg.ArticleCategoryTenantNoAndNoByCode(tenantNo, tag))
 				if b {
-					p.Condition.Where("categorys @> ?", get)
+					p.Condition.Where("categorys @> ?", "[\""+get+"\"]")
 				} else {
 					p.Condition.Where("categorys @> ?", "[\""+tag+"\"]")
 				}
@@ -291,7 +290,7 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 			c.PageSize = page.PageSize
 			c.PageNum = page.PageNum
 		})
-		mapCategory := make(map[string]*entityBlog.BlogArticleCategoryEntity)
+		mapCategory := make(map[string]*modBlogArticleCategory.Cache)
 		mapStat := make(map[string]*entityBlog.BlogArticleStatisticsEntity)
 		idsCategory := make([]string, 0)
 		idsNo := make([]string, 0)
@@ -302,6 +301,11 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		for _, item := range page.Data {
 			if strPg.IsNotBlank(item.CategoryNo) {
 				idsCategory = append(idsCategory, item.CategoryNo)
+			}
+			if item.Categorys.Data() != nil && len(item.Categorys.Data()) > 0 {
+				for _, obj := range item.Categorys.Data() {
+					idsCategory = append(idsCategory, obj)
+				}
 			}
 			if strPg.IsNotBlank(item.No) {
 				idsNo = append(idsNo, item.No)
@@ -324,12 +328,16 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		//分类
 		{
 			if len(idsCategory) > 0 {
-				tmp, result := c.catDb.FindAllByNoIn(idsCategory)
-				if result {
-					for _, item := range tmp {
-						mapCategory[item.No] = item
-					}
+				tmp, b := c.catCore.GetAllByKeysRetMap(ctx, idsCategory, tenantNo)
+				if b {
+					mapCategory = tmp
 				}
+				//tmp, result := c.catDb.FindAllByNoIn(idsCategory)
+				//if result {
+				//	for _, item := range tmp {
+				//		mapCategory[item.No] = item
+				//	}
+				//}
 			}
 		}
 		//统计
@@ -408,6 +416,8 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 			copier.Copy(&vo, &item)
 			vo.Tags = make([]string, 0)
 			vo.TagsStyle = make([]modBasicTagsRelation.AllVo, 0)
+			vo.Categorys = make([]string, 0)
+			vo.CategoryObj = make([]*modBlogArticleCategory.Cache, 0)
 			//
 			if strPg.IsNotBlank(item.Attachments) {
 				json.Unmarshal([]byte(item.Attachments), &vo.AttachmentsMap)
@@ -449,6 +459,23 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 				truncated := markdownPg.TruncateMarkdown(item.Content, 1000)
 				raw := markdownPg.Markdown([]byte(truncated))
 				vo.ContentConv = raw.String()
+			}
+			// 栏目
+			if nil != item.Categorys.Data() {
+				if len(item.Categorys.Data()) > 0 {
+					for _, obj := range item.Categorys.Data() {
+						vo.Categorys = append(vo.Categorys, obj)
+						if obj2, ok := mapCategory[obj]; ok {
+							vo.CategoryObj = append(vo.CategoryObj, obj2)
+						}
+					}
+				}
+			}
+			if strPg.IsNotBlank(item.CategoryNo) && !slices.Contains(vo.Categorys, item.CategoryNo) {
+				vo.Categorys = append(vo.Categorys, item.CategoryNo)
+				if obj2, ok := mapCategory[item.CategoryNo]; ok {
+					vo.CategoryObj = append(vo.CategoryObj, obj2)
+				}
 			}
 			//
 			slice = append(slice, vo)

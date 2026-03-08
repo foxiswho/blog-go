@@ -312,7 +312,7 @@ func (c *CreateUpdate) tagsListener(ctx *gin.Context) {
 	}
 	//保存到数据库
 	//eventBus.PublishEventAsync(constEventBusPg.BlogCollect, modEventBasicTags.TagsRelation{
-	//	Category: constTags.CollectInfo.Index(),
+	//	CategoryObj: constTags.CollectInfo.Index(),
 	//	Tags:     c.tags,
 	//	Holder:   c.holder,
 	//})

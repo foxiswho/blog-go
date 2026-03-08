@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	core "github.com/foxiswho/blog-go/app/core/blog/service"
+	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
 	"github.com/foxiswho/blog-go/app/web/utils/webPg"
@@ -14,9 +14,9 @@ import (
 )
 
 type ArticleController struct {
-	Sp       *authPg.GroupWebMiddlewareSp `autowire:"?"`
-	sv       *service.ArticleService      `autowire:"?"`
-	catCache *core.CoreArticleCategory    `autowire:"?"`
+	Sp       *authPg.GroupWebMiddlewareSp     `autowire:"?"`
+	sv       *service.ArticleService          `autowire:"?"`
+	catCache *serviceCore.CoreArticleCategory `autowire:"?"`
 }
 
 func (c *ArticleController) Detail(ctx *gin.Context) {

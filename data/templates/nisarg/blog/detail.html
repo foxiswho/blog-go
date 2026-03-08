@@ -57,8 +57,8 @@
 								<div class="col-md-6 cattegories">
 									<span class="cat-links"><i class="fa fa-folder-open"></i>
 										{{if .dataIs }}
-											{{if .data.Category }}
-												{{range .data.Category}}
+											{{if .data.CategoryObj }}
+												{{range .data.CategoryObj}}
 												<a href="{{$.sitePage.SiteUrl}}/category/{{.Code}}" rel="category tag">{{.Name}}</a>,
 												{{end}}
 											{{end}}

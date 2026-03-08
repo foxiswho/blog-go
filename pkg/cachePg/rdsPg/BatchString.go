@@ -61,6 +61,18 @@ func (t *BatchString) Get(ctx context.Context, key string) (string, bool) {
 	return result, true
 }
 
+func (t *BatchString) GetAllByKeys(ctx context.Context, key []string) ([]interface{}, bool) {
+	result, err := t.rdb.MGet(ctx, key...).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, false
+		}
+		t.log.Error("获取缓存失败:", err)
+		return nil, false
+	}
+	return result, true
+}
+
 func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]interface{}, bool) {
 	resp, err := t.rdb.Eval(ctx, constBlogPg.ArticleCategoryLua, key).Result()
 	if err != nil {

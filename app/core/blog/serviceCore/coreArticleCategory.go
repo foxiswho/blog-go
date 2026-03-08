@@ -1,4 +1,4 @@
-package service
+package serviceCore
 
 import (
 	"fmt"
@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/goccy/go-json"
+	"github.com/pangu-2/go-tools/tools/strPg"
 )
 
 func init() {
@@ -22,6 +23,49 @@ type CoreArticleCategory struct {
 	log *log2.Logger                                  `autowire:"?"`
 	sv  *repositoryBlog.BlogArticleCategoryRepository `autowire:"?"`
 	rdt *rdsPg.BatchString                            `autowire:"?"`
+}
+
+// GetAllByKeysRetMap
+//
+//	@Description: 获取所有缓存
+//	@receiver c
+//	@param ctx
+//	@param tenantNo
+//	@return []*entityBlog.BlogArticleCategoryEntity
+//	@return bool
+func (c *CoreArticleCategory) GetAllByKeysRetMap(ctx *gin.Context, keys []string, tenantNo string) (map[string]*modBlogArticleCategory.Cache, bool) {
+	data := make(map[string]*modBlogArticleCategory.Cache, 0)
+	tmps := make([]string, 0)
+	for _, item := range keys {
+		if strPg.IsNotBlank(item) {
+			tmps = append(tmps, blogKeyPg.ArticleCategoryTenantNo(tenantNo, item))
+		}
+	}
+	if len(tmps) == 0 {
+		return data, false
+	}
+	result, b := c.rdt.GetAllByKeys(ctx, tmps)
+	//fmt.Printf("获取缓存结果: %v\n", keys)
+	//fmt.Printf("获取缓存结果: %v\n", result)
+	if b {
+		for _, item := range result {
+			// 解析值（JSON 字符串）
+			valueStr, ok := item.(string)
+			if !ok {
+				fmt.Printf("键 %s 的值格式错误\n", item)
+				continue
+			}
+			// 可选：将 JSON 字符串解析为结构体
+			var category modBlogArticleCategory.Cache
+			if err := json.Unmarshal([]byte(valueStr), &category); err != nil {
+				fmt.Printf("解析键 JSON 失败: %v\n", err)
+				continue
+			}
+			data[category.No] = &category
+		}
+		return data, true
+	}
+	return data, false
 }
 
 // GetAllByCache

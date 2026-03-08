@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	core "github.com/foxiswho/blog-go/app/core/blog/service"
+	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
@@ -19,10 +19,10 @@ import (
 
 // ArchivesController 归档
 type ArchivesController struct {
-	Sp       *authPg.GroupWebMiddlewareSp `autowire:""`
-	ca       *cacheTc.TenantDomainCache   `autowire:"?"`
-	sv       *service.ArticleService      `autowire:"?"`
-	catCache *core.CoreArticleCategory    `autowire:"?"`
+	Sp       *authPg.GroupWebMiddlewareSp     `autowire:""`
+	ca       *cacheTc.TenantDomainCache       `autowire:"?"`
+	sv       *service.ArticleService          `autowire:"?"`
+	catCache *serviceCore.CoreArticleCategory `autowire:"?"`
 }
 
 func (c *ArchivesController) List(ctx *gin.Context) {
