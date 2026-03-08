@@ -2,26 +2,16 @@ package tagsBasicEvent
 
 import (
 	"context"
+	"strings"
+
 	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicTags"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
-	"strings"
 )
-
-type Sp struct {
-	log     *log2.Logger                                 `autowire:"?"`
-	dao     *repositoryBasic.BasicAttachmentRepository   `autowire:"?"`
-	TagRela *repositoryBasic.BasicTagsRelationRepository `autowire:"?"`
-	TagCate *repositoryBasic.BasicTagsCategoryRepository `autowire:"?"`
-	TagsDb  *repositoryBasic.BasicTagsRepository         `autowire:"?"`
-	rdt     *rdsPg.BatchString                           `autowire:"?"`
-}
 
 // SaveByCategory
 // @Description: 标签处理
@@ -144,6 +134,7 @@ func (c *SaveByCategory) Processor() error {
 // 缓存更新
 func (t *SaveByCategory) cache(categoryRoot []string) {
 	dto := modEventBasicTags.TagsCacheDto{CategoryRoot: categoryRoot}
+	//缓存更新
 	err := NewCachePush(t.sp, dto).Processor(context.Background())
 	if err != nil {
 		t.log.Error("tags.push.error:=", err)
