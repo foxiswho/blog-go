@@ -1,6 +1,7 @@
 package app
 
 import (
+	_ "github.com/foxiswho/blog-go/app/core"
 	_ "github.com/foxiswho/blog-go/app/event/basic"
 	_ "github.com/foxiswho/blog-go/app/event/blog"
 	_ "github.com/foxiswho/blog-go/app/event/ram"

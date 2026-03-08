@@ -1104,7 +1104,7 @@ img.wp-post-image{
 }
 
 .btn-default:hover, .btn-default:focus{
-    color: #fff;
+    color: #fff !important;
 }
 
 .btn-default:visited{
@@ -1454,6 +1454,12 @@ img.wp-post-image{
 
 #secondary .widget .widget-title .rsswidget{
     color: #212121;
+}
+
+#secondary .widget h4.widget-title{
+    font-size: 1.2rem;
+    margin-bottom: 1.3em;
+    margin-top: -30px;
 }
 
 .widget_rss li{

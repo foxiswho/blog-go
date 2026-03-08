@@ -4,9 +4,11 @@ import (
 	"strings"
 	"time"
 
+	core "github.com/foxiswho/blog-go/app/core/blog/service"
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
+	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/foxiswho/blog-go/pkg/tools/timePg"
@@ -17,9 +19,10 @@ import (
 
 // ArchivesController 归档
 type ArchivesController struct {
-	Sp *authPg.GroupWebMiddlewareSp `autowire:""`
-	ca *cacheTc.TenantDomainCache   `autowire:"?"`
-	sv *service.ArticleService      `autowire:"?"`
+	Sp       *authPg.GroupWebMiddlewareSp `autowire:""`
+	ca       *cacheTc.TenantDomainCache   `autowire:"?"`
+	sv       *service.ArticleService      `autowire:"?"`
+	catCache *core.CoreArticleCategory    `autowire:"?"`
 }
 
 func (c *ArchivesController) List(ctx *gin.Context) {
@@ -44,9 +47,13 @@ func (c *ArchivesController) List(ctx *gin.Context) {
 			}
 		}
 	}
+	//
+	tenantNo := webPg.GetTenantNo(ctx)
+	tree, _ := c.catCache.FormatTree(ctx, tenantNo)
 	// 模版
 	templatePg.HTML(ctx, "blog/archive",
 		templatePg.WithDataByResult(dataIs, data),
+		templatePg.WithHtmlObjSet("categorys", tree),
 		templatePg.WithHtmlObjSet("subTitle", param),
 		templatePg.WithSitePage(templatePg.SitePage{
 			Title:       "归档",

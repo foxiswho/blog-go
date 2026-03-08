@@ -2,6 +2,7 @@ package runnerPg
 
 import (
 	"github.com/foxiswho/blog-go/app/event/basic/listenerBasic"
+	"github.com/foxiswho/blog-go/app/event/blog/listennerBlog"
 	"github.com/foxiswho/blog-go/app/event/ram/listenerRam"
 	"github.com/foxiswho/blog-go/middleware/runnerPg/data"
 	"github.com/foxiswho/blog-go/middleware/runnerPg/table"
@@ -21,11 +22,15 @@ func init() {
 	//附件 上传
 	gs.Object(new(listenerBasic.AttachmentListener)).AsRunner()
 	gs.Object(new(listenerBasic.TagsListener)).AsRunner()
+	//文章 分类 换成
+	gs.Object(new(listennerBlog.ArticleCategoryCacheListener)).AsRunner()
 	// ram相关
 	gs.Object(new(listenerRam.RamListener)).AsRunner()
 	//
 	// 初始化会话密钥
 	gs.Object(new(data.InitSessionPubPrive)).AsRunner()
+	// 初始化博客缓存
+	gs.Object(new(data.ZInitCacheBlog)).AsRunner()
 	// 初始化标签缓存
 	gs.Object(new(data.ZInitTagsCache)).AsRunner()
 	//超管账号初始化

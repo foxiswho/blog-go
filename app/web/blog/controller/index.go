@@ -3,9 +3,11 @@ package controller
 import (
 	"context"
 
+	core "github.com/foxiswho/blog-go/app/core/blog/service"
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
+	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
@@ -14,9 +16,10 @@ import (
 )
 
 type IndexController struct {
-	Sp *authPg.GroupWebMiddlewareSp `autowire:""`
-	ca *cacheTc.TenantDomainCache   `autowire:"?"`
-	sv *service.ArticleService      `autowire:"?"`
+	Sp       *authPg.GroupWebMiddlewareSp `autowire:""`
+	ca       *cacheTc.TenantDomainCache   `autowire:"?"`
+	sv       *service.ArticleService      `autowire:"?"`
+	catCache *core.CoreArticleCategory    `autowire:"?"`
 }
 
 func (c *IndexController) Index(ctx *gin.Context) {
@@ -25,10 +28,16 @@ func (c *IndexController) Index(ctx *gin.Context) {
 	//
 	rt := c.sv.Query(ctx, ct)
 	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data.Pageable)
-	//fmt.Printf("Data: %+v\n", rt.Data.Pageable)
+	//
+	tenantNo := webPg.GetTenantNo(ctx)
+	tree, _ := c.catCache.FormatTree(ctx, tenantNo)
+
+	//fmt.Printf("Data: %+v\n", tree)
 	// 模版
 	templatePg.HTML(ctx, "blog/index",
 		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
+		templatePg.WithHtmlObjSet("categorys", tree),
+		templatePg.WithHtmlObjSet("pageUrl", "page"),
 		templatePg.WithSitePage(templatePg.SitePage{
 			Title:       "博客",
 			Description: "博客",
@@ -48,8 +57,9 @@ func (c *IndexController) Page(ctx *gin.Context) {
 	//
 	rt := c.sv.Query(ctx, ct)
 	// 模版
-	templatePg.HTML(ctx, "blog/index",
+	templatePg.HTML(ctx, "blog/article_list",
 		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
+		templatePg.WithHtmlObjSet("pageUrl", "page"),
 		templatePg.WithSitePage(templatePg.SitePage{
 			Title:       "博客",
 			Description: "博客",

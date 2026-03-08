@@ -1,14 +1,12 @@
 package data
 
 import (
-	"context"
-
 	"github.com/foxiswho/blog-go/infrastructure/entityApi"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryApi"
 	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheDiplPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
+	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	syslog "github.com/go-spring/log"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"gorm.io/gorm"
 )
@@ -16,11 +14,12 @@ import (
 // ZInitDiplCache
 // @Description: 初始化 dipl 缓存
 type ZInitDiplCache struct {
-	sv *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
+	log *log2.Logger                              `autowire:"?"`
+	sv  *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
 }
 
 func (b *ZInitDiplCache) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "初始化 => 接口密钥")
+	b.log.Infof("初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
 	//过期时间 超过当前时间的数据

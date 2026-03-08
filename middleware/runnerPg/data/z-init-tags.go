@@ -5,7 +5,6 @@ import (
 
 	"github.com/foxiswho/blog-go/app/event/basic/service/tagsBasicEvent"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
 )
 
 // ZInitTagsCache
@@ -16,7 +15,7 @@ type ZInitTagsCache struct {
 }
 
 func (c *ZInitTagsCache) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[标签缓存]===================")
+	c.log.Infof("[init].[标签缓存]===================")
 	err := tagsBasicEvent.NewStartInit(c.sp).Processor(context.Background())
 	if err != nil {
 		c.log.Error("error:", err)

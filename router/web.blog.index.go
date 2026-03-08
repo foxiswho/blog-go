@@ -19,6 +19,7 @@ func init() {
 	gs.Root(gs.Object(new(controller.ArticleController)).Init(func(c *controller.ArticleController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
+		group.GET("/article/search", c.List)
 		group.GET("/article/:id", c.Detail)
 	}))
 	//文章分类
@@ -39,5 +40,11 @@ func init() {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/archives/date/:code", c.List)
+	}))
+
+	//test
+	gs.Root(gs.Object(new(controller.TestController)).Init(func(c *controller.TestController) {
+		r := ginServer.GinServerDefault
+		r.GET("/test/cache", c.Cache)
 	}))
 }

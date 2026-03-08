@@ -3,11 +3,13 @@ package rdsPg
 import (
 	"context"
 	"errors"
+	"reflect"
+
+	"github.com/foxiswho/blog-go/pkg/consts/constBlogPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/redis/go-redis/v9"
-	"reflect"
 )
 
 func init() {
@@ -29,6 +31,9 @@ func NewBatchString(
 		log: log,
 		rdb: rdb,
 	}
+}
+func (t *BatchString) GetRdb() *redis.Client {
+	return t.rdb
 }
 
 func (t *BatchString) SetPipeline(ctx context.Context, keysValues map[string]interface{}) {
@@ -52,6 +57,24 @@ func (t *BatchString) Get(ctx context.Context, key string) (string, bool) {
 		}
 		t.log.Error("获取缓存失败:", err)
 		return "", false
+	}
+	return result, true
+}
+
+func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]interface{}, bool) {
+	resp, err := t.rdb.Eval(ctx, constBlogPg.ArticleCategoryLua, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, false
+		}
+		t.log.Error("获取缓存失败:", err)
+		return nil, false
+	}
+	// 解析返回结果
+	result, ok := resp.([]interface{})
+	if !ok {
+		t.log.Error("获取缓存失败:返回结果格式错误，预期为数组类型:", err)
+		return nil, false
 	}
 	return result, true
 }

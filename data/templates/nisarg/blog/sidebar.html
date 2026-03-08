@@ -3,24 +3,39 @@
 	<aside id="search" class="widget widget_search">
 		{{template "nisarg/blog/searchform.html" .}}
 	</aside>
-<!--	<aside id="archives" class="widget">-->
+		<aside class="widget widget_categories">
+			<h4 class="widget-title">分类</h4>
+			<ul>
+				{{if .categorys}}
+					{{range .categorys}}
+					<li class="cat-item"><a href="{{$.sitePage.SiteUrl}}/category/{{.Extend.CodeLink}}">{{.Name}}</a></li>
+						{{if .ChildData}}
+							{{range .ChildData}}
+							<li class="cat-item"><a href="{{$.sitePage.SiteUrl}}/category/{{.Extend.CodeLink}}">{{.Name}}</a></li>
+							{{end}}
+						{{end}}
+					{{end}}
+				{{end}}
+			</ul>
+		</aside>
+<!--	<aside class="widget ">-->
 <!--		<h3 class="widget-title">归档</h3>-->
 <!--		<ul>-->
 <!--			<li><a href="/archives/date/2026-10">2026-10</a></li>-->
 <!--		</ul>-->
 <!--	</aside>-->
-	<aside id="tag_cloud-4" class="widget widget_tag_cloud">
-		<h4 class="widget-title">标签</h4>
-		<div class="tagcloud">
-			<a href="{{$.sitePage.SiteUrl}}/tag/agile" class=""
-			   style="font-size: 31.559322033898pt;" aria-label="agile (15个项目)">agile</a>
-		</div>
-	</aside>
-	<aside id="meta" class="widget">
-		<h3 class="widget-title">Meta</h3>
-		<ul>
-			<li><a href="/wp-login">Log in</a></li>
-		</ul>
-	</aside>
+<!--	<aside id="tag_cloud-4" class="widget widget_tag_cloud">-->
+<!--		<h4 class="widget-title">标签</h4>-->
+<!--		<div class="tagcloud">-->
+<!--			<a href="{{$.sitePage.SiteUrl}}/tag/agile" class=""-->
+<!--			   style="font-size: 31.559322033898pt;" aria-label="agile (15个项目)">agile</a>-->
+<!--		</div>-->
+<!--	</aside>-->
+<!--	<aside id="meta" class="widget">-->
+<!--		<h3 class="widget-title">Meta</h3>-->
+<!--		<ul>-->
+<!--			<li><a href="/wp-login">Log in</a></li>-->
+<!--		</ul>-->
+<!--	</aside>-->
 </div><!-- #secondary .widget-area -->
 {{end}}

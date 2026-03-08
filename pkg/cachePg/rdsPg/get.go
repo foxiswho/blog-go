@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
+
+	"github.com/foxiswho/blog-go/pkg/consts/constBlogPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"github.com/redis/go-redis/v9"
-	"reflect"
 )
 
 func init() {
@@ -159,4 +161,22 @@ func (c *Get) GetStringToJson(ctx context.Context, key string, v any) (rt rg.Rs[
 	}
 	c.log.Debugf("缓存[key]=%+v,[data]=%+v", key, v)
 	return rt.OkData(result)
+}
+
+func (t *Get) GetAllEvalByLua(ctx context.Context, key []string) ([]interface{}, bool) {
+	resp, err := t.rdb.Eval(ctx, constBlogPg.ArticleCategoryLua, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, false
+		}
+		t.log.Error("获取缓存失败:", err)
+		return nil, false
+	}
+	// 解析返回结果
+	result, ok := resp.([]interface{})
+	if !ok {
+		t.log.Error("获取缓存失败:返回结果格式错误，预期为数组类型:", err)
+		return nil, false
+	}
+	return result, true
 }

@@ -35,11 +35,11 @@ func GroupWebMiddleware(m *GroupWebMiddlewareSp) gin.HandlerFunc {
 		}
 		//本地域名
 		if m.domain.IsLocalHostExist(c.Request.Host) {
-			val = ""
+			val = "1000"
 		}
 		// 指定域名
 		if m.domain.IsServerHostExist(c.Request.Host, m.server) {
-			val = ""
+			val = "1000"
 		}
 		syslog.Infof(context.Background(), syslog.TagAppDef, "租户.no => %+v", val)
 		c.Set(constHeaderPg.WebTenantNo, val)

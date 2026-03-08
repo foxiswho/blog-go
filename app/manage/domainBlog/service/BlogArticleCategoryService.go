@@ -4,10 +4,13 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/farseer-go/eventBus"
+	"github.com/foxiswho/blog-go/app/event/blog/model/modEventBlogArticleCategory"
 	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
 	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
 	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
+	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
@@ -108,6 +111,15 @@ func (c *BlogArticleCategoryService) Create(ctx *gin.Context, ct modBlogArticleC
 	err = r.Update(info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
+	}
+	// 异步缓存
+	dto := modEventBlogArticleCategory.CacheDto{
+		Nos: make([]string, 0),
+	}
+	dto.Nos = append(dto.Nos, info.No)
+	err2 := eventBus.PublishEventAsync(constEventBusPg.BlogArticleCategoryCache, dto)
+	if err2 != nil {
+		c.log.Errorf("copier.Copy error: %+v", err2)
 	}
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
@@ -224,6 +236,15 @@ func (c *BlogArticleCategoryService) Update(ctx *gin.Context, ct modBlogArticleC
 		}
 		maps = nil
 	}
+	// 异步缓存
+	dto := modEventBlogArticleCategory.CacheDto{
+		Nos: make([]string, 0),
+	}
+	dto.Nos = append(dto.Nos, info.No)
+	err2 := eventBus.PublishEventAsync(constEventBusPg.BlogArticleCategoryCache, dto)
+	if err2 != nil {
+		c.log.Errorf("copier.Copy error: %+v", err2)
+	}
 	return rt.Ok()
 }
 
@@ -275,6 +296,21 @@ func (c *BlogArticleCategoryService) CacheOverride(ctx *gin.Context) {
 		}
 	}
 	maps = nil
+}
+
+// CacheAll 缓存重载
+//
+//	@Description:
+//	@receiver c
+func (c *BlogCategoryService) CacheAll(ctx *gin.Context) {
+	//保存到数据库
+	err := eventBus.PublishEventAsync(constEventBusPg.BlogArticleCategoryCache, modEventBlogArticleCategory.CacheDto{
+		IsThisTenantAll: true,
+	})
+	if err != nil {
+		c.log.Errorf("copier.Copy error: %+v", err)
+		return
+	}
 }
 
 // Detail 详情

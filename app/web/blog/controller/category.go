@@ -3,9 +3,11 @@ package controller
 import (
 	"strings"
 
+	core "github.com/foxiswho/blog-go/app/core/blog/service"
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
+	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
@@ -13,9 +15,10 @@ import (
 )
 
 type CategoryController struct {
-	Sp *authPg.GroupWebMiddlewareSp `autowire:""`
-	ca *cacheTc.TenantDomainCache   `autowire:"?"`
-	sv *service.ArticleService      `autowire:"?"`
+	Sp       *authPg.GroupWebMiddlewareSp `autowire:""`
+	ca       *cacheTc.TenantDomainCache   `autowire:"?"`
+	sv       *service.ArticleService      `autowire:"?"`
+	catCache *core.CoreArticleCategory    `autowire:"?"`
 }
 
 func (c *CategoryController) List(ctx *gin.Context) {
@@ -35,9 +38,14 @@ func (c *CategoryController) List(ctx *gin.Context) {
 			data = rt.Data
 		}
 	}
+	//
+	tenantNo := webPg.GetTenantNo(ctx)
+	tree, _ := c.catCache.FormatTree(ctx, tenantNo)
 	// 模版
-	templatePg.HTML(ctx, "blog/category_list",
+	templatePg.HTML(ctx, "blog/article_list",
 		templatePg.WithDataByResult(dataIs, data),
+		templatePg.WithHtmlObjSet("categorys", tree),
+		templatePg.WithHtmlObjSet("pageUrl", "category"),
 		templatePg.WithSitePage(templatePg.SitePage{
 			Title:       "标签",
 			Description: "博客",
