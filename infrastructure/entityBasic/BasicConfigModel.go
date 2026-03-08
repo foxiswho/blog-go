@@ -27,6 +27,7 @@ type BasicConfigModelEntity struct {
 	Model           string                       `gorm:"column:model;type:varchar(80);comment:模型" json:"model" comment:"模型" `
 	Module          string                       `gorm:"column:module;type:varchar(80);index;comment:模块" json:"module" comment:"模块" `
 	ModuleSub       string                       `gorm:"column:module_sub;type:varchar(80);index;comment:子模块" json:"module_sub" comment:"子模块" `
+	Table           string                       `gorm:"column:table;type:varchar(80);index;comment:表名" json:"table" comment:"表名" `
 	Description     string                       `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
 	Show            int8                         `gorm:"column:show;type:int2;not null;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
 	ExtraData       datatypes.JSON               `gorm:"column:extra_data;type:json;comment:额外数据" json:"extraData" label:"额外数据" `

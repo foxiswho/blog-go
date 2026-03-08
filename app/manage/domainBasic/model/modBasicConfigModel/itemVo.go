@@ -11,5 +11,5 @@ type ItemVo struct {
 	ValueType       string      `json:"valueType" label:"字段类型"`
 	FormCode        string      `json:"formCode" label:"表单类型"`
 	ParameterSource string      `json:"parameterSource" label:"参数源"`
-	RuleMode        string      `json:"ruleMode" label:"验证模式类型"`
+	Rules           []string    `json:"rules" label:"验证模式类型"`
 }
