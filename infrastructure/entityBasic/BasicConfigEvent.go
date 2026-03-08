@@ -26,6 +26,7 @@ type BasicConfigEventEntity struct {
 	ModelNo       string                       `gorm:"column:model_no;type:varchar(80);index;default:;comment:模型编号" json:"model_no" comment:"模型编号" `
 	Model         string                       `gorm:"column:model;type:varchar(80);comment:模型" json:"model" comment:"模型" `
 	Field         string                       `gorm:"column:field;type:varchar(80);comment:字段名称/事件码值" json:"field" comment:"字段名称/事件码值" `
+	FieldSource   string                       `gorm:"column:field_source;type:varchar(80);comment:字段来源/原始字段名称" json:"field_source" comment:"字段来源/原始字段名称"`
 	KindUnique    string                       `gorm:"column:kind_unique;type:varchar(80);not null;index;default:;comment:模型字段种类唯一" json:"kind_unique" comment:"模型字段种类唯一:model_no+field" `
 	Module        string                       `gorm:"column:module;type:varchar(80);index;comment:模块" json:"module" comment:"模块" `
 	ModuleSub     string                       `gorm:"column:module_sub;type:varchar(80);index;comment:子模块" json:"module_sub" comment:"子模块" `
