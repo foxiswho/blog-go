@@ -24,3 +24,27 @@ func init() {
 type BasicConfigModelFieldsRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigModelFieldsEntity, int64]
 }
+
+func (c *BasicConfigModelFieldsRepository) FindAllByModelNo(no string) (info []*entityBasic.BasicConfigModelFieldsEntity, result bool) {
+	tx := c.Db().Where("model_no=?", no).Order("sort asc,create_at").Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *BasicConfigModelFieldsRepository) DeleteAllByModelNoAndIds(no string, ids []string) (info []*entityBasic.BasicConfigModelFieldsEntity, result bool) {
+	tx := c.Db().Where("id in ?", ids).Where("model_no=?", no).Delete(&c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}

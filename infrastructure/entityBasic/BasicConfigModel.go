@@ -43,7 +43,7 @@ type BasicConfigModelEntity struct {
 	Category        string                       `gorm:"column:category;type:varchar(80);index;comment:分类" json:"category" comment:"分类" `
 	CategoryTab     string                       `gorm:"column:category_tab;type:varchar(80);index;comment:分类选项卡" json:"category_tab" comment:"分类选项卡" `
 	Tags            datatypes.JSONType[[]string] `gorm:"column:tags;type:jsonb;index;default:'[]';comment:标签" json:"tags" comment:"标签" `
-	From            string                       `gorm:"column:from;type:varchar(80);not null;index;default:;comment:来自" json:"from" comment:"来自" `
+	From            string                       `gorm:"column:from;type:varchar(80);index;default:;comment:来自" json:"from" comment:"来自" `
 	SharedModelNo   string                       `gorm:"column:shared_model_no;type:varchar(80);index;default:;comment:共享模型" json:"shared_model_no" comment:"共享模型" `
 }
 

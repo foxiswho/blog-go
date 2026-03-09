@@ -1,26 +1,39 @@
 package controller
 
 import (
-	"fmt"
-
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigModel"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicModule"
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
+	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
-type BasicConfigModelController struct {
-	Sp *authPg.GroupManageMiddlewareSp  `autowire:""`
-	sv *service.BasicConfigModelService `autowire:"?"`
+func init() {
+
 }
 
-func (c *BasicConfigModelController) CreateUpdate(ctx *gin.Context) {
-	var ct modBasicConfigModel.CreateUpdateCt
+// ModuleController 分类
+// @Description:
+type ModuleController struct {
+	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv  *service.BasicModuleService     `autowire:"?"`
+	log *log2.Logger                    `autowire:"?"`
+}
+
+// Create 创建
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
+func (c *ModuleController) Create(ctx *gin.Context) {
+	var ct modBasicModule.CreateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -29,23 +42,27 @@ func (c *BasicConfigModelController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct))
+	ctx.JSON(200, c.sv.Create(ctx, ct))
 }
 
-// Detail 详情
+// Update 更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Detail(ctx *gin.Context) {
-	param := ctx.Param("id")
-
-	fmt.Println(param)
-	if "" == param {
-		ctx.JSON(200, rg.Error[string]("id不能为空"))
+func (c *ModuleController) Update(ctx *gin.Context) {
+	var ct modBasicModule.UpdateCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Detail(ctx, param))
+	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -53,7 +70,7 @@ func (c *BasicConfigModelController) Detail(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Delete(ctx *gin.Context) {
+func (c *ModuleController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -73,7 +90,7 @@ func (c *BasicConfigModelController) Delete(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Recovery(ctx *gin.Context) {
+func (c *ModuleController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -93,7 +110,7 @@ func (c *BasicConfigModelController) Recovery(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) PhysicalDeletion(ctx *gin.Context) {
+func (c *ModuleController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -108,12 +125,26 @@ func (c *BasicConfigModelController) PhysicalDeletion(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
 }
 
+// Detail 详情
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
+func (c *ModuleController) Detail(ctx *gin.Context) {
+	param := ctx.Param("id")
+	if "" == param {
+		ctx.JSON(200, rg.Error[string]("id不能为空"))
+		return
+	}
+	ctx.JSON(200, c.sv.Detail(ctx, strPg.ToInt64(param)))
+}
+
 // Enable 启用
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Enable(ctx *gin.Context) {
+func (c *ModuleController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -133,7 +164,7 @@ func (c *BasicConfigModelController) Enable(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Disable(ctx *gin.Context) {
+func (c *ModuleController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -153,7 +184,7 @@ func (c *BasicConfigModelController) Disable(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) State(ctx *gin.Context) {
+func (c *ModuleController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -178,8 +209,8 @@ func (c *BasicConfigModelController) State(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) Query(ctx *gin.Context) {
-	var ct modBasicConfigModel.QueryCt
+func (c *ModuleController) Query(ctx *gin.Context) {
+	var ct modBasicModule.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -193,8 +224,8 @@ func (c *BasicConfigModelController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *BasicConfigModelController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modBasicConfigModel.QueryPublicCt
+func (c *ModuleController) SelectNodeAllPublic(ctx *gin.Context) {
+	var ct modBasicModule.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -209,12 +240,28 @@ func (c *BasicConfigModelController) SelectNodeAllPublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
+func (c *ModuleController) SelectPublic(ctx *gin.Context) {
+	var ct modBasicModule.QueryPublicCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ct.State = enumStatePg.ENABLE.IndexPg()
+	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
+}
+
 // ExistName 查重
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) ExistName(ctx *gin.Context) {
+func (c *ModuleController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -234,7 +281,7 @@ func (c *BasicConfigModelController) ExistName(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *BasicConfigModelController) ExistCode(ctx *gin.Context) {
+func (c *ModuleController) ExistCode(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -247,24 +294,4 @@ func (c *BasicConfigModelController) ExistCode(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))
-}
-
-// ExistModel 查重
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *BasicConfigModelController) ExistModel(ctx *gin.Context) {
-	var ct model.BaseExistWdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.ExistModel(ctx, ct))
 }

@@ -5,16 +5,18 @@ import (
 	"reflect"
 
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigModel"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/configModel"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/configModelPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
+	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
+	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
+	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -28,95 +30,321 @@ func init() {
 
 type BasicConfigModelService struct {
 	log       *log2.Logger                                      `autowire:"?"`
-	repoModel *repositoryBasic.BasicConfigModelRepository       `autowire:"?"`
+	sv        *repositoryBasic.BasicConfigModelRepository       `autowire:"?"`
 	repoField *repositoryBasic.BasicConfigModelFieldsRepository `autowire:"?"`
 	repoRule  *repositoryBasic.BasicConfigModelRulesRepository  `autowire:"?"`
+	sp        *configModel.Sp                                   `autowire:"?"`
 }
 
-// Create 创建模型
-func (s *BasicConfigModelService) Create(ctx *gin.Context, ct modBasicConfigModel.CreateCt) (rt rg.Rs[string]) {
-	if strPg.IsBlank(ct.Name) {
-		return rt.ErrorMessage("中文名称不能为空")
-	}
-	if strPg.IsBlank(ct.Model) {
-		return rt.ErrorMessage("英文标识不能为空")
-	}
+func (c *BasicConfigModelService) CreateUpdate(ctx *gin.Context, ct modBasicConfigModel.CreateUpdateCt) (rt rg.Rs[string]) {
+	return configModel.NewCreateUpdate(c.sp, ct, true).Process(ctx)
+}
 
-	// 检查模型是否已存在
-	// 假设 Model 字段是唯一的英文标识
-	// 需要在 Repository 中实现 FindByModel 或者使用 Where 查询
-	// 这里使用 Where 查询
-	var existModel entityBasic.BasicConfigModelEntity
-	tx := s.repoModel.Db().Where("model = ?", ct.Model).First(&existModel)
-	if tx.RowsAffected > 0 {
-		return rt.ErrorMessage("模型标识已存在")
-	}
+// Detail 详情
+func (c *BasicConfigModelService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigModel.CreateUpdateCt]) {
+	return configModel.NewDetail(c.sp).Process(ctx, id)
+}
 
-	holder := holderPg.GetContextAccount(ctx)
+// Enable 启用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
+	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
+}
 
-	// 1. 创建模型头
-	modelEntity := entityBasic.BasicConfigModelEntity{
-		Name:          ct.Name,
-		Model:         ct.Model,
-		TypeSys:       ct.TypeSys,
-		ModelCategory: ct.TypeCategory,
-		ModuleSub:     ct.ModuleSub,
-		Description:   ct.Description,
-		No:            noPg.No(), // 生成编号
-		TenantNo:      holder.GetTenantNo(),
-		CreateBy:      holder.GetAccount().Account,
-	}
-	if strPg.IsNotBlank(modelEntity.TypeSys) {
-		modelEntity.TypeSys = typeSysPg.General.String()
-	}
-	if modelEntity.ModelCategory == "" {
-		modelEntity.ModelCategory = configModelPg.ModelCategoryTable.String()
-	}
+// Disable 禁用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
+	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
+}
 
-	err, _ := s.repoModel.Create(&modelEntity)
-	if err != nil {
-		s.log.Errorf("Create model error: %v", err)
-		return rt.ErrorMessage("创建模型失败")
+// State 状态 启用/禁用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) State(ctx *gin.Context, ids []string, state enumStatePg.State) (rt rg.Rs[string]) {
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
 	}
-
-	// 2. 创建字段和规则
-	for _, fieldCt := range ct.Fields {
-		fieldEntity := entityBasic.BasicConfigModelFieldsEntity{
-			ModelNo:         modelEntity.Model, // 使用 Model 标识作为关联
-			Name:            fieldCt.Name,
-			Field:           fieldCt.Field,
-			Show:            fieldCt.Show,
-			Binary:          fieldCt.Binary,
-			DefaultValue:    fieldCt.DefaultValue,
-			ValueType:       fieldCt.ValueType,
-			FormCode:        fieldCt.FormCode,
-			ParameterSource: fieldCt.ParameterSource,
-			TenantNo:        holder.GetTenantNo(),
-			CreateBy:        holder.GetAccount().Account,
+	r := c.sv
+	finds, b := r.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	for _, info := range finds {
+		if info.State != state.IndexInt8() {
+			r.Update(entityBasic.BasicConfigModelEntity{State: state.IndexInt8()}, info.ID)
 		}
-		// 生成字段唯一标识 KindUnique = model_no + field
-		fieldEntity.KindUnique = modelEntity.Model + fieldEntity.Field
+	}
+	return rt.Ok()
+}
 
-		err, _ := s.repoField.Create(&fieldEntity)
-		if err != nil {
-			s.log.Errorf("Create field error: %v", err)
-			// 继续创建其他字段，或者回滚（这里简化处理，暂不回滚）
-			continue
+// StateEnableDisable 状态 设置 有效 停用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) StateEnableDisable(ctx *gin.Context, ids []string, state enumStatePg.State) (rt rg.Rs[string]) {
+	if !state.IsEnableDisable() {
+		return rt.ErrorMessage("状态错误")
+	}
+	return c.State(ctx, ids, state)
+}
+
+// LogicalDeletion 逻辑删除
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	repository := c.sv
+	finds, b := repository.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	if c.sv.Config().Data.Delete {
+		for _, info := range finds {
+			c.log.Infof("id=%v", info.ID)
 		}
-
-		// 3. 创建规则
-		if strPg.IsNotBlank(fieldCt.RuleMode) {
-			ruleEntity := entityBasic.BasicConfigModelRulesEntity{
-				ModelNo:     modelEntity.Model,
-				Field:       fieldCt.Field,
-				RuleMode:    fieldCt.RuleMode,
-				Description: fieldCt.Name + "规则",
-				TenantNo:    holder.GetTenantNo(),
-				CreateBy:    holder.GetAccount().Account,
+		repository.DeleteByIdsString(ids)
+	} else {
+		for _, info := range finds {
+			enum := enumStatePg.State(info.State)
+			// 有效 停用，反转 为对应的 取消 弃置
+			if ok, reverse := enum.ReverseEnableDisable(); ok {
+				repository.Update(entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
 			}
-			s.repoRule.Create(&ruleEntity)
 		}
 	}
 
-	return rg.OkData(numberPg.Int64ToString(modelEntity.ID))
+	return rt.Ok()
+}
+
+// LogicalRecovery 逻辑删除恢复
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ids)
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	repository := c.sv
+	finds, b := repository.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	for _, info := range finds {
+		enum := enumStatePg.State(info.State)
+		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
+		if ok, reverse := enum.ReverseCancelLayAside(); ok {
+			repository.Update(entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
+		}
+	}
+	return rt.Ok()
+}
+
+// PhysicalDeletion 物理删除
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ids)
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	cn := c.sv
+	finds, b := cn.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	idsNew := make([]int64, 0)
+	for _, info := range finds {
+		c.log.Infof("id=%v", info.ID)
+		idsNew = append(idsNew, info.ID)
+	}
+	if len(idsNew) > 0 {
+		cn.DeleteByIds(idsNew)
+	}
+	return rt.Ok()
+}
+
+// Query 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) Query(ctx *gin.Context, ct modBasicConfigModel.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicConfigModel.Vo]]) {
+	c.log.Infof("ct=%+v", ct)
+	var query entityBasic.BasicConfigModelEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBasicConfigModel.Vo, 0)
+	rt.Data.Data = slice
+	r := c.sv
+	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigModelEntity]) {
+		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigModelEntity]) {
+			c.PageNum = ct.PageNum
+			c.PageSize = ct.PageSize
+		}
+		//自定义查询
+		p.Condition = r.DbModel().Order("create_at asc")
+		//自定义查询
+		if "" != ct.Wd {
+			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
+		}
+	})
+	if nil != err {
+		return rt.Ok()
+	}
+
+	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
+		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicConfigModel.Vo]) {
+			c.TotalPage = page.TotalPage
+			c.Total = page.Total
+			c.PageSize = page.PageSize
+			c.PageNum = page.PageNum
+		})
+		//字段赋值
+		for _, item := range page.Data {
+			var vo modBasicConfigModel.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		pg.Data = slice
+		pg.Pageable = page.Pageable
+		rt.Data = pg
+		return rt.Ok()
+	}
+	return rt.Ok()
+}
+
+// SelectNodeAllPublic 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicConfigModel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+	var query entityBasic.BasicConfigModelEntity
+	copier.Copy(&query, &ct)
+	slice := make([]model.BaseNodeNo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicConfigModel.Vo
+			copier.Copy(&vo, &item)
+			//
+			code := model.BaseNodeNo{
+				Key:      item.No,
+				Id:       item.No,
+				No:       item.No,
+				Label:    item.Name,
+				ParentNo: "",
+				ParentId: "",
+				Extend:   vo,
+			}
+			//编码
+			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
+				code.Key = numberPg.Int64ToString(item.ID)
+				code.Id = code.Key
+				code.ParentId = ""
+			}
+			slice = append(slice, code)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// SelectTenantPublic 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) SelectTenantPublic(ctx *gin.Context, ct modBasicConfigModel.QueryCt) (rt rg.Rs[[]modBasicConfigModel.Vo]) {
+	var query entityBasic.BasicConfigModelEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBasicConfigModel.Vo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicConfigModel.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// ExistName 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("关键词不能为空")
+	}
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
+}
+
+// ExistCode 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("关键词不能为空")
+	}
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
+}
+
+// ExistModel 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigModelService) ExistModel(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("关键词不能为空")
+	}
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByModelAndIdNot(ct.Wd, id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
 }

@@ -36,3 +36,15 @@ func (c *BasicConfigModelRepository) FindByModel(code string) (info *entityBasic
 	}
 	return info, true
 }
+
+func (c *BasicConfigModelRepository) FindByModelAndIdNot(code string, id string) (info *entityBasic.BasicConfigModelEntity, result bool) {
+	tx := c.Db().Where("model=?", code).Where("id <>?", id).First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}

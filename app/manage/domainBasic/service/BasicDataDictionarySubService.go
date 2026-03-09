@@ -14,6 +14,8 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -22,6 +24,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -79,6 +82,7 @@ func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBas
 				return rt.ErrorMessage("码值已存在")
 			}
 		}
+		info.No = noPg.No()
 		c.log.Infof("info%+v", info)
 		err, _ := r.Create(&info)
 		if err != nil {
@@ -357,6 +361,87 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 			slice = append(slice, code)
 		}
 		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// CodeValueAllPublic 码值
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[any]) {
+	if strPg.IsBlank(ct.TypeCode) {
+		if nil == ct.TypeCodeArr || len(ct.TypeCodeArr) <= 0 {
+			return rt.ErrorMessage("上级码值[typeCode]不能为空")
+		}
+	}
+	var query entityBasic.BasicDataDictionaryEntity
+	copier.Copy(&query, &ct)
+	query.State = enumStatePg.ENABLE.Index()
+	//
+	if nil != ct.TypeCodeArr && len(ct.TypeCodeArr) > 0 {
+		query.TypeCode = ""
+		ids := make([]string, 0)
+		for _, item := range ct.TypeCodeArr {
+			if strPg.IsNotBlank(item) {
+				ids = append(ids, strings.TrimSpace(item))
+			}
+		}
+		//
+		rt.Data = struct{}{}
+		if len(ids) <= 0 {
+			return rt.Ok()
+		}
+		values := make(map[string][]model.BaseNodeKeyValue)
+		infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+			db.Where("type_code in ?", ids)
+			return db
+		}))
+		if len(infos) > 0 {
+			for _, item := range infos {
+				var vo modBasicDataDictionary.SelectNodeVo
+				copier.Copy(&vo, &item)
+				//
+				if len(item.Range) > 0 {
+					vo.Range = strutil.SplitAndTrim(item.Range, ",")
+				}
+				//
+				code := model.BaseNodeKeyValue{
+					Key:    item.Code,
+					Label:  item.Name,
+					Extend: vo,
+				}
+				if _, ok := values[item.TypeCode]; !ok {
+					values[item.TypeCode] = make([]model.BaseNodeKeyValue, 0)
+				}
+				values[item.TypeCode] = append(values[item.TypeCode], code)
+			}
+			rt.Data = values
+		}
+	} else {
+		//
+		values := make([]model.BaseNodeKeyValue, 0)
+		rt.Data = values
+		infos := c.sv.FindAll(query)
+		if len(infos) > 0 {
+			for _, item := range infos {
+				var vo modBasicDataDictionary.SelectNodeVo
+				copier.Copy(&vo, &item)
+				//
+				if len(item.Range) > 0 {
+					vo.Range = strutil.SplitAndTrim(item.Range, ",")
+				}
+				//
+				code := model.BaseNodeKeyValue{
+					Key:    item.Code,
+					Label:  item.Name,
+					Extend: vo,
+				}
+				values = append(values, code)
+			}
+			rt.Data = values
+		}
 	}
 	return rt.Ok()
 }

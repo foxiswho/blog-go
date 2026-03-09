@@ -104,6 +104,7 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
+		group.POST("/codeValueAllPublic", c.CodeValueAllPublic)
 	}))
 	//
 	gs.Root(gs.Object(new(controller.DataDictionarySubController)).Init(func(c *controller.DataDictionarySubController) {
@@ -190,12 +191,43 @@ func init() {
 	gs.Root(gs.Object(new(controller.BasicConfigModelController)).Init(func(c *controller.BasicConfigModelController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-model", authPg.GroupManageMiddleware(c.Sp))
-		group.POST("/create", c.Create)
+		group.POST("/createUpdate", c.CreateUpdate)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
+		group.POST("/existModel", c.ExistModel)
 	}))
 	//
 	gs.Root(gs.Object(new(controller.BasicConfigEventController)).Init(func(c *controller.BasicConfigEventController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-event", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
+	}))
+
+	//
+	gs.Root(gs.Object(new(controller.ModuleController)).Init(func(c *controller.ModuleController) {
+		r := ginServer.GinServerDefault
+		group := r.Group("/pg2lq/manage/basic/module", authPg.GroupManageMiddleware(c.Sp))
+		group.POST("/create", c.Create)
+		group.POST("/update", c.Update)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
 	}))
 }

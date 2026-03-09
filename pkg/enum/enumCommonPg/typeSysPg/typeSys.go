@@ -10,7 +10,7 @@ type TypeSys string
 const (
 	General TypeSys = "general" //普通
 	System  TypeSys = "system"  //系统
-	Api     TypeSys = "api"     //系统
+	Api     TypeSys = "api"     //api
 )
 
 // Name 名称

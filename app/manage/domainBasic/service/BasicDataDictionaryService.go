@@ -14,6 +14,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -69,7 +70,11 @@ func (c *BasicDataDictionaryService) CreateUpdate(ctx *gin.Context, ct modBasicD
 			return rt.ErrorMessage("码值已存在")
 		}
 		c.log.Infof("info%+v", info)
-		r.Create(&info)
+		info.No = noPg.No()
+		err, _ := r.Create(&info)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
+		}
 		c.log.Infof("save=%+v", info)
 	} else {
 		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(info.Code, ct.ID.ToString(), info.OwnerNo)
@@ -80,7 +85,7 @@ func (c *BasicDataDictionaryService) CreateUpdate(ctx *gin.Context, ct modBasicD
 		r.Update(info, info.ID)
 	}
 
-	return rg.OkData(numberPg.Int64ToString(info.ID))
+	return rt.OkData(numberPg.Int64ToString(info.ID))
 }
 
 // Detail 详情
@@ -250,10 +255,13 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 		}
 		//自定义查询
 		p.Condition = r.DbModel().Order("create_at desc")
-		p.Condition.Where("type_code=null or type_code=''")
+		p.Condition.Where("type_code is null or type_code=''")
 		//自定义查询
 		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+			p.Condition.Where("name like ?", "%"+ct.Wd+"%").
+				Or("code like ?", "%"+ct.Wd+"%").
+				Or("name_fl like ?", "%"+ct.Wd+"%").
+				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
 	})
 	if nil != err {
@@ -261,7 +269,6 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		slice := make([]modBasicDataDictionary.Vo, 0)
 		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.Vo]) {
 			c.TotalPage = page.TotalPage
 			c.Total = page.Total
@@ -269,9 +276,11 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 			c.PageNum = page.PageNum
 		})
 		ids := make([]string, 0)
-		for _, item := range page.Data {
-			ids = append(ids, item.Code)
-		}
+		//for _, item := range page.Data {
+		//	if strPg.IsNotBlank(item.Code) {
+		//		ids = append(ids, item.Code)
+		//	}
+		//}
 		mapBasic := make(map[string]*entityBasic.BasicDataDictionaryEntity)
 		if len(ids) > 0 {
 			infos, b := r.FindAllByCodeIn(ids)

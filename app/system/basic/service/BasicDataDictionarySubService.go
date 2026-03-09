@@ -361,6 +361,44 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	return rt.Ok()
 }
 
+// SelectKeyValueAllPublic 码值
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicDataDictionarySubService) SelectKeyValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[[]model.BaseNodeKeyValue]) {
+	if strPg.IsBlank(ct.TypeCode) {
+		return rt.ErrorMessage("上级码值[typeCode]不能为空")
+	}
+	var query entityBasic.BasicDataDictionaryEntity
+	copier.Copy(&query, &ct)
+	//
+	query.State = enumStatePg.ENABLE.Index()
+	//
+	values := make([]model.BaseNodeKeyValue, 0)
+	rt.Data = values
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicDataDictionary.SelectNodeVo
+			copier.Copy(&vo, &item)
+			//
+			if len(item.Range) > 0 {
+				vo.Range = strutil.SplitAndTrim(item.Range, ",")
+			}
+			//
+			code := model.BaseNodeKeyValue{
+				Key:    item.Code,
+				Label:  item.Name,
+				Extend: vo,
+			}
+			values = append(values, code)
+		}
+		rt.Data = values
+	}
+	return rt.Ok()
+}
+
 // ExistName 查重
 //
 //	@Description:
