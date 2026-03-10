@@ -24,14 +24,14 @@ type BasicModelRulesEntity struct {
 	//
 	Description  string                       `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
 	ValueType    string                       `gorm:"column:value_type;type:varchar(80);comment:字段值类型" json:"value_type" comment:"字段值类型" `
-	Show         int8                         `gorm:"column:show;type:int2;not null;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
+	Show         int8                         `gorm:"column:show;type:int2;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
 	ExtraData    datatypes.JSON               `gorm:"column:extra_data;type:json;comment:额外数据" json:"extraData" label:"额外数据" `
-	RuleMode     string                       `gorm:"column:rule_mode;type:varchar(80);comment:验证模式类型" json:"rule_mode" comment:"验证模式类型" `
+	RuleMode     string                       `gorm:"column:rule_mode;type:varchar(80);index;comment:验证模式类型" json:"rule_mode" comment:"验证模式类型" `
 	Coding       string                       `gorm:"column:coding;type:text;comment:代码" json:"coding" comment:"代码" `
 	Condition    string                       `gorm:"column:condition;type:varchar(80);comment:条件" json:"condition" comment:"条件" `
 	ErrorMessage string                       `gorm:"column:error_message;type:varchar(255);comment:错误提示" json:"error_message" comment:"错误提示" `
 	Structure    string                       `gorm:"column:structure;type:varchar(80);comment:验证结构" json:"structure" comment:"验证结构" `
-	RuleTarget   datatypes.JSONType[[]string] `gorm:"column:rule_target;type:jsonb;index;comment:目标前端后端" json:"rule_target" comment:"目标" `
+	RuleTarget   datatypes.JSONType[[]string] `gorm:"column:rule_target;type:jsonb;index;default:'[]';comment:目标前端后端" json:"rule_target" comment:"目标" `
 	SharedRuleNo string                       `gorm:"column:shared_rule_no;type:varchar(80);index;comment:共享规则编号" json:"shared_rule_no" comment:"共享规则编号" `
 	TypeSys      string                       `gorm:"column:type_sys;type:varchar(80);index;default:'general';comment:类型|普通|系统;" json:"type_sys" comment:"类型;普通;系统;" `
 	TypeModel    string                       `gorm:"column:type_model;type:varchar(80);index;default:'general';comment:模型类型|模型|事件;" json:"type_model" comment:"模型类型|模型|事件;" `

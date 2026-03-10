@@ -43,6 +43,7 @@ func (b *AInitTable) Run() error {
 		entityData = append(entityData, &entityBasic.BasicConfigModelFieldsEntity{})
 		entityData = append(entityData, &entityBasic.BasicDataDictionaryEntity{})
 		entityData = append(entityData, &entityBasic.BasicDataSnapshotEntity{})
+		entityData = append(entityData, &entityBasic.BasicModelRulesEntity{})
 		entityData = append(entityData, &entityBasic.BasicModuleEntity{})
 		entityData = append(entityData, &entityBasic.BasicTagsEntity{})
 		entityData = append(entityData, &entityBasic.BasicTagsCategoryEntity{})
