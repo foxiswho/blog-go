@@ -166,7 +166,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		c.event.State = enumStatePg.ENABLE.Index()
 		c.event.No = noPg.No()
 		c.event.Sort = 0
-		c.event.KindUnique = cryptPg.Md5(c.event.Model)
+		c.event.KindUnique = cryptPg.Md5(c.event.Field)
 		err, _ := c.Sp.repEvent.Create(c.event)
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
@@ -205,7 +205,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("事件不存在")
 		}
 		//
-		var save entityBasic.BasicConfigModelEntity
+		var save entityBasic.BasicConfigEventEntity
 		{
 			err := copier.Copy(&save, info)
 			if err != nil {
@@ -218,7 +218,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				c.log.Infof("copier.Copy error: %+v", err)
 			}
 		}
-		save.KindUnique = cryptPg.Md5(save.Model)
+		save.KindUnique = cryptPg.Md5(save.Field)
 		//
 		delIds := make([]string, 0)
 		dataInsert := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
@@ -259,7 +259,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			}
 		}
 		//
-		err := c.Sp.repModel.Update(save, info.ID)
+		err := c.Sp.repEvent.Update(save, info.ID)
 		if err != nil {
 			c.log.Infof("copier.Copy error: %+v", err)
 		}

@@ -239,6 +239,25 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
+		group.POST("/allByEventNo", c.AllByEventNo)
+	}))
+	//
+	gs.Root(gs.Object(new(controller.ModelRulesController)).Init(func(c *controller.ModelRulesController) {
+		r := ginServer.GinServerDefault
+		group := r.Group("/pg2lq/manage/basic/modelRules", authPg.GroupManageMiddleware(c.Sp))
+		group.POST("/createUpdate", c.CreateUpdate)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
+		group.POST("/allByValueNo", c.AllByValueNo)
 	}))
 	//
 	gs.Root(gs.Object(new(controller.ModuleController)).Init(func(c *controller.ModuleController) {

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"reflect"
+	"strings"
 
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEventFields"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
@@ -15,10 +16,11 @@ import (
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
-	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"gorm.io/datatypes"
 )
 
 func init() {
@@ -30,75 +32,112 @@ func init() {
 // BasicConfigEventFieldsService 省市区
 // @Description:
 type BasicConfigEventFieldsService struct {
-	sv  *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
-	log *log2.Logger                                      `autowire:"?"`
+	sv    *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
+	event *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
+	log   *log2.Logger                                      `autowire:"?"`
 }
 
-// Create 新增
+// CreateUpdate 新增
 //
 //	@Description:
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicConfigEventFieldsService) Create(ctx *gin.Context, ct modBasicConfigEventFields.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBasicConfigEventFields.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
-	var info entityBasic.BasicConfigEventFieldsEntity
-	err := copier.Copy(&info, &ct)
-	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+	if nil == ct.Body || len(ct.Body) < 1 {
+		return rt.ErrorMessage("表体字段不能为空")
 	}
-	if "" == ct.Name {
-		return rt.ErrorMessage("名称不能为空")
+	if strPg.IsBlank(ct.EventNo) {
+		return rt.ErrorMessage("事件编号不能为空")
 	}
-	if strPg.IsBlank(ct.Field) {
-		return rt.ErrorMessage("字段不能为空")
+	event, result := c.event.FindByNo(ct.EventNo)
+	if !result {
+		return rt.ErrorMessage("事件 不存在")
 	}
-	r := c.sv
-	info.No = noPg.No()
-	c.log.Infof("info%+v", info)
-	err, _ = r.Create(&info)
-	if err != nil {
-		return rt.ErrorMessage("保存失败 " + err.Error())
-	}
-	err = r.Update(info, info.ID)
-	if err != nil {
-		return rt.ErrorMessage(err.Error())
-	}
-	return rg.OkData(numberPg.Int64ToString(info.ID))
-}
+	if nil != ct.BodyDelIds || len(ct.BodyDelIds) > 0 {
+		delIds := make([]string, 0)
+		for _, id := range ct.BodyDelIds {
+			if strPg.IsNotBlank(id) {
+				delIds = append(delIds, strings.TrimSpace(id))
+			}
+		}
+		if len(delIds) > 0 {
+			c.sv.DeleteAllByModelNoAndIds(event.No, delIds)
+		}
 
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-//	@return rt
-func (c *BasicConfigEventFieldsService) Update(ctx *gin.Context, ct modBasicConfigEventFields.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
-	var info entityBasic.BasicConfigEventFieldsEntity
-	copier.Copy(&info, &ct)
-	if ct.ID < 1 {
-		return rt.ErrorMessage("id错误")
 	}
-	if "" == ct.Name {
-		return rt.ErrorMessage("名称不能为空")
+	dataAdd := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
+	dataUpdate := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
+	findField := make(map[string]bool)
+	for _, item := range ct.Body {
+		//
+		if strPg.IsBlank(item.Name) {
+			return rt.ErrorMessage("名称不能为空")
+		}
+		if strPg.IsBlank(item.Field) {
+			return rt.ErrorMessage(item.Name + " 字段不能为空")
+		}
+		if _, ok := findField[strings.TrimSpace(item.Field)]; ok {
+			return rt.ErrorMessage(item.Field + " 字段重复")
+		}
+		findField[strings.TrimSpace(item.Field)] = true
 	}
-	if strPg.IsBlank(ct.Field) {
-		return rt.ErrorMessage("字段不能为空")
+	for _, item := range ct.Body {
+		obj := entityBasic.BasicConfigEventFieldsEntity{}
+		err := copier.Copy(&obj, &item)
+		if err != nil {
+			c.log.Infof("copier.Copy error: %+v", err)
+		}
+		obj.Name = strings.TrimSpace(obj.Name)
+		obj.Field = strings.TrimSpace(obj.Field)
+		//
+		tags := make([]string, 0)
+		if nil != item.Rules && len(item.Rules) > 0 {
+			for _, v := range item.Rules {
+				if strPg.IsNotBlank(v) {
+					tags = append(tags, strings.TrimSpace(v))
+				}
+			}
+		}
+		obj.Rules = datatypes.NewJSONType[[]string](tags)
+		//
+		if item.Id.ToInt64() > 0 {
+			obj.No = ""
+			obj.EventNo = event.No
+			obj.ModelNo = event.ModelNo
+			obj.Model = event.Model
+			obj.Module = event.Module
+			obj.ModuleSub = event.ModuleSub
+			obj.KindUnique = cryptPg.Md5(obj.EventNo + obj.Field)
+			dataUpdate = append(dataUpdate, &obj)
+		} else {
+			obj.ID = 0
+			obj.No = noPg.No()
+			obj.State = enumStatePg.ENABLE.IndexInt8()
+			obj.EventNo = event.No
+			obj.ModelNo = event.ModelNo
+			obj.Model = event.Model
+			obj.Module = event.Module
+			obj.ModuleSub = event.ModuleSub
+			obj.Sort = 0
+			obj.KindUnique = cryptPg.Md5(obj.EventNo + obj.Field)
+			dataAdd = append(dataAdd, &obj)
+		}
 	}
-	r := c.sv
-	_, b := r.FindById(ct.ID.ToInt64())
-	if !b {
-		return rt.ErrorMessage("数据不存在")
+	if len(dataAdd) > 0 {
+		tx := c.sv.DbModel().CreateInBatches(dataAdd, 1000000)
+		if tx.Error != nil {
+			c.log.Errorf("save err=%+v", tx.Error)
+			return rt.ErrorMessage("保存失败：")
+		}
 	}
-	info.No = ""
-	err := r.Update(info, info.ID)
-	if err != nil {
-		c.log.Errorf("update error=%+v", err)
-		return rt.ErrorMessage(err.Error())
+	if len(dataUpdate) > 0 {
+		for _, entity := range dataUpdate {
+			c.sv.Update(*entity, entity.ID)
+		}
 	}
-	c.log.Infof("save.info=%+v", info)
-	return rt.Ok()
+	return rg.OkData("成功")
 }
 
 // Detail 详情
@@ -300,6 +339,34 @@ func (c *BasicConfigEventFieldsService) Query(ctx *gin.Context, ct modBasicConfi
 		pg.Pageable = page.Pageable
 		rt.Data = pg
 		return rt.Ok()
+	}
+	return rt.Ok()
+}
+
+// AllByEventNo 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventFieldsService) AllByEventNo(ctx *gin.Context, ct modBasicConfigEventFields.QueryPublicCt) (rt rg.Rs[[]modBasicConfigEventFields.Vo]) {
+
+	var query entityBasic.BasicConfigEventFieldsEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBasicConfigEventFields.Vo, 0)
+	rt.Data = slice
+	//
+	if strPg.IsBlank(ct.EventNo) {
+		return rt.ErrorMessage("参数错误")
+	}
+	//
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicConfigEventFields.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
 	}
 	return rt.Ok()
 }

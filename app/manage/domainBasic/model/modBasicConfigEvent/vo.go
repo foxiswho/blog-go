@@ -32,4 +32,5 @@ type Vo struct {
 	ClientSync      string         `json:"clientSync" comment:"端同步" `
 	LoadingLocation string         `json:"loadingLocation" comment:"加载位置" `
 	Cache           string         `json:"cache" comment:"缓存" `
+	No              string         `json:"no" comment:"编号" `
 }

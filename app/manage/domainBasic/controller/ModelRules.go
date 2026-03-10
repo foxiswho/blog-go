@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEventFields"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicModelRules"
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
@@ -17,11 +17,11 @@ func init() {
 
 }
 
-// ConfigEventFieldsController 国家
+// ModelRulesController 国家
 // @Description:
-type ConfigEventFieldsController struct {
-	Sp *authPg.GroupManageMiddlewareSp        `autowire:""`
-	sv *service.BasicConfigEventFieldsService `autowire:"?"`
+type ModelRulesController struct {
+	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv *service.BasicModelRulesService `autowire:"?"`
 }
 
 // CreateUpdate 创建
@@ -29,8 +29,8 @@ type ConfigEventFieldsController struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) CreateUpdate(ctx *gin.Context) {
-	var ct modBasicConfigEventFields.CreateUpdateCt
+func (c *ModelRulesController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicModelRules.CreateUpdateDataCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -49,7 +49,7 @@ func (c *ConfigEventFieldsController) CreateUpdate(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Delete(ctx *gin.Context) {
+func (c *ModelRulesController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -69,7 +69,7 @@ func (c *ConfigEventFieldsController) Delete(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Recovery(ctx *gin.Context) {
+func (c *ModelRulesController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -89,7 +89,7 @@ func (c *ConfigEventFieldsController) Recovery(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) PhysicalDeletion(ctx *gin.Context) {
+func (c *ModelRulesController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -109,7 +109,7 @@ func (c *ConfigEventFieldsController) PhysicalDeletion(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Detail(ctx *gin.Context) {
+func (c *ModelRulesController) Detail(ctx *gin.Context) {
 	param := ctx.Param("id")
 
 	fmt.Println(param)
@@ -125,7 +125,7 @@ func (c *ConfigEventFieldsController) Detail(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Enable(ctx *gin.Context) {
+func (c *ModelRulesController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -145,7 +145,7 @@ func (c *ConfigEventFieldsController) Enable(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Disable(ctx *gin.Context) {
+func (c *ModelRulesController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -165,7 +165,7 @@ func (c *ConfigEventFieldsController) Disable(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) State(ctx *gin.Context) {
+func (c *ModelRulesController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -190,8 +190,8 @@ func (c *ConfigEventFieldsController) State(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) Query(ctx *gin.Context) {
-	var ct modBasicConfigEventFields.QueryCt
+func (c *ModelRulesController) Query(ctx *gin.Context) {
+	var ct modBasicModelRules.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -205,8 +205,8 @@ func (c *ConfigEventFieldsController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *ConfigEventFieldsController) AllByEventNo(ctx *gin.Context) {
-	var ct modBasicConfigEventFields.QueryPublicCt
+func (c *ModelRulesController) AllByValueNo(ctx *gin.Context) {
+	var ct modBasicModelRules.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -218,11 +218,11 @@ func (c *ConfigEventFieldsController) AllByEventNo(ctx *gin.Context) {
 		return
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.AllByEventNo(ctx, ct))
+	ctx.JSON(200, c.sv.AllByValueNo(ctx, ct))
 }
 
-func (c *ConfigEventFieldsController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modBasicConfigEventFields.QueryPublicCt
+func (c *ModelRulesController) SelectNodeAllPublic(ctx *gin.Context) {
+	var ct modBasicModelRules.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -242,7 +242,7 @@ func (c *ConfigEventFieldsController) SelectNodeAllPublic(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) ExistName(ctx *gin.Context) {
+func (c *ModelRulesController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -262,7 +262,7 @@ func (c *ConfigEventFieldsController) ExistName(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ConfigEventFieldsController) ExistCode(ctx *gin.Context) {
+func (c *ModelRulesController) ExistCode(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
