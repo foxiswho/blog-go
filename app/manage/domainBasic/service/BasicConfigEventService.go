@@ -113,14 +113,14 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 	return rg.OkData(numberPg.Int64ToString(eventEntity.ID))
 }
 
-//func (c *BasicConfigEventService) CreateUpdate(ctx *gin.Context, ct modBasicConfigEvent.CreateUpdateCt) (rt rg.Rs[string]) {
-//	return configModel.NewCreateUpdate(c.sp, ct, true).Process(ctx)
-//}
+func (c *BasicConfigEventService) CreateUpdate(ctx *gin.Context, ct modBasicConfigEvent.CreateUpdateCt) (rt rg.Rs[string]) {
+	return configEvent.NewCreateUpdate(c.sp, ct, true).Process(ctx)
+}
 
 // Detail 详情
-//func (c *BasicConfigEventService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigEvent.CreateUpdateCt]) {
-//	return configModel.NewDetail(c.sp).Process(ctx, id)
-//}
+func (c *BasicConfigEventService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigEvent.CreateUpdateCt]) {
+	return configEvent.NewDetail(c.sp).Process(ctx, id)
+}
 
 // Enable 启用
 //

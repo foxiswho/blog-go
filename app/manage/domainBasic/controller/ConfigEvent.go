@@ -30,7 +30,7 @@ type ConfigEventController struct {
 //	@receiver c
 //	@param ctx
 func (c *ConfigEventController) CreateUpdate(ctx *gin.Context) {
-	var ct modBasicConfigEvent.CreateCt
+	var ct modBasicConfigEvent.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -41,7 +41,7 @@ func (c *ConfigEventController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
+	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -117,7 +117,7 @@ func (c *ConfigEventController) Detail(ctx *gin.Context) {
 		ctx.JSON(200, rg.Error[string]("id不能为空"))
 		return
 	}
-	//ctx.JSON(200, c.sv.Detail(ctx, strPg.ToInt64(param)))
+	ctx.JSON(200, c.sv.Detail(ctx, param))
 }
 
 // Enable 启用

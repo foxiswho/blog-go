@@ -1,12 +1,10 @@
-package configModel
+package configEvent
 
 import (
 	"strings"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigModel"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEvent"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/configModelPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -23,22 +21,24 @@ import (
 type CreateUpdate struct {
 	Sp       *Sp          `autowire:"?"`
 	log      *log2.Logger `autowire:"?"`
-	ct       modBasicConfigModel.CreateUpdateCt
+	ct       modBasicConfigEvent.CreateUpdateCt
 	model    *entityBasic.BasicConfigModelEntity
+	event    *entityBasic.BasicConfigEventEntity
 	module   *entityBasic.BasicModuleEntity
-	fields   []*entityBasic.BasicConfigModelFieldsEntity
+	fields   []*entityBasic.BasicConfigEventFieldsEntity
 	isUpdate bool
 }
 
 func NewCreateUpdate(sp *Sp,
-	ct modBasicConfigModel.CreateUpdateCt, isUpdate bool) *CreateUpdate {
+	ct modBasicConfigEvent.CreateUpdateCt, isUpdate bool) *CreateUpdate {
 	return &CreateUpdate{
 		Sp:       sp,
 		log:      sp.log,
 		isUpdate: isUpdate,
 		ct:       ct,
-		fields:   make([]*entityBasic.BasicConfigModelFieldsEntity, 0),
+		fields:   make([]*entityBasic.BasicConfigEventFieldsEntity, 0),
 		model:    &entityBasic.BasicConfigModelEntity{},
+		event:    &entityBasic.BasicConfigEventEntity{},
 		module:   &entityBasic.BasicModuleEntity{},
 	}
 }
@@ -48,46 +48,36 @@ func (c *CreateUpdate) Process(ctx *gin.Context) (rt rg.Rs[string]) {
 }
 
 func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", c.ct)
 	header := c.ct.Header
 	//
-	err := copier.Copy(c.model, &header)
+	err := copier.Copy(c.event, &header)
 	if err != nil {
 		c.log.Infof("copier.Copy error: %+v", err)
 	}
-	c.model.Name = strings.TrimSpace(c.model.Name)
-	c.model.Model = strings.TrimSpace(c.model.Model)
-	c.model.ModuleSub = strings.TrimSpace(c.model.ModuleSub)
-	c.model.ModelCategory = strings.TrimSpace(c.model.ModelCategory)
+	c.event.Name = strings.TrimSpace(c.event.Name)
+	c.event.Model = strings.TrimSpace(c.event.Model)
+	c.event.ModelNo = strings.TrimSpace(c.event.ModelNo)
+	c.event.ModuleSub = strings.TrimSpace(c.event.ModuleSub)
 	//
-	if strPg.IsBlank(c.model.Name) {
+	if strPg.IsBlank(c.event.Name) {
 		return rt.ErrorMessage("模型中文名称不能为空")
 	}
-	if strPg.IsBlank(c.model.Model) {
-		return rt.ErrorMessage("模型英文标识不能为空")
+	if strPg.IsBlank(c.event.ModelNo) {
+		return rt.ErrorMessage("模型不能为空")
 	}
-	if strPg.IsBlank(c.model.ModelCategory) {
-		return rt.ErrorMessage("类型种类不能为空")
+
+	if strPg.IsBlank(header.Field) {
+		return rt.ErrorMessage("字段名称不能为空")
 	}
-	if _, ok := configModelPg.IsExistModelCategory(c.model.ModelCategory); !ok {
-		return rt.ErrorMessage("类型种类不存在")
+	if !formatPg.ValidateString(header.Field) {
+		return rt.ErrorMessage("字段名称格式错误")
 	}
-	if strPg.IsBlank(header.ModuleSub) {
-		return rt.ErrorMessage("子模块不能为空")
+	model, b := c.Sp.repModel.FindByNo(c.event.ModelNo)
+	if !b {
+		return rt.ErrorMessage("模型不存在")
 	}
-	//子模块是否存在
-	{
-		b := false
-		c.module, b = c.Sp.repModule.FindByNo(header.ModuleSub)
-		if !b {
-			return rt.ErrorMessage("子模块不存在")
-		}
-	}
-	if strPg.IsBlank(header.Table) {
-		return rt.ErrorMessage("表名称不能为空")
-	}
-	if !formatPg.ValidateString(header.Table) {
-		return rt.ErrorMessage("表名称格式错误")
-	}
+
 	rt.Extend = make(map[string]interface{})
 	errs := make([]modelBasePg.ItemResult, 0)
 	//
@@ -101,7 +91,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		for _, item := range c.ct.Body {
 			i++
 
-			var field entityBasic.BasicConfigModelFieldsEntity
+			var field entityBasic.BasicConfigEventFieldsEntity
 			err := copier.Copy(&field, &item)
 			if err != nil {
 				c.log.Infof("copier.Copy error: %+v", err)
@@ -169,12 +159,15 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	//
 	//
 	if header.Id.ToInt64() <= 0 {
-		c.model.State = enumStatePg.ENABLE.Index()
-		c.model.TypeSys = typeSysPg.General.String()
-		c.model.No = noPg.No()
-		c.model.Sort = 0
-		c.model.KindUnique = cryptPg.Md5(c.model.Model)
-		err, _ := c.Sp.repModel.Create(c.model)
+		c.event.Model = model.Model
+		c.event.ModuleSub = model.ModuleSub
+		c.event.Module = model.Module
+		c.event.TenantNo = model.TenantNo
+		c.event.State = enumStatePg.ENABLE.Index()
+		c.event.No = noPg.No()
+		c.event.Sort = 0
+		c.event.KindUnique = cryptPg.Md5(c.event.Model)
+		err, _ := c.Sp.repEvent.Create(c.event)
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
 		}
@@ -182,18 +175,20 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		if len(c.fields) > 0 {
 			for _, item := range c.fields {
 				item.ID = 0
-				item.ModelNo = c.model.No
-				item.Model = c.model.Model
-				item.ModuleSub = c.model.ModuleSub
-				item.TenantNo = c.model.TenantNo
+				item.EventNo = c.event.No
+				item.ModelNo = c.event.ModelNo
+				item.Model = c.event.Model
+				item.ModuleSub = c.event.ModuleSub
+				item.Module = c.event.Module
+				item.TenantNo = c.event.TenantNo
 				item.State = enumStatePg.ENABLE.Index()
 				item.No = noPg.No()
 				item.Sort = 0
-				item.KindUnique = cryptPg.Md5(c.model.No + item.Field)
+				item.KindUnique = cryptPg.Md5(c.event.No + item.Field)
 			}
 			//
 			{
-				tx := c.Sp.repField.DbModel().CreateInBatches(c.fields, 1000000)
+				tx := c.Sp.repEventField.DbModel().CreateInBatches(c.fields, 1000000)
 				if tx.Error != nil {
 					c.log.Errorf("save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
@@ -205,9 +200,9 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 	} else {
 		//
-		info, b := c.Sp.repModel.FindByIdString(header.Id.ToString())
+		info, b := c.Sp.repEvent.FindByIdString(header.Id.ToString())
 		if !b {
-			return rt.ErrorMessage("模型不存在")
+			return rt.ErrorMessage("事件不存在")
 		}
 		//
 		var save entityBasic.BasicConfigModelEntity
@@ -223,15 +218,14 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				c.log.Infof("copier.Copy error: %+v", err)
 			}
 		}
-		save.No = ""
 		save.KindUnique = cryptPg.Md5(save.Model)
 		//
 		delIds := make([]string, 0)
-		dataInsert := make([]*entityBasic.BasicConfigModelFieldsEntity, 0)
-		dataUpdate := make([]*entityBasic.BasicConfigModelFieldsEntity, 0)
-		mapField := make(map[int64]*entityBasic.BasicConfigModelFieldsEntity)
+		dataInsert := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
+		dataUpdate := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
+		mapField := make(map[int64]*entityBasic.BasicConfigEventFieldsEntity)
 		if len(ids) > 0 {
-			infos, result := c.Sp.repField.FindAllByIdStringIn(ids)
+			infos, result := c.Sp.repEventField.FindAllByIdStringIn(ids)
 			if result {
 				for _, item := range infos {
 					mapField[item.ID] = item
@@ -241,17 +235,21 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		if len(c.fields) > 0 {
 			for _, item := range c.fields {
 				if _, ok := mapField[item.ID]; ok {
-					item.Model = save.Model
-					item.ModuleSub = save.ModuleSub
-					item.TenantNo = save.TenantNo
+					item.Model = info.Model
+					item.ModuleSub = info.ModuleSub
+					item.Module = info.Module
+					item.ModelNo = info.ModelNo
+					item.TenantNo = info.TenantNo
 					item.KindUnique = cryptPg.Md5(info.No + item.Field)
 					dataUpdate = append(dataUpdate, item)
 				} else {
 					item.ID = 0
-					item.ModelNo = info.No
-					item.Model = save.Model
-					item.ModuleSub = save.ModuleSub
-					item.TenantNo = save.TenantNo
+					item.EventNo = info.No
+					item.ModelNo = info.ModelNo
+					item.Model = info.Model
+					item.ModuleSub = info.ModuleSub
+					item.Module = info.Module
+					item.TenantNo = info.TenantNo
 					item.State = enumStatePg.ENABLE.Index()
 					item.No = noPg.No()
 					item.Sort = 0
@@ -273,13 +271,13 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				}
 			}
 			if len(delIds) > 0 {
-				c.Sp.repField.DeleteAllByModelNoAndIds(info.No, delIds)
+				c.Sp.repEventField.DeleteAllByEventNoAndIds(info.No, delIds)
 			}
 		}
 		//
 		if len(dataInsert) > 0 {
 			{
-				tx := c.Sp.repField.DbModel().CreateInBatches(dataInsert, 1000000)
+				tx := c.Sp.repEventField.DbModel().CreateInBatches(dataInsert, 1000000)
 				if tx.Error != nil {
 					c.log.Errorf("save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
@@ -291,7 +289,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 		if len(dataUpdate) > 0 {
 			for _, entity := range dataUpdate {
-				c.Sp.repField.Update(*entity, entity.ID)
+				c.Sp.repEventField.Update(*entity, entity.ID)
 			}
 		}
 

@@ -24,3 +24,50 @@ func init() {
 type BasicConfigEventFieldsRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigEventFieldsEntity, int64]
 }
+
+func (c *BasicConfigEventFieldsRepository) FindAllByModelNo(no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("model_no=?", no).Order("sort asc,create_at").Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *BasicConfigEventFieldsRepository) DeleteAllByModelNoAndIds(no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("id in ?", ids).Where("model_no=?", no).Delete(&c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+func (c *BasicConfigEventFieldsRepository) FindAllByEventNo(no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("event_no=?", no).Order("sort asc,create_at").Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *BasicConfigEventFieldsRepository) DeleteAllByEventNoAndIds(no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("id in ?", ids).Where("event_no=?", no).Delete(&c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
