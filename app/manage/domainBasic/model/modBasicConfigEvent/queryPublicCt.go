@@ -1,24 +1,18 @@
-package modBasicConfigModel
+package modBasicConfigEvent
 
 import (
-	"time"
-
+	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"gorm.io/datatypes"
 )
 
-type Vo struct {
-	ID       typePg.Int64String `json:"id" label:"id" `
-	CreateAt *time.Time         `json:"createAt" label:"创建时间" `
-	UpdateAt *time.Time         `json:"updateAt" label:"更新时间" `
-	CreateBy string             `json:"createBy" label:"创建人" `
-	UpdateBy string             `json:"updateBy" label:"更新人" `
-	State    typePg.Int8        `json:"state" label:"状态" `
-	Sort     typePg.Int64String ` json:"sort" comment:"排序" `
+type QueryPublicCt struct {
+	model.BaseQueryNodeCt
+	ID    typePg.Int64String `json:"id" label:"" `
+	State typePg.Int8        `json:"state" label:"状态:1启用;2禁用" `
 	//
 	Description     string         `json:"description" label:"描述" ` // 描述
 	Name            string         `json:"name" label:"名称" `
-	No              string         `json:"no" label:"编号" `
 	LangCode        string         `json:"langCode" comment:"语言" `
 	TypeSys         string         `json:"typeSys" comment:"类型|普通|系统|api" `
 	Module          string         `json:"module" comment:"模块" `

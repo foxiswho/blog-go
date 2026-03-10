@@ -1,4 +1,4 @@
-package modBasicConfigModel
+package modBasicConfigEvent
 
 import (
 	"time"
@@ -18,7 +18,6 @@ type Vo struct {
 	//
 	Description     string         `json:"description" label:"描述" ` // 描述
 	Name            string         `json:"name" label:"名称" `
-	No              string         `json:"no" label:"编号" `
 	LangCode        string         `json:"langCode" comment:"语言" `
 	TypeSys         string         `json:"typeSys" comment:"类型|普通|系统|api" `
 	Module          string         `json:"module" comment:"模块" `

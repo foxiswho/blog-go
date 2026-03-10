@@ -1,0 +1,27 @@
+package modBasicConfigEvent
+
+import (
+	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+)
+
+type QueryCt struct {
+	model.BaseQueryCt
+	State typePg.Int8 `json:"state" label:"状态:1启用;2禁用" `
+	//
+	Description     string `json:"description" label:"描述" ` // 描述
+	Name            string `json:"name" label:"名称" `
+	LangCode        string `json:"langCode" comment:"语言" `
+	TypeSys         string `json:"typeSys" comment:"类型|普通|系统|api" `
+	Module          string `json:"module" comment:"模块" `
+	ModuleSub       string `json:"moduleSub" comment:"子模块" `
+	Owner           string `json:"owner" comment:"所属/拥有者" `
+	Model           string `json:"model" comment:"模型" `
+	ModelNo         string `json:"modelNo" comment:"模型编号" `
+	Value           string `json:"value" comment:"值" `
+	Client          string `json:"client" comment:"端" `
+	ClientProgram   string `json:"clientProgram" comment:"端内程序|隔开" `
+	ClientSync      string `json:"clientSync" comment:"端同步" `
+	LoadingLocation string `json:"loadingLocation" comment:"加载位置" `
+	Cache           string `json:"cache" comment:"缓存" `
+}

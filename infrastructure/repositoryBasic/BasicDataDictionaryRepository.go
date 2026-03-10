@@ -63,7 +63,7 @@ func (b *BasicDataDictionaryRepository) FindAllOwnerId0(t entityBasic.BasicDataD
 
 // FindAllOwners 查询所有
 func (b *BasicDataDictionaryRepository) FindAllOwners(ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
-	tx := b.Db().Where("owner_no in ", ids).Find(&infos)
+	tx := b.Db().Where("owner_no in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -79,7 +79,7 @@ func (b *BasicDataDictionaryRepository) FindAllOwnersMap(ids []string, t entityB
 		maps = make(map[string][]*entityBasic.BasicDataDictionaryEntity)
 	}
 	var infos []*entityBasic.BasicDataDictionaryEntity
-	tx := b.Db().Where(t).Where("owner_no in ", ids).Find(&infos)
+	tx := b.Db().Where(t).Where("owner_no in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -97,7 +97,7 @@ func (b *BasicDataDictionaryRepository) FindAllOwnersMap(ids []string, t entityB
 
 // FindAllByCodeIn 查询所有
 func (b *BasicDataDictionaryRepository) FindAllByCodeIn(ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
-	tx := b.Db().Where("code in ", ids).Find(&infos)
+	tx := b.Db().Where("code in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}

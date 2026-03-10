@@ -5,14 +5,20 @@ import (
 	"reflect"
 
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEvent"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/configEvent"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
+	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
+	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -26,8 +32,9 @@ func init() {
 
 type BasicConfigEventService struct {
 	log       *log2.Logger                                      `autowire:"?"`
-	repoEvent *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
+	sv        *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
 	repoField *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
+	sp        *configEvent.Sp                                   `autowire:"?"`
 }
 
 // Create 创建事件
@@ -46,7 +53,7 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 	var existEvent entityBasic.BasicConfigEventEntity
 	// Field 对应 EventNo 或者 Field 本身，这里假设 BasicConfigEventEntity.Field 存储事件的英文标识
 	// 根据用户描述：Field 英文标识
-	tx := s.repoEvent.Db().Where("field = ?", ct.Field).First(&existEvent)
+	tx := s.sv.Db().Where("field = ?", ct.Field).First(&existEvent)
 	if tx.RowsAffected > 0 {
 		return rt.ErrorMessage("事件标识已存在")
 	}
@@ -71,7 +78,7 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 	// KindUnique = ModelNo + Field (EventNo)
 	eventEntity.KindUnique = eventEntity.ModelNo + eventEntity.Field
 
-	err, _ := s.repoEvent.Create(&eventEntity)
+	err, _ := s.sv.Create(&eventEntity)
 	if err != nil {
 		s.log.Errorf("Create event error: %v", err)
 		return rt.ErrorMessage("创建事件失败")
@@ -94,7 +101,7 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 			CreateBy:        holder.GetAccount().Account,
 		}
 		// FieldKindUnique = EventNo + Field
-		fieldEntity.FieldKindUnique = fieldEntity.EventNo + fieldEntity.Field
+		fieldEntity.KindUnique = fieldEntity.EventNo + fieldEntity.Field
 
 		err, _ := s.repoField.Create(&fieldEntity)
 		if err != nil {
@@ -104,4 +111,302 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 	}
 
 	return rg.OkData(numberPg.Int64ToString(eventEntity.ID))
+}
+
+//func (c *BasicConfigEventService) CreateUpdate(ctx *gin.Context, ct modBasicConfigEvent.CreateUpdateCt) (rt rg.Rs[string]) {
+//	return configModel.NewCreateUpdate(c.sp, ct, true).Process(ctx)
+//}
+
+// Detail 详情
+//func (c *BasicConfigEventService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigEvent.CreateUpdateCt]) {
+//	return configModel.NewDetail(c.sp).Process(ctx, id)
+//}
+
+// Enable 启用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
+	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
+}
+
+// Disable 禁用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
+	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
+}
+
+// State 状态 启用/禁用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) State(ctx *gin.Context, ids []string, state enumStatePg.State) (rt rg.Rs[string]) {
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	r := c.sv
+	finds, b := r.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	for _, info := range finds {
+		if info.State != state.IndexInt8() {
+			r.Update(entityBasic.BasicConfigEventEntity{State: state.IndexInt8()}, info.ID)
+		}
+	}
+	return rt.Ok()
+}
+
+// StateEnableDisable 状态 设置 有效 停用
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) StateEnableDisable(ctx *gin.Context, ids []string, state enumStatePg.State) (rt rg.Rs[string]) {
+	if !state.IsEnableDisable() {
+		return rt.ErrorMessage("状态错误")
+	}
+	return c.State(ctx, ids, state)
+}
+
+// LogicalDeletion 逻辑删除
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	repository := c.sv
+	finds, b := repository.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	if c.sv.Config().Data.Delete {
+		for _, info := range finds {
+			c.log.Infof("id=%v", info.ID)
+		}
+		repository.DeleteByIdsString(ids)
+	} else {
+		for _, info := range finds {
+			enum := enumStatePg.State(info.State)
+			// 有效 停用，反转 为对应的 取消 弃置
+			if ok, reverse := enum.ReverseEnableDisable(); ok {
+				repository.Update(entityBasic.BasicConfigEventEntity{State: reverse.IndexInt8()}, info.ID)
+			}
+		}
+	}
+
+	return rt.Ok()
+}
+
+// LogicalRecovery 逻辑删除恢复
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ids)
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	repository := c.sv
+	finds, b := repository.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	for _, info := range finds {
+		enum := enumStatePg.State(info.State)
+		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
+		if ok, reverse := enum.ReverseCancelLayAside(); ok {
+			repository.Update(entityBasic.BasicConfigEventEntity{State: reverse.IndexInt8()}, info.ID)
+		}
+	}
+	return rt.Ok()
+}
+
+// PhysicalDeletion 物理删除
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ids)
+	if len(ids) < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	cn := c.sv
+	finds, b := cn.FindAllByIdStringIn(ids)
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	idsNew := make([]int64, 0)
+	for _, info := range finds {
+		c.log.Infof("id=%v", info.ID)
+		idsNew = append(idsNew, info.ID)
+	}
+	if len(idsNew) > 0 {
+		cn.DeleteByIds(idsNew)
+	}
+	return rt.Ok()
+}
+
+// Query 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicConfigEvent.Vo]]) {
+	c.log.Infof("ct=%+v", ct)
+	var query entityBasic.BasicConfigEventEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBasicConfigEvent.Vo, 0)
+	rt.Data.Data = slice
+	r := c.sv
+	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigEventEntity]) {
+		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigEventEntity]) {
+			c.PageNum = ct.PageNum
+			c.PageSize = ct.PageSize
+		}
+		//自定义查询
+		p.Condition = r.DbModel().Order("create_at asc")
+		//自定义查询
+		if "" != ct.Wd {
+			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
+		}
+	})
+	if nil != err {
+		return rt.Ok()
+	}
+
+	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
+		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicConfigEvent.Vo]) {
+			c.TotalPage = page.TotalPage
+			c.Total = page.Total
+			c.PageSize = page.PageSize
+			c.PageNum = page.PageNum
+		})
+		//字段赋值
+		for _, item := range page.Data {
+			var vo modBasicConfigEvent.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		pg.Data = slice
+		pg.Pageable = page.Pageable
+		rt.Data = pg
+		return rt.Ok()
+	}
+	return rt.Ok()
+}
+
+// SelectNodeAllPublic 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicConfigEvent.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+	var query entityBasic.BasicConfigEventEntity
+	copier.Copy(&query, &ct)
+	slice := make([]model.BaseNodeNo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicConfigEvent.Vo
+			copier.Copy(&vo, &item)
+			//
+			code := model.BaseNodeNo{
+				Key:      item.No,
+				Id:       item.No,
+				No:       item.No,
+				Label:    item.Name,
+				ParentNo: "",
+				ParentId: "",
+				Extend:   vo,
+			}
+			//编码
+			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
+				code.Key = numberPg.Int64ToString(item.ID)
+				code.Id = code.Key
+				code.ParentId = ""
+			}
+			slice = append(slice, code)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// AllByModel 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) AllByModel(ctx *gin.Context, ct modBasicConfigEvent.QueryCt) (rt rg.Rs[[]modBasicConfigEvent.Vo]) {
+	var query entityBasic.BasicConfigEventEntity
+	copier.Copy(&query, &ct)
+	//
+	slice := make([]modBasicConfigEvent.Vo, 0)
+	rt.Data = slice
+	//
+	if strPg.IsBlank(ct.ModelNo) {
+		return rt.ErrorMessage("模型编号错误")
+	}
+	infos := c.sv.FindAll(query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicConfigEvent.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// ExistName 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("关键词不能为空")
+	}
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
+}
+
+// ExistCode 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigEventService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
+	if "" == ct.Wd {
+		return rt.ErrorMessage("关键词不能为空")
+	}
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	if result {
+		return rt.ErrorMessage("重复，已存在")
+	}
+	return rt.OkMessage("可以使用")
 }

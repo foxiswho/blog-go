@@ -188,7 +188,7 @@ func init() {
 		group.POST("/getCategoryTags/:category", c.GetCategoryTags)
 	}))
 	//
-	gs.Root(gs.Object(new(controller.BasicConfigModelController)).Init(func(c *controller.BasicConfigModelController) {
+	gs.Root(gs.Object(new(controller.ConfigModelController)).Init(func(c *controller.ConfigModelController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-model", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -206,12 +206,40 @@ func init() {
 		group.POST("/existModel", c.ExistModel)
 	}))
 	//
-	gs.Root(gs.Object(new(controller.BasicConfigEventController)).Init(func(c *controller.BasicConfigEventController) {
+	gs.Root(gs.Object(new(controller.ConfigEventController)).Init(func(c *controller.ConfigEventController) {
 		r := ginServer.GinServerDefault
-		group := r.Group("/pg2lq/manage/basic/config-event", authPg.GroupManageMiddleware(c.Sp))
-		group.POST("/create", c.Create)
+		group := r.Group("/pg2lq/manage/basic/configEvent", authPg.GroupManageMiddleware(c.Sp))
+		group.POST("/createUpdate", c.CreateUpdate)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
+		group.POST("/allByModel", c.AllByModel)
 	}))
-
+	//
+	gs.Root(gs.Object(new(controller.ConfigEventFieldsController)).Init(func(c *controller.ConfigEventFieldsController) {
+		r := ginServer.GinServerDefault
+		group := r.Group("/pg2lq/manage/basic/configEventFields", authPg.GroupManageMiddleware(c.Sp))
+		group.POST("/createUpdate", c.CreateUpdate)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
+	}))
 	//
 	gs.Root(gs.Object(new(controller.ModuleController)).Init(func(c *controller.ModuleController) {
 		r := ginServer.GinServerDefault

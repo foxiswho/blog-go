@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"reflect"
@@ -297,7 +298,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 		})
 		ids := make([]string, 0)
 		for _, item := range page.Data {
-			if strPg.IsNotBlank(item.TypeCode) {
+			if strPg.IsNotBlank(item.TypeCode) && !slices.Contains(ids, item.TypeCode) {
 				ids = append(ids, item.TypeCode)
 			}
 		}

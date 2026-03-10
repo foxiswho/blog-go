@@ -13,7 +13,7 @@ type Vo struct {
 	State        typePg.Int8        `json:"state" label:"状态:1启用;2禁用" ` // 状态:1启用;2禁用
 	Description  string             `json:"description" label:"描述" `   // 描述
 	CreateAt     *typePg.Time       `json:"createAt" label:"创建时间" `    // 创建时间
-	CreateBy     typePg.Int64String `json:"CreateBy" label:"创建人" `     // 创建人
+	CreateBy     typePg.Int64String `json:"createBy" label:"创建人" `     // 创建人
 	Value        string             `json:"value" label:"值内容" `        // 值内容
 	Range        []string           `json:"range" label:"范围" `         // 范围
 	TypeCode     string             `json:"typeCode" label:"码值" `

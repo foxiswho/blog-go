@@ -48,7 +48,7 @@ type BasicConfigEventFieldsEntity struct {
 	ParameterSource  string                       `gorm:"column:parameter_source;type:varchar(80);comment:参数源" json:"parameter_source" comment:"参数源" `
 	ParameterContent string                       `gorm:"column:parameter_content;type:text;comment:参数内容" json:"parameter_content" comment:"参数内容" `
 	ParameterConfig  string                       `gorm:"column:parameter_config;type:text;comment:参数配置" json:"parameter_config" comment:"参数配置" `
-	FieldKindUnique  string                       `gorm:"column:field_kind_unique;type:varchar(80);not null;index;default:;comment:字段种类唯一" json:"field_kind_unique" comment:"字段种类唯一:event_no+field" `
+	KindUnique       string                       `gorm:"column:kind_unique;type:varchar(80);not null;index;default:;comment:字段种类唯一" json:"kind_unique" comment:"字段种类唯一:model_no+field" `
 	SharedFieldNo    string                       `gorm:"column:shared_field_no;type:varchar(80);index;default:;comment:共享字段编号" json:"shared_field_no" comment:"共享字段编号" `
 }
 
