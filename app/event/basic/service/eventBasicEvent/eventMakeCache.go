@@ -18,13 +18,15 @@ import (
 
 type EventMakeCache struct {
 	Log *log2.Logger `autowire:"?"`
-	Sp  Sp           `autowire:"?"`
+	Sp  *Sp          `autowire:"?"`
 	ct  modEventBasicEvent.EventDto
 }
 
-func NewEventMakeCache(ct modEventBasicEvent.EventDto) *EventMakeCache {
+func NewEventMakeCache(sp *Sp, ct modEventBasicEvent.EventDto) *EventMakeCache {
 	return &EventMakeCache{
-		ct: ct,
+		Sp:  sp,
+		Log: sp.Log,
+		ct:  ct,
 	}
 }
 
@@ -58,7 +60,7 @@ func (c *EventMakeCache) ThisTenantAll(ctx context.Context) error {
 				//data[key] = info.No
 				//keysAdd = append(keysAdd, key)
 
-				key2 := basicEventKey.EventTenantNo(info.TenantNo, info.Field)
+				key2 := basicEventKey.EventTenantNo(info.TenantNo, info.No)
 				str, err := json.Marshal(obj)
 				if err == nil {
 					data[key2] = str

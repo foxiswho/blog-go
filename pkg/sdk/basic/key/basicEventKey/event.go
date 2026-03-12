@@ -10,6 +10,11 @@ func EventFieldTenantNo(tenantNo, eventNo, fieldNo string) string {
 	return "basicEvent:field:" + tenantNo + ":" + eventNo + ":" + fieldNo
 }
 
+// EventFieldTenantNoByFieldNo 事件字段: filed = no,字段 和 编号相互转换
+func EventFieldTenantNoByFieldNo(tenantNo, event, field string) string {
+	return "basicEvent:fieldNo:" + tenantNo + ":" + event + ":" + field
+}
+
 // RulesByEventFieldTenantNo 规则字段租户编号
 func RulesByEventFieldTenantNo(tenantNo, eventNo, fieldNo string) string {
 	return "basicRules:eventField:" + tenantNo + ":" + eventNo + ":" + fieldNo

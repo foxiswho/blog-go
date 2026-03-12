@@ -109,6 +109,7 @@ func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBas
 			obj.Model = event.Model
 			obj.Module = event.Module
 			obj.ModuleSub = event.ModuleSub
+			obj.TenantNo = event.TenantNo
 			obj.KindUnique = cryptPg.Md5(obj.EventNo + obj.Field)
 			dataUpdate = append(dataUpdate, &obj)
 		} else {
@@ -120,6 +121,7 @@ func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBas
 			obj.Model = event.Model
 			obj.Module = event.Module
 			obj.ModuleSub = event.ModuleSub
+			obj.TenantNo = event.TenantNo
 			obj.Sort = 0
 			obj.KindUnique = cryptPg.Md5(obj.EventNo + obj.Field)
 			dataAdd = append(dataAdd, &obj)

@@ -18,13 +18,15 @@ import (
 
 type RulesMakeCache struct {
 	Log *log2.Logger `autowire:"?"`
-	Sp  Sp           `autowire:"?"`
-	ct  modEventBasicRules.RulesCache
+	Sp  *Sp          `autowire:"?"`
+	ct  modEventBasicRules.RulesDto
 }
 
-func NewRulesMakeCache(ct modEventBasicRules.RulesCache) *RulesMakeCache {
+func NewRulesMakeCache(sp *Sp, ct modEventBasicRules.RulesDto) *RulesMakeCache {
 	return &RulesMakeCache{
-		ct: ct,
+		Sp:  sp,
+		Log: sp.Log,
+		ct:  ct,
 	}
 }
 

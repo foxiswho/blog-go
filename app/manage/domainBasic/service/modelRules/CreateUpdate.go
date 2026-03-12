@@ -70,6 +70,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	if strPg.IsBlank(ct.RuleMode) {
 		return rt.ErrorMessage(ct.Name + " 验证模式类型不能为空")
 	}
+	//
 	obj := entityBasic.BasicModelRulesEntity{}
 	err := copier.Copy(&obj, &ct)
 	if err != nil {

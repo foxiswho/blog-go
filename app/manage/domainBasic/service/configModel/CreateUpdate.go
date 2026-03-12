@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
+	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model/modelBasePg"
 	"github.com/foxiswho/blog-go/pkg/tools/formatPg"
@@ -166,12 +167,14 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("保存失败")
 		}
 	}
+	holder := holderPg.GetContextAccount(ctx)
 	//
 	//
 	if header.Id.ToInt64() <= 0 {
 		c.model.State = enumStatePg.ENABLE.Index()
 		c.model.TypeSys = typeSysPg.General.String()
 		c.model.No = noPg.No()
+		c.model.TenantNo = holder.GetTenantNo()
 		c.model.Sort = 0
 		c.model.KindUnique = cryptPg.Md5(c.model.Model)
 		err, _ := c.Sp.repModel.Create(c.model)

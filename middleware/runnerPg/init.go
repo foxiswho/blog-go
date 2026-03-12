@@ -22,13 +22,18 @@ func init() {
 	//附件 上传
 	gs.Object(new(listenerBasic.AttachmentListener)).AsRunner()
 	gs.Object(new(listenerBasic.TagsListener)).AsRunner()
+	gs.Object(new(listenerBasic.EventCacheListener)).AsRunner()
+	gs.Object(new(listenerBasic.RulesCacheListener)).AsRunner()
 	//文章 分类 换成
 	gs.Object(new(listennerBlog.ArticleCategoryCacheListener)).AsRunner()
+
 	// ram相关
 	gs.Object(new(listenerRam.RamListener)).AsRunner()
 	//
 	// 初始化会话密钥
 	gs.Object(new(data.InitSessionPubPrive)).AsRunner()
+	// 基础
+	gs.Object(new(data.ZInitCacheBasic)).AsRunner()
 	// 初始化博客缓存
 	gs.Object(new(data.ZInitCacheBlog)).AsRunner()
 	// 初始化标签缓存
