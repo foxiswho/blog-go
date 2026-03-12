@@ -18,7 +18,6 @@ type BasicModelRulesEntity struct {
 	OrgNo      string     `gorm:"column:org_no;type:varchar(80);index;default:;comment:组织编号" json:"org_no" comment:"组织编号" `
 	StoreNo    string     `gorm:"column:store_no;type:varchar(80);index;default:;comment:店铺编号" json:"store_no" comment:"店铺编号" `
 	MerchantNo string     `gorm:"column:merchant_no;type:varchar(80);index;default:;comment:商户" json:"merchant_no" comment:"商户" `
-	Owner      string     `gorm:"column:owner;type:varchar(80);index;comment:所属/拥有者" json:"owner" comment:"所属/拥有者" `
 	No         string     `gorm:"column:no;type:varchar(80);index;default:;comment:编号" json:"no" comment:"编号" `
 	Name       string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `
 	//
@@ -36,6 +35,7 @@ type BasicModelRulesEntity struct {
 	TypeSys      string                       `gorm:"column:type_sys;type:varchar(80);index;default:'general';comment:类型|普通|系统;" json:"type_sys" comment:"类型;普通;系统;" `
 	TypeModel    string                       `gorm:"column:type_model;type:varchar(80);index;default:'general';comment:模型类型|模型|事件;" json:"type_model" comment:"模型类型|模型|事件;" `
 	ValueNo      string                       `gorm:"column:value_no;type:varchar(80);index;default:;comment:值编号/模块编号" json:"value_no" comment:"值编号/模块编号" `
+	FieldNo      string                       `gorm:"column:field_no;type:varchar(80);index;default:;comment:字段编号" json:"field_no" comment:"字段编号" `
 }
 
 func (*BasicModelRulesEntity) TableName() string {

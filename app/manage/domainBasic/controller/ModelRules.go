@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicModelRules"
@@ -24,13 +25,33 @@ type ModelRulesController struct {
 	sv *service.BasicModelRulesService `autowire:"?"`
 }
 
+// CreateUpdateData 创建
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
+func (c *ModelRulesController) CreateUpdateData(ctx *gin.Context) {
+	var ct modBasicModelRules.CreateUpdateDataCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.CreateUpdateData(ctx, ct))
+}
+
 // CreateUpdate 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
 func (c *ModelRulesController) CreateUpdate(ctx *gin.Context) {
-	var ct modBasicModelRules.CreateUpdateDataCt
+	var ct modBasicModelRules.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -52,6 +73,13 @@ func (c *ModelRulesController) CreateUpdate(ctx *gin.Context) {
 func (c *ModelRulesController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
+		if jsonErr, ok := err.(*json.UnmarshalTypeError); ok {
+			// 处理 JSON 解析错误（类型不匹配）
+			errMsg := fmt.Sprintf("参数解析错误：字段 %s 期望类型 %s，但实际传入类型 %s",
+				jsonErr.Field, jsonErr.Type.String(), jsonErr.Value)
+			ctx.JSON(200, rg.ErrorMessageData[string](errMsg))
+			return
+		}
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -61,7 +89,7 @@ func (c *ModelRulesController) Delete(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
+	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct))
 }
 
 // Recovery 逻辑删除恢复

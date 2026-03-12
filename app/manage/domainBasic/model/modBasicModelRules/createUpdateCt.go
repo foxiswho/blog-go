@@ -5,7 +5,7 @@ import (
 )
 
 type CreateUpdateCt struct {
-	ID          typePg.Int64String `json:"id" label:"" `
+	Id          typePg.Int64String `json:"id" label:"" `
 	Name        string             `json:"name" binding:"required" label:"中文名称"`
 	TypeSys     string             `json:"type_sys" label:"类型"`
 	Description string             `json:"description" label:"描述"`
@@ -18,5 +18,5 @@ type CreateUpdateCt struct {
 	Structure    string      `json:"structure" label:"验证结构" `
 	RuleTarget   []string    `json:"ruleTarget" label:"目标" `
 	SharedRuleNo string      `json:"sharedRuleNo" label:"共享规则编号" `
-	ValueNo      string      `json:"valueNo" label:"值编号/模块编号" `
+	FieldNo      string      `json:"fieldNo" label:"值编号/模块编号"`
 }

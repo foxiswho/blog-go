@@ -6,8 +6,10 @@ import (
 )
 
 type Sp struct {
-	log      *log2.Logger                                `autowire:"?"`
-	repModel *repositoryBasic.BasicConfigModelRepository `autowire:"?"`
-	repEvent *repositoryBasic.BasicConfigEventRepository `autowire:"?"`
-	repRules *repositoryBasic.BasicModelRulesRepository  `autowire:"?"`
+	log            *log2.Logger                                      `autowire:"?"`
+	repModel       *repositoryBasic.BasicConfigModelRepository       `autowire:"?"`
+	repModelFields *repositoryBasic.BasicConfigModelFieldsRepository `autowire:"?"`
+	repEvent       *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
+	repEventFields *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
+	repRules       *repositoryBasic.BasicModelRulesRepository        `autowire:"?"`
 }

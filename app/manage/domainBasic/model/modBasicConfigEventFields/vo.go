@@ -6,6 +6,7 @@ import (
 
 type Vo struct {
 	ID              typePg.Uint64String `json:"id" label:"id" `
+	No              string              `json:"no" label:"编号"`
 	Name            string              `json:"name" label:"字段中文名称"`
 	Field           string              `json:"field" label:"字段英文名称"`
 	Show            typePg.Int8         `json:"show" label:"显示隐藏"`

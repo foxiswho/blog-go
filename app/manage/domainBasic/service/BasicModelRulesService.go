@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"reflect"
+	"strings"
 
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicModelRules"
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/modelRules"
@@ -34,7 +35,10 @@ type BasicModelRulesService struct {
 	sp  *modelRules.Sp                             `autowire:"?"`
 }
 
-func (c *BasicModelRulesService) CreateUpdate(ctx *gin.Context, ct modBasicModelRules.CreateUpdateDataCt) (rt rg.Rs[string]) {
+func (c *BasicModelRulesService) CreateUpdateData(ctx *gin.Context, ct modBasicModelRules.CreateUpdateDataCt) (rt rg.Rs[string]) {
+	return modelRules.NewCreateUpdateData(c.sp, ct, true).Process(ctx)
+}
+func (c *BasicModelRulesService) CreateUpdate(ctx *gin.Context, ct modBasicModelRules.CreateUpdateCt) (rt rg.Rs[string]) {
 	return modelRules.NewCreateUpdate(c.sp, ct, true).Process(ctx)
 }
 
@@ -100,9 +104,28 @@ func (c *BasicModelRulesService) StateEnableDisable(ctx *gin.Context, ids []stri
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	if len(ids) < 1 {
+func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
+	if nil == ct.Ids || len(ct.Ids) < 1 {
 		return rt.ErrorMessage("id错误")
+	}
+	if ct.Extend == nil {
+		return rt.ErrorMessage("参数错误")
+	}
+	fieldNo := ""
+	if obj, ok := ct.Extend["fieldNo"]; ok {
+		fieldNo = obj.(string)
+	}
+	if strPg.IsBlank(fieldNo) {
+		return rt.ErrorMessage("字段错误")
+	}
+	ids := make([]string, 0)
+	for _, id := range ct.Ids {
+		if strPg.IsNotBlank(id) {
+			ids = append(ids, strings.TrimSpace(id))
+		}
+	}
+	if len(ids) < 1 {
+		return rt.ErrorMessage("请选择数据")
 	}
 	repository := c.sv
 	finds, b := repository.FindAllByIdStringIn(ids)
@@ -110,12 +133,21 @@ func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("数据不存在")
 	}
 	if c.sv.Config().Data.Delete {
+		idsInt := make([]int64, 0)
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
+			if info.FieldNo == fieldNo {
+				idsInt = append(idsInt, info.ID)
+			}
 		}
-		repository.DeleteByIdsString(ids)
+		if len(idsInt) > 0 {
+			repository.DeleteByIds(idsInt)
+		}
 	} else {
 		for _, info := range finds {
+			if info.FieldNo != fieldNo {
+				continue
+			}
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {

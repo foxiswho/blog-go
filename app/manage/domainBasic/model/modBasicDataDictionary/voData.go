@@ -18,4 +18,5 @@ type VoData struct {
 	Value        string             `json:"value" label:"值内容" `             // 值内容
 	TypeCode     string             `json:"typeCode" label:"码值" `
 	TypeCodeName string             `json:"typeCodeName" label:"码值名称" `
+	State        typePg.Int8        `json:"state" label:"状态:1启用;2禁用" `
 }

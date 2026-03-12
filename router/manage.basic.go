@@ -246,6 +246,7 @@ func init() {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/modelRules", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
+		group.POST("/createUpdateData", c.CreateUpdateData)
 		group.GET("/detail/:id", c.Detail)
 		group.POST("/enable", c.Enable)
 		group.POST("/disable", c.Disable)
