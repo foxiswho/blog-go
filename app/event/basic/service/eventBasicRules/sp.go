@@ -1,4 +1,4 @@
-package eventBasicEvent
+package eventBasicRules
 
 import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
