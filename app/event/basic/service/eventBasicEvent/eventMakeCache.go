@@ -65,6 +65,9 @@ func (c *EventMakeCache) ThisTenantAll(ctx context.Context) error {
 				if err == nil {
 					data[key2] = str
 				}
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventTenantNoByEventNo(info.TenantNo, info.Field)
+				data[key3] = info.No
 			}
 			if len(data) > 0 {
 				c.Sp.rdt.SetPipeline(ctx, data)
@@ -99,13 +102,9 @@ func (c *EventMakeCache) All(ctx context.Context) error {
 					data[key] = str
 				}
 
-				//if _, ok := mapKeysAdd[info.TenantNo]; !ok {
-				//	mapKeysAdd[info.TenantNo] = make([]string, 0)
-				//}
-				//mapKeysAdd[info.TenantNo] = append(mapKeysAdd[info.TenantNo], key)
-
-				//key2 := basicEventKey.EventTenantNoByCode(info.TenantNo, info.No)
-				//data[key2] = info.No
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventTenantNoByEventNo(info.TenantNo, info.Field)
+				data[key3] = info.No
 			}
 			if len(data) > 0 {
 				c.Sp.rdt.SetPipeline(ctx, data)
@@ -160,8 +159,9 @@ func (c *EventMakeCache) Nos(ctx context.Context) error {
 				}
 				//keysAdd = append(keysAdd, key)
 
-				//key2 := basicEventKey.EventTenantNoByCode(info.TenantNo, info.No)
-				//data[key2] = info.No
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventTenantNoByEventNo(info.TenantNo, info.Field)
+				data[key3] = info.No
 			}
 			if len(data) > 0 {
 				c.Sp.rdt.SetPipeline(ctx, data)

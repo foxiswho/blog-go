@@ -34,5 +34,16 @@ func (c *EventCacheListener) Run() error {
 		}
 		message = nil
 	})
+	//模型事件字段
+	eventBus.RegisterEvent(constEventBusPg.BasicConfigEventFieldCache).RegisterSubscribe(constEventBusPg.BasicConfigEventFieldCache, func(message any, _ core.EventArgs) {
+		c.log.Infof("listener.[基础.模型事件字段.缓存]22===================")
+		dto := message.(modEventBasicEvent.FieldDto)
+		//c.log.Infof("dto=%+v", dto)
+		err := eventBasicEvent.NewEventFieldMakeCache(c.sp, dto).Processor(context.Background())
+		if nil != err {
+			c.sp.Log.Error("基础.模型事件字段.缓存:%+v", err)
+		}
+		message = nil
+	})
 	return nil
 }

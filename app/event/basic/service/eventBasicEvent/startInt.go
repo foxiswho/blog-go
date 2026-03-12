@@ -22,12 +22,23 @@ func NewStartInit(log *log2.Logger) *StartInit {
 
 func (c *StartInit) Processor(ctx context.Context) error {
 	//保存到数据库
-	err := eventBus.PublishEventAsync(constEventBusPg.BasicConfigEventCache, modEventBasicEvent.EventDto{
-		IsAll: true,
-	})
-	if err != nil {
-		c.log.Errorf("copier.Copy error: %+v", err)
-		return nil
+	{
+		err := eventBus.PublishEventAsync(constEventBusPg.BasicConfigEventCache, modEventBasicEvent.EventDto{
+			IsAll: true,
+		})
+		if err != nil {
+			c.log.Errorf("copier.Copy error: %+v", err)
+			return nil
+		}
+	}
+	{
+		err := eventBus.PublishEventAsync(constEventBusPg.BasicConfigEventFieldCache, modEventBasicEvent.FieldDto{
+			IsAll: true,
+		})
+		if err != nil {
+			c.log.Errorf("copier.Copy error: %+v", err)
+			return nil
+		}
 	}
 	return nil
 }

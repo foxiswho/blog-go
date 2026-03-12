@@ -14,9 +14,10 @@ const (
 	// BasicConfigModelCacheAllMake 生成缓存
 	BasicConfigModelCacheAllMake = "BasicConfigModelCacheAllMake"
 	// BasicUpdateCache 更新缓存
-	BasicUpdateCache      = "BasicUpdateCache"
-	BasicConfigEventCache = "BasicConfigEventCache"
-	BasicModelRulesCache  = "BasicModelRulesCache"
+	BasicUpdateCache           = "BasicUpdateCache"
+	BasicConfigEventCache      = "BasicConfigEventCache"
+	BasicConfigEventFieldCache = "BasicConfigEventFieldCache"
+	BasicModelRulesCache       = "BasicModelRulesCache"
 
 	// GcGoodsSnapshot 商品 快照
 	GcGoodsSnapshot = "GcGoodsSnapshot"

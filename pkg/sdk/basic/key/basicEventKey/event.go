@@ -5,6 +5,11 @@ func EventTenantNo(tenantNo, eventNo string) string {
 	return "basicEvent:event:" + tenantNo + ":" + eventNo
 }
 
+// EventTenantNoByEventNo 事件租户编号,event = no
+func EventTenantNoByEventNo(tenantNo, eventNo string) string {
+	return "basicEvent:eventNo:" + tenantNo + ":" + eventNo
+}
+
 // EventFieldTenantNo 事件字段租户编号
 func EventFieldTenantNo(tenantNo, eventNo, fieldNo string) string {
 	return "basicEvent:field:" + tenantNo + ":" + eventNo + ":" + fieldNo

@@ -3,8 +3,17 @@ package eventBasicEvent
 import (
 	"context"
 
+	"github.com/foxiswho/blog-go/app/core/basic/model/modCacheBasicEvent"
 	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicEvent"
+	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
+	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/sdk/basic/key/basicEventKey"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/goccy/go-json"
+	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/strPg"
+	"gorm.io/gorm"
 )
 
 type EventFieldMakeCache struct {
@@ -22,5 +31,113 @@ func NewEventFieldMakeCache(sp *Sp, ct modEventBasicEvent.FieldDto) *EventFieldM
 }
 
 func (c *EventFieldMakeCache) Processor(ctx context.Context) error {
+	if c.ct.IsAll {
+		return c.All(ctx)
+	}
+	if c.ct.IsThisTenantAll {
+		return c.ThisTenantAll(ctx)
+	}
+	if strPg.IsNotBlank(c.ct.TenantNo) && !c.ct.IsThisTenantAll && len(c.ct.EventNo) > 0 {
+		return c.EventNos(ctx)
+	}
+	return nil
+}
+
+func (c *EventFieldMakeCache) ThisTenantAll(ctx context.Context) error {
+	var query entityBasic.BasicConfigEventFieldsEntity
+	if strPg.IsNotBlank(c.ct.TenantNo) {
+		query.TenantNo = c.ct.TenantNo
+		query.State = enumStatePg.ENABLE.Index()
+		infos := c.Sp.repEventFields.FindAll(query)
+		if infos != nil {
+			data := make(map[string]interface{})
+			for _, info := range infos {
+				var obj modCacheBasicEvent.FieldCache
+				copier.Copy(&obj, info)
+
+				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				str, err := json.Marshal(obj)
+				if err == nil {
+					data[key] = str
+				}
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
+				data[key3] = info.No
+			}
+			if len(data) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, data)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *EventFieldMakeCache) All(ctx context.Context) error {
+	var query entityBasic.BasicConfigEventFieldsEntity
+	if c.ct.IsAll {
+		query.State = enumStatePg.ENABLE.Index()
+		infos := c.Sp.repEventFields.FindAll(query)
+		if infos != nil {
+			data := make(map[string]interface{})
+			for _, info := range infos {
+				var obj modCacheBasicEvent.FieldCache
+				copier.Copy(&obj, info)
+
+				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				str, err := json.Marshal(obj)
+				if err == nil {
+					data[key] = str
+				}
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
+				data[key3] = info.No
+			}
+			if len(data) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, data)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *EventFieldMakeCache) EventNos(ctx context.Context) error {
+	var query entityBasic.BasicConfigEventFieldsEntity
+	if strPg.IsNotBlank(c.ct.TenantNo) && !c.ct.IsThisTenantAll && len(c.ct.EventNo) > 0 {
+		eventNos := make([]string, 0)
+		for _, item := range c.ct.EventNo {
+			if strPg.IsNotBlank(item) {
+				eventNos = append(eventNos, item)
+			}
+		}
+		if len(eventNos) <= 0 {
+			return nil
+		}
+		query.TenantNo = c.ct.TenantNo
+		query.State = enumStatePg.ENABLE.Index()
+		infos := c.Sp.repEventFields.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+			db = db.Order("create_at desc")
+			db.Where("event_no in ?", eventNos)
+			return db
+		}))
+		if infos != nil {
+			data := make(map[string]interface{})
+			for _, info := range infos {
+				var obj modCacheBasicEvent.FieldCache
+				copier.Copy(&obj, info)
+
+				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				str, err := json.Marshal(obj)
+				if err == nil {
+					data[key] = str
+				}
+				// 字段 = 字段编号
+				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
+				data[key3] = info.No
+			}
+			if len(data) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, data)
+			}
+		}
+	}
 	return nil
 }
