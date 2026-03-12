@@ -276,3 +276,47 @@ func (c *ConfigEventController) ExistCode(ctx *gin.Context) {
 	}
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))
 }
+
+// ModelForm 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
+func (c *ConfigEventController) ModelForm(ctx *gin.Context) {
+	maps := modBasicConfigEvent.ModelForm{
+		Item: make([]modBasicConfigEvent.ModelFormItem, 0),
+	}
+	maps.Item = append(maps.Item, modBasicConfigEvent.ModelFormItem{
+		Field:     "name",
+		Name:      "中文名称",
+		Rules:     []string{"required"},
+		Show:      1,
+		ValueType: "string",
+		FormCode:  "Input",
+	})
+	maps.Item = append(maps.Item, modBasicConfigEvent.ModelFormItem{
+		Field:     "age",
+		Name:      "年龄",
+		Rules:     []string{"required"},
+		Show:      1,
+		ValueType: "int64",
+		FormCode:  "InputNumber",
+	})
+	maps.Item = append(maps.Item, modBasicConfigEvent.ModelFormItem{
+		Field:     "sex",
+		Name:      "性别",
+		Rules:     []string{"required"},
+		Show:      1,
+		ValueType: "string",
+		FormCode:  "Select",
+	})
+	maps.Item = append(maps.Item, modBasicConfigEvent.ModelFormItem{
+		Field:     "year",
+		Name:      "日期",
+		Rules:     []string{"required"},
+		Show:      1,
+		ValueType: "string",
+		FormCode:  "DatePicker",
+	})
+	ctx.JSON(200, rg.OkData[modBasicConfigEvent.ModelForm](maps))
+}

@@ -222,6 +222,7 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/allByModel", c.AllByModel)
+		group.POST("/modelForm", c.ModelForm)
 	}))
 	//
 	gs.Root(gs.Object(new(controller.ConfigEventFieldsController)).Init(func(c *controller.ConfigEventFieldsController) {
