@@ -24,3 +24,13 @@ func EventTenantNoKeys(tenantNo string) string {
 func EventTenantNoByCode(tenantNo, code string) string {
 	return "basicEvent:eventNoCode:" + tenantNo + ":" + code
 }
+
+// RulesByFieldTenantNo 规则租户:字段编号
+func RulesByFieldTenantNo(tenantNo, fieldNo string) string {
+	return "basicRules:rules:" + tenantNo + ":" + fieldNo
+}
+
+// RulesTenantNoKeys 规则租户编号所有键
+func RulesTenantNoKeys(tenantNo string) string {
+	return "basicRules:rulesKeys:" + tenantNo
+}

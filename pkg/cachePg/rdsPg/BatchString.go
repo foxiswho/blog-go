@@ -90,3 +90,54 @@ func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]inte
 	}
 	return result, true
 }
+
+// HSetPipeline 批量设置哈希表字段和值
+func (t *BatchString) HSetPipeline(ctx context.Context, hashKey string, keysValues map[string]interface{}) {
+	// 创建 Pipeline 并添加
+	cmders, err := t.rdb.Pipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		for key, value := range keysValues {
+			pipeliner.HSet(ctx, hashKey, key, value)
+		}
+		return nil
+	})
+	if err != nil {
+		t.log.Error("批量操作失败:", err)
+		return
+	}
+	t.log.Infof("批量操作命令数:%+v", len(cmders))
+}
+
+// HSetPipelineMapAll 批量设置哈希表字段和值
+func (t *BatchString) HSetPipelineMapAll(ctx context.Context, keysValues map[string]map[string]interface{}) {
+	// 创建 Pipeline 并添加
+	cmders, err := t.rdb.Pipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		for hashKey, v := range keysValues {
+			if v == nil {
+				continue
+			}
+			for key, value := range v {
+				pipeliner.HSet(ctx, hashKey, key, value)
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		t.log.Error("批量操作失败:", err)
+		return
+	}
+	t.log.Infof("批量操作命令数:%+v", len(cmders))
+}
+
+// HGetAll 获取哈希表所有字段和值
+func (t *BatchString) HGetAll(ctx context.Context, hashKey string) (map[string]string, bool) {
+	result, err := t.rdb.HGetAll(ctx, hashKey).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, false
+		}
+		t.log.Error("获取缓存失败:", err)
+		return nil, false
+	}
+	return result, true
+}
