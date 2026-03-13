@@ -1,3 +1,4 @@
+//go:generate go run ./auto_tool/main.go -dir=./app,./infrastructure -output=auto_import.go -concurrency=8 -ignore=**/vendor/**,**/.git/**,**/*_test.go,**/testdata/**,**/node_modules/**
 package main
 
 import (
@@ -10,7 +11,6 @@ import (
 
 	"github.com/farseer-go/eventBus"
 	fsE "github.com/farseer-go/fs"
-	_ "github.com/foxiswho/blog-go/app"
 	"github.com/foxiswho/blog-go/cmd"
 	_ "github.com/foxiswho/blog-go/middleware"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"

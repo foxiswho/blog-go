@@ -4,8 +4,14 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/dtoTenantDomain"
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/tools/mapPg"
+	"github.com/go-spring/spring-core/gs"
+
 	"strings"
 )
+
+func init() {
+	gs.Object(&TenantDomainCache{Domain: &mapPg.SafeMap[string, string]{}, DomainData: &mapPg.SafeMap[string, dtoTenantDomain.Dto]{}})
+}
 
 // TenantDomainCache
 // @Description: 域名缓存

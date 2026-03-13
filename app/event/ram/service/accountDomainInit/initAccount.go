@@ -7,10 +7,7 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/entityTc"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
 	"github.com/foxiswho/blog-go/middleware/components/dataFilePg"
-	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeIdentityPg"
@@ -23,19 +20,6 @@ import (
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"gorm.io/datatypes"
 )
-
-type Sp struct {
-	log      *log2.Logger                                     `autowire:"?"`
-	accDb    *repositoryRam.RamAccountRepository              `autowire:"?"`
-	authDb   *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	depDb    *repositoryRam.RamDepartmentRepository           `autowire:"?"`
-	roleDb   *repositoryRam.RamRoleRepository                 `autowire:"?"`
-	teamDb   *repositoryRam.RamTeamRepository                 `autowire:"?"`
-	groupDb  *repositoryRam.RamGroupRepository                `autowire:"?"`
-	levelDb  *repositoryRam.RamLevelRepository                `autowire:"?"`
-	tenantDb *repositoryTc.TcTenantRepository                 `autowire:"?"`
-	pg       configPg.Pg                                      `value:"${pg}"`
-}
 
 var domain = []string{
 	typeDomainPg.System.Index(),

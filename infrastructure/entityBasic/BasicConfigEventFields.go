@@ -22,34 +22,34 @@ type BasicConfigEventFieldsEntity struct {
 	No         string     `gorm:"column:no;type:varchar(80);index;default:;comment:编号" json:"no" comment:"编号" `
 	Name       string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `
 	//
-	TypeSys          string                       `gorm:"column:type_sys;type:varchar(80);index;default:'general';comment:类型|普通|系统;" json:"type_sys" comment:"类型;普通;系统;" `
-	SharedScope      datatypes.JSONType[[]string] `gorm:"column:shared_scope;type:jsonb;index;default:'[]';comment:共享范围|全局|租户|商户" json:"shared_scope" comment:"共享范围" `
-	EventNo          string                       `gorm:"column:event_no;type:varchar(80);index;default:;comment:事件编号" json:"event_no" comment:"事件编号" `
-	ModelNo          string                       `gorm:"column:model_no;type:varchar(80);index;default:;comment:模型编号" json:"model_no" comment:"模型编号" `
-	Model            string                       `gorm:"column:model;type:varchar(80);comment:模型" json:"model" comment:"模型" `
-	Module           string                       `gorm:"column:module;type:varchar(80);index;comment:模块" json:"module" comment:"模块" `
-	ModuleSub        string                       `gorm:"column:module_sub;type:varchar(80);index;comment:子模块" json:"module_sub" comment:"子模块" `
-	ParentField      string                       `gorm:"column:parent_field;type:varchar(32);index;default:;comment:上级" json:"parent_field" comment:"上级" `
-	Field            string                       `gorm:"column:field;type:varchar(80);comment:字段名称" json:"field" comment:"字段名称" `
-	FieldPath        string                       `gorm:"column:field_path;type:varchar(80);comment:路径字段名称" json:"field_path" comment:"路径字段名称" `
-	Description      string                       `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
-	Show             int8                         `gorm:"column:show;type:int2;not null;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
-	Independent      int8                         `gorm:"column:independent;type:int2;not null;index;default:2;comment:独立1是2否" json:"independent" comment:"独立1是2否" `
-	Binary           int8                         `gorm:"column:binary;type:int2;not null;index;default:2;comment:值二进制1是2否" json:"binary" comment:"值二进制1是2否" `
-	ExtraData        datatypes.JSON               `gorm:"column:extra_data;type:json;comment:额外数据" json:"extraData" label:"额外数据" `
-	Value            string                       `gorm:"column:value;type:text;comment:值" json:"value" comment:"值" `
-	ValueBinary      string                       `gorm:"column:value_binary;type:text;comment:值二进制" json:"value_binary" comment:"值二进制" `
-	DefaultValue     string                       `gorm:"column:default_value;type:varchar(80);comment:默认值" json:"default_value" comment:"默认值" `
-	FormCode         string                       `gorm:"column:form_code;type:varchar(80);index;comment:表单" json:"form_code" comment:"表单" `
-	ValueType        string                       `gorm:"column:value_type;type:varchar(80);comment:字段值类型" json:"value_type" comment:"字段值类型" `
-	ValueAttr        string                       `gorm:"column:value_attr;type:varchar(80);comment:字段值属性|单值|对象" json:"value_attr" comment:"字段值属性|单值|对象" `
-	FormAttr         datatypes.JSON               `gorm:"column:form_attr;type:json;comment:表单属性" json:"form_attr" label:"表单属性" `
-	Rules            datatypes.JSONType[[]string] `gorm:"column:rules;type:jsonb;comment:表单验证规则" json:"rules" comment:"表单验证规则" `
-	ParameterSource  string                       `gorm:"column:parameter_source;type:varchar(80);comment:参数源" json:"parameter_source" comment:"参数源" `
-	ParameterContent string                       `gorm:"column:parameter_content;type:text;comment:参数内容" json:"parameter_content" comment:"参数内容" `
-	ParameterConfig  string                       `gorm:"column:parameter_config;type:text;comment:参数配置" json:"parameter_config" comment:"参数配置" `
-	KindUnique       string                       `gorm:"column:kind_unique;type:varchar(80);not null;index;default:;comment:字段种类唯一" json:"kind_unique" comment:"字段种类唯一:model_no+field" `
-	SharedFieldNo    string                       `gorm:"column:shared_field_no;type:varchar(80);index;default:;comment:共享字段编号" json:"shared_field_no" comment:"共享字段编号" `
+	TypeSys          string                                                        `gorm:"column:type_sys;type:varchar(80);index;default:'general';comment:类型|普通|系统;" json:"type_sys" comment:"类型;普通;系统;" `
+	SharedScope      datatypes.JSONType[[]string]                                  `gorm:"column:shared_scope;type:jsonb;index;default:'[]';comment:共享范围|全局|租户|商户" json:"shared_scope" comment:"共享范围" `
+	EventNo          string                                                        `gorm:"column:event_no;type:varchar(80);index;default:;comment:事件编号" json:"event_no" comment:"事件编号" `
+	ModelNo          string                                                        `gorm:"column:model_no;type:varchar(80);index;default:;comment:模型编号" json:"model_no" comment:"模型编号" `
+	Model            string                                                        `gorm:"column:model;type:varchar(80);comment:模型" json:"model" comment:"模型" `
+	Module           string                                                        `gorm:"column:module;type:varchar(80);index;comment:模块" json:"module" comment:"模块" `
+	ModuleSub        string                                                        `gorm:"column:module_sub;type:varchar(80);index;comment:子模块" json:"module_sub" comment:"子模块" `
+	ParentField      string                                                        `gorm:"column:parent_field;type:varchar(32);index;default:;comment:上级" json:"parent_field" comment:"上级" `
+	Field            string                                                        `gorm:"column:field;type:varchar(80);comment:字段名称" json:"field" comment:"字段名称" `
+	FieldPath        string                                                        `gorm:"column:field_path;type:varchar(80);comment:路径字段名称" json:"field_path" comment:"路径字段名称" `
+	Description      string                                                        `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
+	Show             int8                                                          `gorm:"column:show;type:int2;not null;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
+	Independent      int8                                                          `gorm:"column:independent;type:int2;not null;index;default:2;comment:独立1是2否" json:"independent" comment:"独立1是2否" `
+	Binary           int8                                                          `gorm:"column:binary;type:int2;not null;index;default:2;comment:值二进制1是2否" json:"binary" comment:"值二进制1是2否" `
+	ExtraData        datatypes.JSON                                                `gorm:"column:extra_data;type:json;comment:额外数据" json:"extraData" label:"额外数据" `
+	Value            string                                                        `gorm:"column:value;type:text;comment:值" json:"value" comment:"值" `
+	ValueBinary      string                                                        `gorm:"column:value_binary;type:text;comment:值二进制" json:"value_binary" comment:"值二进制" `
+	DefaultValue     string                                                        `gorm:"column:default_value;type:varchar(80);comment:默认值" json:"default_value" comment:"默认值" `
+	FormCode         string                                                        `gorm:"column:form_code;type:varchar(80);index;comment:表单" json:"form_code" comment:"表单" `
+	ValueType        string                                                        `gorm:"column:value_type;type:varchar(80);comment:字段值类型" json:"value_type" comment:"字段值类型" `
+	ValueAttr        string                                                        `gorm:"column:value_attr;type:varchar(80);comment:字段值属性|单值|对象" json:"value_attr" comment:"字段值属性|单值|对象" `
+	FormAttr         datatypes.JSON                                                `gorm:"column:form_attr;type:json;comment:表单属性" json:"form_attr" label:"表单属性" `
+	Rules            datatypes.JSONType[[]string]                                  `gorm:"column:rules;type:jsonb;comment:表单验证规则" json:"rules" comment:"表单验证规则" `
+	ParameterSource  string                                                        `gorm:"column:parameter_source;type:varchar(80);comment:参数源" json:"parameter_source" comment:"参数源" `
+	ParameterContent string                                                        `gorm:"column:parameter_content;type:text;comment:参数内容" json:"parameter_content" comment:"参数内容" `
+	ParameterConfig  datatypes.JSONType[BasicConfigEventFieldsJsonParameterConfig] `gorm:"column:parameter_config;type:json;comment:参数配置" json:"parameter_config" comment:"参数配置" `
+	KindUnique       string                                                        `gorm:"column:kind_unique;type:varchar(80);not null;index;default:;comment:字段种类唯一" json:"kind_unique" comment:"字段种类唯一:model_no+field" `
+	SharedFieldNo    string                                                        `gorm:"column:shared_field_no;type:varchar(80);index;default:;comment:共享字段编号" json:"shared_field_no" comment:"共享字段编号" `
 }
 
 func (*BasicConfigEventFieldsEntity) TableName() string {

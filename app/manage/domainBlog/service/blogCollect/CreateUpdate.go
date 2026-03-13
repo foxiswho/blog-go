@@ -23,6 +23,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/foxiswho/blog-go/pkg/tools/versionPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -30,7 +31,7 @@ import (
 )
 
 func init() {
-
+	gs.Provide(new(Sp))
 }
 
 type Sp struct {

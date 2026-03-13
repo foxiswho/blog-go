@@ -8,6 +8,7 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEventFields"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
+	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/configModelPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
@@ -84,6 +85,7 @@ func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBas
 		findField[strings.TrimSpace(item.Field)] = true
 	}
 	for _, item := range ct.Body {
+		parameterConfig := entityBasic.BasicConfigEventFieldsJsonParameterConfig{}
 		obj := entityBasic.BasicConfigEventFieldsEntity{}
 		err := copier.Copy(&obj, &item)
 		if err != nil {
@@ -101,6 +103,13 @@ func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBas
 			}
 		}
 		obj.Rules = datatypes.NewJSONType[[]string](tags)
+		//数据字典
+		if configModelPg.ParameterSourceDataDictionary.Index() == item.ParameterSource {
+			if strPg.IsNotBlank(item.ParameterConfigDataDictionary) {
+				parameterConfig.DataDictionary = strings.TrimSpace(item.ParameterConfigDataDictionary)
+			}
+		}
+		obj.ParameterConfig = datatypes.NewJSONType(parameterConfig)
 		//
 		if item.Id.ToInt64() > 0 {
 			obj.No = ""
@@ -366,6 +375,10 @@ func (c *BasicConfigEventFieldsService) AllByEventNo(ctx *gin.Context, ct modBas
 		for _, item := range infos {
 			var vo modBasicConfigEventFields.Vo
 			copier.Copy(&vo, &item)
+			//
+			obj := item.ParameterConfig.Data()
+			vo.ParameterConfigDataDictionary = obj.DataDictionary
+			//
 			slice = append(slice, vo)
 		}
 		rt.Data = slice

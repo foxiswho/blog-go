@@ -4,8 +4,6 @@ import (
 	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/entityTc"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
@@ -15,17 +13,6 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
-
-type Sp struct {
-	accDb   *repositoryRam.RamAccountRepository              `autowire:"?"`
-	authDb  *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	depDb   *repositoryRam.RamDepartmentRepository           `autowire:"?"`
-	roleDb  *repositoryRam.RamRoleRepository                 `autowire:"?"`
-	teamDb  *repositoryRam.RamTeamRepository                 `autowire:"?"`
-	groupDb *repositoryRam.RamGroupRepository                `autowire:"?"`
-	levelDb *repositoryRam.RamLevelRepository                `autowire:"?"`
-	tenDb   *repositoryTc.TcTenantRepository                 `autowire:"?"`
-}
 
 type Detail struct {
 	log *log2.Logger `autowire:"?"`

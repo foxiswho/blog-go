@@ -188,6 +188,23 @@ func init() {
 		group.POST("/getCategoryTags/:category", c.GetCategoryTags)
 	}))
 	//
+	gs.Root(gs.Object(new(controller.ConfigListController)).Init(func(c *controller.ConfigListController) {
+		r := ginServer.GinServerDefault
+		group := r.Group("/pg2lq/manage/basic/config-list", authPg.GroupManageMiddleware(c.Sp))
+		group.POST("/createUpdate", c.CreateUpdate)
+		group.GET("/detail/:id", c.Detail)
+		group.POST("/enable", c.Enable)
+		group.POST("/disable", c.Disable)
+		group.POST("/state", c.State)
+		group.POST("/delete", c.Delete)
+		group.POST("/recovery", c.Recovery)
+		group.POST("/physicalDeletion", c.PhysicalDeletion)
+		group.POST("/query", c.Query)
+		//group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+		group.POST("/existName", c.ExistName)
+		group.POST("/existCode", c.ExistCode)
+	}))
+	//
 	gs.Root(gs.Object(new(controller.ConfigModelController)).Init(func(c *controller.ConfigModelController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-model", authPg.GroupManageMiddleware(c.Sp))

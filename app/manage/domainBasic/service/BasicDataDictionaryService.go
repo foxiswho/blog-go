@@ -14,6 +14,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
@@ -24,6 +25,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -315,6 +317,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 //	@receiver c
 //	@param ct
 func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[[]model.BaseNode]) {
+	c.log.Infof("ct=%v", ct)
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	//
@@ -322,27 +325,29 @@ func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	if strPg.IsNotBlank(ct.TypeCode) {
-		infos := c.sv.FindAll(query, c.sv.DbModel().Order("sort,create_at asc"))
-		if len(infos) > 0 {
-			for _, item := range infos {
-				var vo modBasicDataDictionary.SelectNodeVo
-				copier.Copy(&vo, &item)
-				//
-				code := model.BaseNode{
-					Key:    item.Code,
-					Id:     item.Code,
-					No:     item.Code,
-					Label:  item.Name,
-					Extend: vo,
-				}
-				if len(item.Range) > 0 {
-					vo.Range = strutil.SplitAndTrim(item.Range, ",")
-				}
-				slice = append(slice, code)
+	infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		db.Order("sort,create_at asc")
+		db.Where("type_code is null or type_code = '' ")
+		return db
+	}))
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicDataDictionary.SelectNodeVo
+			copier.Copy(&vo, &item)
+			//
+			code := model.BaseNode{
+				Key:    item.Code,
+				Id:     item.Code,
+				No:     item.Code,
+				Label:  item.Name,
+				Extend: vo,
 			}
-			rt.Data = slice
+			if len(item.Range) > 0 {
+				vo.Range = strutil.SplitAndTrim(item.Range, ",")
+			}
+			slice = append(slice, code)
 		}
+		rt.Data = slice
 	}
 	return rt.Ok()
 }
