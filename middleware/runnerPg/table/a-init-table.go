@@ -128,6 +128,7 @@ func (b *AInitTable) seqEdit() {
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_account_apply_deny_list", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_area", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_country", 100000))
+	sql = append(sql, dbMakePg.MakeSequenceSql("basic_config_list", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_data_dictionary", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_tags", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_tags_category", 100000))

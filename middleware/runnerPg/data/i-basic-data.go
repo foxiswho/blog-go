@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"slices"
 
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
@@ -10,8 +11,11 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constsPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
+	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	syslog "github.com/go-spring/log"
+	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"gorm.io/datatypes"
 )
@@ -22,6 +26,8 @@ type IBasicData struct {
 	log     *log2.Logger                                 `autowire:"?"`
 	country *repositoryBasic.BasicCountryRepository      `autowire:"?"`
 	tagsCat *repositoryBasic.BasicTagsCategoryRepository `autowire:"?"`
+	conList *repositoryBasic.BasicConfigListRepository   `autowire:"?"`
+	config  *repositoryBasic.BasicConfigRepository       `autowire:"?"`
 }
 
 func (b *IBasicData) Run() error {
@@ -71,5 +77,237 @@ func (b *IBasicData) Run() error {
 			b.tagsCat.Create(&save)
 		}
 	}
+	//
+	b.initSysConfig()
+	//
+	b.initDefaultTenantConfig()
 	return nil
+}
+
+// initSysConfig 初始化系统配置
+func (b *IBasicData) initSysConfig() {
+	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：配置.系统配置]===================")
+	save := entityBasic.BasicConfigListEntity{
+		State:       enumStatePg.ENABLE.Index(),
+		Show:        yesNoIntPg.Yes.Index(),
+		TypeDomain:  "system",
+		ID:          1,
+		No:          "systemConfig",
+		Name:        "系统配置",
+		EventNo:     "systemConfig",
+		ModelNo:     "systemConfig",
+		Field:       "systemConfig",
+		FieldPath:   "systemConfig",
+		Description: "系统配置",
+	}
+	save.KindUnique = cryptPg.Md5(save.No)
+	//不存在时创建
+	_, result := b.conList.FindByNo(save.No)
+	if !result {
+		b.conList.Create(&save)
+	}
+	fields := make([]string, 0)
+	dataInset := make([]*entityBasic.BasicConfigEntity, 0)
+	item := entityBasic.BasicConfigEntity{}
+	{
+		{
+			item = entityBasic.BasicConfigEntity{
+				ID:           1,
+				EventNo:      save.EventNo,
+				ModelNo:      save.ModelNo,
+				Field:        "name",
+				FieldPath:    "name",
+				Name:         "系统名称",
+				Description:  "",
+				DefaultValue: "例如：仙府系统",
+				Value:        "仙府系统",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+		{
+			item = entityBasic.BasicConfigEntity{
+				ID:           2,
+				EventNo:      save.EventNo,
+				ModelNo:      save.ModelNo,
+				Field:        "logo",
+				FieldPath:    save.FieldPath,
+				Name:         "logo图",
+				Description:  "",
+				DefaultValue: "",
+				Value:        "",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+
+		//不存在时创建
+		info, r := b.config.FindByEventNoAndFieldIn(save.EventNo, fields)
+		if !r {
+			b.config.DbModel().Create(dataInset)
+		} else {
+			find := make([]string, 0)
+			for _, v := range info {
+				find = append(find, v.Field)
+			}
+			dataInsetNew := make([]*entityBasic.BasicConfigEntity, 0)
+			//
+			for _, v := range dataInset {
+				if !slices.Contains(find, v.Field) {
+					dataInsetNew = append(dataInsetNew, v)
+				}
+			}
+			//
+			if len(dataInsetNew) > 0 {
+				b.config.DbModel().Create(dataInsetNew)
+			}
+		}
+	}
+}
+
+// 默认租户配置
+func (b *IBasicData) initDefaultTenantConfig() {
+	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：配置.默认租户配置]===================")
+	save := entityBasic.BasicConfigListEntity{
+		State:       enumStatePg.ENABLE.Index(),
+		Show:        yesNoIntPg.Yes.Index(),
+		TypeDomain:  "tenant",
+		ID:          2,
+		No:          constsPg.ACCOUNT_MANAGE_No,
+		Name:        "默认租户配置",
+		EventNo:     constsPg.ACCOUNT_MANAGE_No,
+		ModelNo:     constsPg.ACCOUNT_MANAGE_No,
+		TenantNo:    constsPg.ACCOUNT_MANAGE_No,
+		Field:       "tenantConfig",
+		FieldPath:   "tenantConfig",
+		Description: "默认租户配置",
+	}
+	save.KindUnique = cryptPg.Md5(save.No)
+	//不存在时创建
+	_, result := b.conList.FindByNo(save.No)
+	if !result {
+		b.conList.Create(&save)
+	}
+	fields := make([]string, 0)
+	dataInset := make([]*entityBasic.BasicConfigEntity, 0)
+	item := entityBasic.BasicConfigEntity{}
+	//默认租户
+	{
+		{
+			item = entityBasic.BasicConfigEntity{
+				EventNo:      constsPg.ACCOUNT_MANAGE_No,
+				ModelNo:      constsPg.ACCOUNT_MANAGE_No,
+				TenantNo:     constsPg.ACCOUNT_MANAGE_No,
+				Field:        "name",
+				FieldPath:    "name",
+				Name:         "站点名称",
+				Description:  "例如：博客",
+				DefaultValue: "",
+				Value:        "仙府博客",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+		{
+			item = entityBasic.BasicConfigEntity{
+				EventNo:      constsPg.ACCOUNT_MANAGE_No,
+				ModelNo:      constsPg.ACCOUNT_MANAGE_No,
+				TenantNo:     constsPg.ACCOUNT_MANAGE_No,
+				Field:        "homepage",
+				FieldPath:    "homepage",
+				Name:         "首页名称",
+				Description:  "例如：首页",
+				DefaultValue: "",
+				Value:        "首页",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+		{
+			item = entityBasic.BasicConfigEntity{
+				EventNo:      constsPg.ACCOUNT_MANAGE_No,
+				ModelNo:      constsPg.ACCOUNT_MANAGE_No,
+				TenantNo:     constsPg.ACCOUNT_MANAGE_No,
+				Field:        "homepageSubtitle",
+				FieldPath:    "homepageSubtitle",
+				Name:         "首页副标题",
+				Description:  "例如：创造未来",
+				DefaultValue: "",
+				Value:        "创造未来",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+		{
+			item = entityBasic.BasicConfigEntity{
+				EventNo:      constsPg.ACCOUNT_MANAGE_No,
+				ModelNo:      constsPg.ACCOUNT_MANAGE_No,
+				TenantNo:     constsPg.ACCOUNT_MANAGE_No,
+				Field:        "homepageDescription",
+				FieldPath:    "homepageDescription",
+				Name:         "首页SEO描述",
+				Description:  "例如：创造未来",
+				DefaultValue: "",
+				Value:        "创造未来",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//
+		{
+			item = entityBasic.BasicConfigEntity{
+				EventNo:      constsPg.ACCOUNT_MANAGE_No,
+				ModelNo:      constsPg.ACCOUNT_MANAGE_No,
+				TenantNo:     constsPg.ACCOUNT_MANAGE_No,
+				Field:        "homepageKeyword",
+				FieldPath:    "homepageKeyword",
+				Name:         "首页SEO关键词",
+				Description:  "例如：创造未来",
+				DefaultValue: "",
+				Value:        "创造未来",
+			}
+			item.No = noPg.No()
+			item.KindUnique = cryptPg.Md5(item.Field)
+			fields = append(fields, item.Field)
+			dataInset = append(dataInset, &item)
+		}
+		//不存在时创建
+		info, r := b.config.FindByEventNoAndFieldIn(save.EventNo, fields)
+		if !r {
+			b.config.DbModel().Create(dataInset)
+		} else {
+			find := make([]string, 0)
+			for _, v := range info {
+				find = append(find, v.Field)
+			}
+			dataInsetNew := make([]*entityBasic.BasicConfigEntity, 0)
+			//
+			for _, v := range dataInset {
+				if !slices.Contains(find, v.Field) {
+					dataInsetNew = append(dataInsetNew, v)
+				}
+			}
+			//
+			if len(dataInsetNew) > 0 {
+				b.config.DbModel().Create(dataInsetNew)
+			}
+		}
+	}
 }
