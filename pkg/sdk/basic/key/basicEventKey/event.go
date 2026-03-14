@@ -10,6 +10,16 @@ func EventTenantNoByEventNo(tenantNo, eventNo string) string {
 	return "basicEvent:eventNo:" + tenantNo + ":" + eventNo
 }
 
+// EventTenantNoAllFields
+//
+//	@Description: 所有事件下字段，使用 HSet 存储
+//	@param tenantNo
+//	@param eventNo
+//	@return string
+func EventTenantNoAllFields(tenantNo, eventNo string) string {
+	return "basicEvent:allFields:" + tenantNo + ":" + eventNo
+}
+
 // EventFieldTenantNo 事件字段租户编号
 func EventFieldTenantNo(tenantNo, eventNo, fieldNo string) string {
 	return "basicEvent:field:" + tenantNo + ":" + eventNo + ":" + fieldNo
@@ -35,7 +45,12 @@ func EventTenantNoByCode(tenantNo, code string) string {
 	return "basicEvent:eventNoCode:" + tenantNo + ":" + code
 }
 
-// RulesByFieldTenantNo 规则租户:字段编号
+// RulesByFieldTenantNo
+//
+//	@Description: 规则租户:字段编号,所有事件字段下的规则
+//	@param tenantNo
+//	@param fieldNo
+//	@return string
 func RulesByFieldTenantNo(tenantNo, fieldNo string) string {
 	return "basicRules:rules:" + tenantNo + ":" + fieldNo
 }

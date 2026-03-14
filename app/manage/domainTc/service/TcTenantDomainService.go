@@ -131,7 +131,7 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 	}
 	r := c.sv
 	{
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.GetOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -195,7 +195,7 @@ func (c *TcTenantDomainService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -259,7 +259,7 @@ func (c *TcTenantDomainService) State(ctx *gin.Context, ct model.BaseStateIdsCt[
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -290,7 +290,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -298,7 +298,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -322,7 +322,7 @@ func (c *TcTenantDomainService) LogicalRecovery(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -346,7 +346,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -356,7 +356,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -382,7 +382,7 @@ func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.Que
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -442,7 +442,7 @@ func (c *TcTenantDomainService) SelectNodePublic(ctx *gin.Context, ct modTcTenan
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -463,7 +463,7 @@ func (c *TcTenantDomainService) SelectNodeAllPublic(ctx *gin.Context, ct modTcTe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -485,7 +485,7 @@ func (c *TcTenantDomainService) SelectPublic(ctx *gin.Context, ct modTcTenantDom
 	var query entityTc.TcTenantDomainEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modTcTenantDomain.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		slice := make([]modTcTenantDomain.Vo, 0)
 		for _, item := range infos {
@@ -511,7 +511,7 @@ func (c *TcTenantDomainService) ExistName(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -531,7 +531,7 @@ func (c *TcTenantDomainService) ExistCode(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -551,7 +551,7 @@ func (c *TcTenantDomainService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -577,7 +577,7 @@ func (c *TcTenantDomainService) SetDefaulted(ctx *gin.Context, ct model.BaseStat
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

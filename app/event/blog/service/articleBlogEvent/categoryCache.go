@@ -200,7 +200,7 @@ func (c *CategoryCache) custom(ctx context.Context) error {
 		}
 		query.TenantNo = c.dto.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.sp.catRep.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		infos := c.sp.catRep.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("no in ?", nos)
 			return db

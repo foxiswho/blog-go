@@ -70,14 +70,14 @@ func (c *BlogTopicCategoryService) Create(ctx *gin.Context, ct modBlogTopicCateg
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := r.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -135,12 +135,12 @@ func (c *BlogTopicCategoryService) Update(ctx *gin.Context, ct modBlogTopicCateg
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.GetOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -149,7 +149,7 @@ func (c *BlogTopicCategoryService) Update(ctx *gin.Context, ct modBlogTopicCateg
 	var childData []*entityBlog.BlogTopicCategoryEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -247,7 +247,7 @@ func (c *BlogTopicCategoryService) childParentIdLink(maps map[string][]*entityBl
 //	@receiver c
 func (c *BlogTopicCategoryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData(repositoryPg.GetOption(ctx))
+	infos, b := r.FindAllData(repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return
 	}
@@ -283,7 +283,7 @@ func (c *BlogTopicCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -320,7 +320,7 @@ func (c *BlogTopicCategoryService) State(ctx *gin.Context, ids []string, state e
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -355,7 +355,7 @@ func (c *BlogTopicCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -363,7 +363,7 @@ func (c *BlogTopicCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -388,7 +388,7 @@ func (c *BlogTopicCategoryService) LogicalRecovery(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -413,7 +413,7 @@ func (c *BlogTopicCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -423,7 +423,7 @@ func (c *BlogTopicCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -450,7 +450,7 @@ func (c *BlogTopicCategoryService) Query(ctx *gin.Context, ct modBlogTopicCatego
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -497,7 +497,7 @@ func (c *BlogTopicCategoryService) QueryPublic(ctx *gin.Context, ct modBlogTopic
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -534,7 +534,7 @@ func (c *BlogTopicCategoryService) SelectNodePublic(ctx *gin.Context, ct modBlog
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo
@@ -571,7 +571,7 @@ func (c *BlogTopicCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo
@@ -608,7 +608,7 @@ func (c *BlogTopicCategoryService) SelectPublic(ctx *gin.Context, ct modBlogTopi
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogTopicCategory.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo
@@ -633,7 +633,7 @@ func (c *BlogTopicCategoryService) ExistName(ctx *gin.Context, ct model.BaseExis
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -653,7 +653,7 @@ func (c *BlogTopicCategoryService) ExistNo(ctx *gin.Context, ct model.BaseExistW
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

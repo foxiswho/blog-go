@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigList"
+	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/configBasic"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
@@ -28,6 +29,7 @@ func init() {
 type BasicConfigListService struct {
 	sv  *repositoryBasic.BasicConfigListRepository `autowire:"?"`
 	log *log2.Logger                               `autowire:"?"`
+	Sp  *configBasic.Sp                            `autowire:"?"`
 }
 
 // CreateUpdate 更新
@@ -47,7 +49,7 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -71,7 +73,7 @@ func (c *BasicConfigListService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mo
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -110,7 +112,7 @@ func (c *BasicConfigListService) State(ctx *gin.Context, ids []string, state enu
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -145,7 +147,7 @@ func (c *BasicConfigListService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -153,7 +155,7 @@ func (c *BasicConfigListService) LogicalDeletion(ctx *gin.Context, ids []string)
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -177,7 +179,7 @@ func (c *BasicConfigListService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -202,7 +204,7 @@ func (c *BasicConfigListService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -212,7 +214,7 @@ func (c *BasicConfigListService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -242,7 +244,7 @@ func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.Q
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -280,7 +282,7 @@ func (c *BasicConfigListService) SelectNodeAllPublic(ctx *gin.Context, ct modBas
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigList.Vo
@@ -318,7 +320,7 @@ func (c *BasicConfigListService) ExistName(ctx *gin.Context, ct model.BaseExistW
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -339,9 +341,29 @@ func (c *BasicConfigListService) ExistCode(ctx *gin.Context, ct model.BaseExistW
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
 	return rt.OkMessage("可以使用")
+}
+
+// DetailForm 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigListService) DetailForm(ctx *gin.Context, ct modBasicConfigList.DetailFormCt) (rt rg.Rs[modBasicConfigList.DetailFormVo]) {
+	c.log.Infof("ct=%+v", ct)
+	return configBasic.NewDetailForm(c.Sp).Process(ctx, ct)
+}
+
+// ConfigUpdate 查重
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicConfigListService) ConfigUpdate(ctx *gin.Context, ct modBasicConfigList.ConfigUpdateCt) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ct)
+	return configBasic.NewConfigUpdate(c.Sp).Process(ctx, ct)
 }

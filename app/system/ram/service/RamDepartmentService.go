@@ -73,7 +73,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := r.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -81,7 +81,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 	info.TypeSys = typeSysPg.General.Index()
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -137,12 +137,12 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Upda
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.GetOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -151,7 +151,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Upda
 	var childData []*entityRam.RamDepartmentEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -161,7 +161,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Upda
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink, repositoryPg.GetOption(ctx))
+			childData, result2 = r.FindAllByNoLink(find.IdLink, repositoryPg.WithCtxOption(ctx))
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -243,7 +243,7 @@ func (c *RamDepartmentService) childParentIdLink(maps map[string][]*entityRam.Ra
 //	@receiver c
 func (c *RamDepartmentService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData(repositoryPg.GetOption(ctx))
+	infos, b := r.FindAllData(repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return
 	}
@@ -276,7 +276,7 @@ func (c *RamDepartmentService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modR
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -313,7 +313,7 @@ func (c *RamDepartmentService) State(ctx *gin.Context, ids []string, state enumS
 		return rt.ErrorMessage("id错误")
 	}
 	ctxR := c.sv
-	finds, b := ctxR.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := ctxR.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -348,7 +348,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -356,7 +356,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -381,7 +381,7 @@ func (c *RamDepartmentService) LogicalRecovery(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -406,7 +406,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -416,7 +416,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -447,7 +447,7 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -500,7 +500,7 @@ func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -538,7 +538,7 @@ func (c *RamDepartmentService) SelectNodePublic(ctx *gin.Context, ct modRamDepar
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -576,7 +576,7 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -614,7 +614,7 @@ func (c *RamDepartmentService) SelectPublic(ctx *gin.Context, ct modRamDepartmen
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -635,7 +635,7 @@ func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {
@@ -680,7 +680,7 @@ func (c *RamDepartmentService) ExistName(ctx *gin.Context, ct model.BaseExistWdC
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -701,7 +701,7 @@ func (c *RamDepartmentService) ExistCode(ctx *gin.Context, ct model.BaseExistWdC
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

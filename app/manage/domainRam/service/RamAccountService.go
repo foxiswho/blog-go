@@ -366,7 +366,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 				}
 			}
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

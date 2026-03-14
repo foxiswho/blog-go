@@ -80,7 +80,7 @@ func (c *BlogTopicService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlogT
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -225,7 +225,7 @@ func (c *BlogTopicService) State(ctx *gin.Context, ids []string, state enumState
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -259,7 +259,7 @@ func (c *BlogTopicService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -267,7 +267,7 @@ func (c *BlogTopicService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -291,7 +291,7 @@ func (c *BlogTopicService) LogicalRecovery(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -315,7 +315,7 @@ func (c *BlogTopicService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -325,7 +325,7 @@ func (c *BlogTopicService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -370,7 +370,7 @@ func (c *BlogTopicService) Query(ctx *gin.Context, ct modBlogTopic.QueryCt) (rt 
 				}
 			}
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -570,7 +570,7 @@ func (c *BlogTopicService) SelectNodePublic(ctx *gin.Context, ct modBlogTopic.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -591,7 +591,7 @@ func (c *BlogTopicService) SelectNodeAllPublic(ctx *gin.Context, ct modBlogTopic
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -613,7 +613,7 @@ func (c *BlogTopicService) SelectPublic(ctx *gin.Context, ct modBlogTopic.QueryC
 	var query entityBlog.BlogTopicEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBlogTopic.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		slice := make([]modBlogTopic.Vo, 0)
 		for _, item := range infos {
@@ -639,7 +639,7 @@ func (c *BlogTopicService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[st
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -659,7 +659,7 @@ func (c *BlogTopicService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

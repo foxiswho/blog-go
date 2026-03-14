@@ -395,7 +395,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 			return rt.Ok()
 		}
 		values := make(map[string][]model.BaseNodeKeyValue)
-		infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db.Where("type_code in ?", ids)
 			return db
 		}))

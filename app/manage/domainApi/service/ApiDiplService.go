@@ -74,7 +74,7 @@ func (c *ApiDiplService) Create(ctx *gin.Context, ct modApiDipl.CreateCt) (rt rg
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sv.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := c.sv.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -114,18 +114,18 @@ func (c *ApiDiplService) Update(ctx *gin.Context, ct modApiDipl.UpdateCt) (rt rg
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(info.Code, ct.ID.ToString(), repositoryPg.GetOption(ctx))
+		_, result := r.FindByCodeAndIdNot(info.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := c.cat.FindByNo(ct.CategoryNo, repositoryPg.GetOption(ctx))
+		_, result := c.cat.FindByNo(ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -149,7 +149,7 @@ func (c *ApiDiplService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modApiDipl
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -188,7 +188,7 @@ func (c *ApiDiplService) State(ctx *gin.Context, ids []string, state enumStatePg
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -223,7 +223,7 @@ func (c *ApiDiplService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -231,7 +231,7 @@ func (c *ApiDiplService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -255,7 +255,7 @@ func (c *ApiDiplService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -280,7 +280,7 @@ func (c *ApiDiplService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -290,7 +290,7 @@ func (c *ApiDiplService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -320,7 +320,7 @@ func (c *ApiDiplService) Query(ctx *gin.Context, ct modApiDipl.QueryCt) (rt rg.R
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -357,7 +357,7 @@ func (c *ApiDiplService) SelectNodePublic(ctx *gin.Context, ct modApiDipl.QueryP
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modApiDipl.Vo
@@ -392,7 +392,7 @@ func (c *ApiDiplService) SelectNodeAllPublic(ctx *gin.Context, ct modApiDipl.Que
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modApiDipl.Vo
@@ -427,7 +427,7 @@ func (c *ApiDiplService) SelectPublic(ctx *gin.Context, ct modApiDipl.QueryCt) (
 	copier.Copy(&query, &ct)
 	slice := make([]modApiDipl.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modApiDipl.Vo
@@ -453,7 +453,7 @@ func (c *ApiDiplService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -474,7 +474,7 @@ func (c *ApiDiplService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

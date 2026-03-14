@@ -74,7 +74,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := r.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -89,7 +89,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 	}
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -161,7 +161,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 		return rt.ErrorMessage("属性不能为空")
 	}
 	r := c.sv
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -170,7 +170,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 	var childData []*entityRam.RamResourceGroupEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.GetOption(ctx))
+		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -270,7 +270,7 @@ func (c *RamResourceGroupService) childParentIdLink(maps map[string][]*entityRam
 //	@receiver c
 func (c *RamResourceGroupService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData(repositoryPg.GetOption(ctx))
+	infos, b := r.FindAllData(repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return
 	}
@@ -306,7 +306,7 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 	}
 	r := c.sv
 	authDb := c.authDb
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -347,7 +347,7 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -419,7 +419,7 @@ func (c *RamResourceGroupService) SelectNodePublic(ctx *gin.Context, ct modRamRe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
@@ -457,7 +457,7 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
@@ -495,7 +495,7 @@ func (c *RamResourceGroupService) SelectPublic(ctx *gin.Context, ct modRamResour
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
@@ -538,7 +538,7 @@ func (c *RamResourceGroupService) ExistCode(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

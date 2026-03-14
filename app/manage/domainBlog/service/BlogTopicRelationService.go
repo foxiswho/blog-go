@@ -49,7 +49,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if nil == ct.Nos || 0 == len(ct.Nos) {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	topic, result := c.topic.FindByNo(ct.TopicNo, repositoryPg.GetOption(ctx))
+	topic, result := c.topic.FindByNo(ct.TopicNo, repositoryPg.WithCtxOption(ctx))
 	if !result {
 		return rt.ErrorMessage("话题 不存在")
 	}
@@ -79,7 +79,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		if r {
 			continue
 		}
-		find, b := c.article.FindByNo(article.No, repositoryPg.GetOption(ctx))
+		find, b := c.article.FindByNo(article.No, repositoryPg.WithCtxOption(ctx))
 		if !b {
 			continue
 		}
@@ -109,7 +109,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.relation
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -155,7 +155,7 @@ func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelati
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

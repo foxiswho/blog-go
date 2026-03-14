@@ -23,7 +23,7 @@ func (b *ZInitDiplCache) Run() error {
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
 	//过期时间 超过当前时间的数据
-	infos := b.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+	infos := b.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db = db.Order("create_at desc")
 		db.Where("expiry_date >= ?", datetimePg.Now())
 		return db

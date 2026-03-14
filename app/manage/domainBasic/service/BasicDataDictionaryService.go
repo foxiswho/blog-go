@@ -325,7 +325,7 @@ func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db.Order("sort,create_at asc")
 		db.Where("type_code is null or type_code = '' ")
 		return db

@@ -45,7 +45,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -55,7 +55,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -85,7 +85,7 @@ func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSessi
 		//if "" != ct.Wd {
 		//	p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		//}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

@@ -140,7 +140,7 @@ func (c *EventMakeCache) Nos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEvent.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repEvent.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("no in ?", nos)
 			return db

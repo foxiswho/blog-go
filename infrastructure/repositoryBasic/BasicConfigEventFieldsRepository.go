@@ -71,3 +71,26 @@ func (c *BasicConfigEventFieldsRepository) DeleteAllByEventNoAndIds(no string, i
 	}
 	return info, true
 }
+
+func (c *BasicConfigEventFieldsRepository) FindByEventNoAndFieldIn(eventNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("event_no=?", eventNo).Where("field in ?", code).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+func (c *BasicConfigEventFieldsRepository) FindByEventNoTenantAndFieldIn(eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.Db().Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}

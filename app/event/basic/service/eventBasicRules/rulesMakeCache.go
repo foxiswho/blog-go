@@ -114,7 +114,7 @@ func (c *RulesMakeCache) FieldNos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repRules.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repRules.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("field_no in ?", fieldNos)
 			return db

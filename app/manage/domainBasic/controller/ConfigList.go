@@ -261,3 +261,43 @@ func (c *ConfigListController) ExistCode(ctx *gin.Context) {
 	}
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))
 }
+
+// DetailForm
+//
+//	@Description: 详情表单
+//	@receiver c
+//	@param ctx
+func (c *ConfigListController) DetailForm(ctx *gin.Context) {
+	var ct modBasicConfigList.DetailFormCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.DetailForm(ctx, ct))
+}
+
+// ConfigUpdate
+//
+//	@Description: 配置更新
+//	@receiver c
+//	@param ctx
+func (c *ConfigListController) ConfigUpdate(ctx *gin.Context) {
+	var ct modBasicConfigList.ConfigUpdateCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.ConfigUpdate(ctx, ct))
+}

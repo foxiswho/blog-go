@@ -50,22 +50,29 @@ func (c *EventFieldMakeCache) ThisTenantAll(ctx context.Context) error {
 		query.State = enumStatePg.ENABLE.Index()
 		infos := c.Sp.repEventFields.FindAll(query)
 		if infos != nil {
-			data := make(map[string]interface{})
+			keyNo := make(map[string]interface{})
+			data := make(map[string]map[string]interface{})
 			for _, info := range infos {
 				var obj modCacheBasicEvent.FieldCache
 				copier.Copy(&obj, info)
 
-				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				key := basicEventKey.EventTenantNoAllFields(info.TenantNo, info.EventNo)
+				if _, ok := data[key]; !ok {
+					data[key] = make(map[string]interface{})
+				}
 				str, err := json.Marshal(obj)
 				if err == nil {
-					data[key] = str
+					data[key][info.No] = str
 				}
 				// 字段 = 字段编号
 				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
-				data[key3] = info.No
+				keyNo[key3] = info.No
+			}
+			if len(keyNo) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, keyNo)
 			}
 			if len(data) > 0 {
-				c.Sp.rdt.SetPipeline(ctx, data)
+				c.Sp.rdt.HSetPipelineMapAll(ctx, data)
 			}
 		}
 	}
@@ -78,22 +85,29 @@ func (c *EventFieldMakeCache) All(ctx context.Context) error {
 		query.State = enumStatePg.ENABLE.Index()
 		infos := c.Sp.repEventFields.FindAll(query)
 		if infos != nil {
-			data := make(map[string]interface{})
+			keyNo := make(map[string]interface{})
+			data := make(map[string]map[string]interface{})
 			for _, info := range infos {
 				var obj modCacheBasicEvent.FieldCache
 				copier.Copy(&obj, info)
 
-				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				key := basicEventKey.EventTenantNoAllFields(info.TenantNo, info.EventNo)
+				if _, ok := data[key]; !ok {
+					data[key] = make(map[string]interface{})
+				}
 				str, err := json.Marshal(obj)
 				if err == nil {
-					data[key] = str
+					data[key][info.No] = str
 				}
 				// 字段 = 字段编号
 				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
-				data[key3] = info.No
+				keyNo[key3] = info.No
+			}
+			if len(keyNo) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, keyNo)
 			}
 			if len(data) > 0 {
-				c.Sp.rdt.SetPipeline(ctx, data)
+				c.Sp.rdt.HSetPipelineMapAll(ctx, data)
 			}
 		}
 	}
@@ -114,28 +128,35 @@ func (c *EventFieldMakeCache) EventNos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEventFields.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repEventFields.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("event_no in ?", eventNos)
 			return db
 		}))
 		if infos != nil {
-			data := make(map[string]interface{})
+			keyNo := make(map[string]interface{})
+			data := make(map[string]map[string]interface{})
 			for _, info := range infos {
 				var obj modCacheBasicEvent.FieldCache
 				copier.Copy(&obj, info)
-
-				key := basicEventKey.EventFieldTenantNo(info.TenantNo, info.EventNo, info.No)
+				//
+				key := basicEventKey.EventTenantNoAllFields(info.TenantNo, info.EventNo)
+				if _, ok := data[key]; !ok {
+					data[key] = make(map[string]interface{})
+				}
 				str, err := json.Marshal(obj)
 				if err == nil {
-					data[key] = str
+					data[key][info.No] = str
 				}
 				// 字段 = 字段编号
 				key3 := basicEventKey.EventFieldTenantNoByFieldNo(info.TenantNo, info.EventNo, info.Field)
-				data[key3] = info.No
+				keyNo[key3] = info.No
+			}
+			if len(keyNo) > 0 {
+				c.Sp.rdt.SetPipeline(ctx, keyNo)
 			}
 			if len(data) > 0 {
-				c.Sp.rdt.SetPipeline(ctx, data)
+				c.Sp.rdt.HSetPipelineMapAll(ctx, data)
 			}
 		}
 	}

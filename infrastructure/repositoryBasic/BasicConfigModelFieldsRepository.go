@@ -48,3 +48,26 @@ func (c *BasicConfigModelFieldsRepository) DeleteAllByModelNoAndIds(no string, i
 	}
 	return info, true
 }
+
+func (c *BasicConfigModelFieldsRepository) FindByEventNoAndFieldIn(eventNo string, code []string) (info []*entityBasic.BasicConfigModelFieldsEntity, result bool) {
+	tx := c.Db().Where("model_no=?", eventNo).Where("field in ?", code).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+func (c *BasicConfigModelFieldsRepository) FindByEventNoTenantAndFieldIn(eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigModelFieldsEntity, result bool) {
+	tx := c.Db().Where("model_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}

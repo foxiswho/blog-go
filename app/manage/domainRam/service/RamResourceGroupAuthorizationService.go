@@ -64,7 +64,7 @@ func (c *RamResourceGroupAuthorizationService) State(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -110,7 +110,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -122,7 +122,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 			//删除授权及权限规则
 			//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 
 	} else {
 		for _, info := range finds {
@@ -151,7 +151,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -180,7 +180,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 	}
 	r := c.sv
 	authDb := c.authDb
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

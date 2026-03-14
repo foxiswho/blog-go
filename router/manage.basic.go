@@ -203,6 +203,8 @@ func init() {
 		//group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
+		group.POST("/detailForm", c.DetailForm)
+		group.POST("/configUpdate", c.ConfigUpdate)
 	}))
 	//
 	gs.Root(gs.Object(new(controller.ConfigModelController)).Init(func(c *controller.ConfigModelController) {

@@ -492,8 +492,20 @@ func (b *BaseRepository[T, ID]) Count(arg ...interface{}) (total int64, result b
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindByNo(no string, opts ...Option) (info *T, result bool) {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where("no=?", no).First(&info)
+func (b *BaseRepository[T, ID]) FindByNo(no string, arg ...interface{}) (info *T, result bool) {
+	where := b.Db()
+	if nil != arg {
+		for _, item := range arg {
+			switch result := item.(type) {
+			case Condition:
+				// 条件
+				where = result(where)
+			case Option:
+				where = b.SetOptionScopes(where, item.(Option))
+			}
+		}
+	}
+	tx := where.Where("no=?", no).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
 		return nil, false

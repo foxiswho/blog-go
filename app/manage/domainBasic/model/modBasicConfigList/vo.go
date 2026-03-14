@@ -19,5 +19,5 @@ type Vo struct {
 	UpdateAt    *time.Time          `json:"updateAt" label:"更新时间" `    // 更新时间
 	CreateBy    string              `json:"createBy" label:"创建人" `     // 创建人
 	UpdateBy    string              `json:"updateBy" label:"更新人" `     // 更新人
-	OrgId       string              `json:"orgId" label:"组织id" `       // 组织id
+	EventNo     string              `json:"eventNo" label:"事件编号"`
 }

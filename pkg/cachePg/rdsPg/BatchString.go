@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -138,6 +139,41 @@ func (t *BatchString) HGetAll(ctx context.Context, hashKey string) (map[string]s
 		}
 		t.log.Error("获取缓存失败:", err)
 		return nil, false
+	}
+	return result, true
+}
+
+// HGetAllPipeline
+//
+//	@Description: 获取哈希表所有字段和值
+//	@receiver t
+//	@param ctx
+//	@param hashKey
+//	@return map[string]string
+//	@return bool
+func (t *BatchString) HGetAllPipeline(ctx context.Context, hashKeys []string) (map[string]map[string]string, bool) {
+	pipe := t.rdb.Pipeline()
+	cmds := make([]*redis.MapStringStringCmd, len(hashKeys))
+	// 创建 Pipeline 并添加
+	for i, key := range hashKeys {
+		if strPg.IsBlank(key) {
+			continue
+		}
+		// 只缓存命令，不执行
+		cmds[i] = pipe.HGetAll(ctx, key)
+	}
+	// 一次性执行所有命令（1次网络请求）
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		t.log.Error("批量操作失败:", err)
+		return nil, false
+	}
+	t.log.Infof("批量操作命令数:%+v", len(cmds))
+	// 6. 遍历获取结果
+	result := make(map[string]map[string]string, len(hashKeys))
+	for i, cmd := range cmds {
+		data, _ := cmd.Result()
+		result[hashKeys[i]] = data
 	}
 	return result, true
 }

@@ -154,7 +154,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sp.sv.FindByCode(c.entitySave.Code, repositoryPg.GetOption(ctx))
+		_, result := c.sp.sv.FindByCode(c.entitySave.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -166,12 +166,12 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("ID不能为空")
 		}
 		result := false
-		c.record, result = c.sp.sv.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+		c.record, result = c.sp.sv.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("数据不存在")
 		}
 		if strPg.IsNotBlank(c.ct.CategoryNo) {
-			c.recordCategory, result = c.sp.catDb.FindByNo(c.ct.CategoryNo, repositoryPg.GetOption(ctx))
+			c.recordCategory, result = c.sp.catDb.FindByNo(c.ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
 			if !result {
 				return rt.ErrorMessage("数据不存在")
 			}
@@ -233,7 +233,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	c.entitySave.Tags = datatypes.NewJSONType(tags)
 	catDb := c.sp.catDb
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := catDb.FindByNo(ct.CategoryNo, repositoryPg.GetOption(ctx))
+		_, result := catDb.FindByNo(ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}

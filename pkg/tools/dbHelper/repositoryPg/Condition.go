@@ -6,6 +6,6 @@ import (
 
 type Condition func(*gorm.DB) *gorm.DB
 
-func ConditionOption(c Condition) Condition {
+func WithCondition(c Condition) Condition {
 	return c
 }

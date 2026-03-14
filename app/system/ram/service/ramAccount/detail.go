@@ -40,7 +40,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	if strPg.IsBlank(id) {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sp.accDb.FindByIdAndTypeDomain(numberPg.StrToInt64(id), c.tp.ToTypeDomain().String(), repositoryPg.GetOption(ctx))
+	find, b := c.sp.accDb.FindByIdAndTypeDomain(numberPg.StrToInt64(id), c.tp.ToTypeDomain().String(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

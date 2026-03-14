@@ -90,7 +90,7 @@ func (c *RamResourceRelationService) Detail(ctx *gin.Context, id int64) (rt rg.R
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -183,7 +183,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -191,7 +191,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		//for _, info := range finds {
 		//	enum := enumStatePg.State(info.StateOrder)
@@ -241,7 +241,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -251,7 +251,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -308,7 +308,7 @@ func (c *RamResourceRelationService) SelectNodePublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		//for _, item := range infos {
 		//	slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
@@ -331,7 +331,7 @@ func (c *RamResourceRelationService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceRelation.Vo
@@ -356,7 +356,7 @@ func (c *RamResourceRelationService) SelectPublic(ctx *gin.Context, ct modRamRes
 	var query entityRam.RamResourceRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceRelation.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		slice := make([]modRamResourceRelation.Vo, 0)
 		for _, item := range infos {
@@ -379,7 +379,7 @@ func (c *RamResourceRelationService) Selected(ctx *gin.Context, code string) (rt
 	query.Mark = code
 	slice := make([]string, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			slice = append(slice, numberPg.Int64ToString(item.ResourceId))

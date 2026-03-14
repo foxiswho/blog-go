@@ -39,6 +39,17 @@ func (c *BasicConfigRepository) FindByEventNoAndFieldIn(eventNo string, code []s
 	}
 	return info, true
 }
+func (c *BasicConfigRepository) FindByEventNo(eventNo string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.Db().Where("event_no=?", eventNo).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
 func (c *BasicConfigRepository) FindByEventNoTenantAndFieldIn(eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEntity, result bool) {
 	tx := c.Db().Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
 	if tx.Error != nil {
@@ -49,4 +60,27 @@ func (c *BasicConfigRepository) FindByEventNoTenantAndFieldIn(eventNo string, te
 		return nil, false
 	}
 	return info, true
+}
+func (c *BasicConfigRepository) UpdateByTenantEventNoAndNoAndValue(tenantNo string, eventNo string, no, value string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *BasicConfigRepository) UpdateByEventNoAndNoAndValue(eventNo string, no, value string) (result bool) {
+	tx := c.DbModel().Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return false
+	}
+	if 0 == tx.RowsAffected {
+		return false
+	}
+	return true
 }

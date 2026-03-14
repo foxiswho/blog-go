@@ -411,7 +411,7 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 			var query entityBasic.BasicAttachmentEntity
 			query.State = enumStatePg.ENABLE.Index()
 			//
-			infos := c.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+			infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 				db = db.Order("create_at desc")
 				db.Where("id in ?", ids)
 				return db

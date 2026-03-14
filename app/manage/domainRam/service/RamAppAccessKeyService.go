@@ -120,7 +120,7 @@ func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -167,7 +167,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -175,7 +175,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -199,7 +199,7 @@ func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -224,7 +224,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -234,7 +234,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
 	}
 	return rt.Ok()
 }
@@ -264,7 +264,7 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}, repositoryPg.WithCtxOption(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -309,7 +309,7 @@ func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAcce
 	}
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, con, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(query, con, repositoryPg.WithCtxOption(ctx))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAppAccessKey.Vo

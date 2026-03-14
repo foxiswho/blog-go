@@ -16,3 +16,15 @@ func init() {
 type BasicConfigListRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigListEntity, int64]
 }
+
+func (c *BasicConfigListRepository) FindByEventNo(eventNo string) (info *entityBasic.BasicConfigListEntity, result bool) {
+	tx := c.Db().Where("event_no=?", eventNo).First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
