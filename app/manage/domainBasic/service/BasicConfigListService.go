@@ -7,9 +7,11 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
+	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -27,9 +29,14 @@ func init() {
 // BasicConfigListService 用户组
 // @Description:
 type BasicConfigListService struct {
-	sv  *repositoryBasic.BasicConfigListRepository `autowire:"?"`
-	log *log2.Logger                               `autowire:"?"`
-	Sp  *configBasic.Sp                            `autowire:"?"`
+	sv            *repositoryBasic.BasicConfigListRepository        `autowire:"?"`
+	log           *log2.Logger                                      `autowire:"?"`
+	Sp            *configBasic.Sp                                   `autowire:"?"`
+	repModel      *repositoryBasic.BasicConfigModelRepository       `autowire:"?"`
+	repEvent      *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
+	repEventField *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
+	repConfig     *repositoryBasic.BasicConfigRepository            `autowire:"?"`
+	repConfigList *repositoryBasic.BasicConfigListRepository        `autowire:"?"`
 }
 
 // CreateUpdate 更新
@@ -42,24 +49,56 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 	c.log.Infof("ct=%+v", ct)
 	var info entityBasic.BasicConfigListEntity
 	copier.Copy(&info, &ct)
-	r := c.sv
-	if ct.ID < 1 {
-		return rt.ErrorMessage("id错误")
-	}
+	//
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
-	if !b {
-		return rt.ErrorMessage("数据不存在")
+	if strPg.IsBlank(ct.EventNo) {
+		return rt.ErrorMessage("事件不能为空")
 	}
-	info.ID = 0
-	info.No = ""
-	c.log.Infof("info.save=%+v", info)
-	err := r.Update(info, find.ID)
-	if err != nil {
-		c.log.Errorf("update error=%+v", err)
-		return rt.ErrorMessage(err.Error())
+	if strPg.IsBlank(ct.Field) {
+		return rt.ErrorMessage("字段名称不能为空")
+	}
+	holder := holderPg.GetContextAccount(ctx)
+	event, result := c.repEvent.FindByNo(ct.EventNo)
+	if !result {
+		return rt.ErrorMessage("事件不存在")
+	}
+	id := "0"
+	if ct.ID.ToInt64() > 0 {
+		id = ct.ID.ToString()
+	}
+	_, b := c.sv.FindByTenantNoAndEventNoAndIdNot(holder.GetTenantNo(), event.No, id)
+	if b {
+		return rt.ErrorMessage("该事件在当前租户下已存在")
+	}
+	//
+	r := c.sv
+	if ct.ID < 1 {
+		info.No = noPg.No()
+		info.TenantNo = holder.GetTenantNo()
+		info.Model = event.Model
+		info.Module = event.Module
+		info.ModuleSub = event.ModuleSub
+		c.log.Infof("info.save=%+v", info)
+		err, _ := r.Create(&info)
+		if err != nil {
+			c.log.Errorf("update error=%+v", err)
+			return rt.ErrorMessage(err.Error())
+		}
+	} else {
+		find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+		if !b {
+			return rt.ErrorMessage("数据不存在")
+		}
+		info.ID = 0
+		info.No = ""
+		c.log.Infof("info.save=%+v", info)
+		err := r.Update(info, find.ID)
+		if err != nil {
+			c.log.Errorf("update error=%+v", err)
+			return rt.ErrorMessage(err.Error())
+		}
 	}
 	return rt.Ok()
 }

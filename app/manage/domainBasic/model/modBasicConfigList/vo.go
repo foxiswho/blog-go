@@ -20,4 +20,9 @@ type Vo struct {
 	CreateBy    string              `json:"createBy" label:"创建人" `     // 创建人
 	UpdateBy    string              `json:"updateBy" label:"更新人" `     // 更新人
 	EventNo     string              `json:"eventNo" label:"事件编号"`
+	Field       string              `json:"field" comment:"字段名称" `
+	FieldPath   string              `json:"fieldPath" comment:"路径字段名称" `
+	Show        int8                `json:"show" comment:"1显示2隐藏" `
+	Content     string              `json:"content" comment:"内容" `
+	TypeDomain  string              `json:"typeDomain" comment:"域类型|系统|租户|商户|模块|" `
 }

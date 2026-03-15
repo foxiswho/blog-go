@@ -28,3 +28,15 @@ func (c *BasicConfigListRepository) FindByEventNo(eventNo string) (info *entityB
 	}
 	return info, true
 }
+
+func (c *BasicConfigListRepository) FindByTenantNoAndEventNoAndIdNot(tenantNo, eventNo string, id string) (info *entityBasic.BasicConfigListEntity, result bool) {
+	tx := c.Db().Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("id != ?", id).First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
-	"gorm.io/datatypes"
 )
 
 type Vo struct {
@@ -16,21 +15,17 @@ type Vo struct {
 	State    typePg.Int8        `json:"state" label:"状态" `
 	Sort     typePg.Int64String ` json:"sort" comment:"排序" `
 	//
-	Description     string         `json:"description" label:"描述" ` // 描述
-	Name            string         `json:"name" label:"名称" `
-	LangCode        string         `json:"langCode" comment:"语言" `
-	TypeSys         string         `json:"typeSys" comment:"类型|普通|系统|api" `
-	Module          string         `json:"module" comment:"模块" `
-	ModuleSub       string         `json:"moduleSub" comment:"子模块" `
-	Owner           string         `json:"owner" comment:"所属/拥有者" `
-	Model           string         `json:"model" comment:"模型" `
-	Show            typePg.Int8    `json:"show" comment:"1显示2隐藏" `
-	ExtraData       datatypes.JSON `json:"extraData" label:"额外数据" `
-	Value           string         `json:"value" comment:"值" `
-	Client          string         `json:"client" comment:"端" `
-	ClientProgram   string         `json:"clientProgram" comment:"端内程序|隔开" `
-	ClientSync      string         `json:"clientSync" comment:"端同步" `
-	LoadingLocation string         `json:"loadingLocation" comment:"加载位置" `
-	Cache           string         `json:"cache" comment:"缓存" `
-	No              string         `json:"no" comment:"编号" `
+	Description   string      `json:"description" label:"描述" ` // 描述
+	Name          string      `json:"name" label:"名称" `
+	LangCode      string      `json:"langCode" comment:"语言" `
+	TypeSys       string      `json:"typeSys" comment:"类型|普通|系统|api" `
+	Module        string      `json:"module" comment:"模块" `
+	Show          typePg.Int8 `json:"show" comment:"1显示2隐藏" `
+	No            string      `json:"no" comment:"编号" `
+	Model         string      `json:"model" binding:"required" label:"模型"`
+	ModelNo       string      `json:"modelNo" binding:"required" label:"模型编号"`
+	Field         string      `json:"field" label:"字段"`
+	FieldSource   string      `json:"fieldSource" label:"字段来源/原始字段名称" `
+	ModelCategory string      `json:"modelCategory" label:"模型种类"`
+	ModuleSub     string      `json:"moduleSub" label:"子模块选择"`
 }
