@@ -52,14 +52,14 @@ func (c *RamAccountPasswordService) UpdatePassword(ctx *gin.Context, ct modRamAc
 		return rt.ErrorMessage("密码不能为空")
 	}
 	r := c.sv
-	info, b := r.FindByIdAndTypeDomain(ct.ID.ToInt64(), tp.ToTypeDomain().String())
+	info, b := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 
 	r2 := c.aAuth
 
-	passwd, err := r2.FindByTypePasswordANo(info.No)
+	passwd, err := r2.FindByTypePasswordANo(ctx, info.No)
 	if !err {
 		return rt.ErrorMessage("数据不存在")
 	}

@@ -82,7 +82,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	if !enumStatePg.ENABLE.IsExistInt8(info.State) {
 		return rt.ErrorMessage("账户已被禁用，不能登陆")
 	}
-	pwdInfo, result := c.daoAuth.FindByTypePasswordANo(info.No)
+	pwdInfo, result := c.daoAuth.FindByTypePasswordANo(ctx, info.No)
 	if !result {
 		return rt.ErrorMessage("用户密码未设置")
 	}

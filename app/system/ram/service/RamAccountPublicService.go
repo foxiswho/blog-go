@@ -80,7 +80,7 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 		return rt.ErrorMessage("数据不存在")
 	}
 	r2 := c.aAuth
-	passwd, result := r2.FindByTypePasswordANo(info.No)
+	passwd, result := r2.FindByTypePasswordANo(ctx, info.No)
 	if !result {
 		return rt.ErrorMessage("数据不存在")
 	}

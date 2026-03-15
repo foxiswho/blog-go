@@ -28,8 +28,8 @@ type RamAccountAuthorizationRepository struct {
 	//
 }
 
-func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(code string) (info *entityRam.RamAccountAuthorizationEntity, result bool) {
-	tx := c.Db().Where("type=?", "password").Where("ano=?", code).Find(&info)
+func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(ctx context.Context, code string) (info *entityRam.RamAccountAuthorizationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type=?", "password").Where("ano=?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -40,8 +40,8 @@ func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(code string) (
 	return info, true
 }
 
-func (c *RamAccountAuthorizationRepository) DeleteByAno(code string) (result bool) {
-	tx := c.Db().Where("ano=?", code).Delete(&entityRam.RamAccountAuthorizationEntity{})
+func (c *RamAccountAuthorizationRepository) DeleteByAno(ctx context.Context, code string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("ano=?", code).Delete(&entityRam.RamAccountAuthorizationEntity{})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return false

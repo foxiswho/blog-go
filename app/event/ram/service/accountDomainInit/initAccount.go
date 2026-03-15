@@ -112,7 +112,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	save.Os = datatypes.NewJSONType(os)
 	t.sp.accDb.Create(ctx, &save)
 	//
-	t.sp.authDb.DeleteByAno(save.No)
+	t.sp.authDb.DeleteByAno(ctx, save.No)
 	//
 	salt := strPg.GetNanoid(8)
 	authorizationEntity := entityRam.RamAccountAuthorizationEntity{
@@ -185,7 +185,7 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 	save.Os = datatypes.NewJSONType(os)
 	t.sp.accDb.Create(ctx, &save)
 	//
-	t.sp.authDb.DeleteByAno(save.No)
+	t.sp.authDb.DeleteByAno(ctx, save.No)
 	//
 	salt := strPg.GetNanoid(8)
 	authorizationEntity := entityRam.RamAccountAuthorizationEntity{

@@ -1,6 +1,8 @@
 package tcAccount
 
 import (
+	"time"
+
 	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
 	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
@@ -12,7 +14,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -58,7 +59,7 @@ func NewCreate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if strPg.IsBlank(ct.TenantNo) {
 		return rt.ErrorMessage("租户不能为空")
@@ -76,19 +77,19 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 		ct.Code = strPg.GetNanoid(10)
 	}
 	r := c.sp.accDb
-	_, ok := r.FindByTenantNoAccountAndTypeDomainAndIdNot(ct.TenantNo, ct.Account, tp.ToTypeDomain().String(), "0")
+	_, ok := r.FindByTenantNoAccountAndTypeDomainAndIdNot(ctx, ct.TenantNo, ct.Account, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("账户已存在")
 	}
-	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ct.Phone, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ctx, ct.Phone, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("手机号已存在")
 	}
-	_, ok = r.FindByMailAndTypeDomainAndIdNot(ct.Mail, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByMailAndTypeDomainAndIdNot(ctx, ct.Mail, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("邮箱已存在")
 	}
-	_, ok = r.FindByNoAndTypeDomainAndIdNot(ct.Code, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByNoAndTypeDomainAndIdNot(ctx, ct.Code, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("编号已存在")
 	}
@@ -167,8 +168,8 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) CreateAccount(ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	account := c.accountCreate(ct, tp)
+func (c *Create) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	account := c.accountCreate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -183,11 +184,11 @@ func (c *Create) CreateAccount(ct modRamAccount.CreateAccountCt, tp appModulePg.
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var ctAccount modRamAccount.CreateAccountCt
 	copier.Copy(&ctAccount, &ct)
-	account := c.accountCreate(ctAccount, tp)
+	account := c.accountCreate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -348,5 +349,5 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 //	@param tp
 //	@return rt
 func (c *Create) Process(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return c.createAll(ct, tp)
+	return c.createAll(ctx, ct, tp)
 }

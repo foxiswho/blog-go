@@ -53,7 +53,7 @@ func NewUpdate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) accountUpdate(ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID <= 0 {
 		return rt.ErrorMessage("id不能为空")
@@ -72,23 +72,23 @@ func (c *Update) accountUpdate(ct modRamAccount.UpdateAccountCt, tp appModulePg.
 	}
 	r := c.sp.accDb
 	query := false
-	c.entity, query = r.FindByIdAndTypeDomain(ct.ID.ToInt64(), tp.ToTypeDomain().String())
+	c.entity, query = r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
 	if !query {
 		return rt.ErrorMessage("账号信息不存在")
 	}
-	find, ok := r.FindByAccountAndTypeDomain(ct.Account, tp.ToTypeDomain().String())
+	find, ok := r.FindByAccountAndTypeDomain(ctx, ct.Account, tp.ToTypeDomain().String())
 	if ok && ct.ID.ToInt64() != find.ID {
 		return rt.ErrorMessage("账户已存在")
 	}
-	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ct.Phone, tp.ToTypeDomain().String(), ct.ID.ToString())
+	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ctx, ct.Phone, tp.ToTypeDomain().String(), ct.ID.ToString())
 	if ok {
 		return rt.ErrorMessage("手机号已存在")
 	}
-	_, ok = r.FindByMailAndTypeDomainAndIdNot(ct.Mail, tp.ToTypeDomain().String(), ct.ID.ToString())
+	_, ok = r.FindByMailAndTypeDomainAndIdNot(ctx, ct.Mail, tp.ToTypeDomain().String(), ct.ID.ToString())
 	if ok {
 		return rt.ErrorMessage("邮箱已存在")
 	}
-	_, ok = r.FindByNoAndTypeDomainAndIdNot(ct.Code, tp.ToTypeDomain().String(), ct.ID.ToString())
+	_, ok = r.FindByNoAndTypeDomainAndIdNot(ctx, ct.Code, tp.ToTypeDomain().String(), ct.ID.ToString())
 	if ok {
 		return rt.ErrorMessage("编号已存在")
 	}
@@ -117,8 +117,8 @@ func (c *Update) accountUpdate(ct modRamAccount.UpdateAccountCt, tp appModulePg.
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) UpdateAccount(ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	account := c.accountUpdate(ct, tp)
+func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	account := c.accountUpdate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -133,11 +133,11 @@ func (c *Update) UpdateAccount(ct modRamAccount.UpdateAccountCt, tp appModulePg.
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var ctAccount modRamAccount.UpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
-	account := c.accountUpdate(ctAccount, tp)
+	account := c.accountUpdate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -149,7 +149,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 	copier.Copy(&entity, &dataCt)
 	//
 	r := c.sp.accDb
-	info, query := r.FindByIdAndTypeDomain(ct.ID.ToInt64(), tp.ToTypeDomain().String())
+	info, query := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
 	if !query {
 		return rt.ErrorMessage("账号信息不存在")
 	}
@@ -305,5 +305,5 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 //	@param tp
 //	@return rt
 func (c *Update) Process(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return c.updateAll(ct, tp)
+	return c.updateAll(ctx, ct, tp)
 }

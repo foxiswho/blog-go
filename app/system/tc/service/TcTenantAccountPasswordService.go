@@ -53,7 +53,7 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 		return rt.ErrorMessage("密码不能为空")
 	}
 	r := c.sv
-	info, b := r.FindByIdAndTypeDomain(ct.ID.ToInt64(), tp.ToTypeDomain().String())
+	info, b := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -63,7 +63,7 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 	entity.ExtraData = strPg.GetNanoid(8)
 	entity.Value = userPg.PasswordSalt(ct.PasswordNew, entity.ExtraData)
 	//
-	passwd, b := r2.FindByTypePasswordANo(info.No)
+	passwd, b := r2.FindByTypePasswordANo(ctx, info.No)
 	if !b {
 		//密码不存在，则创建
 		entity.Ano = info.No

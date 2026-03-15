@@ -636,7 +636,7 @@ func (c *RamAccountService) Create(ctx *gin.Context, ct modRamAccount.CreateCt, 
 //	@param ct
 func (c *RamAccountService) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccount(ct, tp)
+		c.sp, ctx).CreateAccount(ctx, ct, tp)
 }
 
 // Update 更新
@@ -656,7 +656,7 @@ func (c *RamAccountService) Update(ctx *gin.Context, ct modRamAccount.UpdateCt, 
 //	@param ct
 func (c *RamAccountService) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return ramAccount.NewUpdate(c.log,
-		c.sp, ctx).UpdateAccount(ct, tp)
+		c.sp, ctx).UpdateAccount(ctx, ct, tp)
 }
 
 // ExistAccount 查重
@@ -684,7 +684,7 @@ func (c *RamAccountService) ExistPhone(ctx *gin.Context, ct model.BaseExistWdCt[
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByPhoneAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByPhoneAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -700,7 +700,7 @@ func (c *RamAccountService) ExistMail(ctx *gin.Context, ct model.BaseExistWdCt[s
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByMailAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByMailAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -834,7 +834,7 @@ func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWd
 		return rt.ErrorMessage("数据不存在")
 	}
 	r2 := c.aAuth
-	passwd, result := r2.FindByTypePasswordANo(info.No)
+	passwd, result := r2.FindByTypePasswordANo(ctx, info.No)
 	if !result {
 		return rt.ErrorMessage("数据不存在")
 	}

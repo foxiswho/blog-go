@@ -25,27 +25,3 @@ func init() {
 type RamAccessKeyRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamAccessKeyEntity, int64]
 }
-
-func (c *RamAccessKeyRepository) FindByAno(no string) (info *entityRam.RamAccessKeyEntity, result bool) {
-	tx := c.Db().Where("ano=?", no).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamAccessKeyRepository) FindByAnoAndAppNo(no, appNo string) (info *entityRam.RamAccessKeyEntity, result bool) {
-	tx := c.Db().Where("ano=?", no).Where("app_no=?", no).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
