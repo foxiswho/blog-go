@@ -300,38 +300,30 @@ func (c *ApiDiplService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *ApiDiplService) Query(ctx *gin.Context, ct modApiDipl.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modApiDipl.Vo]]) {
+func (c *ApiDiplService) Query(ctx *gin.Context, ct modApiDipl.QueryCt) (rt rg.Rs[pagePg.Paginator[modApiDipl.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityApi.ApiDiplEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modApiDipl.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityApi.ApiDiplEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityApi.ApiDiplEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db.Order("create_at desc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modApiDipl.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modApiDipl.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modApiDipl.Vo

@@ -187,10 +187,6 @@ func (c *RamAccountRepository) FindByMail(code string, opts ...repositoryPg.Opti
 }
 
 func (c *RamAccountRepository) FindByIdAndTypeDomain(code int64, typeDomain string, opts ...repositoryPg.Option) (info *entityRam.RamAccountEntity, query bool) {
-	arg := repositoryPg.OptionArg{}
-	for _, opt := range opts {
-		opt(&arg)
-	}
 	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("id=?", code).Where("type_domain=?", typeDomain).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)

@@ -65,15 +65,15 @@ func (c *RamAccountLoginLogService) PhysicalDeletion(ctx *gin.Context, ids []str
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLoginLog.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamAccountLoginLog.Vo]]) {
+func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLoginLog.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountLoginLog.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountLoginLogEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAccountLoginLog.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAccountLoginLogEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAccountLoginLogEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountLoginLogEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountLoginLogEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -91,12 +91,7 @@ func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLogi
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAccountLoginLog.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAccountLoginLog.Vo](page.Pageable)
 		mapAcc := make(map[string]*entityRam.RamAccountEntity)
 		idsAcc := make([]string, 0)
 		for _, item := range page.Data {

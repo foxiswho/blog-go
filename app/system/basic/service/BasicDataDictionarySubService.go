@@ -256,7 +256,7 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.VoData]]) {
+func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.Paginator[modBasicDataDictionary.VoData]]) {
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
@@ -265,8 +265,8 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicDataDictionaryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicDataDictionaryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = 999
 		}
@@ -285,12 +285,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.VoData]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicDataDictionary.VoData](page.Pageable)
 		ids := make([]string, 0)
 		for _, item := range page.Data {
 			if strPg.IsNotBlank(item.TypeCode) {

@@ -432,15 +432,15 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicCountry.Vo]]) {
+func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicCountry.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicCountryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicCountryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicCountryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicCountryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -456,12 +456,7 @@ func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicCountry.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicCountry.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicCountry.Vo

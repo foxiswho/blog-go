@@ -10,8 +10,10 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
+	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -185,36 +187,32 @@ func (c *BasicConfigModelService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicConfigModelService) Query(ctx *gin.Context, ct modBasicConfigModel.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicConfigModel.Vo]]) {
+func (c *BasicConfigModelService) Query(ctx *gin.Context, ct modBasicConfigModel.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicConfigModel.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicConfigModelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicConfigModel.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigModelEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigModelEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	holder := holderPg.GetContextAccount(ctx)
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//排序
+		arg.Db.Order("create_at asc")
+		arg.Db.Where("tenant_no=?", holder.GetTenantNo())
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicConfigModel.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicConfigModel.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicConfigModel.Vo

@@ -264,7 +264,7 @@ func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicConfigEvent.Vo]]) {
+func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicConfigEvent.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicConfigEventEntity
 	copier.Copy(&query, &ct)
@@ -272,30 +272,24 @@ func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent
 	rt.Data.Data = slice
 	r := c.sv
 	holder := holderPg.GetContextAccount(ctx)
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigEventEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigEventEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		p.Condition.Where("tenant_no=?", holder.GetTenantNo())
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("field like ?", "%"+ct.Wd+"%").Or("description like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//排序
+		arg.Db.Order("create_at asc")
+		arg.Db.Where("tenant_no=?", holder.GetTenantNo())
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").Or("field like ?", "%"+ct.Wd+"%").Or("description like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicConfigEvent.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicConfigEvent.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicConfigEvent.Vo

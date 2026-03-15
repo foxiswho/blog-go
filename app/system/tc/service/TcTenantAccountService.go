@@ -225,7 +225,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.PaginatorPg[modRamAccount.Vo]]) {
+func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.Paginator[modRamAccount.Vo]]) {
 	var query entityRam.RamAccountEntity
 	copier.Copy(&query, &ct)
 	// 创始人
@@ -239,8 +239,8 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAccountEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -376,12 +376,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAccount.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAccount.Vo](page.Pageable)
 		//
 		mapDep := make(map[string]*entityRam.RamDepartmentEntity)
 		mapRole := make(map[string]*entityRam.RamRoleEntity)

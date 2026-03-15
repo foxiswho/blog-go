@@ -435,15 +435,15 @@ func (c *BasicModuleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicModule.Vo]]) {
+func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicModule.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicModuleEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicModuleEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicModuleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -458,12 +458,7 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicModule.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicModule.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicModule.Vo
@@ -483,14 +478,14 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicModule.Vo]]) {
+func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicModule.Vo]]) {
 	var query entityBasic.BasicModuleEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicModuleEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicModuleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -506,12 +501,7 @@ func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.Que
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicModule.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicModule.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicModule.Vo

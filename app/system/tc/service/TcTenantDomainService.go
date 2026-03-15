@@ -359,14 +359,14 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modTcTenantDomain.Vo]]) {
+func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.QueryCt) (rt rg.Rs[pagePg.Paginator[modTcTenantDomain.Vo]]) {
 	var query entityTc.TcTenantDomainEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modTcTenantDomain.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityTc.TcTenantDomainEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityTc.TcTenantDomainEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityTc.TcTenantDomainEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityTc.TcTenantDomainEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -381,12 +381,7 @@ func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.Que
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modTcTenantDomain.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modTcTenantDomain.Vo](page.Pageable)
 		mapTenant := make(map[string]*entityTc.TcTenantEntity)
 		idsTenant := make([]string, 0)
 		for _, item := range page.Data {

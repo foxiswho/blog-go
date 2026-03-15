@@ -284,15 +284,15 @@ func (c *RamGroupService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamGroupService) Query(ctx *gin.Context, ct modRamGroup.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamGroup.Vo]]) {
+func (c *RamGroupService) Query(ctx *gin.Context, ct modRamGroup.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamGroup.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamGroupEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamGroup.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamGroupEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamGroupEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamGroupEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamGroupEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -311,12 +311,7 @@ func (c *RamGroupService) Query(ctx *gin.Context, ct modRamGroup.QueryCt) (rt rg
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamGroup.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamGroup.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamGroup.Vo

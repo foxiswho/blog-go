@@ -432,15 +432,15 @@ func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicTagsCategory.Vo]]) {
+func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicTagsCategory.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicTagsCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -456,12 +456,7 @@ func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCatego
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicTagsCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicTagsCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicTagsCategory.Vo
@@ -481,14 +476,14 @@ func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCatego
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicTagsCategoryService) QueryPublic(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicTagsCategory.Vo]]) {
+func (c *BasicTagsCategoryService) QueryPublic(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicTagsCategory.Vo]]) {
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicTagsCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -504,12 +499,7 @@ func (c *BasicTagsCategoryService) QueryPublic(ctx *gin.Context, ct modBasicTags
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicTagsCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicTagsCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicTagsCategory.Vo

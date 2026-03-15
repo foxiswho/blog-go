@@ -432,15 +432,15 @@ func (c *RamAppCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string)
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamAppCategory.Vo]]) {
+func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAppCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAppCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAppCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAppCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAppCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -455,12 +455,7 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAppCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAppCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamAppCategory.Vo
@@ -480,14 +475,14 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamAppCategory.Vo]]) {
+func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory.Vo]]) {
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAppCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAppCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAppCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAppCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAppCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -503,12 +498,7 @@ func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCatego
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAppCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAppCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamAppCategory.Vo

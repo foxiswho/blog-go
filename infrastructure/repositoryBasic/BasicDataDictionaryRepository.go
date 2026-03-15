@@ -27,7 +27,7 @@ type BasicDataDictionaryRepository struct {
 }
 
 // 分页
-func (b *BasicDataDictionaryRepository) FindAllPageOwnerId0(t entityBasic.BasicDataDictionaryEntity, option pagePg.Option[entityBasic.BasicDataDictionaryEntity]) (pagePg.PaginatorPg[entityBasic.BasicDataDictionaryEntity], error) {
+func (b *BasicDataDictionaryRepository) FindAllPageOwnerId0(t entityBasic.BasicDataDictionaryEntity, option pagePg.Option[entityBasic.BasicDataDictionaryEntity]) (pagePg.Paginator[entityBasic.BasicDataDictionaryEntity], error) {
 	var total int64
 	pg := pagePg.NewPaginatorPg[entityBasic.BasicDataDictionaryEntity](option)
 	countTx := b.Db().Model(b.Entity).Where(t).Where("owner_no='0'").Count(&total)

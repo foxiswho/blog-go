@@ -263,7 +263,7 @@ func (c *BasicConfigListService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicConfigList.Vo]]) {
+func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicConfigList.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicConfigListEntity
 	copier.Copy(&query, &ct)
@@ -271,33 +271,25 @@ func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.Q
 	rt.Data.Data = slice
 	r := c.sv
 	holder := holderPg.GetContextAccount(ctx)
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigListEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigListEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
-		p.Condition.Where("tenant_no=?", holder.GetTenantNo())
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//排序
+		arg.Db.Order("create_at asc")
+		arg.Db.Where("tenant_no=?", holder.GetTenantNo())
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicConfigList.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicConfigList.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicConfigList.Vo

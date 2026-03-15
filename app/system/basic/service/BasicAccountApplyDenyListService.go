@@ -333,15 +333,15 @@ func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, id
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAccountApplyDenyList.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicAccountApplyDenyList.Vo]]) {
+func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAccountApplyDenyList.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicAccountApplyDenyList.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicAccountApplyDenyListEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicAccountApplyDenyListEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAccountApplyDenyListEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicAccountApplyDenyListEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -357,12 +357,7 @@ func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAc
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicAccountApplyDenyList.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicAccountApplyDenyList.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicAccountApplyDenyList.Vo

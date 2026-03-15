@@ -271,15 +271,15 @@ func (c *RamMenuRelationService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamMenuRelation.Vo]]) {
+func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamMenuRelation.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamMenuRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamMenuRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamMenuRelationEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamMenuRelationEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuRelationEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuRelationEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -295,12 +295,7 @@ func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.Q
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamMenuRelation.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamMenuRelation.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamMenuRelation.Vo

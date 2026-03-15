@@ -360,15 +360,15 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamResourceGroup.Vo]]) {
+func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceGroup.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamResourceGroupEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamResourceGroupEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamResourceGroupEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamResourceGroupEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -387,12 +387,7 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamResourceGroup.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamResourceGroup.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamResourceGroup.Vo

@@ -436,15 +436,15 @@ func (c *BlogCollectCategoryService) PhysicalDeletion(ctx *gin.Context, ids []st
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogCollectCategory.Vo]]) {
+func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogCollectCategory.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBlog.BlogCollectCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogCollectCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogCollectCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -459,12 +459,7 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogCollectCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogCollectCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBlogCollectCategory.Vo
@@ -484,14 +479,14 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCollectCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogCollectCategory.Vo]]) {
+func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCollectCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogCollectCategory.Vo]]) {
 	var query entityBlog.BlogCollectCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogCollectCategoryEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogCollectCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 		}
@@ -507,12 +502,7 @@ func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCol
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogCollectCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogCollectCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBlogCollectCategory.Vo

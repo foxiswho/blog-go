@@ -260,15 +260,20 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRelation.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamResourceRelation.Vo]]) {
+func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRelation.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceRelation.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceRelation.Vo, 0)
 	rt.Data.Data = slice
-	page, err := c.sv.FindAllPage(query, func(c *pagePg.PaginatorPg[*entityRam.RamResourceRelationEntity]) {
-		c.PageNum = ct.PageNum
-		c.PageSize = ct.PageSize
+	page, err := c.sv.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamResourceRelationEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamResourceRelationEntity]) {
+			c.PageNum = ct.PageNum
+			c.PageSize = ct.PageSize
+			if c.PageSize < 1 {
+				c.PageSize = 20
+			}
+		}
 	})
 	if nil != err {
 		return rt.Ok()
@@ -276,12 +281,7 @@ func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRe
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamResourceRelation.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamResourceRelation.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamResourceRelation.Vo

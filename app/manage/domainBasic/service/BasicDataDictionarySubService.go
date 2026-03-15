@@ -261,7 +261,7 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.VoData]]) {
+func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.Paginator[modBasicDataDictionary.VoData]]) {
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
@@ -270,32 +270,26 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicDataDictionaryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = 999
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("sort,create_at asc")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").
+		arg.Db.Order("sort,create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
 				Or("code like ?", "%"+ct.Wd+"%").
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.VoData]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicDataDictionary.VoData](page.Pageable)
 		ids := make([]string, 0)
 		for _, item := range page.Data {
 			if strPg.IsNotBlank(item.TypeCode) && !slices.Contains(ids, item.TypeCode) {

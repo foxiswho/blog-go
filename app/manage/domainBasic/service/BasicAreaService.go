@@ -13,6 +13,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
@@ -426,36 +427,30 @@ func (c *BasicAreaService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicAreaService) Query(ctx *gin.Context, ct modBasicArea.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicArea.Vo]]) {
+func (c *BasicAreaService) Query(ctx *gin.Context, ct modBasicArea.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicArea.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicAreaEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicArea.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicAreaEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicAreaEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//排序
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicArea.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicArea.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicArea.Vo

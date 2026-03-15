@@ -260,14 +260,14 @@ func (c *BasicAttachmentService) DelByOwner(ctx *gin.Context, ct modBasicAttachm
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicAttachment.Vo]]) {
+func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicAttachment.Vo]]) {
 	var query entityBasic.BasicAttachmentEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicAttachmentEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicAttachmentEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAttachmentEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicAttachmentEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize <= 0 {
@@ -287,12 +287,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 		return rt.Ok()
 	}
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicAttachment.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicAttachment.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicAttachment.Vo

@@ -429,36 +429,33 @@ func (c *BasicModuleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicModule.Vo]]) {
+func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicModule.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicModuleEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicModuleEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
+				Or("code like ?", "%"+ct.Wd+"%").
+				Or("name_fl like ?", "%"+ct.Wd+"%").
+				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicModule.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicModule.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicModule.Vo
@@ -478,35 +475,33 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicModule.Vo]]) {
+func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicModule.Vo]]) {
 	var query entityBasic.BasicModuleEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicModuleEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
+				Or("code like ?", "%"+ct.Wd+"%").
+				Or("name_fl like ?", "%"+ct.Wd+"%").
+				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicModule.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicModule.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicModule.Vo

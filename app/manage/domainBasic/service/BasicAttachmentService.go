@@ -258,39 +258,28 @@ func (c *BasicAttachmentService) DelByOwner(ctx *gin.Context, ct modBasicAttachm
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicAttachment.Vo]]) {
+func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicAttachment.Vo]]) {
 	var query entityBasic.BasicAttachmentEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicAttachmentEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicAttachmentEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize <= 0 {
-				c.PageSize = 20
-			}
-			if c.PageNum <= 0 {
-				c.PageNum = 1
-			}
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at DESC")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Where("source_name like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//排序
+		arg.Db.Order("create_at DESC")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").Where("source_name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicAttachment.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicAttachment.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicAttachment.Vo

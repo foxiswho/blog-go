@@ -311,7 +311,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllData(arg ...interface{}) (infos []*T, 
 }
 
 // 分页
-func (b *BaseOrgRepository[T, ID]) FindAllPage(t T, option pagePg.Option[*T], opts ...Option) (pagePg.PaginatorPg[*T], error) {
+func (b *BaseOrgRepository[T, ID]) FindAllPage(t T, option pagePg.Option[*T], opts ...Option) (pagePg.Paginator[*T], error) {
 	var total int64
 	pg := pagePg.NewPaginatorPg[*T](option)
 	countTx := b.SetOptionScopes(b.DbModel(), opts...).Where(t).Count(&total)
@@ -336,7 +336,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllPage(t T, option pagePg.Option[*T], op
 }
 
 // FindAllPageQuery 分页
-func (b *BaseOrgRepository[T, ID]) FindAllPageQuery(t T, option pagePg.OptionPageCondition[*T], opts ...Option) (pagePg.PaginatorPg[*T], error) {
+func (b *BaseOrgRepository[T, ID]) FindAllPageQuery(t T, option pagePg.OptionPageCondition[*T], opts ...Option) (pagePg.Paginator[*T], error) {
 	var total int64
 	pg, condition := pagePg.NewOptionPageCondition[*T](option)
 	if nil == condition {

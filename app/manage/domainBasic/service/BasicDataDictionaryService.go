@@ -244,39 +244,33 @@ func (c *BasicDataDictionaryService) PhysicalDeletion(ctx *gin.Context, ids []st
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.Vo]]) {
+func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicDataDictionary.Vo]]) {
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
 	slice := make([]modBasicDataDictionary.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicDataDictionaryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at desc")
-		p.Condition.Where("type_code is null or type_code=''")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").
+		arg.Db.Order("create_at desc").Where("type_code is null or type_code=''")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
 				Or("code like ?", "%"+ct.Wd+"%").
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
+	
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicDataDictionary.Vo](page.Pageable)
 		ids := make([]string, 0)
 		//for _, item := range page.Data {
 		//	if strPg.IsNotBlank(item.Code) {

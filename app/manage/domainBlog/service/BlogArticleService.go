@@ -356,14 +356,14 @@ func (c *BlogArticleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogArticle.Vo]]) {
+func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogArticle.Vo]]) {
 	var query entityBlog.BlogArticleEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogArticle.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogArticleEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogArticleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -400,12 +400,7 @@ func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) 
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogArticle.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogArticle.Vo](page.Pageable)
 		mapCategory := make(map[string]*entityBlog.BlogArticleCategoryEntity)
 		mapStat := make(map[string]*entityBlog.BlogArticleStatisticsEntity)
 		mapTenant := make(map[string]*entityTc.TcTenantEntity)

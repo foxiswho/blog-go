@@ -426,15 +426,15 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamDepartment.Vo]]) {
+func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamDepartmentEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamDepartmentEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamDepartmentEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamDepartmentEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -454,12 +454,7 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamDepartment.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamDepartment.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamDepartment.Vo
@@ -479,15 +474,15 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamDepartment.Vo]]) {
+func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamDepartmentEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamDepartmentEntity]) {
+	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamDepartmentEntity]) {
+		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamDepartmentEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
 			if c.PageSize < 1 {
@@ -507,12 +502,7 @@ func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamDepartment.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamDepartment.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamDepartment.Vo
