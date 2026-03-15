@@ -117,7 +117,7 @@ func (c *BasicDataDictionarySubService) Detail(ctx *gin.Context, id string) (rt 
 		return rt.ErrorMessage("id 错误")
 	}
 	r := c.sv
-	find, b := r.FindByIdString(id)
+	find, b := r.FindByIdString(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -197,7 +197,7 @@ func (c *BasicDataDictionarySubService) LogicalDeletion(ctx *gin.Context, ids []
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -252,7 +252,7 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 	for _, info := range finds {
 		c.log.Infof("id=%v", info.ID)
 	}
-	cn.DeleteByIdsString(ids)
+	cn.DeleteByIdsString(ctx, ids)
 	return rt.Ok()
 }
 
@@ -337,7 +337,7 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicDataDictionary.SelectNodeVo
@@ -389,7 +389,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 			return rt.Ok()
 		}
 		values := make(map[string][]model.BaseNodeKeyValue)
-		infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db.Where("type_code in ?", ids)
 			return db
 		}))
@@ -418,7 +418,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 		//
 		values := make([]model.BaseNodeKeyValue, 0)
 		rt.Data = values
-		infos := c.sv.FindAll(query)
+		infos := c.sv.FindAll(ctx, query)
 		if len(infos) > 0 {
 			for _, item := range infos {
 				var vo modBasicDataDictionary.SelectNodeVo

@@ -48,7 +48,7 @@ func (c *EventMakeCache) ThisTenantAll(ctx context.Context) error {
 	if strPg.IsNotBlank(c.ct.TenantNo) {
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEvent.FindAll(query)
+		infos := c.Sp.repEvent.FindAll(ctx, query)
 		if infos != nil {
 			data := make(map[string]interface{})
 			//keysAdd := make([]string, 0)
@@ -88,7 +88,7 @@ func (c *EventMakeCache) All(ctx context.Context) error {
 	var query entityBasic.BasicConfigEventEntity
 	if c.ct.IsAll {
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEvent.FindAll(query)
+		infos := c.Sp.repEvent.FindAll(ctx, query)
 		if infos != nil {
 			data := make(map[string]interface{})
 			//mapKeysAdd := make(map[string][]string, 0)
@@ -140,7 +140,7 @@ func (c *EventMakeCache) Nos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEvent.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repEvent.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("no in ?", nos)
 			return db

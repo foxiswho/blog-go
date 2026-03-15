@@ -142,7 +142,7 @@ func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ct model.Base
 			}
 		}
 		if len(idsInt) > 0 {
-			repository.DeleteByIds(idsInt)
+			repository.DeleteByIds(ctx, idsInt)
 		}
 	} else {
 		for _, info := range finds {
@@ -206,7 +206,7 @@ func (c *BasicModelRulesService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -266,7 +266,7 @@ func (c *BasicModelRulesService) SelectNodeAllPublic(ctx *gin.Context, ct modBas
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicModelRules.Vo
@@ -309,7 +309,7 @@ func (c *BasicModelRulesService) AllByValueNo(ctx *gin.Context, ct modBasicModel
 	if strPg.IsBlank(ct.ValueNo) {
 		return rt.ErrorMessage("模型/事件编号错误")
 	}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicModelRules.Vo

@@ -162,40 +162,40 @@ func (b *BaseCategoryRepository[T, ID]) UpdateAll(ts []*T, opts ...Option) error
 	return nil
 }
 
-func (b *BaseCategoryRepository[T, ID]) DeleteById(id ID, opts ...Option) error {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Delete(&b.Entity, id)
+func (b *BaseCategoryRepository[T, ID]) DeleteById(ctx context.Context, id ID, opts ...Option) error {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
 	return nil
 }
 
-func (b *BaseCategoryRepository[T, ID]) DeleteByIds(id []ID, opts ...Option) error {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Delete(&b.Entity, id)
+func (b *BaseCategoryRepository[T, ID]) DeleteByIds(ctx context.Context, id []ID, opts ...Option) error {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
 	return nil
 }
 
-func (b *BaseCategoryRepository[T, ID]) DeleteByIdsString(id []string, opts ...Option) error {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Delete(&b.Entity, id)
+func (b *BaseCategoryRepository[T, ID]) DeleteByIdsString(ctx context.Context, id []string, opts ...Option) error {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
 	return nil
 }
 
-func (b *BaseCategoryRepository[T, ID]) DeleteAllByTenantNoAndIdsString(tenantNo string, id []string, opts ...Option) error {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where("tenant_no = ?", tenantNo).Delete(&b.Entity, id)
+func (b *BaseCategoryRepository[T, ID]) DeleteAllByTenantNoAndIdsString(ctx context.Context, tenantNo string, id []string, opts ...Option) error {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("tenant_no = ?", tenantNo).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
 	return nil
 }
 
-func (b *BaseCategoryRepository[T, ID]) DeleteByNo(no string, opts ...Option) error {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where("no = ?", no).Delete(&b.Entity)
+func (b *BaseCategoryRepository[T, ID]) DeleteByNo(ctx context.Context, no string, opts ...Option) error {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no = ?", no).Delete(&b.Entity)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -210,8 +210,8 @@ func (b *BaseCategoryRepository[T, ID]) DeleteByNo(no string, opts ...Option) er
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseCategoryRepository[T, ID]) FindById(id ID, opts ...Option) (info *T, result bool) {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where("id=?", id).First(&info)
+func (b *BaseCategoryRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...Option) (info *T, result bool) {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
 		return nil, false
@@ -230,8 +230,8 @@ func (b *BaseCategoryRepository[T, ID]) FindById(id ID, opts ...Option) (info *T
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseCategoryRepository[T, ID]) FindByIdString(id string, opts ...Option) (info *T, result bool) {
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where("id=?", id).First(&info)
+func (b *BaseCategoryRepository[T, ID]) FindByIdString(ctx context.Context, id string, opts ...Option) (info *T, result bool) {
+	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
 		return nil, false
@@ -243,13 +243,12 @@ func (b *BaseCategoryRepository[T, ID]) FindByIdString(id string, opts ...Option
 }
 
 // 查询所有
-func (b *BaseCategoryRepository[T, ID]) FindAll(t T, arg ...interface{}) (infos []*T) {
-	where := b.Db().Where(t)
+func (b *BaseCategoryRepository[T, ID]) FindAll(ctx context.Context, t T, arg ...interface{}) (infos []*T) {
+	where := b.Db().WithContext(ctx).Where(t)
 	if nil != arg {
 		for _, item := range arg {
 			switch result := item.(type) {
 			case Condition:
-				// 条件
 				where = result(where)
 			case Option:
 				where = b.SetOptionScopes(where, item.(Option))
@@ -264,13 +263,12 @@ func (b *BaseCategoryRepository[T, ID]) FindAll(t T, arg ...interface{}) (infos 
 }
 
 // 查询所有-但是限制条数
-func (b *BaseCategoryRepository[T, ID]) FindAllLimit(t T, limit int, arg ...interface{}) (infos []*T, result bool) {
-	where := b.Db().Where(t).Limit(limit)
+func (b *BaseCategoryRepository[T, ID]) FindAllLimit(ctx context.Context, t T, limit int, arg ...interface{}) (infos []*T, result bool) {
+	where := b.Db().WithContext(ctx).Where(t).Limit(limit)
 	if nil != arg {
 		for _, item := range arg {
 			switch result := item.(type) {
 			case Condition:
-				// 条件
 				where = result(where)
 			case Option:
 				where = b.SetOptionScopes(where, item.(Option))

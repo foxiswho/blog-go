@@ -156,7 +156,7 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -296,7 +296,7 @@ func (c *RamMenuService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamMenu
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -321,7 +321,7 @@ func (c *RamMenuService) Delete(ctx *gin.Context, ct model.BaseIdsCt[string]) (r
 	}
 	for _, info := range finds {
 		c.log.Infof("id=%v,TenantId=%v", info.ID, "")
-		r.DeleteById(info.ID)
+		r.DeleteById(ctx, info.ID)
 	}
 	return rt.Ok()
 }
@@ -397,7 +397,7 @@ func (c *RamMenuService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -457,7 +457,7 @@ func (c *RamMenuService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -569,7 +569,7 @@ func (c *RamMenuService) SelectNodePublic(ctx *gin.Context, ct modRamMenu.QueryP
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo
@@ -607,7 +607,7 @@ func (c *RamMenuService) SelectNodeAllPublic(ctx *gin.Context, ct modRamMenu.Que
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo
@@ -645,7 +645,7 @@ func (c *RamMenuService) SelectPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (
 	copier.Copy(&query, &ct)
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo

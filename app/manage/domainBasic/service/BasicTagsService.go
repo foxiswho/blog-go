@@ -134,7 +134,7 @@ func (c *BasicTagsService) Update(ctx *gin.Context, ct modBasicTags.UpdateCt) (r
 			return rt.ErrorMessage("分类不存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -158,7 +158,7 @@ func (c *BasicTagsService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBasic
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -238,7 +238,7 @@ func (c *BasicTagsService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -298,7 +298,7 @@ func (c *BasicTagsService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -357,7 +357,7 @@ func (c *BasicTagsService) SelectNodePublic(ctx *gin.Context, ct modBasicTags.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -378,7 +378,7 @@ func (c *BasicTagsService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicTags
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -400,7 +400,7 @@ func (c *BasicTagsService) SelectPublic(ctx *gin.Context, ct modBasicTags.QueryC
 	var query entityBasic.BasicTagsEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBasicTags.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modBasicTags.Vo, 0)
 		for _, item := range infos {

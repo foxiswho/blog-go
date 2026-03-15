@@ -138,7 +138,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -283,7 +283,7 @@ func (c *BasicCountryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBa
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -363,7 +363,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -423,7 +423,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -481,7 +481,7 @@ func (c *BasicCountryService) SelectNodePublic(ctx *gin.Context, ct modBasicCoun
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
@@ -518,7 +518,7 @@ func (c *BasicCountryService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicC
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
@@ -557,7 +557,7 @@ func (c *BasicCountryService) SelectPublic(ctx *gin.Context, ct modBasicCountry.
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
@@ -583,7 +583,7 @@ func (c *BasicCountryService) SelectPublicCountryCode(ctx *gin.Context, ct modBa
 	//
 	slice := make([]model.BaseSelectVo[string], 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			vo := model.BaseSelectVo[string]{
@@ -608,7 +608,7 @@ func (c *BasicCountryService) ExportExcel(ctx *gin.Context, ct modBasicCountry.Q
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {

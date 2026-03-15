@@ -1,6 +1,8 @@
 package data
 
 import (
+	"context"
+
 	"github.com/foxiswho/blog-go/infrastructure/entityApi"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryApi"
 	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheDiplPg"
@@ -22,8 +24,7 @@ func (b *ZInitDiplCache) Run() error {
 	b.log.Infof("初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
-	//过期时间 超过当前时间的数据
-	infos := b.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := b.sv.FindAll(context.Background(), query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db = db.Order("create_at desc")
 		db.Where("expiry_date >= ?", datetimePg.Now())
 		return db

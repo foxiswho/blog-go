@@ -110,7 +110,7 @@ func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevic
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -134,7 +134,7 @@ func (c *RamAccountDeviceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -216,7 +216,7 @@ func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -275,7 +275,7 @@ func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -365,7 +365,7 @@ func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAc
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAccountDevice.Vo
@@ -400,7 +400,7 @@ func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAccountDevice.Vo
@@ -434,7 +434,7 @@ func (c *RamAccountDeviceService) SelectPublic(ctx *gin.Context, ct modRamAccoun
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamAccountDevice.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamAccountDevice.Vo, 0)
 		for _, item := range infos {

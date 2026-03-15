@@ -30,7 +30,7 @@ func (c *StartInit) Processor(ctx context.Context) error {
 	t := entityBasic.BasicTagsRelationEntity{
 		State: enumStatePg.ENABLE.Index(),
 	}
-	infos := c.sp.TagRela.FindAll(t)
+	infos := c.sp.TagRela.FindAll(ctx, t)
 	if nil != infos && len(infos) > 0 {
 		data := make(map[string]interface{})
 		for _, item := range infos {

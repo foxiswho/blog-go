@@ -75,7 +75,7 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 	holder := holderPg.GetContextAccount(ctx)
 	account := holder.GetAccount()
 	r := c.sv
-	info, b := r.FindById(account.ID)
+	info, b := r.FindById(ctx, account.ID)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

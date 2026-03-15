@@ -208,7 +208,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 	} else {
 		//
-		info, b := c.Sp.repModel.FindByIdString(header.Id.ToString())
+		info, b := c.Sp.repModel.FindByIdString(ctx, header.Id.ToString())
 		if !b {
 			return rt.ErrorMessage("模型不存在")
 		}

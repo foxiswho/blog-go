@@ -175,7 +175,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -234,7 +234,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -301,7 +301,7 @@ func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAcce
 	}
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, con, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query, con)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAppAccessKey.Vo

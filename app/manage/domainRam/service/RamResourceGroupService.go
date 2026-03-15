@@ -161,7 +161,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 		return rt.ErrorMessage("属性不能为空")
 	}
 	r := c.sv
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -333,7 +333,7 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		r.DeleteByIds(idsNew)
+		r.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -347,7 +347,7 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -411,7 +411,7 @@ func (c *RamResourceGroupService) SelectNodePublic(ctx *gin.Context, ct modRamRe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
@@ -449,7 +449,7 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
@@ -487,7 +487,7 @@ func (c *RamResourceGroupService) SelectPublic(ctx *gin.Context, ct modRamResour
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo

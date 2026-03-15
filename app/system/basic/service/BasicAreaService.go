@@ -137,7 +137,7 @@ func (c *BasicAreaService) Update(ctx *gin.Context, ct modBasicArea.UpdateCt) (r
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -277,7 +277,7 @@ func (c *BasicAreaService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBasic
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -357,7 +357,7 @@ func (c *BasicAreaService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -417,7 +417,7 @@ func (c *BasicAreaService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -476,7 +476,7 @@ func (c *BasicAreaService) SelectNodePublic(ctx *gin.Context, ct modBasicArea.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicArea.Vo
@@ -513,7 +513,7 @@ func (c *BasicAreaService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicArea
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicArea.Vo
@@ -551,7 +551,7 @@ func (c *BasicAreaService) SelectPublic(ctx *gin.Context, ct modBasicArea.QueryP
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicArea.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicArea.Vo
@@ -572,7 +572,7 @@ func (c *BasicAreaService) ExportExcel(ctx *gin.Context, ct modBasicArea.QueryCt
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicAreaEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {

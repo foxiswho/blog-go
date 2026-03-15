@@ -149,7 +149,7 @@ func (c *RamAccountService) LogicalDeletion(ctx *gin.Context, ids []string, tp a
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
-			r.DeleteByIds(idsNow)
+			r.DeleteByIds(ctx, idsNow)
 		}
 
 	} else {
@@ -220,7 +220,7 @@ func (c *RamAccountService) PhysicalDeletion(ctx *gin.Context, ids []string, tp 
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
-		r.DeleteByIds(idsNow)
+		r.DeleteByIds(ctx, idsNow)
 	}
 	return rt.Ok()
 }
@@ -829,7 +829,7 @@ func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWd
 	}
 	passwdStr := strPg.GetNanoid(20)
 	r := c.sv
-	info, b := r.FindById(1)
+	info, b := r.FindById(ctx, 1)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

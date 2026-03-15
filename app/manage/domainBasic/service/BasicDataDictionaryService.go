@@ -100,7 +100,7 @@ func (c *BasicDataDictionaryService) Detail(ctx *gin.Context, id string) (rt rg.
 		return rt.ErrorMessage("id 错误")
 	}
 	r := c.sv
-	find, b := r.FindByIdString(id)
+	find, b := r.FindByIdString(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -180,7 +180,7 @@ func (c *BasicDataDictionaryService) LogicalDeletion(ctx *gin.Context, ids []str
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -235,7 +235,7 @@ func (c *BasicDataDictionaryService) PhysicalDeletion(ctx *gin.Context, ids []st
 	for _, info := range finds {
 		c.log.Infof("id=%v", info.ID)
 	}
-	cn.DeleteByIdsString(ids)
+	cn.DeleteByIdsString(ctx, ids)
 	return rt.Ok()
 }
 
@@ -319,7 +319,7 @@ func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db.Order("sort,create_at asc")
 		db.Where("type_code is null or type_code = '' ")
 		return db

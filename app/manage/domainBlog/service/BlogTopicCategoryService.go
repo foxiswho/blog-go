@@ -140,7 +140,7 @@ func (c *BlogTopicCategoryService) Update(ctx *gin.Context, ct modBlogTopicCateg
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -283,7 +283,7 @@ func (c *BlogTopicCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -363,7 +363,7 @@ func (c *BlogTopicCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -423,7 +423,7 @@ func (c *BlogTopicCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -524,7 +524,7 @@ func (c *BlogTopicCategoryService) SelectNodePublic(ctx *gin.Context, ct modBlog
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo
@@ -561,7 +561,7 @@ func (c *BlogTopicCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo
@@ -598,7 +598,7 @@ func (c *BlogTopicCategoryService) SelectPublic(ctx *gin.Context, ct modBlogTopi
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogTopicCategory.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogTopicCategory.Vo

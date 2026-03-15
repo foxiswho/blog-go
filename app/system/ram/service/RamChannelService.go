@@ -109,7 +109,7 @@ func (c *RamChannelService) Update(ctx *gin.Context, ct modRamChannel.UpdateCt) 
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -133,7 +133,7 @@ func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamC
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -215,7 +215,7 @@ func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt 
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -274,7 +274,7 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -334,7 +334,7 @@ func (c *RamChannelService) SelectNodePublic(ctx *gin.Context, ct modRamChannel.
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamChannel.Vo
@@ -369,7 +369,7 @@ func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChann
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamChannel.Vo
@@ -403,7 +403,7 @@ func (c *RamChannelService) SelectPublic(ctx *gin.Context, ct modRamChannel.Quer
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamChannel.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamChannel.Vo, 0)
 		for _, item := range infos {

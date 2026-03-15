@@ -83,7 +83,7 @@ func (c *BlogArticleService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -288,7 +288,7 @@ func (c *BlogArticleService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -346,7 +346,7 @@ func (c *BlogArticleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -586,7 +586,7 @@ func (c *BlogArticleService) SelectNodePublic(ctx *gin.Context, ct modBlogArticl
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -607,7 +607,7 @@ func (c *BlogArticleService) SelectNodeAllPublic(ctx *gin.Context, ct modBlogArt
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -629,7 +629,7 @@ func (c *BlogArticleService) SelectPublic(ctx *gin.Context, ct modBlogArticle.Qu
 	var query entityBlog.BlogArticleEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBlogArticle.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modBlogArticle.Vo, 0)
 		for _, item := range infos {

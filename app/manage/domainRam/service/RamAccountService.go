@@ -143,7 +143,7 @@ func (c *RamAccountService) LogicalDeletion(ctx *gin.Context, ids []string, tp a
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
-			r.DeleteByIds(idsNow)
+			r.DeleteByIds(ctx, idsNow)
 		}
 
 	} else {
@@ -214,7 +214,7 @@ func (c *RamAccountService) PhysicalDeletion(ctx *gin.Context, ids []string, tp 
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
-		r.DeleteByIds(idsNow)
+		r.DeleteByIds(ctx, idsNow)
 	}
 	return rt.Ok()
 }

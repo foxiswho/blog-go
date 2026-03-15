@@ -186,7 +186,7 @@ func (c *ApiDiplAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -247,7 +247,7 @@ func (c *ApiDiplAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		cacheDiplPg.Remove(info.Key)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -317,7 +317,7 @@ func (c *ApiDiplAccessKeyService) SelectPublic(ctx *gin.Context, ct modApiDiplAc
 	}
 	slice := make([]modApiDiplAccessKey.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, con, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query, con)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modApiDiplAccessKey.Vo

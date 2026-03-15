@@ -32,12 +32,11 @@ type TcTenantDomainCacheService struct {
 //
 //	@Description: 初始化加载域名缓存
 //	@receiver c
-func (c *TcTenantDomainCacheService) InitTenantDomain() {
+func (c *TcTenantDomainCacheService) InitTenantDomain(ctx context.Context) {
 	query := entityTc.TcTenantDomainEntity{
 		State: enumStatePg.ENABLE.Index(),
 	}
-	//获取所有域名数据
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		idsTenantNo := make([]string, 0)
 		mapTenant := make(map[string]*entityTc.TcTenantEntity)

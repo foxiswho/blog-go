@@ -53,7 +53,7 @@ func (c *CategoryCache) thisAll(ctx context.Context) error {
 	if strPg.IsNotBlank(c.dto.TenantNo) {
 		query.TenantNo = c.dto.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.sp.catRep.FindAll(query)
+		infos := c.sp.catRep.FindAll(ctx, query)
 		if infos != nil {
 			mapTmp := make(map[string]modBlogArticleCategory.Cache)
 			data := make(map[string]interface{})
@@ -116,7 +116,7 @@ func (c *CategoryCache) all(ctx context.Context) error {
 	var query entityBlog.BlogArticleCategoryEntity
 	if c.dto.IsAll {
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.sp.catRep.FindAll(query)
+		infos := c.sp.catRep.FindAll(ctx, query)
 		if infos != nil {
 			mapTmp := make(map[string]modBlogArticleCategory.Cache)
 			data := make(map[string]interface{})
@@ -200,7 +200,7 @@ func (c *CategoryCache) custom(ctx context.Context) error {
 		}
 		query.TenantNo = c.dto.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.sp.catRep.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.sp.catRep.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("no in ?", nos)
 			return db

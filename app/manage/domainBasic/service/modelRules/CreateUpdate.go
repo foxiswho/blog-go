@@ -90,7 +90,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	obj.RuleTarget = datatypes.NewJSONType[[]string](tags)
 	//
 	if ct.Id.ToInt64() > 0 {
-		info, r := c.Sp.repRules.FindByIdString(ct.Id.ToString())
+		info, r := c.Sp.repRules.FindByIdString(ctx, ct.Id.ToString())
 		if !r {
 			return rt.ErrorMessage("字段规则不存在")
 		}

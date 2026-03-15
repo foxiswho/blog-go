@@ -161,7 +161,7 @@ func (c *BasicConfigEventFieldsService) Detail(ctx *gin.Context, id int64) (rt r
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -241,7 +241,7 @@ func (c *BasicConfigEventFieldsService) LogicalDeletion(ctx *gin.Context, ids []
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -301,7 +301,7 @@ func (c *BasicConfigEventFieldsService) PhysicalDeletion(ctx *gin.Context, ids [
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -365,7 +365,7 @@ func (c *BasicConfigEventFieldsService) AllByEventNo(ctx *gin.Context, ct modBas
 		return rt.ErrorMessage("参数错误")
 	}
 	//
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigEventFields.Vo
@@ -391,7 +391,7 @@ func (c *BasicConfigEventFieldsService) SelectNodeAllPublic(ctx *gin.Context, ct
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigEventFields.Vo

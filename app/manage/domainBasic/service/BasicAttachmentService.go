@@ -196,7 +196,7 @@ func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttach
 			db.Where("file_owner in ?", fileOwner)
 			return db
 		}
-		infos := r.FindAll(query, con)
+		infos := r.FindAll(ctx, query, con)
 		if nil != infos {
 			//字段赋值
 			for _, item := range infos {
@@ -398,7 +398,7 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 			var query entityBasic.BasicAttachmentEntity
 			query.State = enumStatePg.ENABLE.Index()
 			//
-			infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+			infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 				db = db.Order("create_at desc")
 				db.Where("id in ?", ids)
 				return db

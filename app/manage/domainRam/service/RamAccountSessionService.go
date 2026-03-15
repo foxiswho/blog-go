@@ -55,7 +55,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }

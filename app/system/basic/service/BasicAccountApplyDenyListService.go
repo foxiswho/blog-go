@@ -154,7 +154,7 @@ func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicA
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -184,7 +184,7 @@ func (c *BasicAccountApplyDenyListService) Detail(ctx *gin.Context, id int64) (r
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -264,7 +264,7 @@ func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -324,7 +324,7 @@ func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, id
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -383,7 +383,7 @@ func (c *BasicAccountApplyDenyListService) SelectNodePublic(ctx *gin.Context, ct
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicAccountApplyDenyList.Vo
@@ -417,7 +417,7 @@ func (c *BasicAccountApplyDenyListService) SelectNodeAllPublic(ctx *gin.Context,
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicAccountApplyDenyList.Vo
@@ -452,7 +452,7 @@ func (c *BasicAccountApplyDenyListService) SelectPublic(ctx *gin.Context, ct mod
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicAccountApplyDenyList.Vo
@@ -473,7 +473,7 @@ func (c *BasicAccountApplyDenyListService) ExportExcel(ctx *gin.Context, ct modB
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {

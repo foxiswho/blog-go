@@ -121,7 +121,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 			//删除授权及权限规则
 			//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 
 	} else {
 		for _, info := range finds {
@@ -207,7 +207,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 		//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
 	}
 	if len(idsNew) > 0 {
-		r.DeleteByIds(idsNew)
+		r.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }

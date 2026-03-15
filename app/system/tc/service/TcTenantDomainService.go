@@ -129,7 +129,7 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 			return rt.ErrorMessage("编号已存在")
 		}
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -189,7 +189,7 @@ func (c *TcTenantDomainService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -292,7 +292,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -350,7 +350,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -431,7 +431,7 @@ func (c *TcTenantDomainService) SelectNodePublic(ctx *gin.Context, ct modTcTenan
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -452,7 +452,7 @@ func (c *TcTenantDomainService) SelectNodeAllPublic(ctx *gin.Context, ct modTcTe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -474,7 +474,7 @@ func (c *TcTenantDomainService) SelectPublic(ctx *gin.Context, ct modTcTenantDom
 	var query entityTc.TcTenantDomainEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modTcTenantDomain.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modTcTenantDomain.Vo, 0)
 		for _, item := range infos {

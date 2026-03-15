@@ -110,7 +110,7 @@ func (c *RamRoleService) Update(ctx *gin.Context, ct modRamRole.UpdateCt) (rt rg
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -134,7 +134,7 @@ func (c *RamRoleService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamRole
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -216,7 +216,7 @@ func (c *RamRoleService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -275,7 +275,7 @@ func (c *RamRoleService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -335,10 +335,10 @@ func (c *RamRoleService) SelectNodePublic(ctx *gin.Context, ct modRamRole.QueryP
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, func(db *gorm.DB) *gorm.DB {
 		db.Order("name asc")
 		return db
-	}, repositoryPg.WithCtxOption(ctx))
+	})
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamRole.Vo
@@ -373,10 +373,10 @@ func (c *RamRoleService) SelectNodeAllPublic(ctx *gin.Context, ct modRamRole.Que
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, func(db *gorm.DB) *gorm.DB {
 		db.Order("name asc")
 		return db
-	}, repositoryPg.WithCtxOption(ctx))
+	})
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamRole.Vo
@@ -410,7 +410,7 @@ func (c *RamRoleService) SelectPublic(ctx *gin.Context, ct modRamRole.QueryCt) (
 	var query entityRam.RamRoleEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamRole.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamRole.Vo, 0)
 		for _, item := range infos {

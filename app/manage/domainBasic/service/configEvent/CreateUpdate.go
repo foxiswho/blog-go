@@ -200,7 +200,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 	} else {
 		//
-		info, b := c.Sp.repEvent.FindByIdString(header.Id.ToString())
+		info, b := c.Sp.repEvent.FindByIdString(ctx, header.Id.ToString())
 		if !b {
 			return rt.ErrorMessage("事件不存在")
 		}

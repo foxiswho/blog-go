@@ -194,7 +194,7 @@ func (c *BasicConfigEventService) LogicalDeletion(ctx *gin.Context, ids []string
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -254,7 +254,7 @@ func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -315,7 +315,7 @@ func (c *BasicConfigEventService) SelectNodeAllPublic(ctx *gin.Context, ct modBa
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
 	holder := holderPg.GetContextAccount(ctx)
-	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tenant_no=?", holder.GetTenantNo())
 	}))
 	if len(infos) > 0 {
@@ -361,7 +361,7 @@ func (c *BasicConfigEventService) AllByModel(ctx *gin.Context, ct modBasicConfig
 	if strPg.IsBlank(ct.ModelNo) {
 		return rt.ErrorMessage("模型编号错误")
 	}
-	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tenant_no=?", holder.GetTenantNo())
 	}))
 	if len(infos) > 0 {

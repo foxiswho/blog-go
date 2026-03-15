@@ -156,7 +156,7 @@ func (c *BasicTagsRelationService) Update(ctx *gin.Context, ct modBasicTagsRelat
 	if result {
 		return rt.ErrorMessage("标签已存在")
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -191,7 +191,7 @@ func (c *BasicTagsRelationService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -386,7 +386,7 @@ func (c *BasicTagsRelationService) SelectNodePublic(ctx *gin.Context, ct modBasi
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -407,7 +407,7 @@ func (c *BasicTagsRelationService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -429,7 +429,7 @@ func (c *BasicTagsRelationService) SelectPublic(ctx *gin.Context, ct modBasicTag
 	var query entityBasic.BasicTagsRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBasicTagsRelation.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modBasicTagsRelation.Vo, 0)
 		for _, item := range infos {
@@ -452,7 +452,7 @@ func (c *BasicTagsRelationService) All(ctx *gin.Context, ct modBasicTagsRelation
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsRelation.AllVo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicTagsRelation.AllVo

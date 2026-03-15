@@ -142,7 +142,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Upda
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -276,7 +276,7 @@ func (c *RamDepartmentService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modR
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -356,7 +356,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -416,7 +416,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -522,7 +522,7 @@ func (c *RamDepartmentService) SelectNodePublic(ctx *gin.Context, ct modRamDepar
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -560,7 +560,7 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -598,7 +598,7 @@ func (c *RamDepartmentService) SelectPublic(ctx *gin.Context, ct modRamDepartmen
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamDepartment.Vo
@@ -619,7 +619,7 @@ func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {

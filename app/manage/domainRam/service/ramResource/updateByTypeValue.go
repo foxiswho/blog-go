@@ -140,7 +140,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 //	@return rt
 func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 	result := false
-	c.role, result = c.roleDb.FindByIdString(c.ct.TypeValue)
+	c.role, result = c.roleDb.FindByIdString(c.ctx, c.ct.TypeValue)
 	if !result {
 		return rt.ErrorMessage("角色不存在")
 	}

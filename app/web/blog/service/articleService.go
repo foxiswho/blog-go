@@ -61,7 +61,7 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		return rt.ErrorMessage("id错误")
 	}
 	id = strings.TrimSpace(id)
-	find, b := c.sv.FindByIdString(id)
+	find, b := c.sv.FindByIdString(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

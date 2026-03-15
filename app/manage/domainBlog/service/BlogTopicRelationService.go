@@ -121,7 +121,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, numberPg.Int64ToString(info.ID))
 	}
 	if len(idsNew) > 0 {
-		err := cn.DeleteAllByTenantNoAndIdsString(tenantNo, idsNew)
+		err := cn.DeleteAllByTenantNoAndIdsString(ctx, tenantNo, idsNew)
 		if err != nil {
 			c.log.Errorf("操作 err=%+v", err)
 		}

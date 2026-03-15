@@ -166,7 +166,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("ID不能为空")
 		}
 		result := false
-		c.record, result = c.sp.sv.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+		c.record, result = c.sp.sv.FindById(ctx, ct.ID.ToInt64())
 		if !result {
 			return rt.ErrorMessage("数据不存在")
 		}

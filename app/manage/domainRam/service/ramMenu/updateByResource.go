@@ -87,7 +87,7 @@ func (c *UpdateByResource) Process() (rt rg.Rs[string]) {
 		return rt.ErrorMessage("菜单id不能为空")
 	}
 	result := false
-	c.menuData, result = c.menuDb.FindByIdString(c.ct.MenuId.ToString())
+	c.menuData, result = c.menuDb.FindByIdString(c.ctx, c.ct.MenuId.ToString())
 	if !result {
 		return rt.ErrorMessage("菜单不存在")
 	}

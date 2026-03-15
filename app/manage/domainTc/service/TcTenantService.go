@@ -125,7 +125,7 @@ func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt 
 			return rt.ErrorMessage("编号已存在")
 		}
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -165,7 +165,7 @@ func (c *TcTenantService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modTcTena
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -244,7 +244,7 @@ func (c *TcTenantService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -302,7 +302,7 @@ func (c *TcTenantService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -392,7 +392,7 @@ func (c *TcTenantService) SelectNodePublic(ctx *gin.Context, ct modTcTenant.Quer
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -417,7 +417,7 @@ func (c *TcTenantService) SelectNodeAllPublic(ctx *gin.Context, ct modTcTenant.Q
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -443,7 +443,7 @@ func (c *TcTenantService) SelectPublic(ctx *gin.Context, ct modTcTenant.QueryCt)
 	query.No = holder.GetTenantNo()
 	//
 	rt.Data = []modTcTenant.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modTcTenant.Vo, 0)
 		for _, item := range infos {

@@ -102,7 +102,7 @@ func (c *RamMenuRelationService) Update(ctx *gin.Context, ct modRamMenuRelation.
 	if result {
 		return rt.ErrorMessage("编号已存在")
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -121,7 +121,7 @@ func (c *RamMenuRelationService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mo
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -203,7 +203,7 @@ func (c *RamMenuRelationService) LogicalDeletion(ctx *gin.Context, ids []string)
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		//for _, info := range finds {
 		//	enum := enumStatePg.State(info.StateOrder)
@@ -263,7 +263,7 @@ func (c *RamMenuRelationService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -323,7 +323,7 @@ func (c *RamMenuRelationService) SelectNodePublic(ctx *gin.Context, ct modRamMen
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		//for _, item := range infos {
 		//	slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
@@ -346,7 +346,7 @@ func (c *RamMenuRelationService) SelectNodeAllPublic(ctx *gin.Context, ct modRam
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenuRelation.Vo
@@ -372,7 +372,7 @@ func (c *RamMenuRelationService) SelectPublic(ctx *gin.Context, ct modRamMenuRel
 	var query entityRam.RamMenuRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamMenuRelation.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamMenuRelation.Vo, 0)
 		for _, item := range infos {

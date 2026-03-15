@@ -50,7 +50,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 	if ct.SourceId <= 0 {
 		return rt.ErrorMessage("资源组id不能为空")
 	}
-	source, b := c.resourceGroup.FindByIdString(ct.SourceId.ToString())
+	source, b := c.resourceGroup.FindByIdString(ctx, ct.SourceId.ToString())
 	if !b {
 		return rt.ErrorMessage("资源组 不存在")
 	}
@@ -128,7 +128,7 @@ func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code 
 		//设置有效
 		c.resourceAuth.Update(entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
 		//删除 资源与授权id关系
-		infos := c.resourceRel.FindAll(entityRam.RamResourceRelationEntity{Mark: code})
+		infos := c.resourceRel.FindAll(ctx, entityRam.RamResourceRelationEntity{Mark: code})
 		//保存到 casbin
 		c.casbin.UpdateCasbin(numberPg.Int64ToString(info.ID), infos)
 	}

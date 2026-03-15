@@ -27,7 +27,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigMo
 	if strPg.IsBlank(id) {
 		return rt.ErrorMessage("模型ID不能为空")
 	}
-	info, result := c.Sp.repModel.FindByIdString(id)
+	info, result := c.Sp.repModel.FindByIdString(ctx, id)
 	if !result {
 		return rt.ErrorMessage("模型不存在")
 	}

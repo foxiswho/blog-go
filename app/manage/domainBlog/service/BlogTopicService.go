@@ -80,7 +80,7 @@ func (c *BlogTopicService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlogT
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -267,7 +267,7 @@ func (c *BlogTopicService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -325,7 +325,7 @@ func (c *BlogTopicService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.WithCtxOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -565,7 +565,7 @@ func (c *BlogTopicService) SelectNodePublic(ctx *gin.Context, ct modBlogTopic.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -586,7 +586,7 @@ func (c *BlogTopicService) SelectNodeAllPublic(ctx *gin.Context, ct modBlogTopic
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -608,7 +608,7 @@ func (c *BlogTopicService) SelectPublic(ctx *gin.Context, ct modBlogTopic.QueryC
 	var query entityBlog.BlogTopicEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBlogTopic.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modBlogTopic.Vo, 0)
 		for _, item := range infos {

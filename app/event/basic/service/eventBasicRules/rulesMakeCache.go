@@ -48,7 +48,7 @@ func (c *RulesMakeCache) ThisTenantAll(ctx context.Context) error {
 	if strPg.IsNotBlank(c.ct.TenantNo) {
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repRules.FindAll(query)
+		infos := c.Sp.repRules.FindAll(ctx, query)
 		if infos != nil {
 			data := make(map[string]map[string]interface{})
 			for _, info := range infos {
@@ -76,7 +76,7 @@ func (c *RulesMakeCache) All(ctx context.Context) error {
 	var query entityBasic.BasicModelRulesEntity
 	if c.ct.IsAll {
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repRules.FindAll(query)
+		infos := c.Sp.repRules.FindAll(ctx, query)
 		if infos != nil {
 			data := make(map[string]map[string]interface{})
 			for _, info := range infos {
@@ -114,7 +114,7 @@ func (c *RulesMakeCache) FieldNos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repRules.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repRules.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("field_no in ?", fieldNos)
 			return db

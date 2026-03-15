@@ -137,7 +137,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 		return rt.ErrorMessage("属性不能为空")
 	}
 	r := c.sv
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.WithCtxOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -286,7 +286,7 @@ func (c *RamResourceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRam
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.WithCtxOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -366,7 +366,7 @@ func (c *RamResourceService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, " info.TenantNo")
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.WithCtxOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -433,7 +433,7 @@ func (c *RamResourceService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		r.DeleteByIds(idsNew)
+		r.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -545,7 +545,7 @@ func (c *RamResourceService) SelectNodePublic(ctx *gin.Context, ct modRamResourc
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResource.Vo
@@ -583,7 +583,7 @@ func (c *RamResourceService) SelectNodeAllPublic(ctx *gin.Context, ct modRamReso
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResource.Vo
@@ -621,7 +621,7 @@ func (c *RamResourceService) SelectPublic(ctx *gin.Context, ct modRamResource.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResource.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResource.Vo

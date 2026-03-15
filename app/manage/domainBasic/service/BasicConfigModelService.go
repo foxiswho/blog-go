@@ -117,7 +117,7 @@ func (c *BasicConfigModelService) LogicalDeletion(ctx *gin.Context, ids []string
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -177,7 +177,7 @@ func (c *BasicConfigModelService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -237,7 +237,7 @@ func (c *BasicConfigModelService) SelectNodeAllPublic(ctx *gin.Context, ct modBa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigModel.Vo
@@ -275,7 +275,7 @@ func (c *BasicConfigModelService) SelectTenantPublic(ctx *gin.Context, ct modBas
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicConfigModel.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigModel.Vo

@@ -48,7 +48,7 @@ func (c *EventFieldMakeCache) ThisTenantAll(ctx context.Context) error {
 	if strPg.IsNotBlank(c.ct.TenantNo) {
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEventFields.FindAll(query)
+		infos := c.Sp.repEventFields.FindAll(ctx, query)
 		if infos != nil {
 			keyNo := make(map[string]interface{})
 			data := make(map[string]map[string]interface{})
@@ -83,7 +83,7 @@ func (c *EventFieldMakeCache) All(ctx context.Context) error {
 	var query entityBasic.BasicConfigEventFieldsEntity
 	if c.ct.IsAll {
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEventFields.FindAll(query)
+		infos := c.Sp.repEventFields.FindAll(ctx, query)
 		if infos != nil {
 			keyNo := make(map[string]interface{})
 			data := make(map[string]map[string]interface{})
@@ -128,7 +128,7 @@ func (c *EventFieldMakeCache) EventNos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEventFields.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repEventFields.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("event_no in ?", eventNos)
 			return db

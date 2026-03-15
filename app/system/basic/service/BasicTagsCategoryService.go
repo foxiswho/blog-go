@@ -141,7 +141,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -283,7 +283,7 @@ func (c *BasicTagsCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -363,7 +363,7 @@ func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -423,7 +423,7 @@ func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -525,7 +525,7 @@ func (c *BasicTagsCategoryService) SelectNodePublic(ctx *gin.Context, ct modBasi
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicTagsCategory.Vo
@@ -562,7 +562,7 @@ func (c *BasicTagsCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicTagsCategory.Vo
@@ -600,7 +600,7 @@ func (c *BasicTagsCategoryService) SelectPublic(ctx *gin.Context, ct modBasicTag
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsCategory.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicTagsCategory.Vo
@@ -621,7 +621,7 @@ func (c *BasicTagsCategoryService) ExportExcel(ctx *gin.Context, ct modBasicTags
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {

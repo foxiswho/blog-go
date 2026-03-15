@@ -9,7 +9,6 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -47,7 +46,7 @@ func (c *RamResourceGroupRelationService) SelectNodePublic(ctx *gin.Context, ct 
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
@@ -72,7 +71,7 @@ func (c *RamResourceGroupRelationService) SelectNodeAllPublic(ctx *gin.Context, 
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceRelation.Vo
@@ -99,7 +98,7 @@ func (c *RamResourceGroupRelationService) SelectPublic(ctx *gin.Context, ct modR
 	var query entityRam.RamResourceGroupRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceRelation.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamResourceRelation.Vo, 0)
 		for _, item := range infos {
@@ -130,7 +129,7 @@ func (c *RamResourceGroupRelationService) Selected(ctx *gin.Context, ct modRamRe
 	query.TypeCategory = ct.TypeCategory
 	slice := make([]string, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.WithCtxOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			slice = append(slice, numberPg.Int64ToString(item.GroupId))

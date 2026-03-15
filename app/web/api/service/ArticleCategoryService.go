@@ -37,7 +37,7 @@ func (c *ArticleCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modBlo
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogArticleCategory.Vo
