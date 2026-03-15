@@ -75,13 +75,13 @@ func (c *BasicConfigModelService) State(ctx *gin.Context, ids []string, state en
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicConfigModelEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicConfigModelEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -109,7 +109,7 @@ func (c *BasicConfigModelService) LogicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -123,7 +123,7 @@ func (c *BasicConfigModelService) LogicalDeletion(ctx *gin.Context, ids []string
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -142,7 +142,7 @@ func (c *BasicConfigModelService) LogicalRecovery(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -150,7 +150,7 @@ func (c *BasicConfigModelService) LogicalRecovery(ctx *gin.Context, ids []string
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicConfigModelEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -167,7 +167,7 @@ func (c *BasicConfigModelService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -300,7 +300,7 @@ func (c *BasicConfigModelService) ExistName(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -320,7 +320,7 @@ func (c *BasicConfigModelService) ExistCode(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

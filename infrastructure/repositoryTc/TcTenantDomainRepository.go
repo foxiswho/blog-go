@@ -25,8 +25,8 @@ type TcTenantDomainRepository struct {
 	repositoryPg.BaseRepository[entityTc.TcTenantDomainEntity, int64]
 }
 
-func (c *TcTenantDomainRepository) FindAllByTenantNo(no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
-	tx := c.Db().Where("tenant_no=?", no).Find(&infos)
+func (c *TcTenantDomainRepository) FindAllByTenantNo(ctx context.Context, no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
+	tx := c.Db().WithContext(ctx).Where("tenant_no=?", no).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *TcTenantDomainRepository) FindAllByTenantNo(no string) (infos []*entity
 	return infos, true
 }
 
-func (c *TcTenantDomainRepository) SetDefaultedByTenantNo(def int8, no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
-	tx := c.Db().Where("tenant_no=?", no).Update("defaulted", def)
+func (c *TcTenantDomainRepository) SetDefaultedByTenantNo(ctx context.Context, def int8, no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
+	tx := c.Db().WithContext(ctx).Where("tenant_no=?", no).Update("defaulted", def)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

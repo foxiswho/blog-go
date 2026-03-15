@@ -61,7 +61,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 			return rt.ErrorMessage("编号格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByNo(ct.No)
+		_, result := r.FindByNo(ctx, ct.No)
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -82,7 +82,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 			return rt.ErrorMessage("上级不存在")
 		}
 	}
-	_, result := r.FindByNoAndIdNot(ct.No, "0", repositoryPg.WithCtxOption(ctx))
+	_, result := r.FindByNoAndIdNot(ctx, ct.No, "0", repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("字段已存在")
 	}
@@ -92,7 +92,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 	if automatedPg.IsCreateCode(ct.No) {
 		info.No = strPg.GenerateNumberId22()
 	}
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -105,7 +105,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 		info.IdLink = numberPg.Int64ToString(info.ID) + "|"
 		info.NoLink = info.No + "|"
 	}
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
@@ -128,7 +128,7 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 		return rt.ErrorMessage("编号不能为空")
 	}
 	r := c.rep
-	_, result := r.FindByNoAndIdNot(ct.No, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+	_, result := r.FindByNoAndIdNot(ctx, ct.No, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("编号已存在")
 	}
@@ -178,13 +178,13 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 		info.ParentId = ""
 	}
 
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
 	c.log.Infof("save.info=%+v", info)
-	r.UpdateMap(map[string]interface{}{
+	r.UpdateMap(ctx, map[string]interface{}{
 		"parent_id": info.ParentId,
 		"parent_no": info.ParentNo,
 	}, info.ID)
@@ -207,7 +207,7 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 				if item.ID == info.ID {
 					continue
 				}
-				r.Update(entityBlog.BlogCategoryEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
+				r.Update(ctx, entityBlog.BlogCategoryEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
 			}
 		}
 		maps = nil
@@ -250,7 +250,7 @@ func (c *BlogCategoryService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBlog.BlogCategoryEntity{IdLink: item.IdLink}, item.ID)
+			r.Update(ctx, entityBlog.BlogCategoryEntity{IdLink: item.IdLink}, item.ID)
 		}
 	}
 	maps = nil
@@ -302,13 +302,13 @@ func (c *BlogCategoryService) State(ctx *gin.Context, ids []string, state enumSt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.rep
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBlog.BlogCategoryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBlog.BlogCategoryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -336,7 +336,7 @@ func (c *BlogCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.rep
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -350,7 +350,7 @@ func (c *BlogCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -368,7 +368,7 @@ func (c *BlogCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.rep
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -376,7 +376,7 @@ func (c *BlogCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -392,7 +392,7 @@ func (c *BlogCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.rep
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -586,7 +586,7 @@ func (c *BlogCategoryService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.rep.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.rep.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -609,7 +609,7 @@ func (c *BlogCategoryService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.rep.FindByNoAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.rep.FindByNoAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

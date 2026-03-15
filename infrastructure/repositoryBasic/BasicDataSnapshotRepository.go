@@ -26,8 +26,8 @@ type BasicDataSnapshotRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicDataSnapshotEntity, int64]
 }
 
-func (c *BasicDataSnapshotRepository) FindByNameAndIdNot(name string, id int64) (info *entityBasic.BasicDataSnapshotEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
+func (c *BasicDataSnapshotRepository) FindByNameAndIdNot(ctx context.Context, name string, id int64) (info *entityBasic.BasicDataSnapshotEntity, result bool) {
+	tx := c.Db().WithContext(ctx).Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -38,13 +38,13 @@ func (c *BasicDataSnapshotRepository) FindByNameAndIdNot(name string, id int64) 
 	return info, true
 }
 
-func (c *BasicDataSnapshotRepository) SnapshotVersion(obj interface{}, module, tenantNo, value, version, extend string) {
+func (c *BasicDataSnapshotRepository) SnapshotVersion(ctx context.Context, obj interface{}, module, tenantNo, value, version, extend string) {
 	toJson, err := jsonPg.ObjToJson(obj)
 	if nil != err {
 		c.Log().Errorf("snapshot version error: %+v", err)
 	} else {
 		mark := value + "|" + value
-		c.Create(&entityBasic.BasicDataSnapshotEntity{
+		c.Create(ctx, &entityBasic.BasicDataSnapshotEntity{
 			Module:   module,
 			Data:     toJson,
 			Mark:     mark,
@@ -57,13 +57,13 @@ func (c *BasicDataSnapshotRepository) SnapshotVersion(obj interface{}, module, t
 	}
 }
 
-func (c *BasicDataSnapshotRepository) SnapshotVersionAll(obj interface{}, module, tenantNo, value, version, name, extend string) {
+func (c *BasicDataSnapshotRepository) SnapshotVersionAll(ctx context.Context, obj interface{}, module, tenantNo, value, version, name, extend string) {
 	toJson, err := jsonPg.ObjToJson(obj)
 	if nil != err {
 		c.Log().Errorf("snapshot version error: %+v", err)
 	} else {
 		mark := value + "|" + value
-		c.Create(&entityBasic.BasicDataSnapshotEntity{
+		c.Create(ctx, &entityBasic.BasicDataSnapshotEntity{
 			Module:   module,
 			Data:     toJson,
 			Mark:     mark,

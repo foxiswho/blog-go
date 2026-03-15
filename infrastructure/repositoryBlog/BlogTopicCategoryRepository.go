@@ -36,17 +36,7 @@ func (c *BlogTopicCategoryRepository) FindAllByParentIdLink(code string) (info [
 	}
 	return info, true
 }
-func (c *BlogTopicCategoryRepository) FindAllByNoLink(code string) (infos []*entityBlog.BlogTopicCategoryEntity, result bool) {
-	tx := c.Db().Where("no_link like ?", "%"+code+"%").Find(&infos)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return infos, true
-}
+
 func (c *BlogTopicCategoryRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityBlog.BlogTopicCategoryEntity, result bool) {
 	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {

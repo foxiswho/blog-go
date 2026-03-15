@@ -48,7 +48,7 @@ func (c *TcTenantDomainCacheService) InitTenantDomain(ctx context.Context) {
 		//
 		{
 			if len(idsTenantNo) > 0 {
-				info, result := c.tenDb.FindAllByNoIn(idsTenantNo)
+				info, result := c.tenDb.FindAllByNoIn(ctx, idsTenantNo)
 				if result {
 					for _, item := range info {
 						mapTenant[item.No] = item

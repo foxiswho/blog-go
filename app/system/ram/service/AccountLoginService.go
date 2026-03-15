@@ -158,7 +158,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 				TypeDomain: typeDomainPg.System.Index(),
 			}
 			save.KindUnique = userPg.SaltMake(tokenResult.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
-			c.sessionAk.Create(&save)
+			c.sessionAk.Create(ctx, &save)
 			//缓存
 			cacheAuthPubPrivPg.Set(key, dataKey)
 		}

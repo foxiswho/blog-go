@@ -25,8 +25,8 @@ type BasicAccountApplyDenyListEntityRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicAccountApplyDenyListEntity, int64]
 }
 
-func (c *BasicAccountApplyDenyListEntityRepository) FindByExprAndIdNot(name string, id string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("expr=?", name).Where("id <> ?", id).First(&info)
+func (c *BasicAccountApplyDenyListEntityRepository) FindByExprAndIdNot(ctx context.Context, name string, id string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.Db().WithContext(ctx).Where("expr=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

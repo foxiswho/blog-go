@@ -31,13 +31,13 @@ func NewInitSessionPubPrive(log *log2.Logger, sessionAk *repositoryRam.RamAccoun
 
 func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 	// 系统
-	c.keySystem()
+	c.keySystem(ctx)
 	//租户
-	c.keyTenant()
+	c.keyTenant(ctx)
 	return nil
 }
 
-func (c *InitSessionPubPrive) keyTenant() {
+func (c *InitSessionPubPrive) keyTenant(ctx context.Context) {
 	//是否新生成密钥
 	isMakeNewKey := false
 	// 获取 密钥对
@@ -77,7 +77,7 @@ func (c *InitSessionPubPrive) keyTenant() {
 	}
 }
 
-func (c *InitSessionPubPrive) keySystem() {
+func (c *InitSessionPubPrive) keySystem(ctx context.Context) {
 	//是否新生成密钥
 	isMakeNewKey := false
 	privatePubKey := authTokenPg.Result{}
@@ -123,7 +123,7 @@ func (c *InitSessionPubPrive) keySystem() {
 				TypeDomain: typeDomainPg.System.Index(),
 			}
 			save.KindUnique = userPg.SaltMake(privatePubKey.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
-			c.sessionAk.Create(&save)
+			c.sessionAk.Create(ctx, &save)
 		}
 	}
 	//缓存

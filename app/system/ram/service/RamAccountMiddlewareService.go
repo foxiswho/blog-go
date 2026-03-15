@@ -48,7 +48,7 @@ func (c *RamAccountMiddlewareService) FindByLoginNo(ctx *gin.Context, no string)
 	if strPg.IsBlank(no) {
 		return rt.ErrorMessage("账号登陆失败")
 	}
-	info, b := c.sv.FindByNo(no)
+	info, b := c.sv.FindByNo(ctx, no)
 	if !b {
 		return rt.ErrorMessage("账号不存在")
 	}

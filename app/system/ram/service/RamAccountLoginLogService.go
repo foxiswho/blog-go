@@ -45,7 +45,7 @@ func (c *RamAccountLoginLogService) PhysicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -99,7 +99,7 @@ func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLogi
 		// 账号
 		{
 			if len(idsAcc) > 0 {
-				acc, b := c.accDb.FindAllByNoIn(idsAcc)
+				acc, b := c.accDb.FindAllByNoIn(ctx, idsAcc)
 				if b {
 					for _, item := range acc {
 						mapAcc[item.No] = item

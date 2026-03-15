@@ -36,17 +36,7 @@ func (c *BasicTagsCategoryRepository) FindAllByParentIdLink(code string) (info [
 	}
 	return info, true
 }
-func (c *BasicTagsCategoryRepository) FindAllByNoLink(code string) (infos []*entityBasic.BasicTagsCategoryEntity, result bool) {
-	tx := c.Db().Where("no_link like ?", "%"+code+"%").Find(&infos)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return infos, true
-}
+
 func (c *BasicTagsCategoryRepository) FindAllByNoLinkAndTypeSys(code string, tpSys string) (info []*entityBasic.BasicTagsCategoryEntity, result bool) {
 	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {

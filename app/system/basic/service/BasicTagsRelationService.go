@@ -71,7 +71,7 @@ func (c *BasicTagsRelationService) Create(ctx *gin.Context, ct modBasicTagsRelat
 	if _, ok := typeSysPg.IsExistTypeSys(ct.TypeSys); !ok {
 		return rt.ErrorMessage("类型错误")
 	}
-	if _, result := c.categoryRep.FindByNo(ct.Category); !result {
+	if _, result := c.categoryRep.FindByNo(ctx, ct.Category); !result {
 		return rt.ErrorMessage("分类不存在")
 	}
 	if strPg.IsBlank(ct.NameShort) {
@@ -105,7 +105,7 @@ func (c *BasicTagsRelationService) Create(ctx *gin.Context, ct modBasicTagsRelat
 
 	c.log.Infof("info%+v", info)
 	info.TenantNo = holder.GetTenantNo()
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if nil != err {
 		c.log.Errorf("save err=%+v", err)
 		return rt.ErrorMessage("保存失败")
@@ -144,7 +144,7 @@ func (c *BasicTagsRelationService) Update(ctx *gin.Context, ct modBasicTagsRelat
 	if _, ok := typeSysPg.IsExistTypeSys(ct.TypeSys); !ok {
 		return rt.ErrorMessage("类型错误")
 	}
-	if _, result := c.categoryRep.FindByNo(ct.Category); !result {
+	if _, result := c.categoryRep.FindByNo(ctx, ct.Category); !result {
 		return rt.ErrorMessage("分类不存在")
 	}
 	if strPg.IsBlank(ct.NameShort) {
@@ -178,7 +178,7 @@ func (c *BasicTagsRelationService) Update(ctx *gin.Context, ct modBasicTagsRelat
 	} else {
 		info.Attribute = toJson
 	}
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -228,13 +228,13 @@ func (c *BasicTagsRelationService) State(ctx *gin.Context, ids []string, state e
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicTagsRelationEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicTagsRelationEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -262,7 +262,7 @@ func (c *BasicTagsRelationService) LogicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -277,7 +277,7 @@ func (c *BasicTagsRelationService) LogicalDeletion(ctx *gin.Context, ids []strin
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicTagsRelationEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicTagsRelationEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -295,7 +295,7 @@ func (c *BasicTagsRelationService) LogicalRecovery(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -303,7 +303,7 @@ func (c *BasicTagsRelationService) LogicalRecovery(ctx *gin.Context, ids []strin
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicTagsRelationEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicTagsRelationEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -319,7 +319,7 @@ func (c *BasicTagsRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -493,7 +493,7 @@ func (c *BasicTagsRelationService) AllByLink(ctx *gin.Context, ct modBasicTagsRe
 	c.log.Infof("ct=%+v", ct)
 	category := make([]string, 0)
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		data, result := c.categoryRep.FindAllByNoLink(ct.CategoryNo + "|")
+		data, result := c.categoryRep.FindAllByNoLink(ctx, ct.CategoryNo)
 		if result {
 			for _, item := range data {
 				category = append(category, item.No)
@@ -590,7 +590,7 @@ func (c *BasicTagsRelationService) GetCategory(ctx *gin.Context, category string
 	groupVo.General = make([]modBasicTagsCategory.Vo, 0)
 	groupVo.Sys = make([]modBasicTagsCategory.Vo, 0)
 	// 获取所有分类
-	infos, result := c.categoryRep.FindAllByNoLink(category + "|")
+	infos, result := c.categoryRep.FindAllByNoLink(ctx, category)
 	if result {
 		//整理 所有普通分类
 		for _, item := range infos {

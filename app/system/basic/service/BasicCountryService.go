@@ -69,14 +69,14 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code)
+		_, result := r.FindByCode(ctx, info.Code)
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -87,7 +87,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 		info.Code = strPg.GenerateNumberId22()
 	}
 	c.log.Infof("info%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -103,7 +103,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 		info.ParentId = ""
 		info.ParentNo = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -133,7 +133,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -147,7 +147,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	var childData []*entityBasic.BasicCountryEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -157,7 +157,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.IdLink)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -184,7 +184,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	}
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -212,7 +212,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 				if item.ID == find.ID {
 					continue
 				}
-				err = r.Update(entityBasic.BasicCountryEntity{IdLink: item.IdLink,
+				err = r.Update(ctx, entityBasic.BasicCountryEntity{IdLink: item.IdLink,
 					NoLink: item.NoLink}, item.ID)
 				if err != nil {
 					return rt.ErrorMessage(err.Error())
@@ -265,7 +265,7 @@ func (c *BasicCountryService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBasic.BasicCountryEntity{
+			r.Update(ctx, entityBasic.BasicCountryEntity{
 				IdLink: item.IdLink,
 				NoLink: item.NoLink},
 				item.ID)
@@ -320,13 +320,13 @@ func (c *BasicCountryService) State(ctx *gin.Context, ids []string, state enumSt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicCountryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicCountryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -355,7 +355,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -369,7 +369,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -388,7 +388,7 @@ func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -396,7 +396,7 @@ func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -413,7 +413,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -683,7 +683,7 @@ func (c *BasicCountryService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -703,7 +703,7 @@ func (c *BasicCountryService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

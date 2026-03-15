@@ -59,7 +59,7 @@ func (c *RamMenuRelationService) Create(ctx *gin.Context, ct modRamMenuRelation.
 			return rt.ErrorMessage("编号格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ct.Code)
+		_, result := r.FindByCode(ctx, ct.Code)
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -70,11 +70,11 @@ func (c *RamMenuRelationService) Create(ctx *gin.Context, ct modRamMenuRelation.
 	c.log.Infof("info%+v", info)
 	info.TenantNo = holder.GetTenantNo()
 	info.No = noPg.No()
-	r.Create(&info)
+	r.Create(ctx, &info)
 	//自动设置编号
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = numberPg.Int64ToString(info.ID)
-		r.Update(entityRam.RamMenuRelationEntity{Code: info.Code}, info.ID)
+		r.Update(ctx, entityRam.RamMenuRelationEntity{Code: info.Code}, info.ID)
 	}
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
@@ -98,7 +98,7 @@ func (c *RamMenuRelationService) Update(ctx *gin.Context, ct modRamMenuRelation.
 		return rt.ErrorMessage("编号不能为空")
 	}
 	r := c.sv
-	_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+	_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 	if result {
 		return rt.ErrorMessage("编号已存在")
 	}
@@ -108,7 +108,7 @@ func (c *RamMenuRelationService) Update(ctx *gin.Context, ct modRamMenuRelation.
 	}
 	var info entityRam.RamMenuRelationEntity
 	copier.Copy(&info, &ct)
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -160,13 +160,13 @@ func (c *RamMenuRelationService) State(ctx *gin.Context, ids []string, state enu
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	_, b := r.FindAllByIdStringIn(ids)
+	_, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	//for _, info := range finds {
 	//	if info.StateOrder != state.IndexInt8() {
-	//		r.Update(entityRam.RamMenuRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
+	//		r.Update(ctx, entityRam.RamMenuRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -195,7 +195,7 @@ func (c *RamMenuRelationService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -209,7 +209,7 @@ func (c *RamMenuRelationService) LogicalDeletion(ctx *gin.Context, ids []string)
 		//	enum := enumStatePg.State(info.StateOrder)
 		//	// 有效 停用，反转 为对应的 取消 弃置
 		//	if ok, reverse := enum.ReverseEnableDisable(); ok {
-		//		repository.Update(entityRam.RamMenuRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+		//		repository.Update(ctx, entityRam.RamMenuRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 		//	}
 		//}
 	}
@@ -228,7 +228,7 @@ func (c *RamMenuRelationService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	_, b := repository.FindAllByIdStringIn(ids)
+	_, b := repository.FindAllByIdStringIn(ctx, ids)
 	if b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -236,7 +236,7 @@ func (c *RamMenuRelationService) LogicalRecovery(ctx *gin.Context, ids []string)
 	//	enum := enumStatePg.State(info.StateOrder)
 	//	//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 	//	if ok, reverse := enum.ReverseCancelLayAside(); ok {
-	//		repository.Update(entityRam.RamMenuRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+	//		repository.Update(ctx, entityRam.RamMenuRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -253,7 +253,7 @@ func (c *RamMenuRelationService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

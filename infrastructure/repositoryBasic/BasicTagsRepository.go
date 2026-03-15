@@ -36,15 +36,3 @@ func (c *BasicTagsRepository) FindAllByParentIdLink(code string) (info []entityB
 	}
 	return info, true
 }
-
-func (c *BasicTagsRepository) FindByCode(name string) (info *entityBasic.BasicTagsEntity, result bool) {
-	tx := c.Db().Where("code=?", name).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}

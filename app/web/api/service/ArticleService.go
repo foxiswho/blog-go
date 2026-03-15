@@ -47,7 +47,7 @@ func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg
 	if strPg.IsBlank(ct.Url) {
 		return rt.ErrorMessage("url地址不能为空")
 	}
-	info, result := c.catDb.FindByNo(ct.CategoryNo)
+	info, result := c.catDb.FindByNo(ctx, ct.CategoryNo)
 	if !result {
 		return rt.ErrorMessage("分类不存在")
 	}
@@ -62,12 +62,12 @@ func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg
 	save.Code = save.No
 	save.TenantNo = holder.GetTenantNo()
 	save.Ano = holder.GetAccountNo()
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
 	}
-	err, _ = c.sata.Create(&entityBlog.BlogArticleStatisticsEntity{ID: save.ID, ArticleNo: save.No})
+	err, _ = c.sata.Create(ctx, &entityBlog.BlogArticleStatisticsEntity{ID: save.ID, ArticleNo: save.No})
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 	}

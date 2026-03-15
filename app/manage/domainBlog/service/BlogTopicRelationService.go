@@ -49,7 +49,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if nil == ct.Nos || 0 == len(ct.Nos) {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	topic, result := c.topic.FindByNo(ct.TopicNo, repositoryPg.WithCtxOption(ctx))
+	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, repositoryPg.WithCtxOption(ctx))
 	if !result {
 		return rt.ErrorMessage("话题 不存在")
 	}
@@ -65,7 +65,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if len(ids) < 1 {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	articles, result := c.article.FindAllByNoIn(ids)
+	articles, result := c.article.FindAllByNoIn(ctx, ids)
 	if !result {
 		return rt.ErrorMessage("文章 不存在")
 	}
@@ -79,7 +79,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		if r {
 			continue
 		}
-		find, b := c.article.FindByNo(article.No, repositoryPg.WithCtxOption(ctx))
+		find, b := c.article.FindByNo(ctx, article.No, repositoryPg.WithCtxOption(ctx))
 		if !b {
 			continue
 		}
@@ -90,7 +90,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		obj.Ano = ano
 		obj.Name = find.Name
 		obj.Description = find.Description
-		err, _ := c.relation.Create(&obj)
+		err, _ := c.relation.Create(ctx, &obj)
 		if nil != err {
 			c.log.Errorf("save err=%+v", err)
 		}
@@ -109,7 +109,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.relation
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

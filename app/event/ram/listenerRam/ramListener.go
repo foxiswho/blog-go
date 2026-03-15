@@ -1,6 +1,8 @@
 package listenerRam
 
 import (
+	"context"
+
 	"github.com/farseer-go/eventBus"
 	"github.com/farseer-go/fs/core"
 	"github.com/foxiswho/blog-go/app/event/ram/listenerRam/service"
@@ -30,7 +32,7 @@ func (c *RamListener) Run() error {
 		c.log.Infof("SchedulerEvent[账号.登录日志].event=%+v", message)
 		dto := message.(modRamAccount.LoginLogDto)
 		if strPg.IsNotBlank(dto.Ano) {
-			err := service.NewAccountLoginLog(c.log, c.acc, c.loginLog, c.session).Processor(dto)
+			err := service.NewAccountLoginLog(c.log, c.acc, c.loginLog, c.session).Processor(context.Background(), dto)
 			if nil != err {
 				c.log.Error("", err)
 			}

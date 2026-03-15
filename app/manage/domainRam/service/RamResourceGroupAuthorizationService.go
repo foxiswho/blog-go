@@ -64,13 +64,13 @@ func (c *RamResourceGroupAuthorizationService) State(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamResourceGroupEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamResourceGroupEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	//有效
@@ -110,7 +110,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -129,7 +129,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 
 			//设置无效
@@ -151,7 +151,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -159,7 +159,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 
 		//设置有效
@@ -180,7 +180,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 	}
 	r := c.sv
 	authDb := c.authDb
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

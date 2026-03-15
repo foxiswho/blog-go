@@ -50,19 +50,6 @@ func (c *RamResourceRepository) FindAllByIdLink(code string) (info []entityRam.R
 	}
 	return info, true
 }
-
-func (c *RamResourceRepository) FindByNameAndIdNot(name string, id int64) (info *entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
 func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResourceEntity, result bool) {
 	tx := c.Db().Where("parent_id='' ").Find(&info)
 	if tx.Error != nil {

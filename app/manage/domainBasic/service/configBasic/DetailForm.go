@@ -51,7 +51,7 @@ func (c *DetailForm) Process(ctx *gin.Context, ct modBasicConfigList.DetailFormC
 	if holder.GetTenantNo() != config.TenantNo {
 		return rt.ErrorMessage("配置不存在")
 	}
-	//info, b := c.Sp.repEvent.FindByNo(ct.EventNo)
+	//info, b := c.Sp.repEvent.FindByNo(ctx, ct.EventNo)
 	//if !b {
 	//	return rt.ErrorMessage("事件不存在")
 	//}

@@ -27,18 +27,6 @@ type RamResourceGroupRepository struct {
 	//
 }
 
-func (c *RamResourceGroupRepository) FindByNameAndIdNot(name string, id int64) (info *entityRam.RamResourceGroupEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
 func (c *RamResourceGroupRepository) FindByParentId(code int64) (info *entityRam.RamResourceGroupEntity, result bool) {
 	tx := c.Db().Where("parent_id=?", code).First(&info)
 	if tx.Error != nil {

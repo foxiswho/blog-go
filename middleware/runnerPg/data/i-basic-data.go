@@ -36,6 +36,7 @@ type IBasicData struct {
 }
 
 func (b *IBasicData) Run() error {
+	ctx := context.Background()
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：国家:中国]===================")
 	{
 		save := entityBasic.BasicCountryEntity{
@@ -52,11 +53,11 @@ func (b *IBasicData) Run() error {
 			DomainSuffix: "cn",
 		}
 		//不存在时创建
-		_, result := b.country.FindByNo(save.No)
+		_, result := b.country.FindByNo(ctx, save.No)
 		if !result {
 			save.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(save.ID))
 			save.NoLink = constNodePg.NoLinkDefault(save.No)
-			b.country.Create(&save)
+			b.country.Create(ctx, &save)
 		}
 	}
 	//
@@ -75,11 +76,11 @@ func (b *IBasicData) Run() error {
 			Tags:     datatypes.NewJSONType(make([]string, 0)),
 		}
 		//不存在时创建
-		_, result := b.tagsCat.FindByNo(save.No)
+		_, result := b.tagsCat.FindByNo(ctx, save.No)
 		if !result {
 			save.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(save.ID))
 			save.NoLink = constNodePg.NoLinkDefault(save.No)
-			b.tagsCat.Create(&save)
+			b.tagsCat.Create(ctx, &save)
 		}
 	}
 	//
@@ -99,6 +100,7 @@ func (b *IBasicData) Run() error {
 
 // initSysConfig 初始化系统配置
 func (b *IBasicData) initSysConfig() {
+	ctx := context.Background()
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：配置.系统配置]===================")
 	save := entityBasic.BasicConfigListEntity{
 		State:       enumStatePg.ENABLE.Index(),
@@ -115,9 +117,9 @@ func (b *IBasicData) initSysConfig() {
 	}
 	save.KindUnique = cryptPg.Md5(save.No)
 	//不存在时创建
-	_, result := b.conList.FindByNo(save.No)
+	_, result := b.conList.FindByNo(ctx, save.No)
 	if !result {
-		b.conList.Create(&save)
+		b.conList.Create(ctx, &save)
 	}
 	fields := make([]string, 0)
 	dataInset := make([]*entityBasic.BasicConfigEntity, 0)
@@ -164,7 +166,7 @@ func (b *IBasicData) initSysConfig() {
 		//
 
 		//不存在时创建
-		info, r := b.config.FindByEventNoAndFieldIn(save.EventNo, fields)
+		info, r := b.config.FindByEventNoAndFieldIn(ctx, save.EventNo, fields)
 		if !r {
 			b.config.DbModel().Create(dataInset)
 		} else {
@@ -189,6 +191,7 @@ func (b *IBasicData) initSysConfig() {
 
 // 默认租户配置
 func (b *IBasicData) initDefaultTenantConfig() {
+	ctx := context.Background()
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：配置.默认租户配置]===================")
 	save := entityBasic.BasicConfigListEntity{
 		State:       enumStatePg.ENABLE.Index(),
@@ -206,9 +209,9 @@ func (b *IBasicData) initDefaultTenantConfig() {
 	}
 	save.KindUnique = cryptPg.Md5(save.No)
 	//不存在时创建
-	_, result := b.conList.FindByNo(save.No)
+	_, result := b.conList.FindByNo(ctx, save.No)
 	if !result {
-		b.conList.Create(&save)
+		b.conList.Create(ctx, &save)
 	}
 	fields := make([]string, 0)
 	dataInset := make([]*entityBasic.BasicConfigEntity, 0)
@@ -314,7 +317,7 @@ func (b *IBasicData) initDefaultTenantConfig() {
 			dataInset = append(dataInset, &item)
 		}
 		//不存在时创建
-		info, r := b.config.FindByEventNoAndFieldIn(save.EventNo, fields)
+		info, r := b.config.FindByEventNoAndFieldIn(ctx, save.EventNo, fields)
 		if !r {
 			b.config.DbModel().Create(dataInset)
 		} else {
@@ -339,6 +342,7 @@ func (b *IBasicData) initDefaultTenantConfig() {
 
 // 系统模型
 func (b *IBasicData) initSystemModel() {
+	ctx := context.Background()
 	save := entityBasic.BasicConfigModelEntity{
 		State:         enumStatePg.ENABLE.Index(),
 		Show:          yesNoIntPg.Yes.Index(),
@@ -352,9 +356,9 @@ func (b *IBasicData) initSystemModel() {
 	save.Tags = datatypes.NewJSONType[[]string](make([]string, 0))
 	save.KindUnique = cryptPg.Md5(save.Model)
 	//不存在时创建
-	_, result := b.model.FindByNo(save.No)
+	_, result := b.model.FindByNo(ctx, save.No)
 	if !result {
-		b.model.Create(&save)
+		b.model.Create(ctx, &save)
 	}
 
 	fields := make([]string, 0)
@@ -425,6 +429,7 @@ func (b *IBasicData) initSystemModel() {
 	}
 }
 func (b *IBasicData) initDefaultTenantModel() {
+	ctx := context.Background()
 	save := entityBasic.BasicConfigModelEntity{
 		State:         enumStatePg.ENABLE.Index(),
 		Show:          yesNoIntPg.Yes.Index(),
@@ -438,9 +443,9 @@ func (b *IBasicData) initDefaultTenantModel() {
 	save.Tags = datatypes.NewJSONType[[]string](make([]string, 0))
 	save.KindUnique = cryptPg.Md5(save.Model)
 	//不存在时创建
-	_, result := b.model.FindByNo(save.No)
+	_, result := b.model.FindByNo(ctx, save.No)
 	if !result {
-		b.model.Create(&save)
+		b.model.Create(ctx, &save)
 	}
 	fields := make([]string, 0)
 	dataInset := make([]*entityBasic.BasicConfigModelFieldsEntity, 0)
@@ -575,6 +580,7 @@ func (b *IBasicData) initDefaultTenantModel() {
 }
 
 func (b *IBasicData) initSystemEvent() {
+	ctx := context.Background()
 	save := entityBasic.BasicConfigEventEntity{
 		State:   enumStatePg.ENABLE.Index(),
 		Show:    yesNoIntPg.Yes.Index(),
@@ -587,9 +593,9 @@ func (b *IBasicData) initSystemEvent() {
 	save.Tags = datatypes.NewJSONType[[]string](make([]string, 0))
 	save.KindUnique = cryptPg.Md5(save.Model)
 	//不存在时创建
-	_, result := b.event.FindByNo(save.No)
+	_, result := b.event.FindByNo(ctx, save.No)
 	if !result {
-		b.event.Create(&save)
+		b.event.Create(ctx, &save)
 	}
 
 	fields := make([]string, 0)
@@ -664,6 +670,7 @@ func (b *IBasicData) initSystemEvent() {
 	}
 }
 func (b *IBasicData) initDefaultTenantEvent() {
+	ctx := context.Background()
 	save := entityBasic.BasicConfigEventEntity{
 		State:    enumStatePg.ENABLE.Index(),
 		Show:     yesNoIntPg.Yes.Index(),
@@ -677,9 +684,9 @@ func (b *IBasicData) initDefaultTenantEvent() {
 	save.Tags = datatypes.NewJSONType[[]string](make([]string, 0))
 	save.KindUnique = cryptPg.Md5(save.Model)
 	//不存在时创建
-	_, result := b.event.FindByNo(save.No)
+	_, result := b.event.FindByNo(ctx, save.No)
 	if !result {
-		b.event.Create(&save)
+		b.event.Create(ctx, &save)
 	}
 	fields := make([]string, 0)
 	dataInset := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)

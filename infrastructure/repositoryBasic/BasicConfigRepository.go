@@ -1,6 +1,8 @@
 package repositoryBasic
 
 import (
+	"context"
+
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
@@ -28,8 +30,8 @@ func (c *BasicConfigRepository) FindByTypeDomainTenantAndField(typeDomain string
 	}
 	return info, true
 }
-func (c *BasicConfigRepository) FindByEventNoAndFieldIn(eventNo string, code []string) (info []*entityBasic.BasicConfigEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).Where("field in ?", code).Find(&info)
+func (c *BasicConfigRepository) FindByEventNoAndFieldIn(ctx context.Context, eventNo string, code []string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Where("field in ?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

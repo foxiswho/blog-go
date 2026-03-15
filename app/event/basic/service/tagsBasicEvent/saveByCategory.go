@@ -46,7 +46,7 @@ func (c *SaveByCategory) Processor() error {
 		return nil
 	}
 	//类别是否存在
-	info, result := c.sp.TagCate.FindByNo(c.dto.Category)
+	info, result := c.sp.TagCate.FindByNo(context.Background(), c.dto.Category)
 	if !result {
 		return nil
 	}
@@ -56,7 +56,7 @@ func (c *SaveByCategory) Processor() error {
 	tagsEntity := make(map[string]*entityBasic.BasicTagsEntity)
 	tagsRelation := make(map[string]*entityBasic.BasicTagsRelationEntity)
 	tagsNo := make([]string, 0)
-	in, r := c.sp.TagsDb.FindAllByNameIn(c.dto.Tags)
+	in, r := c.sp.TagsDb.FindAllByNameIn(context.Background(), c.dto.Tags)
 	if r {
 		for _, item := range in {
 			mapTagsOnly[item.Name] = item.No
@@ -98,7 +98,7 @@ func (c *SaveByCategory) Processor() error {
 				save.CategoryNo = info.No
 				save.TenantNo = c.dto.Holder.GetTenantNo()
 				save.CreateBy = c.dto.Holder.GetAccountNo()
-				c.sp.TagsDb.Create(save)
+				c.sp.TagsDb.Create(context.Background(), save)
 				//
 				mapTagsOnly[v] = save.No
 				tagsEntity[save.No] = save
@@ -121,7 +121,7 @@ func (c *SaveByCategory) Processor() error {
 				rel.Module = save.Module
 				//rel.Attribute = save.Attribute
 				rel.CategoryRoot = c.dto.Category
-				c.sp.TagRela.Create(&rel)
+				c.sp.TagRela.Create(context.Background(), &rel)
 				//
 				tagsRelation[rel.TagNo] = &rel
 			}

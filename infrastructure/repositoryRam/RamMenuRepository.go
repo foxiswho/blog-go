@@ -38,15 +38,3 @@ func (c *RamMenuRepository) FindAllByIdLink(code string) (info []entityRam.RamMe
 	}
 	return info, true
 }
-
-func (c *RamMenuRepository) FindByNameAndIdNot(name string, id int64) (info *entityRam.RamMenuEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}

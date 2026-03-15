@@ -36,17 +36,7 @@ func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(code string) (info []*
 	}
 	return info, true
 }
-func (c *ApiDiplCategoryRepository) FindAllByNoLink(code string) (infos []*entityApi.ApiDiplCategoryEntity, result bool) {
-	tx := c.Db().Where("no_link like ?", "%"+code+"%").Find(&infos)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return infos, true
-}
+
 func (c *ApiDiplCategoryRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
 	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {

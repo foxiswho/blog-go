@@ -65,7 +65,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 		c.resourceRel.DeleteByAuthorityId(auth.ID)
 		now := time.Now()
 		//增加权限
-		infos, b := c.resource.FindAllByIdStringIn(ct.Ids)
+		infos, b := c.resource.FindAllByIdStringIn(ctx, ct.Ids)
 		if !b {
 			slice := make([]*entityRam.RamResourceRelationEntity, 0)
 			//保存数据库
@@ -90,7 +90,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 				info.ResourceId = item.ID
 				c.log.Infof("info%+v", info)
 				info.TenantNo = holder.GetTenantNo()
-				c.resourceRel.Create(&info)
+				c.resourceRel.Create(ctx, &info)
 				c.log.Infof("save=%+v", info)
 
 				slice = append(slice, &info)
@@ -126,7 +126,7 @@ func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code 
 	info, result := c.resourceAuth.FindByMark(code)
 	if result {
 		//设置有效
-		c.resourceAuth.Update(entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
+		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
 		//删除 资源与授权id关系
 		infos := c.resourceRel.FindAll(ctx, entityRam.RamResourceRelationEntity{Mark: code})
 		//保存到 casbin
@@ -142,7 +142,7 @@ func (c *RamResourceAuthorizationService) AuthorityInValid(ctx *gin.Context, cod
 	info, result := c.resourceAuth.FindByMark(code)
 	if result {
 		//设置无效
-		c.resourceAuth.Update(entityRam.RamResourceAuthorityEntity{State: enumStatePg.DISABLE.Index()}, info.ID)
+		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.DISABLE.Index()}, info.ID)
 		//保存到 casbin ，直接清空规则
 		c.casbin.ClearCasbin(int(info.ID))
 	}

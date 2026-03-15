@@ -66,7 +66,7 @@ func (c *ApiDiplAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseI
 	save.Secret = strPg.GetNanoid(20)
 	save.ExpiryDate = &add
 	save.KindUnique = userPg.SaltMake(save.Key, save.Secret+save.ExpiryDate.String())
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Error("", err)
 		return rt.ErrorMessage("保存失败")
@@ -131,7 +131,7 @@ func (c *ApiDiplAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsC
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -178,7 +178,7 @@ func (c *ApiDiplAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -192,7 +192,7 @@ func (c *ApiDiplAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityApi.ApiDiplAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityApi.ApiDiplAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -210,7 +210,7 @@ func (c *ApiDiplAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -218,7 +218,7 @@ func (c *ApiDiplAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityApi.ApiDiplAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityApi.ApiDiplAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -235,7 +235,7 @@ func (c *ApiDiplAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

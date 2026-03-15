@@ -55,9 +55,9 @@ func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	typeModel := "model"
 	no := ""
 	tenantNo := ""
-	event, result := c.Sp.repEvent.FindByNo(ct.FieldNo)
+	event, result := c.Sp.repEvent.FindByNo(ctx, ct.FieldNo)
 	if !result {
-		info, r := c.Sp.repModel.FindByNo(ct.FieldNo)
+		info, r := c.Sp.repModel.FindByNo(ctx, ct.FieldNo)
 		if !r {
 			return rt.ErrorMessage("模型/事件不存在")
 		}
@@ -136,7 +136,7 @@ func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	}
 	if len(dataUpdate) > 0 {
 		for _, entity := range dataUpdate {
-			c.Sp.repRules.Update(*entity, entity.ID)
+			c.Sp.repRules.Update(ctx, *entity, entity.ID)
 		}
 	}
 	return rt.Ok()

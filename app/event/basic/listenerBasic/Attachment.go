@@ -31,7 +31,7 @@ func (c *AttachmentListener) Run() error {
 		syslog.Infof(context.Background(), syslog.TagAppDef, "SchedulerEvent.event=%+v", message)
 		dto := message.(entityBasic.BasicAttachmentEntity)
 		if len(dto.File) > 0 {
-			err := attachment.NewCreate(c.dao, dto).Processor()
+			err := attachment.NewCreate(c.dao, dto).Processor(context.Background())
 			if nil != err {
 				c.log.Error("", err)
 			}

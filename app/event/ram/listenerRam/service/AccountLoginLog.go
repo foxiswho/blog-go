@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
@@ -35,7 +37,7 @@ func NewAccountLoginLog(
 //	@Description: 处理
 //	@receiver c
 //	@param data
-func (c *AccountLoginLog) Processor(data modRamAccount.LoginLogDto) error {
+func (c *AccountLoginLog) Processor(ctx context.Context, data modRamAccount.LoginLogDto) error {
 	acc := data.Account
 	ua := ""
 	if data.ExtraData != nil {
@@ -50,7 +52,7 @@ func (c *AccountLoginLog) Processor(data modRamAccount.LoginLogDto) error {
 		if nil == save.LoginTime {
 			save.LoginTime = &now
 		}
-		c.acc.Update(save, acc.ID)
+		c.acc.Update(ctx, save, acc.ID)
 	}
 	//会话信息
 	{
@@ -64,7 +66,7 @@ func (c *AccountLoginLog) Processor(data modRamAccount.LoginLogDto) error {
 			UserAgent:   ua,
 			Ip:          data.Ip,
 		}
-		err, _ := c.session.Create(&session)
+		err, _ := c.session.Create(ctx, &session)
 		if err != nil {
 			c.log.Error("", err)
 		}
@@ -80,7 +82,7 @@ func (c *AccountLoginLog) Processor(data modRamAccount.LoginLogDto) error {
 		UserAgent:   ua,
 		Ip:          data.Ip,
 	}
-	err, _ := c.loginLog.Create(&save)
+	err, _ := c.loginLog.Create(ctx, &save)
 	if err != nil {
 		c.log.Error("", err)
 	}

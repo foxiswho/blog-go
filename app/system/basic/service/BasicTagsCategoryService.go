@@ -71,14 +71,14 @@ func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCateg
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code)
+		_, result := r.FindByCode(ctx, info.Code)
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(info.ParentNo) {
-		parent, result = r.FindByNo(info.ParentNo)
+		parent, result = r.FindByNo(ctx, info.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -90,7 +90,7 @@ func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCateg
 	}
 	info.TenantNo = holder.GetTenantNo()
 	c.log.Infof("info=%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -106,7 +106,7 @@ func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCateg
 		info.ParentId = ""
 		info.ParentNo = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -136,7 +136,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -150,7 +150,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 	var childData []*entityBasic.BasicTagsCategoryEntity
 	if strPg.IsNotBlank(info.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(info.ParentNo)
+		parent, result = r.FindByNo(ctx, info.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -160,7 +160,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.IdLink)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -187,7 +187,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 	}
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -215,7 +215,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 				if item.ID == find.ID {
 					continue
 				}
-				r.Update(entityBasic.BasicTagsCategoryEntity{IdLink: item.IdLink,
+				r.Update(ctx, entityBasic.BasicTagsCategoryEntity{IdLink: item.IdLink,
 					NoLink: item.NoLink}, item.ID)
 			}
 		}
@@ -265,7 +265,7 @@ func (c *BasicTagsCategoryService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBasic.BasicTagsCategoryEntity{
+			r.Update(ctx, entityBasic.BasicTagsCategoryEntity{
 				IdLink: item.IdLink,
 				NoLink: item.NoLink},
 				item.ID)
@@ -320,13 +320,13 @@ func (c *BasicTagsCategoryService) State(ctx *gin.Context, ids []string, state e
 		return rt.ErrorMessage("id错误")
 	}
 	ctxR := c.sv
-	finds, b := ctxR.FindAllByIdStringIn(ids)
+	finds, b := ctxR.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			ctxR.Update(entityBasic.BasicTagsCategoryEntity{State: state.IndexInt8()}, info.ID)
+			ctxR.Update(ctx, entityBasic.BasicTagsCategoryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -355,7 +355,7 @@ func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -369,7 +369,7 @@ func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicTagsCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicTagsCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -388,7 +388,7 @@ func (c *BasicTagsCategoryService) LogicalRecovery(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -396,7 +396,7 @@ func (c *BasicTagsCategoryService) LogicalRecovery(ctx *gin.Context, ids []strin
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicTagsCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicTagsCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -413,7 +413,7 @@ func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -665,7 +665,7 @@ func (c *BasicTagsCategoryService) ExistName(ctx *gin.Context, ct model.BaseExis
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -685,7 +685,7 @@ func (c *BasicTagsCategoryService) ExistCode(ctx *gin.Context, ct model.BaseExis
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

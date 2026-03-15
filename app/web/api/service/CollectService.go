@@ -89,7 +89,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	if strPg.IsBlank(ct.CategoryNo) {
 		save.CategoryNo = "default"
 	} else {
-		info, result := c.catDb.FindByNo(ct.CategoryNo)
+		info, result := c.catDb.FindByNo(ctx, ct.CategoryNo)
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
@@ -127,7 +127,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	}
 	//
 	//
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
@@ -248,7 +248,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 	}
 	if len(catNo) > 0 {
 		{
-			info, result := c.catDb.FindAllByNoIn(catNo)
+			info, result := c.catDb.FindAllByNoIn(ctx, catNo)
 			if result {
 				for _, item := range info {
 					mapCat[item.No] = item

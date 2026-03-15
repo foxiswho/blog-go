@@ -225,13 +225,13 @@ func (c *BlogTopicService) State(ctx *gin.Context, ids []string, state enumState
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBlog.BlogTopicEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBlog.BlogTopicEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -259,7 +259,7 @@ func (c *BlogTopicService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -273,7 +273,7 @@ func (c *BlogTopicService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBlog.BlogTopicEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBlog.BlogTopicEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -291,7 +291,7 @@ func (c *BlogTopicService) LogicalRecovery(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -299,7 +299,7 @@ func (c *BlogTopicService) LogicalRecovery(ctx *gin.Context, ids []string) (rt r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBlog.BlogTopicEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBlog.BlogTopicEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -315,7 +315,7 @@ func (c *BlogTopicService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -415,7 +415,7 @@ func (c *BlogTopicService) Query(ctx *gin.Context, ct modBlogTopic.QueryCt) (rt 
 		//租户
 		{
 			if len(idsTenant) > 0 {
-				tmp, result := c.ten.FindAllByNoIn(idsTenant)
+				tmp, result := c.ten.FindAllByNoIn(ctx, idsTenant)
 				if result {
 					for _, item := range tmp {
 						mapTenant[item.No] = item
@@ -426,7 +426,7 @@ func (c *BlogTopicService) Query(ctx *gin.Context, ct modBlogTopic.QueryCt) (rt 
 		//分类
 		{
 			if len(idsCategory) > 0 {
-				tmp, result := c.catDb.FindAllByNoIn(idsCategory)
+				tmp, result := c.catDb.FindAllByNoIn(ctx, idsCategory)
 				if result {
 					for _, item := range tmp {
 						mapCategory[item.No] = item
@@ -634,7 +634,7 @@ func (c *BlogTopicService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[st
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -654,7 +654,7 @@ func (c *BlogTopicService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

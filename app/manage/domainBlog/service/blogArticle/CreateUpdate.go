@@ -154,7 +154,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sp.sv.FindByCode(c.entitySave.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := c.sp.sv.FindByCode(ctx, c.entitySave.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -171,7 +171,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("数据不存在")
 		}
 		if strPg.IsNotBlank(c.ct.CategoryNo) {
-			c.recordCategory, result = c.sp.catDb.FindByNo(c.ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
+			c.recordCategory, result = c.sp.catDb.FindByNo(ctx, c.ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
 			if !result {
 				return rt.ErrorMessage("数据不存在")
 			}
@@ -185,7 +185,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		//		return rt.ErrorMessage("编号格式不能为空")
 		//	}
 		//	//不是自动
-		//	_, result := r.FindByNo(ct.No)
+		//	_, result := r.FindByNo(ctx, ct.No)
 		//	if result {
 		//		return rt.ErrorMessage("编号已存在")
 		//	}
@@ -233,7 +233,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	c.entitySave.Tags = datatypes.NewJSONType(tags)
 	catDb := c.sp.catDb
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := catDb.FindByNo(ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
+		_, result := catDb.FindByNo(ctx, ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
@@ -250,13 +250,13 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		copier.Copy(&info, c.entitySave)
 		info.ID = 0
 		c.log.Infof("info=%+v", info)
-		err := r.Update(info, c.ct.ID.ToInt64())
+		err := r.Update(ctx, info, c.ct.ID.ToInt64())
 		if err != nil {
 			c.log.Debugf("save err=%+v", err.Error())
 			return rt.ErrorMessage("保存失败：" + err.Error())
 		}
 		//
-		err = c.sp.statisticsDb.Update(statistics, c.ct.ID.ToInt64())
+		err = c.sp.statisticsDb.Update(ctx, statistics, c.ct.ID.ToInt64())
 		if err != nil {
 			c.log.Errorf("save statistics err=%+v", err)
 		}
@@ -267,7 +267,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		if automatedPg.IsCreateCode(c.entitySave.Code) {
 			c.entitySave.Code = c.entitySave.No
 		}
-		err, _ := r.Create(c.entitySave)
+		err, _ := r.Create(ctx, c.entitySave)
 		if err != nil {
 			c.log.Debugf("save err=%+v", err)
 			return rt.ErrorMessage("保存失败：" + err.Error())
@@ -277,7 +277,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		//
 		statistics.ID = c.entitySave.ID
 		statistics.ArticleNo = c.entitySave.No
-		err, _ = c.sp.statisticsDb.Create(&statistics)
+		err, _ = c.sp.statisticsDb.Create(ctx, &statistics)
 		if err != nil {
 			c.log.Errorf("save statistics err=%+v", err)
 		}
@@ -296,7 +296,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	} else {
 		imageEnt.Attachments = "{}"
 	}
-	c.sp.sv.Update(imageEnt, c.record.ID)
+	c.sp.sv.Update(ctx, imageEnt, c.record.ID)
 	//更新标签
 	c.tagsListener(ctx)
 
@@ -329,7 +329,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 				id, b := mapTopic[item]
 				if b {
 					//更新 name
-					c.sp.topicRel.Update(entityBlog.BlogTopicRelationEntity{Name: c.record.Name, Description: c.record.Description}, id)
+					c.sp.topicRel.Update(ctx, entityBlog.BlogTopicRelationEntity{Name: c.record.Name, Description: c.record.Description}, id)
 					continue
 				}
 				obj := entityBlog.BlogTopicRelationEntity{}
@@ -339,7 +339,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 				obj.Ano = c.record.Ano
 				obj.Name = c.record.Name
 				obj.Description = c.record.Description
-				c.sp.topicRel.Create(&obj)
+				c.sp.topicRel.Create(ctx, &obj)
 			}
 		}
 	}

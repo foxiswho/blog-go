@@ -5,6 +5,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -39,7 +40,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	if strPg.IsBlank(id) {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sp.accDb.FindByIdAndTypeDomain(numberPg.StrToInt64(id), c.tp.ToTypeDomain().String())
+	find, b := c.sp.accDb.FindByIdAndTypeDomain(numberPg.StrToInt64(id), c.tp.ToTypeDomain().String(), repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -101,7 +102,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	//部门
 	{
 		if len(idsDep) > 0 {
-			infos, result := c.sp.depDb.FindAllByNoIn(idsDep)
+			infos, result := c.sp.depDb.FindAllByNoIn(ctx, idsDep)
 			if result {
 				mapDep = slicePg.ToMap(infos, func(t *entityRam.RamDepartmentEntity) (string, *entityRam.RamDepartmentEntity) {
 					return t.No, t
@@ -112,7 +113,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	//角色
 	{
 		if len(idsRole) > 0 {
-			infos, result := c.sp.roleDb.FindAllByNoIn(idsRole)
+			infos, result := c.sp.roleDb.FindAllByNoIn(ctx, idsRole)
 			if result {
 				mapRole = slicePg.ToMap(infos, func(t *entityRam.RamRoleEntity) (string, *entityRam.RamRoleEntity) {
 					return t.No, t
@@ -123,7 +124,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	//级别
 	{
 		if len(idsLevel) > 0 {
-			infos, result := c.sp.levelDb.FindAllByNoIn(idsLevel)
+			infos, result := c.sp.levelDb.FindAllByNoIn(ctx, idsLevel)
 			if result {
 				mapLevel = slicePg.ToMap(infos, func(t *entityRam.RamLevelEntity) (string, *entityRam.RamLevelEntity) {
 					return t.No, t
@@ -134,7 +135,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	//分组
 	{
 		if len(idsGroup) > 0 {
-			infos, result := c.sp.groupDb.FindAllByNoIn(idsGroup)
+			infos, result := c.sp.groupDb.FindAllByNoIn(ctx, idsGroup)
 			if result {
 				mapGroup = slicePg.ToMap(infos, func(t *entityRam.RamGroupEntity) (string, *entityRam.RamGroupEntity) {
 					return t.No, t
@@ -145,7 +146,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	//分组
 	{
 		if len(idsTeam) > 0 {
-			infos, result := c.sp.teamDb.FindAllByNoIn(idsTeam)
+			infos, result := c.sp.teamDb.FindAllByNoIn(ctx, idsTeam)
 			if result {
 				mapTeam = slicePg.ToMap(infos, func(t *entityRam.RamTeamEntity) (string, *entityRam.RamTeamEntity) {
 					return t.No, t

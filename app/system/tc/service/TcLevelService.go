@@ -50,7 +50,7 @@ func (c *TcLevelService) Create(ctx *gin.Context, ct modTcLevel.CreateCt) (rt rg
 	copier.Copy(&info, &ct)
 	c.log.Infof("info%+v", info)
 	//info.TenantId = holder.GetTenantNo()
-	c.sv.Create(&info)
+	c.sv.Create(ctx, &info)
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
@@ -75,7 +75,7 @@ func (c *TcLevelService) Update(ctx *gin.Context, ct modTcLevel.UpdateCt) (rt rg
 	}
 	var info entityTc.TcLevelEntity
 	copier.Copy(&info, &ct)
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -125,13 +125,13 @@ func (c *TcLevelService) State(ctx *gin.Context, ids []string, state enumStatePg
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityTc.TcLevelEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityTc.TcLevelEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -159,7 +159,7 @@ func (c *TcLevelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -173,7 +173,7 @@ func (c *TcLevelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityTc.TcLevelEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityTc.TcLevelEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -191,7 +191,7 @@ func (c *TcLevelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -199,7 +199,7 @@ func (c *TcLevelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityTc.TcLevelEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityTc.TcLevelEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -215,7 +215,7 @@ func (c *TcLevelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -351,7 +351,7 @@ func (c *TcLevelService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -371,7 +371,7 @@ func (c *TcLevelService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt[string
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

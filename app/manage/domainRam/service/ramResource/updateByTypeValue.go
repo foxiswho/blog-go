@@ -115,7 +115,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 	}
 	if len(ids) > 0 {
 		result := false
-		c.groupData, result = c.groupDb.FindAllByIdStringIn(ids)
+		c.groupData, result = c.groupDb.FindAllByIdStringIn(c.ctx, ids)
 		if !result {
 			return rt.ErrorMessage("部分资源组匹配失败")
 		}
@@ -175,7 +175,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 		}
 		//
 		c.log.Infof("info%+v", info)
-		err, _ := c.groupRelationDb.Create(&info)
+		err, _ := c.groupRelationDb.Create(c.ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
@@ -198,7 +198,7 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 		}
 		result := false
 		data := make([]*entityRam.RamResourceEntity, 0)
-		data, result = c.resDb.FindAllByIdIn(ids)
+		data, result = c.resDb.FindAllByIdIn(c.ctx, ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
 		}
@@ -226,7 +226,7 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 			}
 			//
 			c.log.Debugf("info%+v", info)
-			err, _ := c.relationDb.Create(&info)
+			err, _ := c.relationDb.Create(c.ctx, &info)
 			if err != nil {
 				return rt.ErrorMessage("保存失败")
 			}

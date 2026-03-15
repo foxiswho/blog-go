@@ -66,7 +66,7 @@ func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateCt
 	}
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -90,7 +90,7 @@ func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateCt
 	info.No = noPg.No()
 	//
 	c.log.Infof("info=%+v", info)
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -106,7 +106,7 @@ func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateCt
 		info.ParentNo = ""
 		info.ParentId = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -146,7 +146,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 	var childData []*entityRam.RamResourceEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -156,7 +156,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.IdLink)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -198,7 +198,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 	}
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -223,7 +223,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 				if item.ID == find.ID {
 					continue
 				}
-				err = r.Update(entityRam.RamResourceEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
+				err = r.Update(ctx, entityRam.RamResourceEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
 				if err != nil {
 					return rt.ErrorMessage(err.Error())
 				}
@@ -271,7 +271,7 @@ func (c *RamResourceService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityRam.RamResourceEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
+			r.Update(ctx, entityRam.RamResourceEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
 		}
 	}
 	maps = nil
@@ -323,13 +323,13 @@ func (c *RamResourceService) State(ctx *gin.Context, ids []string, state enumSta
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamResourceEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamResourceEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -358,7 +358,7 @@ func (c *RamResourceService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -372,7 +372,7 @@ func (c *RamResourceService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamResourceEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamResourceEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -391,7 +391,7 @@ func (c *RamResourceService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -399,7 +399,7 @@ func (c *RamResourceService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamResourceEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamResourceEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -416,7 +416,7 @@ func (c *RamResourceService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -666,7 +666,11 @@ func (c *RamResourceService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, numberPg.StrToInt64(ct.Id))
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -687,7 +691,7 @@ func (c *RamResourceService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

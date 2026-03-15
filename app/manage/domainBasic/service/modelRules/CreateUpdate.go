@@ -51,9 +51,9 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	typeModel := "model"
 	no := ""
 	tenantNo := ""
-	event, result := c.Sp.repModelFields.FindByNo(ct.FieldNo)
+	event, result := c.Sp.repModelFields.FindByNo(ctx, ct.FieldNo)
 	if !result {
-		info, r := c.Sp.repEventFields.FindByNo(ct.FieldNo)
+		info, r := c.Sp.repEventFields.FindByNo(ctx, ct.FieldNo)
 		if !r {
 			return rt.ErrorMessage("模型/事件不存在")
 		}
@@ -97,7 +97,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		obj.No = ""
 		obj.TenantNo = ""
 		obj.ValueNo = ""
-		err := c.Sp.repRules.Update(obj, info.ID)
+		err := c.Sp.repRules.Update(ctx, obj, info.ID)
 		if err != nil {
 			c.log.Errorf("save err=%+v", err)
 			return rt.ErrorMessage("保存失败：")
@@ -111,7 +111,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		obj.Show = yesNoIntPg.Yes.IndexInt8()
 		obj.Sort = 0
 		obj.TypeModel = typeModel
-		err, _ := c.Sp.repRules.Create(&obj)
+		err, _ := c.Sp.repRules.Create(ctx, &obj)
 		if err != nil {
 			c.log.Errorf("save err=%+v", err)
 			return rt.ErrorMessage("保存失败：")

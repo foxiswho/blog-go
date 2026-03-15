@@ -73,7 +73,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	if !formatPg.ValidateString(header.Field) {
 		return rt.ErrorMessage("字段名称格式错误")
 	}
-	model, b := c.Sp.repModel.FindByNo(c.event.ModelNo)
+	model, b := c.Sp.repModel.FindByNo(ctx, c.event.ModelNo)
 	if !b {
 		return rt.ErrorMessage("模型不存在")
 	}
@@ -167,7 +167,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		c.event.No = noPg.No()
 		c.event.Sort = 0
 		c.event.KindUnique = cryptPg.Md5(c.event.Field)
-		err, _ := c.Sp.repEvent.Create(c.event)
+		err, _ := c.Sp.repEvent.Create(ctx, c.event)
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
 		}
@@ -225,7 +225,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		dataUpdate := make([]*entityBasic.BasicConfigEventFieldsEntity, 0)
 		mapField := make(map[int64]*entityBasic.BasicConfigEventFieldsEntity)
 		if len(ids) > 0 {
-			infos, result := c.Sp.repEventField.FindAllByIdStringIn(ids)
+			infos, result := c.Sp.repEventField.FindAllByIdStringIn(ctx, ids)
 			if result {
 				for _, item := range infos {
 					mapField[item.ID] = item
@@ -259,7 +259,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			}
 		}
 		//
-		err := c.Sp.repEvent.Update(save, info.ID)
+		err := c.Sp.repEvent.Update(ctx, save, info.ID)
 		if err != nil {
 			c.log.Infof("copier.Copy error: %+v", err)
 		}
@@ -289,7 +289,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 		if len(dataUpdate) > 0 {
 			for _, entity := range dataUpdate {
-				c.Sp.repEventField.Update(*entity, entity.ID)
+				c.Sp.repEventField.Update(ctx, *entity, entity.ID)
 			}
 		}
 

@@ -66,7 +66,7 @@ func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevic
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -78,7 +78,7 @@ func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevic
 		info.Code = info.No
 	}
 	c.log.Infof("info%+v", info)
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -106,7 +106,7 @@ func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevic
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(info.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, info.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -118,7 +118,7 @@ func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevic
 	info.ID = 0
 	info.No = ""
 	c.log.Infof("info.save=%+v", info)
-	err := r.Update(info, find.ID)
+	err := r.Update(ctx, info, find.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -174,13 +174,13 @@ func (c *RamAccountDeviceService) State(ctx *gin.Context, ids []string, state en
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamAccountDeviceEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamAccountDeviceEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -209,7 +209,7 @@ func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -223,7 +223,7 @@ func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamAccountDeviceEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamAccountDeviceEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -241,7 +241,7 @@ func (c *RamAccountDeviceService) LogicalRecovery(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -249,7 +249,7 @@ func (c *RamAccountDeviceService) LogicalRecovery(ctx *gin.Context, ids []string
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamAccountDeviceEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamAccountDeviceEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -266,7 +266,7 @@ func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -321,7 +321,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 		// 账号
 		{
 			if len(idsAcc) > 0 {
-				acc, result := c.acc.FindAllByNoIn(idsAcc)
+				acc, result := c.acc.FindAllByNoIn(ctx, idsAcc)
 				if result {
 					for _, item := range acc {
 						mapAcc[item.No] = item
@@ -462,7 +462,7 @@ func (c *RamAccountDeviceService) ExistName(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -483,7 +483,7 @@ func (c *RamAccountDeviceService) ExistCode(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

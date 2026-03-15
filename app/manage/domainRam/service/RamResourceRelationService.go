@@ -52,7 +52,7 @@ func (c *RamResourceRelationService) Create(ctx *gin.Context, ct modRamResourceR
 	copier.Copy(&info, &ct)
 	c.log.Infof("info%+v", info)
 	info.TenantNo = holder.GetTenantNo()
-	c.sv.Create(&info)
+	c.sv.Create(ctx, &info)
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
@@ -77,7 +77,7 @@ func (c *RamResourceRelationService) Update(ctx *gin.Context, ct modRamResourceR
 	}
 	var info entityRam.RamResourceRelationEntity
 	copier.Copy(&info, &ct)
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -109,7 +109,7 @@ func (c *RamResourceRelationService) Delete(ctx *gin.Context, ct model.BaseIdsCt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ct.Ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ct.Ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -148,13 +148,13 @@ func (c *RamResourceRelationService) State(ctx *gin.Context, ids []string, state
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	_, b := r.FindAllByIdStringIn(ids)
+	_, b := r.FindAllByIdStringIn(ctx, ids)
 	if b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	//for _, info := range finds {
 	//	if info.StateOrder != state.IndexInt8() {
-	//		r.Update(entityRam.RamResourceRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
+	//		r.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -183,7 +183,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -197,7 +197,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		//	enum := enumStatePg.State(info.StateOrder)
 		//	// 有效 停用，反转 为对应的 取消 弃置
 		//	if ok, reverse := enum.ReverseEnableDisable(); ok {
-		//		repository.Update(entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+		//		repository.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 		//	}
 		//}
 	}
@@ -216,7 +216,7 @@ func (c *RamResourceRelationService) LogicalRecovery(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	_, b := repository.FindAllByIdStringIn(ids)
+	_, b := repository.FindAllByIdStringIn(ctx, ids)
 	if b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -224,7 +224,7 @@ func (c *RamResourceRelationService) LogicalRecovery(ctx *gin.Context, ids []str
 	//	enum := enumStatePg.State(info.StateOrder)
 	//	//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 	//	if ok, reverse := enum.ReverseCancelLayAside(); ok {
-	//		repository.Update(entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+	//		repository.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -241,7 +241,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

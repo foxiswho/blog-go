@@ -132,7 +132,7 @@ func (c *UpdateByResource) updateDataRelation(idsGroup, idsResource []string) {
 	mapDataOld := make(map[string]struct{})
 	//资源组
 	if len(idsGroup) > 0 {
-		list, result := c.groupDb.FindAllByIdStringIn(idsGroup)
+		list, result := c.groupDb.FindAllByIdStringIn(c.ctx, idsGroup)
 		if result {
 			for _, item := range list {
 				var info entityRam.RamMenuRelationEntity
@@ -150,7 +150,7 @@ func (c *UpdateByResource) updateDataRelation(idsGroup, idsResource []string) {
 	}
 	//资源
 	if len(idsResource) > 0 {
-		list, result := c.resDb.FindAllByIdStringIn(idsResource)
+		list, result := c.resDb.FindAllByIdStringIn(c.ctx, idsResource)
 		if result {
 			for _, item := range list {
 				var info entityRam.RamMenuRelationEntity
@@ -183,7 +183,7 @@ func (c *UpdateByResource) updateDataRelation(idsGroup, idsResource []string) {
 			if _, ok := mapDataOld[utilsRam.MenuTypeByRelation(item.TypeValue, item.Type)]; ok {
 				continue
 			}
-			c.menuRelationDb.Create(&item)
+			c.menuRelationDb.Create(c.ctx, &item)
 		}
 	}
 }
@@ -238,7 +238,7 @@ func (c *UpdateByResource) updateResourceMenu() {
 	//资源
 	{
 		if len(c.idsResourceNew) > 0 {
-			list, result := c.resDb.FindAllByIdStringIn(c.idsResourceNew)
+			list, result := c.resDb.FindAllByIdStringIn(c.ctx, c.idsResourceNew)
 			if result {
 				for _, item := range list {
 					//已经存在的跳过
@@ -261,7 +261,7 @@ func (c *UpdateByResource) updateResourceMenu() {
 	//保存数据
 	if len(saveData) > 0 {
 		for _, item := range saveData {
-			c.resMenuDb.Create(&item)
+			c.resMenuDb.Create(c.ctx, &item)
 		}
 	}
 }

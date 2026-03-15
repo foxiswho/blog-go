@@ -102,7 +102,7 @@ func (c *TcTenantAccountService) State(ctx *gin.Context, ids []string, state enu
 			continue
 		}
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamAccountEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamAccountEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -158,7 +158,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				r.Update(entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
+				r.Update(ctx, entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -188,7 +188,7 @@ func (c *TcTenantAccountService) LogicalRecovery(ctx *gin.Context, ids []string,
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			r.Update(entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -271,7 +271,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		}
 		//角色
 		if nil != ct.Roles && len(ct.Roles) > 0 {
-			depInfo, result := roleDb.FindAllByNoIn(ct.Roles)
+			depInfo, result := roleDb.FindAllByNoIn(ctx, ct.Roles)
 			if result {
 				sqlDb := r.Db()
 				for i, obj := range depInfo {
@@ -289,7 +289,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//级别
 		{
 			if nil != ct.Levels && len(ct.Levels) > 0 {
-				depInfo, result := levelDb.FindAllByNoIn(ct.Levels)
+				depInfo, result := levelDb.FindAllByNoIn(ctx, ct.Levels)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
@@ -308,7 +308,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//组
 		{
 			if nil != ct.Groups && len(ct.Groups) > 0 {
-				depInfo, result := groupDb.FindAllByNoIn(ct.Groups)
+				depInfo, result := groupDb.FindAllByNoIn(ctx, ct.Groups)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
@@ -325,7 +325,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//团队
 		{
 			if nil != ct.Teams && len(ct.Teams) > 0 {
-				depInfo, result := teamDb.FindAllByNoIn(ct.Teams)
+				depInfo, result := teamDb.FindAllByNoIn(ctx, ct.Teams)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
@@ -461,7 +461,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//部门
 		{
 			if len(idsDep) > 0 {
-				infos, result := depDb.FindAllByNoIn(idsDep)
+				infos, result := depDb.FindAllByNoIn(ctx, idsDep)
 				if result {
 					mapDep = slicePg.ToMap(infos, func(t *entityRam.RamDepartmentEntity) (string, *entityRam.RamDepartmentEntity) {
 						return t.No, t
@@ -472,7 +472,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//角色
 		{
 			if len(idsRole) > 0 {
-				infos, result := roleDb.FindAllByNoIn(idsRole)
+				infos, result := roleDb.FindAllByNoIn(ctx, idsRole)
 				if result {
 					mapRole = slicePg.ToMap(infos, func(t *entityRam.RamRoleEntity) (string, *entityRam.RamRoleEntity) {
 						return t.No, t
@@ -483,7 +483,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//级别
 		{
 			if len(idsLevel) > 0 {
-				infos, result := levelDb.FindAllByNoIn(idsLevel)
+				infos, result := levelDb.FindAllByNoIn(ctx, idsLevel)
 				if result {
 					mapLevel = slicePg.ToMap(infos, func(t *entityRam.RamLevelEntity) (string, *entityRam.RamLevelEntity) {
 						return t.No, t
@@ -494,7 +494,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//分组
 		{
 			if len(idsGroup) > 0 {
-				infos, result := groupDb.FindAllByNoIn(idsGroup)
+				infos, result := groupDb.FindAllByNoIn(ctx, idsGroup)
 				if result {
 					mapGroup = slicePg.ToMap(infos, func(t *entityRam.RamGroupEntity) (string, *entityRam.RamGroupEntity) {
 						return t.No, t
@@ -505,7 +505,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//分组
 		{
 			if len(idsTeam) > 0 {
-				infos, result := teamDb.FindAllByNoIn(idsTeam)
+				infos, result := teamDb.FindAllByNoIn(ctx, idsTeam)
 				if result {
 					mapTeam = slicePg.ToMap(infos, func(t *entityRam.RamTeamEntity) (string, *entityRam.RamTeamEntity) {
 						return t.No, t
@@ -516,7 +516,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//职位
 		{
 			if len(idsPosition) > 0 {
-				infos, result := c.positionDb.FindAllByNoIn(idsPosition)
+				infos, result := c.positionDb.FindAllByNoIn(ctx, idsPosition)
 				if result {
 					mapPosition = slicePg.ToMap(infos, func(t *entityRam.RamPositionEntity) (string, *entityRam.RamPositionEntity) {
 						return t.No, t
@@ -527,7 +527,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//职位
 		{
 			if len(idsPost) > 0 {
-				infos, result := c.postDb.FindAllByNoIn(idsPost)
+				infos, result := c.postDb.FindAllByNoIn(ctx, idsPost)
 				if result {
 					mapPost = slicePg.ToMap(infos, func(t *entityRam.RamPostEntity) (string, *entityRam.RamPostEntity) {
 						return t.No, t
@@ -538,7 +538,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//租户
 		{
 			if len(idsTenant) > 0 {
-				infos, result := c.tenDb.FindAllByNoIn(idsTenant)
+				infos, result := c.tenDb.FindAllByNoIn(ctx, idsTenant)
 				if result {
 					mapTenant = slicePg.ToMap(infos, func(t *entityTc.TcTenantEntity) (string, *entityTc.TcTenantEntity) {
 						return t.No, t

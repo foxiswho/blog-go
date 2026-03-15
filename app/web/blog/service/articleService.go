@@ -325,7 +325,7 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 				if b {
 					mapCategory = tmp
 				}
-				//tmp, result := c.catDb.FindAllByNoIn(idsCategory)
+				//tmp, result := c.catDb.FindAllByNoIn(ctx, idsCategory)
 				//if result {
 				//	for _, item := range tmp {
 				//		mapCategory[item.No] = item

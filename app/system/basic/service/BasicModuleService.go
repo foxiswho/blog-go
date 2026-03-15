@@ -69,14 +69,14 @@ func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -88,7 +88,7 @@ func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt
 	}
 	info.TenantNo = holder.GetTenantNo()
 	c.log.Infof("info=%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -104,7 +104,7 @@ func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt
 		info.CodeLink = constNodePg.NoLinkDefault(info.Code)
 		info.ParentCode = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -137,7 +137,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -151,7 +151,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 	var childData []*entityBasic.BasicModuleEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -161,7 +161,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.NoLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.NoLink)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -188,7 +188,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 	}
 	info.No = ""
 	c.log.Infof("info.NoLink=%+v", info.NoLink)
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -216,7 +216,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 				if item.ID == find.ID {
 					continue
 				}
-				r.Update(entityBasic.BasicModuleEntity{CodeLink: item.CodeLink,
+				r.Update(ctx, entityBasic.BasicModuleEntity{CodeLink: item.CodeLink,
 					NoLink: item.NoLink},
 					item.ID)
 			}
@@ -267,7 +267,7 @@ func (c *BasicModuleService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBasic.BasicModuleEntity{
+			r.Update(ctx, entityBasic.BasicModuleEntity{
 				CodeLink: item.CodeLink,
 				NoLink:   item.NoLink},
 				item.ID)
@@ -322,13 +322,13 @@ func (c *BasicModuleService) State(ctx *gin.Context, ids []string, state enumSta
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicModuleEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicModuleEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -357,7 +357,7 @@ func (c *BasicModuleService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -371,7 +371,7 @@ func (c *BasicModuleService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicModuleEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicModuleEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -390,7 +390,7 @@ func (c *BasicModuleService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -398,7 +398,7 @@ func (c *BasicModuleService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicModuleEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicModuleEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -415,7 +415,7 @@ func (c *BasicModuleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -582,7 +582,7 @@ func (c *BasicModuleService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -602,7 +602,7 @@ func (c *BasicModuleService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

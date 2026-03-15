@@ -67,24 +67,24 @@ func (c *BasicDataDictionaryService) CreateUpdate(ctx *gin.Context, ct modBasicD
 	}
 	info.OwnerNo = "0"
 	if ct.ID < 1 {
-		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(info.Code, "0", info.OwnerNo)
+		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(ctx, info.Code, "0", info.OwnerNo)
 		if result {
 			return rt.ErrorMessage("码值已存在")
 		}
 		c.log.Infof("info%+v", info)
 		info.No = noPg.No()
-		err, _ := r.Create(&info)
+		err, _ := r.Create(ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
 		c.log.Infof("save=%+v", info)
 	} else {
-		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(info.Code, ct.ID.ToString(), info.OwnerNo)
+		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(ctx, info.Code, ct.ID.ToString(), info.OwnerNo)
 		if result {
 			return rt.ErrorMessage("码值已存在")
 		}
 		c.log.Infof("save=%+v", info)
-		r.Update(info, info.ID)
+		r.Update(ctx, info, info.ID)
 	}
 
 	return rt.OkData(numberPg.Int64ToString(info.ID))
@@ -138,13 +138,13 @@ func (c *BasicDataDictionaryService) State(ctx *gin.Context, ids []string, state
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicDataDictionaryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -172,7 +172,7 @@ func (c *BasicDataDictionaryService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -186,7 +186,7 @@ func (c *BasicDataDictionaryService) LogicalDeletion(ctx *gin.Context, ids []str
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -204,7 +204,7 @@ func (c *BasicDataDictionaryService) LogicalRecovery(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -212,7 +212,7 @@ func (c *BasicDataDictionaryService) LogicalRecovery(ctx *gin.Context, ids []str
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -228,7 +228,7 @@ func (c *BasicDataDictionaryService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -279,7 +279,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 		//}
 		mapBasic := make(map[string]*entityBasic.BasicDataDictionaryEntity)
 		if len(ids) > 0 {
-			infos, b := r.FindAllByCodeIn(ids)
+			infos, b := r.FindAllByCodeIn(ctx, ids)
 			if !b {
 				for _, item := range infos {
 					mapBasic[item.Code] = item
@@ -355,7 +355,7 @@ func (c *BasicDataDictionaryService) ExistName(ctx *gin.Context, ct model.BaseEx
 	if "" == ct.Wd {
 		return rt.ErrorMessage("关键词不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, numberPg.StrToInt64(ct.Id))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, numberPg.StrToInt64(ct.Id))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -376,7 +376,7 @@ func (c *BasicDataDictionaryService) ExistCode(ctx *gin.Context, ct model.BaseEx
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -400,7 +400,7 @@ func (c *BasicDataDictionaryService) ExistValue(ctx *gin.Context, ct modBasicDat
 	if strPg.IsNotBlank(ct.OwnerNo) {
 		owner = ct.OwnerNo
 	}
-	_, result := c.sv.FindByValueAndIdNotAndOwnerNo(ct.Wd, id, owner)
+	_, result := c.sv.FindByValueAndIdNotAndOwnerNo(ctx, ct.Wd, id, owner)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

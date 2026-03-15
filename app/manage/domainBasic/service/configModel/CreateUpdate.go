@@ -78,7 +78,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	//子模块是否存在
 	{
 		b := false
-		c.module, b = c.Sp.repModule.FindByNo(header.ModuleSub)
+		c.module, b = c.Sp.repModule.FindByNo(ctx, header.ModuleSub)
 		if !b {
 			return rt.ErrorMessage("子模块不存在")
 		}
@@ -177,7 +177,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		c.model.TenantNo = holder.GetTenantNo()
 		c.model.Sort = 0
 		c.model.KindUnique = cryptPg.Md5(c.model.Model)
-		err, _ := c.Sp.repModel.Create(c.model)
+		err, _ := c.Sp.repModel.Create(ctx, c.model)
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
 		}
@@ -234,7 +234,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		dataUpdate := make([]*entityBasic.BasicConfigModelFieldsEntity, 0)
 		mapField := make(map[int64]*entityBasic.BasicConfigModelFieldsEntity)
 		if len(ids) > 0 {
-			infos, result := c.Sp.repField.FindAllByIdStringIn(ids)
+			infos, result := c.Sp.repField.FindAllByIdStringIn(ctx, ids)
 			if result {
 				for _, item := range infos {
 					mapField[item.ID] = item
@@ -264,7 +264,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			}
 		}
 		//
-		err := c.Sp.repModel.Update(save, info.ID)
+		err := c.Sp.repModel.Update(ctx, save, info.ID)
 		if err != nil {
 			c.log.Infof("copier.Copy error: %+v", err)
 		}
@@ -294,7 +294,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 		if len(dataUpdate) > 0 {
 			for _, entity := range dataUpdate {
-				c.Sp.repField.Update(*entity, entity.ID)
+				c.Sp.repField.Update(ctx, *entity, entity.ID)
 			}
 		}
 

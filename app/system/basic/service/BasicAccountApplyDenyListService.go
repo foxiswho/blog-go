@@ -87,7 +87,7 @@ func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicA
 	}
 	r := c.sv
 	if strPg.IsNotBlank(ct.Expr) {
-		_, result := r.FindByExprAndIdNot(ct.Expr, "0")
+		_, result := r.FindByExprAndIdNot(ctx, ct.Expr, "0")
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -97,7 +97,7 @@ func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicA
 	info.No = noPg.No()
 	info.TenantNo = holder.GetTenantNo()
 	c.log.Infof("info%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -149,7 +149,7 @@ func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicA
 	}
 	r := c.sv
 	if strPg.IsNotBlank(ct.Expr) {
-		_, result := r.FindByExprAndIdNot(ct.Expr, ct.ID.ToString())
+		_, result := r.FindByExprAndIdNot(ctx, ct.Expr, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -159,7 +159,7 @@ func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicA
 		return rt.ErrorMessage("数据不存在")
 	}
 	info.No = ""
-	err := r.Update(info, find.ID)
+	err := r.Update(ctx, info, find.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -221,13 +221,13 @@ func (c *BasicAccountApplyDenyListService) State(ctx *gin.Context, ids []string,
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicAccountApplyDenyListEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicAccountApplyDenyListEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -256,7 +256,7 @@ func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -270,7 +270,7 @@ func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicAccountApplyDenyListEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicAccountApplyDenyListEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -289,7 +289,7 @@ func (c *BasicAccountApplyDenyListService) LogicalRecovery(ctx *gin.Context, ids
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -297,7 +297,7 @@ func (c *BasicAccountApplyDenyListService) LogicalRecovery(ctx *gin.Context, ids
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicAccountApplyDenyListEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicAccountApplyDenyListEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -314,7 +314,7 @@ func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, id
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -517,7 +517,7 @@ func (c *BasicAccountApplyDenyListService) ExistName(ctx *gin.Context, ct model.
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -537,7 +537,7 @@ func (c *BasicAccountApplyDenyListService) ExistExpr(ctx *gin.Context, ct model.
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByExprAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByExprAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

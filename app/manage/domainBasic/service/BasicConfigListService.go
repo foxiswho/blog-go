@@ -60,7 +60,7 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 		return rt.ErrorMessage("字段名称不能为空")
 	}
 	holder := holderPg.GetContextAccount(ctx)
-	event, result := c.repEvent.FindByNo(ct.EventNo)
+	event, result := c.repEvent.FindByNo(ctx, ct.EventNo)
 	if !result {
 		return rt.ErrorMessage("事件不存在")
 	}
@@ -81,7 +81,7 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 		info.Module = event.Module
 		info.ModuleSub = event.ModuleSub
 		c.log.Infof("info.save=%+v", info)
-		err, _ := r.Create(&info)
+		err, _ := r.Create(ctx, &info)
 		if err != nil {
 			c.log.Errorf("update error=%+v", err)
 			return rt.ErrorMessage(err.Error())
@@ -94,7 +94,7 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 		info.ID = 0
 		info.No = ""
 		c.log.Infof("info.save=%+v", info)
-		err := r.Update(info, find.ID)
+		err := r.Update(ctx, info, find.ID)
 		if err != nil {
 			c.log.Errorf("update error=%+v", err)
 			return rt.ErrorMessage(err.Error())
@@ -151,13 +151,13 @@ func (c *BasicConfigListService) State(ctx *gin.Context, ids []string, state enu
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicConfigListEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicConfigListEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -186,7 +186,7 @@ func (c *BasicConfigListService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -200,7 +200,7 @@ func (c *BasicConfigListService) LogicalDeletion(ctx *gin.Context, ids []string)
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicConfigListEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicConfigListEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -218,7 +218,7 @@ func (c *BasicConfigListService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -226,7 +226,7 @@ func (c *BasicConfigListService) LogicalRecovery(ctx *gin.Context, ids []string)
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicConfigListEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicConfigListEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -243,7 +243,7 @@ func (c *BasicConfigListService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -353,7 +353,7 @@ func (c *BasicConfigListService) ExistName(ctx *gin.Context, ct model.BaseExistW
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -374,7 +374,7 @@ func (c *BasicConfigListService) ExistCode(ctx *gin.Context, ct model.BaseExistW
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

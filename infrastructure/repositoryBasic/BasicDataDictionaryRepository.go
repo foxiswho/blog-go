@@ -26,8 +26,8 @@ type BasicDataDictionaryRepository struct {
 }
 
 // 查询所有
-func (b *BasicDataDictionaryRepository) FindAllOwnerId0(t entityBasic.BasicDataDictionaryEntity) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
-	tx := b.Db().Where(t).Where("owner_no='0'").Find(&infos)
+func (b *BasicDataDictionaryRepository) FindAllOwnerId0(ctx context.Context, t entityBasic.BasicDataDictionaryEntity) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
+	tx := b.DbModel().WithContext(ctx).Where(t).Where("owner_no='0'").Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -38,8 +38,8 @@ func (b *BasicDataDictionaryRepository) FindAllOwnerId0(t entityBasic.BasicDataD
 }
 
 // FindAllOwners 查询所有
-func (b *BasicDataDictionaryRepository) FindAllOwners(ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
-	tx := b.Db().Where("owner_no in ?", ids).Find(&infos)
+func (b *BasicDataDictionaryRepository) FindAllOwners(ctx context.Context, ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
+	tx := b.DbModel().WithContext(ctx).Where("owner_no in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -50,12 +50,12 @@ func (b *BasicDataDictionaryRepository) FindAllOwners(ids []string) (infos []*en
 }
 
 // FindAllOwnersMap 查询所有
-func (b *BasicDataDictionaryRepository) FindAllOwnersMap(ids []string, t entityBasic.BasicDataDictionaryEntity) (maps map[string][]*entityBasic.BasicDataDictionaryEntity, result bool) {
+func (b *BasicDataDictionaryRepository) FindAllOwnersMap(ctx context.Context, ids []string, t entityBasic.BasicDataDictionaryEntity) (maps map[string][]*entityBasic.BasicDataDictionaryEntity, result bool) {
 	if nil == maps {
 		maps = make(map[string][]*entityBasic.BasicDataDictionaryEntity)
 	}
 	var infos []*entityBasic.BasicDataDictionaryEntity
-	tx := b.Db().Where(t).Where("owner_no in ?", ids).Find(&infos)
+	tx := b.DbModel().WithContext(ctx).Where(t).Where("owner_no in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -72,8 +72,8 @@ func (b *BasicDataDictionaryRepository) FindAllOwnersMap(ids []string, t entityB
 }
 
 // FindAllByCodeIn 查询所有
-func (b *BasicDataDictionaryRepository) FindAllByCodeIn(ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
-	tx := b.Db().Where("code in ?", ids).Find(&infos)
+func (b *BasicDataDictionaryRepository) FindAllByCodeIn(ctx context.Context, ids []string) (infos []*entityBasic.BasicDataDictionaryEntity, result bool) {
+	tx := b.DbModel().WithContext(ctx).Where("code in ?", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
 	}
@@ -83,7 +83,7 @@ func (b *BasicDataDictionaryRepository) FindAllByCodeIn(ids []string) (infos []*
 	return infos, true
 }
 
-func (c *BasicDataDictionaryRepository) FindByNameAndIdNot(name string, id int64) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
+func (c *BasicDataDictionaryRepository) FindByNameAndIdNot(ctx context.Context, name string, id int64) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -95,7 +95,7 @@ func (c *BasicDataDictionaryRepository) FindByNameAndIdNot(name string, id int64
 	return info, true
 }
 
-func (c *BasicDataDictionaryRepository) FindByValueAndIdNotAndOwnerNo(name, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
+func (c *BasicDataDictionaryRepository) FindByValueAndIdNotAndOwnerNo(ctx context.Context, name, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.Db().Where("owner_no=?", ownerId).Where("value=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -106,7 +106,7 @@ func (c *BasicDataDictionaryRepository) FindByValueAndIdNotAndOwnerNo(name, id, 
 	}
 	return info, true
 }
-func (c *BasicDataDictionaryRepository) FindByCodeAndIdNotAndOwnerNo(code, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
+func (c *BasicDataDictionaryRepository) FindByCodeAndIdNotAndOwnerNo(ctx context.Context, code, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.Db().Where("code=?", code).Where("owner_no=?", ownerId).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -119,7 +119,7 @@ func (c *BasicDataDictionaryRepository) FindByCodeAndIdNotAndOwnerNo(code, id, o
 }
 
 // FindAllByTypeUniqueMd5AndOwnerNo 根据类型编号查询
-func (c *BasicDataDictionaryRepository) FindAllByTypeUniqueMd5AndOwnerNo(code, id, ownerId string) (info []*entityBasic.BasicDataDictionaryEntity, result bool) {
+func (c *BasicDataDictionaryRepository) FindAllByTypeUniqueMd5AndOwnerNo(ctx context.Context, code, id, ownerId string) (info []*entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.Db().Where("owner_no=?", ownerId).Where("type_unique_md5=?", code).Where("id <> ?", id).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -131,7 +131,7 @@ func (c *BasicDataDictionaryRepository) FindAllByTypeUniqueMd5AndOwnerNo(code, i
 	return info, true
 }
 
-func (c *BasicDataDictionaryRepository) FindByCodeAndTypeCodeAndIdNotAndOwnerNo(code, typeCode, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
+func (c *BasicDataDictionaryRepository) FindByCodeAndTypeCodeAndIdNotAndOwnerNo(ctx context.Context, code, typeCode, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.Db().Where("code=?", code).Where("type_code=?", typeCode).Where("owner_no=?", ownerId).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)

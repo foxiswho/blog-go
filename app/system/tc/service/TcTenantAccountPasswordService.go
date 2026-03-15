@@ -71,9 +71,9 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 		entity.Type = passwordTypePg.Password.String()
 		//设置唯一值
 		entity.KindUnique = utilsRam.AuthorizationKindUniquePasswordByEntity(entity)
-		r2.Create(&entity)
+		r2.Create(ctx, &entity)
 	} else {
-		r2.Update(entity, passwd.ID)
+		r2.Update(ctx, entity, passwd.ID)
 	}
 	return rt.Ok()
 }

@@ -46,7 +46,7 @@ func (t *InitAccount) Processor(ctx context.Context) error {
 	mapDomain := make(map[string]*entityRam.RamAccountEntity)
 	find := make(map[string]bool)
 	// 获取超管账号
-	info, result := t.sp.accDb.FindAllByNoIn(domain)
+	info, result := t.sp.accDb.FindAllByNoIn(ctx, domain)
 	if result {
 		if len(info) > 0 {
 			for _, v := range info {
@@ -110,7 +110,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	}
 	os.Tenants = append(os.Tenants, save.TenantNo)
 	save.Os = datatypes.NewJSONType(os)
-	t.sp.accDb.Create(&save)
+	t.sp.accDb.Create(ctx, &save)
 	//
 	t.sp.authDb.DeleteByAno(save.No)
 	//
@@ -125,7 +125,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	authorizationEntity.Value = userPg.PasswordSalt(pwd, salt)
 	//设置唯一值
 	authorizationEntity.KindUnique = utilsRam.AuthorizationKindUniquePasswordByEntity(authorizationEntity)
-	t.sp.authDb.Create(&authorizationEntity)
+	t.sp.authDb.Create(ctx, &authorizationEntity)
 	//
 	//记录文件日志
 	dataFilePg.NewAccountFileRecord(t.sp.pg, dataFilePg.MakeContent(save.Account, pwd, typeDomainPg.System.Index())).Write()
@@ -134,7 +134,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 	no := noPg.No()
 	now := time.Now()
-	tenant, result := t.sp.tenantDb.FindByNo(constsPg.ACCOUNT_MANAGE_No)
+	tenant, result := t.sp.tenantDb.FindByNo(ctx, constsPg.ACCOUNT_MANAGE_No)
 	if !result {
 		tenant = &entityTc.TcTenantEntity{
 			ID:       1000,
@@ -146,7 +146,7 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 			State:    enumStatePg.ENABLE.Index(),
 			Founder:  "1000",
 		}
-		t.sp.tenantDb.Create(tenant)
+		t.sp.tenantDb.Create(ctx, tenant)
 	}
 	save := entityRam.RamAccountEntity{
 		ID:            1000,
@@ -183,7 +183,7 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 	}
 	os.Tenants = append(os.Tenants, save.TenantNo)
 	save.Os = datatypes.NewJSONType(os)
-	t.sp.accDb.Create(&save)
+	t.sp.accDb.Create(ctx, &save)
 	//
 	t.sp.authDb.DeleteByAno(save.No)
 	//
@@ -197,5 +197,5 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 	authorizationEntity.Value = userPg.PasswordSalt(constsPg.ACCOUNT_PASSWORD, salt)
 	//设置唯一值
 	authorizationEntity.KindUnique = utilsRam.AuthorizationKindUniquePasswordByEntity(authorizationEntity)
-	t.sp.authDb.Create(&authorizationEntity)
+	t.sp.authDb.Create(ctx, &authorizationEntity)
 }

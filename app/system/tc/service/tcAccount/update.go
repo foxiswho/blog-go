@@ -104,7 +104,7 @@ func (c *Update) accountUpdate(ct modRamAccount.UpdateAccountCt, tp appModulePg.
 	//
 	entity.No = ""
 	c.log.Info("update=%+v", entity)
-	err := r.Update(entity, entity.ID)
+	err := r.Update(c.ctx, entity, entity.ID)
 	if err != nil {
 		c.log.Errorf("save.error=%#v", err)
 		return rt.ErrorMessage("保存失败")
@@ -186,7 +186,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.depDb.FindAllByNoIn(ids)
+			infos, b := c.sp.depDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Departments = append(os.Departments, item.No)
@@ -208,7 +208,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.roleDb.FindAllByNoIn(ids)
+			infos, b := c.sp.roleDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Roles = append(os.Roles, item.No)
@@ -229,7 +229,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.levelDb.FindAllByNoIn(ids)
+			infos, b := c.sp.levelDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Levels = append(os.Levels, item.No)
@@ -250,7 +250,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.groupDb.FindAllByNoIn(ids)
+			infos, b := c.sp.groupDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Groups = append(os.Groups, item.No)
@@ -271,7 +271,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.teamDb.FindAllByNoIn(ids)
+			infos, b := c.sp.teamDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Teams = append(os.Teams, item.No)
@@ -288,7 +288,7 @@ func (c *Update) updateAll(ct modRamAccount.UpdateCt, tp appModulePg.AppModule) 
 	entity.ID = 0
 	entity.No = ""
 	c.log.Info("update=%+v", entity)
-	err := r.Update(entity, info.ID)
+	err := r.Update(c.ctx, entity, info.ID)
 	if err != nil {
 		c.log.Errorf("save.error=%#v", err)
 		return rt.ErrorMessage("保存失败")

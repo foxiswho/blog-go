@@ -218,13 +218,13 @@ func (c *BlogCollectService) State(ctx *gin.Context, ids []string, state enumSta
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBlog.BlogCollectEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBlog.BlogCollectEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -252,7 +252,7 @@ func (c *BlogCollectService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -266,7 +266,7 @@ func (c *BlogCollectService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBlog.BlogCollectEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBlog.BlogCollectEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -284,7 +284,7 @@ func (c *BlogCollectService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -292,7 +292,7 @@ func (c *BlogCollectService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBlog.BlogCollectEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBlog.BlogCollectEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -308,7 +308,7 @@ func (c *BlogCollectService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -407,7 +407,7 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 		//租户
 		{
 			if len(idsTenant) > 0 {
-				tmp, result := c.ten.FindAllByNoIn(idsTenant, repositoryPg.WithCtxOption(ctx))
+				tmp, result := c.ten.FindAllByNoIn(ctx, idsTenant, repositoryPg.WithCtxOption(ctx))
 				if result {
 					for _, item := range tmp {
 						mapTenant[item.No] = item
@@ -418,7 +418,7 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 		//分类
 		{
 			if len(idsCategory) > 0 {
-				tmp, result := c.catDb.FindAllByNoIn(idsCategory, repositoryPg.WithCtxOption(ctx))
+				tmp, result := c.catDb.FindAllByNoIn(ctx, idsCategory, repositoryPg.WithCtxOption(ctx))
 				if result {
 					for _, item := range tmp {
 						mapCategory[item.No] = item
@@ -613,7 +613,7 @@ func (c *BlogCollectService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -633,7 +633,7 @@ func (c *BlogCollectService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt[st
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
