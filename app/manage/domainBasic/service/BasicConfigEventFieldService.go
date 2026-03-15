@@ -65,7 +65,7 @@ func (c *BasicConfigEventFieldsService) CreateUpdate(ctx *gin.Context, ct modBas
 			}
 		}
 		if len(delIds) > 0 {
-			c.sv.DeleteAllByModelNoAndIds(event.No, delIds)
+			c.sv.DeleteAllByModelNoAndIds(ctx, event.No, delIds)
 		}
 
 	}

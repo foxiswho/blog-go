@@ -58,7 +58,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 	}
 	//
 	holder := holderPg.GetContextAccount(ctx)
-	config, b2 := c.Sp.repConfigList.FindByEventNo(ct.EventNo)
+	config, b2 := c.Sp.repConfigList.FindByEventNo(ctx, ct.EventNo)
 	if !b2 {
 		return rt.ErrorMessage("配置不存在")
 	}
@@ -121,7 +121,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 	// 数据库字段
 	dbFields := make(map[string]string)
 	//
-	info, result := c.Sp.repConfig.FindByEventNo(config.EventNo)
+	info, result := c.Sp.repConfig.FindByEventNo(ctx, config.EventNo)
 	if result {
 		for _, item := range info {
 			dbFields[item.Field] = item.No
@@ -192,7 +192,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 	if len(dbUpdate) > 0 {
 		for key, val := range dbUpdate {
 			if no, ok := dbFields[key]; ok {
-				c.Sp.repConfig.UpdateByTenantEventNoAndNoAndValue(config.TenantNo, config.EventNo, no, val)
+				c.Sp.repConfig.UpdateByTenantEventNoAndNoAndValue(ctx, config.TenantNo, config.EventNo, no, val)
 			}
 		}
 	}

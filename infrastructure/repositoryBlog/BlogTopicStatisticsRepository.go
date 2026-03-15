@@ -25,8 +25,8 @@ type BlogTopicStatisticsRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogTopicStatisticsEntity, int64]
 }
 
-func (c *BlogTopicStatisticsRepository) FindByTopicNo(no string) (info *entityBlog.BlogTopicStatisticsEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", no).First(&info)
+func (c *BlogTopicStatisticsRepository) FindByTopicNo(ctx context.Context, no string) (info *entityBlog.BlogTopicStatisticsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogTopicStatisticsRepository) FindByTopicNo(no string) (info *entityBl
 	return info, true
 }
 
-func (c *BlogTopicStatisticsRepository) FindAllByTopicNoIn(no []string) (info []*entityBlog.BlogTopicStatisticsEntity, result bool) {
-	tx := c.Db().Where("topic_no in ?", no).Find(&info)
+func (c *BlogTopicStatisticsRepository) FindAllByTopicNoIn(ctx context.Context, no []string) (info []*entityBlog.BlogTopicStatisticsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no in ?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

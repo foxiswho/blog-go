@@ -276,7 +276,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				}
 			}
 			if len(delIds) > 0 {
-				c.Sp.repField.DeleteAllByModelNoAndIds(info.No, delIds)
+				c.Sp.repField.DeleteAllByModelNoAndIds(ctx, info.No, delIds)
 			}
 		}
 		//

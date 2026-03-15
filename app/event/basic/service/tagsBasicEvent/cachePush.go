@@ -2,11 +2,12 @@ package tagsBasicEvent
 
 import (
 	"context"
+	"strings"
+
 	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicTags"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"strings"
 )
 
 // CachePush
@@ -35,7 +36,7 @@ func (c *CachePush) Processor(ctx context.Context) error {
 	if len(c.dto.CategoryRoot) < 1 {
 		return nil
 	}
-	infos, result := c.sp.TagRela.FindAllByCategoryRootIn(t, c.dto.CategoryRoot)
+	infos, result := c.sp.TagRela.FindAllByCategoryRootIn(ctx, t, c.dto.CategoryRoot)
 	if result {
 		data := make(map[string]interface{})
 		for _, item := range infos {

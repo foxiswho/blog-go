@@ -692,7 +692,7 @@ func (c *BasicCountryService) ExistCountryCode(ctx *gin.Context, ct model.BaseEx
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCountryCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCountryCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

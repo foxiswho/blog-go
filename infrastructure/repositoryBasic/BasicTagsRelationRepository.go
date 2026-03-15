@@ -25,30 +25,8 @@ type BasicTagsRelationRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicTagsRelationEntity, int64]
 }
 
-func (c *BasicTagsRelationRepository) FindAllByParentIdLink(code string) (info []entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-func (c *BasicTagsRelationRepository) FindByNameAndIdNot(name string, id int64) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-func (c *BasicTagsRelationRepository) FindByNameAndIdNotAndCategoryNot(name string, id int64, category string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("category=?", category).Where("id <> ?", id).First(&info)
+func (c *BasicTagsRelationRepository) FindByNameAndIdNotAndCategoryNot(ctx context.Context, name string, id int64, category string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("name=?", name).Where("category=?", category).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -59,19 +37,8 @@ func (c *BasicTagsRelationRepository) FindByNameAndIdNotAndCategoryNot(name stri
 	return info, true
 }
 
-func (c *BasicTagsRelationRepository) FindByCodeAndIdNot(name string, id int64) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("code=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-func (c *BasicTagsRelationRepository) FindByCodeAndIdNotAndCategoryNot(name string, id int64, category string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("code=?", name).Where("category=?", category).Where("id <> ?", id).First(&info)
+func (c *BasicTagsRelationRepository) FindByCodeAndIdNotAndCategoryNot(ctx context.Context, name string, id int64, category string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("code=?", name).Where("category=?", category).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -82,20 +49,8 @@ func (c *BasicTagsRelationRepository) FindByCodeAndIdNotAndCategoryNot(name stri
 	return info, true
 }
 
-func (c *BasicTagsRelationRepository) FindByCode(name string) (info *entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("code=?", name).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (b *BasicTagsRelationRepository) DeleteByIdsStringAndTypeSysNot(id []string, tp string) error {
-	tx := b.Db().Where("type_sys!=?", tp).Where("id in ?").Delete(&b.Entity, id)
+func (b *BasicTagsRelationRepository) DeleteByIdsStringAndTypeSysNot(ctx context.Context, id []string, tp string) error {
+	tx := b.DbModel().WithContext(ctx).Where("type_sys!=?", tp).Where("id in ?").Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -110,8 +65,8 @@ func (b *BasicTagsRelationRepository) DeleteByIdsStringAndTypeSysNot(id []string
 //	@param category
 //	@return infos
 //	@return result
-func (c *BasicTagsRelationRepository) FindAllByCategoryNoIn(t entityBasic.BasicTagsRelationEntity, category []string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where(t).Where("category_no in ?", category).Find(&infos)
+func (c *BasicTagsRelationRepository) FindAllByCategoryNoIn(ctx context.Context, t entityBasic.BasicTagsRelationEntity, category []string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where(t).Where("category_no in ?", category).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -130,8 +85,8 @@ func (c *BasicTagsRelationRepository) FindAllByCategoryNoIn(t entityBasic.BasicT
 //	@param category
 //	@return infos
 //	@return result
-func (c *BasicTagsRelationRepository) FindAllByCategoryRootIn(t entityBasic.BasicTagsRelationEntity, category []string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where(t).Where("category_root in ?", category).Find(&infos)
+func (c *BasicTagsRelationRepository) FindAllByCategoryRootIn(ctx context.Context, t entityBasic.BasicTagsRelationEntity, category []string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where(t).Where("category_root in ?", category).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -150,8 +105,8 @@ func (c *BasicTagsRelationRepository) FindAllByCategoryRootIn(t entityBasic.Basi
 //	@param category
 //	@return infos
 //	@return result
-func (c *BasicTagsRelationRepository) FindAllByCodeInAndCategoryRoot(code []string, categoryRoot string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("code in ?", code).Where("category_root=?", categoryRoot).Find(&infos)
+func (c *BasicTagsRelationRepository) FindAllByCodeInAndCategoryRoot(ctx context.Context, code []string, categoryRoot string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("code in ?", code).Where("category_root=?", categoryRoot).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -170,8 +125,8 @@ func (c *BasicTagsRelationRepository) FindAllByCodeInAndCategoryRoot(code []stri
 //	@param category
 //	@return infos
 //	@return result
-func (c *BasicTagsRelationRepository) FindAllByTagNoInAndCategoryRoot(code []string, categoryRoot string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
-	tx := c.Db().Where("tag_no in ?", code).Where("category_root=?", categoryRoot).Find(&infos)
+func (c *BasicTagsRelationRepository) FindAllByTagNoInAndCategoryRoot(ctx context.Context, code []string, categoryRoot string) (infos []*entityBasic.BasicTagsRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tag_no in ?", code).Where("category_root=?", categoryRoot).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

@@ -26,8 +26,8 @@ type ApiDiplAccessKeyRepository struct {
 	repositoryPg.BaseRepository[entityApi.ApiDiplAccessKeyEntity, int64]
 }
 
-func (c *ApiDiplAccessKeyRepository) FindByTenantNoAndDiplNo(no, DiplNo string) (info *entityApi.ApiDiplAccessKeyEntity, result bool) {
-	tx := c.Db().Where("tenant_no=?", no).Where("dipl_no=?", DiplNo).First(&info)
+func (c *ApiDiplAccessKeyRepository) FindByTenantNoAndDiplNo(ctx context.Context, no, DiplNo string) (info *entityApi.ApiDiplAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", no).Where("dipl_no=?", DiplNo).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -38,8 +38,8 @@ func (c *ApiDiplAccessKeyRepository) FindByTenantNoAndDiplNo(no, DiplNo string) 
 	return info, true
 }
 
-func (c *ApiDiplAccessKeyRepository) UpdateAllByDiplNoAndNoSetState(DiplNo, id string, state int8) (sum int64, result bool) {
-	tx := c.Db().Where("dipl_no=?", DiplNo).Where("id=?", id).Updates(entityApi.ApiDiplAccessKeyEntity{State: state})
+func (c *ApiDiplAccessKeyRepository) UpdateAllByDiplNoAndNoSetState(ctx context.Context, DiplNo, id string, state int8) (sum int64, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("dipl_no=?", DiplNo).Where("id=?", id).Updates(entityApi.ApiDiplAccessKeyEntity{State: state})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return 0, false

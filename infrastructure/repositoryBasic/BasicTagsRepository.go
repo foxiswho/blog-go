@@ -24,15 +24,3 @@ func init() {
 type BasicTagsRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicTagsEntity, int64]
 }
-
-func (c *BasicTagsRepository) FindAllByParentIdLink(code string) (info []entityBasic.BasicTagsEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}

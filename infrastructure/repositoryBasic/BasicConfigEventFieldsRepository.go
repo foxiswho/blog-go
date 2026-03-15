@@ -25,8 +25,8 @@ type BasicConfigEventFieldsRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigEventFieldsEntity, int64]
 }
 
-func (c *BasicConfigEventFieldsRepository) FindAllByModelNo(no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("model_no=?", no).Order("sort asc,create_at").Find(&info)
+func (c *BasicConfigEventFieldsRepository) FindAllByModelNo(ctx context.Context, no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("model_no=?", no).Order("sort asc,create_at").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BasicConfigEventFieldsRepository) FindAllByModelNo(no string) (info []*
 	return info, true
 }
 
-func (c *BasicConfigEventFieldsRepository) DeleteAllByModelNoAndIds(no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("id in ?", ids).Where("model_no=?", no).Delete(&c.Entity)
+func (c *BasicConfigEventFieldsRepository) DeleteAllByModelNoAndIds(ctx context.Context, no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id in ?", ids).Where("model_no=?", no).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -48,20 +48,8 @@ func (c *BasicConfigEventFieldsRepository) DeleteAllByModelNoAndIds(no string, i
 	}
 	return info, true
 }
-func (c *BasicConfigEventFieldsRepository) FindAllByEventNo(no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("event_no=?", no).Order("sort asc,create_at").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *BasicConfigEventFieldsRepository) DeleteAllByEventNoAndIds(no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("id in ?", ids).Where("event_no=?", no).Delete(&c.Entity)
+func (c *BasicConfigEventFieldsRepository) FindAllByEventNo(ctx context.Context, no string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", no).Order("sort asc,create_at").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -72,8 +60,8 @@ func (c *BasicConfigEventFieldsRepository) DeleteAllByEventNoAndIds(no string, i
 	return info, true
 }
 
-func (c *BasicConfigEventFieldsRepository) FindByEventNoAndFieldIn(eventNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).Where("field in ?", code).Find(&info)
+func (c *BasicConfigEventFieldsRepository) DeleteAllByEventNoAndIds(ctx context.Context, no string, ids []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id in ?", ids).Where("event_no=?", no).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -83,8 +71,20 @@ func (c *BasicConfigEventFieldsRepository) FindByEventNoAndFieldIn(eventNo strin
 	}
 	return info, true
 }
-func (c *BasicConfigEventFieldsRepository) FindByEventNoTenantAndFieldIn(eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
+
+func (c *BasicConfigEventFieldsRepository) FindByEventNoAndFieldIn(ctx context.Context, eventNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Where("field in ?", code).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+func (c *BasicConfigEventFieldsRepository) FindByEventNoTenantAndFieldIn(ctx context.Context, eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEventFieldsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

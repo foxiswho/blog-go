@@ -77,7 +77,7 @@ func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			}
 		}
 		if len(delIds) > 0 {
-			c.Sp.repRules.DeleteAllByValueNoAndIds(no, delIds)
+			c.Sp.repRules.DeleteAllByValueNoAndIds(ctx, no, delIds)
 		}
 	}
 	dataAdd := make([]*entityBasic.BasicModelRulesEntity, 0)

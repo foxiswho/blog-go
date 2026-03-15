@@ -87,7 +87,7 @@ func (c *BasicTagsRelationService) Create(ctx *gin.Context, ct modBasicTagsRelat
 
 	r := c.sv
 	//不是自动
-	_, result := r.FindByCodeAndIdNotAndCategoryNot(ct.No, 0, ct.Category)
+	_, result := r.FindByCodeAndIdNotAndCategoryNot(ctx, ct.No, 0, ct.Category)
 	if result {
 		return rt.ErrorMessage("标签已存在")
 	}
@@ -152,7 +152,7 @@ func (c *BasicTagsRelationService) Update(ctx *gin.Context, ct modBasicTagsRelat
 	}
 	r := c.sv
 
-	_, result := r.FindByCodeAndIdNotAndCategoryNot(ct.No, ct.ID.ToInt64(), ct.Category)
+	_, result := r.FindByCodeAndIdNotAndCategoryNot(ctx, ct.No, ct.ID.ToInt64(), ct.Category)
 	if result {
 		return rt.ErrorMessage("标签已存在")
 	}
@@ -271,7 +271,7 @@ func (c *BasicTagsRelationService) LogicalDeletion(ctx *gin.Context, ids []strin
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		//不是系统类型情况下可以删除
-		repository.DeleteByIdsStringAndTypeSysNot(ids, typeSysPg.System.String())
+		repository.DeleteByIdsStringAndTypeSysNot(ctx, ids, typeSysPg.System.String())
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -330,7 +330,7 @@ func (c *BasicTagsRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 	}
 	if len(idsNew) > 0 {
 		//不是系统类型情况下可以删除
-		cn.DeleteByIdsStringAndTypeSysNot(idsNew, typeSysPg.System.String())
+		cn.DeleteByIdsStringAndTypeSysNot(ctx, idsNew, typeSysPg.System.String())
 	}
 	return rt.Ok()
 }
@@ -507,7 +507,7 @@ func (c *BasicTagsRelationService) AllByLink(ctx *gin.Context, ct modBasicTagsRe
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsRelation.AllVo, 0)
 	rt.Data = slice
-	infos, b := c.sv.FindAllByCategoryNoIn(query, category)
+	infos, b := c.sv.FindAllByCategoryNoIn(ctx, query, category)
 	if b {
 		for _, item := range infos {
 			var vo modBasicTagsRelation.AllVo
@@ -551,7 +551,7 @@ func (c *BasicTagsRelationService) ExistName(ctx *gin.Context, ct modBasicTagsRe
 	if strPg.IsBlank(ct.Category) {
 		return rt.ErrorMessage("分类不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNotAndCategoryNot(ct.Wd, numberPg.StrToInt64(ct.Id), ct.Category)
+	_, result := c.sv.FindByNameAndIdNotAndCategoryNot(ctx, ct.Wd, numberPg.StrToInt64(ct.Id), ct.Category)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -573,7 +573,7 @@ func (c *BasicTagsRelationService) ExistCode(ctx *gin.Context, ct modBasicTagsRe
 	if strPg.IsBlank(ct.Category) {
 		return rt.ErrorMessage("分类不能为空")
 	}
-	_, result := c.sv.FindByCodeAndIdNotAndCategoryNot(ct.Wd, numberPg.StrToInt64(ct.Id), ct.Category)
+	_, result := c.sv.FindByCodeAndIdNotAndCategoryNot(ctx, ct.Wd, numberPg.StrToInt64(ct.Id), ct.Category)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

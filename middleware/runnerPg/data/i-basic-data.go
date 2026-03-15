@@ -406,7 +406,7 @@ func (b *IBasicData) initSystemModel() {
 		//
 
 		//不存在时创建
-		info, r := b.modelFields.FindByEventNoAndFieldIn(save.No, fields)
+		info, r := b.modelFields.FindByEventNoAndFieldIn(ctx, save.No, fields)
 		if !r {
 			b.modelFields.DbModel().Create(dataInset)
 		} else {
@@ -556,7 +556,7 @@ func (b *IBasicData) initDefaultTenantModel() {
 			dataInset = append(dataInset, &item)
 		}
 		//不存在时创建
-		info, r := b.modelFields.FindByEventNoAndFieldIn(save.No, fields)
+		info, r := b.modelFields.FindByEventNoAndFieldIn(ctx, save.No, fields)
 		if !r {
 			b.modelFields.DbModel().Create(dataInset)
 		} else {
@@ -647,7 +647,7 @@ func (b *IBasicData) initSystemEvent() {
 		//
 
 		//不存在时创建
-		info, r := b.eventFields.FindByEventNoAndFieldIn(save.No, fields)
+		info, r := b.eventFields.FindByEventNoAndFieldIn(ctx, save.No, fields)
 		if !r {
 			b.eventFields.DbModel().Create(dataInset)
 		} else {
@@ -802,7 +802,7 @@ func (b *IBasicData) initDefaultTenantEvent() {
 			dataInset = append(dataInset, &item)
 		}
 		//不存在时创建
-		info, r := b.eventFields.FindByEventNoAndFieldIn(save.No, fields)
+		info, r := b.eventFields.FindByEventNoAndFieldIn(ctx, save.No, fields)
 		if !r {
 			b.eventFields.DbModel().Create(dataInset)
 		} else {

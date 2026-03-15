@@ -340,7 +340,7 @@ func (c *BasicConfigModelService) ExistModel(ctx *gin.Context, ct model.BaseExis
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByModelAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByModelAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

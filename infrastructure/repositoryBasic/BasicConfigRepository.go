@@ -19,8 +19,8 @@ type BasicConfigRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigEntity, int64]
 }
 
-func (c *BasicConfigRepository) FindByTypeDomainTenantAndField(typeDomain string, tenantNo string, code string) (info *entityBasic.BasicConfigEntity, result bool) {
-	tx := c.Db().Where("type_domain=?", typeDomain).Where("tenant_no=?", tenantNo).Where("field=?", code).First(&info)
+func (c *BasicConfigRepository) FindByTypeDomainTenantAndField(ctx context.Context, typeDomain string, tenantNo string, code string) (info *entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain=?", typeDomain).Where("tenant_no=?", tenantNo).Where("field=?", code).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -41,8 +41,8 @@ func (c *BasicConfigRepository) FindByEventNoAndFieldIn(ctx context.Context, eve
 	}
 	return info, true
 }
-func (c *BasicConfigRepository) FindByEventNo(eventNo string) (info []*entityBasic.BasicConfigEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).Find(&info)
+func (c *BasicConfigRepository) FindByEventNo(ctx context.Context, eventNo string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -52,8 +52,8 @@ func (c *BasicConfigRepository) FindByEventNo(eventNo string) (info []*entityBas
 	}
 	return info, true
 }
-func (c *BasicConfigRepository) FindByEventNoTenantAndFieldIn(eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
+func (c *BasicConfigRepository) FindByEventNoTenantAndFieldIn(ctx context.Context, eventNo string, tenantNo string, code []string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Where("tenant_no=?", tenantNo).Where("field in ?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -63,8 +63,8 @@ func (c *BasicConfigRepository) FindByEventNoTenantAndFieldIn(eventNo string, te
 	}
 	return info, true
 }
-func (c *BasicConfigRepository) UpdateByTenantEventNoAndNoAndValue(tenantNo string, eventNo string, no, value string) (info []*entityBasic.BasicConfigEntity, result bool) {
-	tx := c.DbModel().Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
+func (c *BasicConfigRepository) UpdateByTenantEventNoAndNoAndValue(ctx context.Context, tenantNo string, eventNo string, no, value string) (info []*entityBasic.BasicConfigEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -75,8 +75,8 @@ func (c *BasicConfigRepository) UpdateByTenantEventNoAndNoAndValue(tenantNo stri
 	return info, true
 }
 
-func (c *BasicConfigRepository) UpdateByEventNoAndNoAndValue(eventNo string, no, value string) (result bool) {
-	tx := c.DbModel().Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
+func (c *BasicConfigRepository) UpdateByEventNoAndNoAndValue(ctx context.Context, eventNo string, no, value string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).Where("no = ?", no).Update("value", value)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return false

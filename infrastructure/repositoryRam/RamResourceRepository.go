@@ -39,17 +39,6 @@ func (c *RamResourceRepository) FindByParentId(code int64) (info *entityRam.RamR
 	return info, true
 }
 
-func (c *RamResourceRepository) FindAllByIdLink(code string) (info []entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
 func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResourceEntity, result bool) {
 	tx := c.Db().Where("parent_id='' ").Find(&info)
 	if tx.Error != nil {

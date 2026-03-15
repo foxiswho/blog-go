@@ -38,7 +38,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigMo
 	//
 	vo.Body = make([]modBasicConfigModel.ItemVo, 0)
 	//
-	data, r := c.Sp.repField.FindAllByModelNo(info.No)
+	data, r := c.Sp.repField.FindAllByModelNo(ctx, info.No)
 	if r {
 		for _, item := range data {
 			var obj modBasicConfigModel.ItemVo

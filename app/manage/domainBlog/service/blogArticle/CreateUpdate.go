@@ -318,7 +318,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 		}
 		if len(ids) > 0 {
 			mapTopic := make(map[string]int64)
-			info, result := c.sp.topicRel.FindAllByArticleNo(c.record.No)
+			info, result := c.sp.topicRel.FindAllByArticleNo(ctx, c.record.No)
 			if result {
 				for _, item := range info {
 					mapTopic[item.TopicNo] = item.ID

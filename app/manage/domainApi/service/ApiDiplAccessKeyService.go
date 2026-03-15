@@ -152,7 +152,7 @@ func (c *ApiDiplAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsC
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.UpdateAllByDiplNoAndNoSetState(no, numberPg.Int64ToString(info.ID), state.IndexInt8())
+			r.UpdateAllByDiplNoAndNoSetState(ctx, no, numberPg.Int64ToString(info.ID), state.IndexInt8())
 		}
 	}
 	return rt.Ok()

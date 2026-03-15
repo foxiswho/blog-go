@@ -25,8 +25,8 @@ type BlogTopicRelationRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogTopicRelationEntity, int64]
 }
 
-func (c *BlogTopicRelationRepository) FindAllByTopicNo(no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", no).Find(&info)
+func (c *BlogTopicRelationRepository) FindAllByTopicNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogTopicRelationRepository) FindAllByTopicNo(no string) (info []*entit
 	return info, true
 }
 
-func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(topicNo, no string) (info *entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", topicNo).Where("article_no=?", no).First(&info)
+func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(ctx context.Context, topicNo, no string) (info *entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", topicNo).Where("article_no=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -48,8 +48,8 @@ func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(topicNo, no stri
 	}
 	return info, true
 }
-func (c *BlogTopicRelationRepository) FindAllByArticleNo(no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("article_no=?", no).Find(&info)
+func (c *BlogTopicRelationRepository) FindAllByArticleNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("article_no=?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

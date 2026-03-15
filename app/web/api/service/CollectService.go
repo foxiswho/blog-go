@@ -73,7 +73,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	}
 	//重复
 	if duplicate {
-		info, result := c.sv.FindAllByUrlSourceMd5(urlSourceMd5)
+		info, result := c.sv.FindAllByUrlSourceMd5(ctx, urlSourceMd5)
 		if result && nil != info && len(info) > 0 {
 			return rt.ErrorMessage("该链接已存在")
 		}
@@ -238,7 +238,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 	// 连接
 	//重复
 	if duplicate && len(urlMd5) > 0 {
-		info, result := c.sv.FindAllByUrlSourceMd5In(urlMd5)
+		info, result := c.sv.FindAllByUrlSourceMd5In(ctx, urlMd5)
 		if result && nil != info && len(info) > 0 {
 			for _, entity := range info {
 				duplicateCount++

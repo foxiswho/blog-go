@@ -247,9 +247,9 @@ func (c *BasicAttachmentService) DelByOwner(ctx *gin.Context, ct modBasicAttachm
 		return rt.ErrorMessage("请选择要删除的文件")
 	}
 	if c.sv.Config().Data.Delete {
-		c.sv.DeleteByIdAndFileOwner(nos, strings.TrimSpace(ct.FileOwner))
+		c.sv.DeleteByIdAndFileOwner(ctx, nos, strings.TrimSpace(ct.FileOwner))
 	} else {
-		c.sv.UpdateByIdAndFileOwnerSetState13(nos, strings.TrimSpace(ct.FileOwner))
+		c.sv.UpdateByIdAndFileOwnerSetState13(ctx, nos, strings.TrimSpace(ct.FileOwner))
 	}
 	rt.Data = "删除成功"
 	return rt.Ok()
@@ -443,7 +443,7 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 		if len(mapOwnerNew) > 0 {
 			for key, item := range mapOwnerNew {
 				fmt.Printf("不存在文件拥有者:%+v\n", item)
-				c.sv.UpdateByIdSetFileOwner(item, key)
+				c.sv.UpdateByIdSetFileOwner(ctx, item, key)
 			}
 		}
 		clear(filter)

@@ -120,7 +120,7 @@ func (c *BlogArticleService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 		}
 		if len(tags) > 0 {
 			{
-				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(tags, constTags.ArticleInfo.String())
+				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(ctx, tags, constTags.ArticleInfo.String())
 				if result {
 					for _, item := range infos {
 						var vo modBasicTagsRelation.AllVo
@@ -187,7 +187,7 @@ func (c *BlogArticleService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 
 	//统计
 	if strPg.IsNotBlank(find.No) {
-		no, result := c.statisticsDb.FindByArticleNo(find.No)
+		no, result := c.statisticsDb.FindByArticleNo(ctx, find.No)
 		if result {
 			info.Statistics.Comment = no.Comment
 			info.Statistics.Read = no.Read
@@ -197,7 +197,7 @@ func (c *BlogArticleService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 		}
 	}
 	//话题
-	noData, result := c.topicRel.FindAllByArticleNo(find.No)
+	noData, result := c.topicRel.FindAllByArticleNo(ctx, find.No)
 	if result {
 		ids := make([]string, 0)
 		info.TopicData = make([]modBlogTopic.Vo, 0)
@@ -458,7 +458,7 @@ func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) 
 		//统计
 		{
 			if len(idsNo) > 0 {
-				tmp, result := c.statisticsDb.FindAllByArticleNoIn(idsNo)
+				tmp, result := c.statisticsDb.FindAllByArticleNoIn(ctx, idsNo)
 				if result {
 					for _, item := range tmp {
 						mapStat[item.ArticleNo] = item
@@ -469,7 +469,7 @@ func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) 
 		//标签
 		{
 			if len(tags) > 0 {
-				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(tags, constTags.ArticleInfo.String())
+				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(ctx, tags, constTags.ArticleInfo.String())
 				if result {
 					for _, item := range infos {
 						var vo modBasicTagsRelation.AllVo

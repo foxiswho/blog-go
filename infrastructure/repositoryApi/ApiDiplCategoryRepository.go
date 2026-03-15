@@ -25,8 +25,8 @@ type ApiDiplCategoryRepository struct {
 	repositoryPg.BaseRepository[entityApi.ApiDiplCategoryEntity, int64]
 }
 
-func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(code string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
+func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(ctx context.Context, code string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(code string) (info []*
 	return info, true
 }
 
-func (c *ApiDiplCategoryRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
-	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
+func (c *ApiDiplCategoryRepository) FindAllByCodeLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

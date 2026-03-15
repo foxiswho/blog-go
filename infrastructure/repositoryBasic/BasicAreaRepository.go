@@ -24,15 +24,3 @@ func init() {
 type BasicAreaRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicAreaEntity, int64]
 }
-
-func (c *BasicAreaRepository) FindAllByIdLink(code string) (info []entityBasic.BasicAreaEntity, result bool, err error) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false, tx.Error
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false, nil
-	}
-	return info, true, nil
-}

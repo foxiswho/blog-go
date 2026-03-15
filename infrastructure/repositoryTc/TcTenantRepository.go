@@ -25,8 +25,8 @@ type TcTenantRepository struct {
 	repositoryPg.BaseRepository[entityTc.TcTenantEntity, int64]
 }
 
-func (c *TcTenantRepository) FindByFounder(no string) (info *entityTc.TcTenantEntity, result bool) {
-	tx := c.Db().Where("founder=?", no).First(&info)
+func (c *TcTenantRepository) FindByFounder(ctx context.Context, no string) (info *entityTc.TcTenantEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *TcTenantRepository) FindByFounder(no string) (info *entityTc.TcTenantEn
 	return info, true
 }
 
-func (c *TcTenantRepository) FindByFounderAndNotIdString(no string, id string) (info *entityTc.TcTenantEntity, result bool) {
-	tx := c.Db().Where("founder=?", no).Where("id<>?", id).First(&info)
+func (c *TcTenantRepository) FindByFounderAndNotIdString(ctx context.Context, no string, id string) (info *entityTc.TcTenantEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).Where("id<>?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -49,8 +49,8 @@ func (c *TcTenantRepository) FindByFounderAndNotIdString(no string, id string) (
 	return info, true
 }
 
-func (c *TcTenantRepository) FindByTenantAndFounder(no string) (info *entityTc.TcTenantEntity, result bool) {
-	tx := c.Db().Where("founder=?", no).First(&info)
+func (c *TcTenantRepository) FindByTenantAndFounder(ctx context.Context, no string) (info *entityTc.TcTenantEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

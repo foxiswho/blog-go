@@ -71,7 +71,7 @@ func (c *SaveByCategory) Processor() error {
 		}
 	}
 	//获取标签关系
-	infos, b := c.sp.TagRela.FindAllByTagNoInAndCategoryRoot(tagsNo, c.dto.Category)
+	infos, b := c.sp.TagRela.FindAllByTagNoInAndCategoryRoot(context.Background(), tagsNo, c.dto.Category)
 	if b {
 		for _, item := range infos {
 			tagsRelation[item.TagNo] = item

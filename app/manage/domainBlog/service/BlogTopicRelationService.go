@@ -75,7 +75,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	//mapArticles := make(map[string]*entityBlog.BlogArticleEntity)
 	for _, article := range articles {
 		//判断是否存在，如果存在则跳过
-		_, r := c.relation.FindByTopicNoAndArticleNo(topic.No, article.No)
+		_, r := c.relation.FindByTopicNoAndArticleNo(ctx, topic.No, article.No)
 		if r {
 			continue
 		}

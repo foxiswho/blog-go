@@ -118,7 +118,7 @@ func (c *BlogCollectService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 		}
 		if len(tags) > 0 {
 			{
-				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(tags, constTags.CollectInfo.String())
+				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(ctx, tags, constTags.CollectInfo.String())
 				if result {
 					for _, item := range infos {
 						var vo modBasicTagsRelation.AllVo
@@ -433,7 +433,7 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 		//标签
 		{
 			if len(tags) > 0 {
-				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(tags, constTags.CollectInfo.String())
+				infos, result := c.tagsRelat.FindAllByTagNoInAndCategoryRoot(ctx, tags, constTags.CollectInfo.String())
 				if result {
 					for _, item := range infos {
 						var vo modBasicTagsRelation.AllVo

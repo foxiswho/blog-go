@@ -25,8 +25,8 @@ type BasicCountryRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicCountryEntity, int64]
 }
 
-func (c *BasicCountryRepository) FindByCountryCode(code string) (info *entityBasic.BasicCountryEntity, result bool) {
-	tx := c.Db().Where("state=1").Where("country_code=?", code).First(&info)
+func (c *BasicCountryRepository) FindByCountryCode(ctx context.Context, code string) (info *entityBasic.BasicCountryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("state=1").Where("country_code=?", code).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -36,8 +36,8 @@ func (c *BasicCountryRepository) FindByCountryCode(code string) (info *entityBas
 	}
 	return info, true
 }
-func (c *BasicCountryRepository) FindByCountryCodeAndIdNot(code, id string) (info *entityBasic.BasicCountryEntity, result bool) {
-	tx := c.Db().Where("state=1").Where("country_code=?", code).Where("id!=?", id).First(&info)
+func (c *BasicCountryRepository) FindByCountryCodeAndIdNot(ctx context.Context, code, id string) (info *entityBasic.BasicCountryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("state=1").Where("country_code=?", code).Where("id!=?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

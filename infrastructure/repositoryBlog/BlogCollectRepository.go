@@ -25,8 +25,8 @@ type BlogCollectRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogCollectEntity, int64]
 }
 
-func (c *BlogCollectRepository) FindAllByUrlSourceMd5(code string) (infos []*entityBlog.BlogCollectEntity, result bool) {
-	tx := c.Db().Where("url_source_md5 = ?", code).Find(&infos)
+func (c *BlogCollectRepository) FindAllByUrlSourceMd5(ctx context.Context, code string) (infos []*entityBlog.BlogCollectEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 = ?", code).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogCollectRepository) FindAllByUrlSourceMd5(code string) (infos []*ent
 	return infos, true
 }
 
-func (c *BlogCollectRepository) FindAllByUrlSourceMd5In(code []string) (infos []*entityBlog.BlogCollectEntity, result bool) {
-	tx := c.Db().Where("url_source_md5 in ?", code).Find(&infos)
+func (c *BlogCollectRepository) FindAllByUrlSourceMd5In(ctx context.Context, code []string) (infos []*entityBlog.BlogCollectEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 in ?", code).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

@@ -44,7 +44,7 @@ func (c *DetailForm) Process(ctx *gin.Context, ct modBasicConfigList.DetailFormC
 		return rt.ErrorMessage("参数错误")
 	}
 	holder := holderPg.GetContextAccount(ctx)
-	config, b2 := c.Sp.repConfigList.FindByEventNo(ct.EventNo)
+	config, b2 := c.Sp.repConfigList.FindByEventNo(ctx, ct.EventNo)
 	if !b2 {
 		return rt.ErrorMessage("配置不存在")
 	}
@@ -96,7 +96,7 @@ func (c *DetailForm) Process(ctx *gin.Context, ct modBasicConfigList.DetailFormC
 			data.Form.Item = append(data.Form.Item, obj2)
 		}
 	}
-	info, result := c.Sp.repConfig.FindByEventNo(config.EventNo)
+	info, result := c.Sp.repConfig.FindByEventNo(ctx, config.EventNo)
 	if result {
 		for _, v := range info {
 			if yesNoIntPg.Yes.IsEqual(v.Binary) {

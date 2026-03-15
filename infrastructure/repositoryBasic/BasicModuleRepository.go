@@ -25,8 +25,8 @@ type BasicModuleRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicModuleEntity, int64]
 }
 
-func (c *BasicModuleRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityBasic.BasicModuleEntity, result bool) {
-	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
+func (c *BasicModuleRepository) FindAllByCodeLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityBasic.BasicModuleEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

@@ -25,8 +25,8 @@ type BlogCategoryRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogCategoryEntity, int64]
 }
 
-func (c *BlogCategoryRepository) FindAllByParentIdLink(code string) (info []*entityBlog.BlogCategoryEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
+func (c *BlogCategoryRepository) FindAllByParentIdLink(ctx context.Context, code string) (info []*entityBlog.BlogCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -36,8 +36,8 @@ func (c *BlogCategoryRepository) FindAllByParentIdLink(code string) (info []*ent
 	}
 	return info, true
 }
-func (c *BlogCategoryRepository) FindAllByNoLink(code string) (infos []*entityBlog.BlogCategoryEntity, result bool) {
-	tx := c.Db().Where("no_link like ?", "%"+code+"%").Find(&infos)
+func (c *BlogCategoryRepository) FindAllByNoLink(ctx context.Context, code string) (infos []*entityBlog.BlogCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("no_link like ?", "%"+code+"%").Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -47,8 +47,8 @@ func (c *BlogCategoryRepository) FindAllByNoLink(code string) (infos []*entityBl
 	}
 	return infos, true
 }
-func (c *BlogCategoryRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityBlog.BlogCategoryEntity, result bool) {
-	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
+func (c *BlogCategoryRepository) FindAllByCodeLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityBlog.BlogCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

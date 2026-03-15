@@ -68,7 +68,7 @@ func (c *BasicConfigListService) CreateUpdate(ctx *gin.Context, ct modBasicConfi
 	if ct.ID.ToInt64() > 0 {
 		id = ct.ID.ToString()
 	}
-	_, b := c.sv.FindByTenantNoAndEventNoAndIdNot(holder.GetTenantNo(), event.No, id)
+	_, b := c.sv.FindByTenantNoAndEventNoAndIdNot(ctx, holder.GetTenantNo(), event.No, id)
 	if b {
 		return rt.ErrorMessage("该事件在当前租户下已存在")
 	}

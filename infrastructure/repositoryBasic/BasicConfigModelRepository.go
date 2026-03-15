@@ -25,8 +25,8 @@ type BasicConfigModelRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigModelEntity, int64]
 }
 
-func (c *BasicConfigModelRepository) FindByModel(code string) (info *entityBasic.BasicConfigModelEntity, result bool) {
-	tx := c.Db().Where("model=?", code).First(&info)
+func (c *BasicConfigModelRepository) FindByModel(ctx context.Context, code string) (info *entityBasic.BasicConfigModelEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("model=?", code).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BasicConfigModelRepository) FindByModel(code string) (info *entityBasic
 	return info, true
 }
 
-func (c *BasicConfigModelRepository) FindByModelAndIdNot(code string, id string) (info *entityBasic.BasicConfigModelEntity, result bool) {
-	tx := c.Db().Where("model=?", code).Where("id <>?", id).First(&info)
+func (c *BasicConfigModelRepository) FindByModelAndIdNot(ctx context.Context, code string, id string) (info *entityBasic.BasicConfigModelEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("model=?", code).Where("id <>?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

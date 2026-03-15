@@ -24,27 +24,3 @@ func init() {
 type BlogArticleCategoryRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogArticleCategoryEntity, int64]
 }
-
-func (c *BlogArticleCategoryRepository) FindAllByParentIdLink(code string) (info []*entityBlog.BlogArticleCategoryEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *BlogArticleCategoryRepository) FindAllByCodeLinkAndTypeSys(code string, tpSys string) (info []*entityBlog.BlogArticleCategoryEntity, result bool) {
-	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}

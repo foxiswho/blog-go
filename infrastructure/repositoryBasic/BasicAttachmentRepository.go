@@ -25,8 +25,8 @@ type BasicAttachmentRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicAttachmentEntity, int64]
 }
 
-func (c *BasicAttachmentRepository) FindAllByModuleValue(module, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("module=?", module).Where("value=?", value).Find(&info)
+func (c *BasicAttachmentRepository) FindAllByModuleValue(ctx context.Context, module, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("module=?", module).Where("value=?", value).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BasicAttachmentRepository) FindAllByModuleValue(module, value string) (
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) FindAllByModuleValueIn(module string, value []string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("module=?", module).Where("value in ?", value).Find(&info)
+func (c *BasicAttachmentRepository) FindAllByModuleValueIn(ctx context.Context, module string, value []string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("module=?", module).Where("value in ?", value).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -49,8 +49,8 @@ func (c *BasicAttachmentRepository) FindAllByModuleValueIn(module string, value 
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) FindByModuleTypeValue(module, typ, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("module=?", module).Where("type=?", typ).Where("value=?", value).Find(&info)
+func (c *BasicAttachmentRepository) FindByModuleTypeValue(ctx context.Context, module, typ, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("module=?", module).Where("type=?", typ).Where("value=?", value).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -61,8 +61,8 @@ func (c *BasicAttachmentRepository) FindByModuleTypeValue(module, typ, value str
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) DeleteByModuleTypeValue(module, typ, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("module=?", module).Where("type=?", typ).Where("value=?", value).Delete(&c.Entity)
+func (c *BasicAttachmentRepository) DeleteByModuleTypeValue(ctx context.Context, module, typ, value string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("module=?", module).Where("type=?", typ).Where("value=?", value).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -73,8 +73,8 @@ func (c *BasicAttachmentRepository) DeleteByModuleTypeValue(module, typ, value s
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) FindByMark(mark string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("mark=?", mark).Order("sort ASC,id desc").Find(&info)
+func (c *BasicAttachmentRepository) FindByMark(ctx context.Context, mark string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("mark=?", mark).Order("sort ASC,id desc").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -85,8 +85,8 @@ func (c *BasicAttachmentRepository) FindByMark(mark string) (info []*entityBasic
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) DeleteByMark(mark string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("mark=?", mark).Delete(&c.Entity)
+func (c *BasicAttachmentRepository) DeleteByMark(ctx context.Context, mark string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("mark=?", mark).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -97,8 +97,8 @@ func (c *BasicAttachmentRepository) DeleteByMark(mark string) (info []*entityBas
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) DeleteByNoAndFileOwner(no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("no in ?", no).Where("file_owner=?", fileOwner).Delete(&c.Entity)
+func (c *BasicAttachmentRepository) DeleteByNoAndFileOwner(ctx context.Context, no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("no in ?", no).Where("file_owner=?", fileOwner).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -109,8 +109,8 @@ func (c *BasicAttachmentRepository) DeleteByNoAndFileOwner(no []string, fileOwne
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) DeleteByIdAndFileOwner(no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.Db().Where("id in ?", no).Where("file_owner=?", fileOwner).Delete(&c.Entity)
+func (c *BasicAttachmentRepository) DeleteByIdAndFileOwner(ctx context.Context, no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id in ?", no).Where("file_owner=?", fileOwner).Delete(&c.Entity)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -121,8 +121,8 @@ func (c *BasicAttachmentRepository) DeleteByIdAndFileOwner(no []string, fileOwne
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) UpdateByNoAndFileOwnerSetState13(no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.DbModel().Where("no in ?", no).Where("file_owner=?", fileOwner).Update("state", 13)
+func (c *BasicAttachmentRepository) UpdateByNoAndFileOwnerSetState13(ctx context.Context, no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("no in ?", no).Where("file_owner=?", fileOwner).Update("state", 13)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -133,8 +133,8 @@ func (c *BasicAttachmentRepository) UpdateByNoAndFileOwnerSetState13(no []string
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) UpdateByIdAndFileOwnerSetState13(no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
-	tx := c.DbModel().Where("id in ?", no).Where("file_owner=?", fileOwner).Update("state", 13)
+func (c *BasicAttachmentRepository) UpdateByIdAndFileOwnerSetState13(ctx context.Context, no []string, fileOwner string) (info []*entityBasic.BasicAttachmentEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id in ?", no).Where("file_owner=?", fileOwner).Update("state", 13)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -145,8 +145,8 @@ func (c *BasicAttachmentRepository) UpdateByIdAndFileOwnerSetState13(no []string
 	return info, true
 }
 
-func (c *BasicAttachmentRepository) UpdateByIdSetFileOwner(no []string, fileOwner string) (result bool) {
-	tx := c.DbModel().Where("id in ?", no).Update("file_owner", fileOwner)
+func (c *BasicAttachmentRepository) UpdateByIdSetFileOwner(ctx context.Context, no []string, fileOwner string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id in ?", no).Update("file_owner", fileOwner)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return false

@@ -271,7 +271,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				}
 			}
 			if len(delIds) > 0 {
-				c.Sp.repEventField.DeleteAllByEventNoAndIds(info.No, delIds)
+				c.Sp.repEventField.DeleteAllByEventNoAndIds(ctx, info.No, delIds)
 			}
 		}
 		//

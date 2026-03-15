@@ -25,20 +25,8 @@ type BasicTagsCategoryRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicTagsCategoryEntity, int64]
 }
 
-func (c *BasicTagsCategoryRepository) FindAllByParentIdLink(code string) (info []*entityBasic.BasicTagsCategoryEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *BasicTagsCategoryRepository) FindAllByNoLinkAndTypeSys(code string, tpSys string) (info []*entityBasic.BasicTagsCategoryEntity, result bool) {
-	tx := c.Db().Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
+func (c *BasicTagsCategoryRepository) FindAllByNoLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityBasic.BasicTagsCategoryEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

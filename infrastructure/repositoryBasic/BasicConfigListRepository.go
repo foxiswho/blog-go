@@ -1,6 +1,8 @@
 package repositoryBasic
 
 import (
+	"context"
+
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
@@ -17,8 +19,8 @@ type BasicConfigListRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicConfigListEntity, int64]
 }
 
-func (c *BasicConfigListRepository) FindByEventNo(eventNo string) (info *entityBasic.BasicConfigListEntity, result bool) {
-	tx := c.Db().Where("event_no=?", eventNo).First(&info)
+func (c *BasicConfigListRepository) FindByEventNo(ctx context.Context, eventNo string) (info *entityBasic.BasicConfigListEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -29,8 +31,8 @@ func (c *BasicConfigListRepository) FindByEventNo(eventNo string) (info *entityB
 	return info, true
 }
 
-func (c *BasicConfigListRepository) FindByTenantNoAndEventNoAndIdNot(tenantNo, eventNo string, id string) (info *entityBasic.BasicConfigListEntity, result bool) {
-	tx := c.Db().Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("id != ?", id).First(&info)
+func (c *BasicConfigListRepository) FindByTenantNoAndEventNoAndIdNot(ctx context.Context, tenantNo, eventNo string, id string) (info *entityBasic.BasicConfigListEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("id != ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
