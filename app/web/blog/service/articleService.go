@@ -23,6 +23,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/sdk/blog/key/blogKeyPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -239,29 +240,26 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 	slice := make([]modBlogArticle.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogArticleEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Db.Order("create_at desc")
 		//自定义查询
 		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		// 时间区间查询
 		if nil != ct.CreateAtStart && nil != ct.CreateAtEnd {
-			p.Condition.Where("create_at between ? and ?", ct.CreateAtStart, ct.CreateAtEnd)
+			arg.Db.Where("create_at between ? and ?", ct.CreateAtStart, ct.CreateAtEnd)
 		}
 		//标签
 		if nil != ct.TagsQuery && len(ct.TagsQuery) > 0 {
 			for _, tag := range ct.TagsQuery {
 				if strPg.IsNotBlank(tag) {
-					p.Condition.Where("tags @> ?", "[\""+tag+"\"]")
+					arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}
@@ -271,13 +269,13 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 				//获取缓存，得到 编号
 				get, b := c.rdu.Get(ctx, blogKeyPg.ArticleCategoryTenantNoAndNoByCode(tenantNo, tag))
 				if b {
-					p.Condition.Where("categorys @> ?", "[\""+get+"\"]")
+					arg.Db.Where("categorys @> ?", "[\""+get+"\"]")
 				} else {
-					p.Condition.Where("categorys @> ?", "[\""+tag+"\"]")
+					arg.Db.Where("categorys @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}

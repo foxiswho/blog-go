@@ -241,16 +241,16 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
-		p.Condition.Where("type_domain= ?", tp.ToTypeDomain().String())
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db.Order("create_at desc")
+		arg.Db.Where("type_domain= ?", tp.ToTypeDomain().String())
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("account like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("account like ?", "%"+ct.Wd+"%")
 		}
 		//部门
 		if nil != ct.Departments && len(ct.Departments) > 0 {
@@ -264,9 +264,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				p.Condition.Where(sqlDb)
+				arg.Db.Where(sqlDb)
 			} else {
-				p.Condition.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 			}
 		}
 		//角色
@@ -281,9 +281,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				p.Condition.Where(sqlDb)
+				arg.Db.Where(sqlDb)
 			} else {
-				p.Condition.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 			}
 		}
 		//级别
@@ -299,9 +299,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db.Where(sqlDb)
 				} else {
-					p.Condition.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+					arg.Db.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr("0"))
 				}
 			}
 		}
@@ -318,7 +318,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db.Where(sqlDb)
 				}
 			}
 		}
@@ -335,7 +335,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db.Where(sqlDb)
 				}
 			}
 		}
@@ -344,9 +344,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.RegisterTimeRange {
 				count := len(ct.RegisterTimeRange)
 				if count == 2 && nil != ct.RegisterTimeRange[0] && nil != ct.RegisterTimeRange[1] {
-					p.Condition.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
+					arg.Db.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
 				} else if count == 1 && nil != ct.RegisterTimeRange[0] {
-					p.Condition.Where("register_time >= ?", ct.RegisterTimeRange[0])
+					arg.Db.Where("register_time >= ?", ct.RegisterTimeRange[0])
 				}
 			}
 		}
@@ -355,9 +355,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.LoginTimeRange {
 				count := len(ct.LoginTimeRange)
 				if count == 2 && nil != ct.LoginTimeRange[0] && nil != ct.LoginTimeRange[1] {
-					p.Condition.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
+					arg.Db.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
 				} else if count == 1 && nil != ct.LoginTimeRange[0] {
-					p.Condition.Where("login_time >= ?", ct.LoginTimeRange[0])
+					arg.Db.Where("login_time >= ?", ct.LoginTimeRange[0])
 				}
 			}
 		}
@@ -366,13 +366,13 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 			if nil != ct.BirthdayRange {
 				count := len(ct.BirthdayRange)
 				if count == 2 && nil != ct.BirthdayRange[0] && nil != ct.BirthdayRange[1] {
-					p.Condition.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
+					arg.Db.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
 				} else if count == 1 && nil != ct.BirthdayRange[0] {
-					p.Condition.Where("birthday >= ?", ct.BirthdayRange[0])
+					arg.Db.Where("birthday >= ?", ct.BirthdayRange[0])
 				}
 			}
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

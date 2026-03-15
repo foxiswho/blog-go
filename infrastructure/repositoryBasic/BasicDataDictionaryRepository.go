@@ -9,7 +9,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
-	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 )
 
 func init() {
@@ -24,29 +23,6 @@ func init() {
 
 type BasicDataDictionaryRepository struct {
 	repositoryPg.BaseRepository[entityBasic.BasicDataDictionaryEntity, int64]
-}
-
-// 分页
-func (b *BasicDataDictionaryRepository) FindAllPageOwnerId0(t entityBasic.BasicDataDictionaryEntity, option pagePg.Option[entityBasic.BasicDataDictionaryEntity]) (pagePg.Paginator[entityBasic.BasicDataDictionaryEntity], error) {
-	var total int64
-	pg := pagePg.NewPaginatorPg[entityBasic.BasicDataDictionaryEntity](option)
-	countTx := b.Db().Model(b.Entity).Where(t).Where("owner_no='0'").Count(&total)
-	if nil != countTx.Error {
-		return pg, countTx.Error
-	}
-	var infos []entityBasic.BasicDataDictionaryEntity
-	tx := b.Db().Model(b.Entity).Where(t).Where("owner_no='0'").Find(&infos)
-	if tx.Error != nil {
-		return pg, tx.Error
-	}
-	pg.Data = infos
-	pg.Total = total
-	pg.Pageable = pagePg.NewPageablePg(total, pg.PageNum, pg.PageSize)
-	//if total >0 {
-	//	t2 := infos[len(infos)-1]
-	//	pg.OffsetId=t2
-	//}
-	return pg, nil
 }
 
 // 查询所有
