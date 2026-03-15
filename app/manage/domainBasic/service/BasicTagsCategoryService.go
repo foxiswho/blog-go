@@ -248,7 +248,7 @@ func (c *BasicTagsCategoryService) childParentIdLink(maps map[string][]*entityBa
 //	@receiver c
 func (c *BasicTagsCategoryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}

@@ -269,7 +269,7 @@ func (c *RamResourceGroupService) childParentIdLink(maps map[string][]*entityRam
 //	@receiver c
 func (c *RamResourceGroupService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}

@@ -247,7 +247,7 @@ func (c *BlogTopicCategoryService) childParentIdLink(maps map[string][]*entityBl
 //	@receiver c
 func (c *BlogTopicCategoryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData(repositoryPg.WithCtxOption(ctx))
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}

@@ -246,7 +246,7 @@ func (c *ApiDiplCategoryService) childParentIdLink(maps map[string][]*entityApi.
 //	@receiver c
 func (c *ApiDiplCategoryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData(repositoryPg.WithCtxOption(ctx))
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}

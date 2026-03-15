@@ -361,13 +361,12 @@ func (b *BaseRepository[T, ID]) FindAllLimit(t T, limit int, arg ...interface{})
 }
 
 // 查询所有
-func (b *BaseRepository[T, ID]) FindAllData(arg ...interface{}) (infos []*T, result bool) {
-	where := b.Db()
+func (b *BaseRepository[T, ID]) FindAllData(ctx context.Context, arg ...interface{}) (infos []*T, result bool) {
+	where := b.Db().WithContext(ctx)
 	if nil != arg {
 		for _, item := range arg {
 			switch result := item.(type) {
 			case Condition:
-				// 条件
 				where = result(where)
 			case Option:
 				where = b.SetOptionScopes(where, item.(Option))

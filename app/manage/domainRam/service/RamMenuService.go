@@ -263,7 +263,7 @@ func (c *RamMenuService) childParentIdLink(maps map[string][]*entityRam.RamMenuE
 //	@receiver c
 func (c *RamMenuService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}

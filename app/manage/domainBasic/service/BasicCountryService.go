@@ -247,7 +247,7 @@ func (c *BasicCountryService) childParentIdLink(maps map[string][]*entityBasic.B
 //	@receiver c
 func (c *BasicCountryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}
