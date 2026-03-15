@@ -90,12 +90,12 @@ func (b *BaseRepository[T, ID]) Log() *log2.Logger {
 	return b.log
 }
 
-func (b *BaseRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...Option) *gorm.DB {
+func (b *BaseRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...OptionPg) *gorm.DB {
 	if nil == opts || len(opts) == 0 {
 		return db
 	}
-	arg := OptionArg{
-		db: db,
+	arg := OptionParams{
+		Db: db,
 	}
 	for _, opt := range opts {
 		opt(&arg)
@@ -105,11 +105,11 @@ func (b *BaseRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...Option) *go
 		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
 		if exists {
 			//解析表名称
-			arg.db.Statement.Parse(b.Entity)
-			return arg.db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table))
+			arg.Db.Statement.Parse(b.Entity)
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table))
 		}
 	}
-	return arg.db
+	return arg.Db
 }
 
 func (b *BaseRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...OptionPg) (*gorm.DB, OptionParams) {
@@ -145,13 +145,13 @@ func (b *BaseRepository[T, ID]) Create(ctx context.Context, v *T) (error, int64)
 }
 
 // 保存 会保存所有的字段，即使字段是零值
-func (b *BaseRepository[T, ID]) Save(ctx context.Context, v *T, opts ...Option) error {
+func (b *BaseRepository[T, ID]) Save(ctx context.Context, v *T, opts ...OptionPg) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Save(&v)
 	return tx.Error
 }
 
 // 保存
-func (b *BaseRepository[T, ID]) SaveAll(ctx context.Context, ts []*T, opts ...Option) error {
+func (b *BaseRepository[T, ID]) SaveAll(ctx context.Context, ts []*T, opts ...OptionPg) error {
 	if ts != nil && len(ts) > 0 {
 		for _, info := range ts {
 			if e := b.Save(ctx, info, opts...); e != nil {
@@ -163,7 +163,7 @@ func (b *BaseRepository[T, ID]) SaveAll(ctx context.Context, ts []*T, opts ...Op
 }
 
 // Update 更新 更新属性，只会更新非零值的字段
-func (b *BaseRepository[T, ID]) Update(ctx context.Context, info T, id ID, opts ...Option) error {
+func (b *BaseRepository[T, ID]) Update(ctx context.Context, info T, id ID, opts ...OptionPg) error {
 	result := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).Updates(&info)
 	if result.Error != nil {
 		//log.Fatal("failed to connect database")
@@ -193,7 +193,7 @@ func (b *BaseRepository[T, ID]) UpdatePointerObject(ctx context.Context, info an
 }
 
 // UpdateMap 更新, map里所有属性都会更新
-func (b *BaseRepository[T, ID]) UpdateMap(ctx context.Context, info map[string]interface{}, id ID, opts ...Option) error {
+func (b *BaseRepository[T, ID]) UpdateMap(ctx context.Context, info map[string]interface{}, id ID, opts ...OptionPg) error {
 	result := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).Updates(info)
 	if result.Error != nil {
 		//log.Fatal("failed to connect database")
@@ -203,7 +203,7 @@ func (b *BaseRepository[T, ID]) UpdateMap(ctx context.Context, info map[string]i
 }
 
 // UpdateStructMap 更新, 结构体转换为map，map里所有属性都会更新
-func (b *BaseRepository[T, ID]) UpdateStructMap(ctx context.Context, info any, id ID, opts ...Option) error {
+func (b *BaseRepository[T, ID]) UpdateStructMap(ctx context.Context, info any, id ID, opts ...OptionPg) error {
 	toMap, err := convertor.StructToMap(info)
 	if nil != err {
 		return err
@@ -217,7 +217,7 @@ func (b *BaseRepository[T, ID]) UpdateStructMap(ctx context.Context, info any, i
 }
 
 // Update 更新
-func (b *BaseRepository[T, ID]) UpdateAll(ctx context.Context, ts []*T, opts ...Option) error {
+func (b *BaseRepository[T, ID]) UpdateAll(ctx context.Context, ts []*T, opts ...OptionPg) error {
 	if ts != nil && len(ts) > 0 {
 		for _, info := range ts {
 			if e := b.Save(ctx, info); e != nil {
@@ -228,7 +228,7 @@ func (b *BaseRepository[T, ID]) UpdateAll(ctx context.Context, ts []*T, opts ...
 	return nil
 }
 
-func (b *BaseRepository[T, ID]) DeleteById(ctx context.Context, id ID, opts ...Option) error {
+func (b *BaseRepository[T, ID]) DeleteById(ctx context.Context, id ID, opts ...OptionPg) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
@@ -236,7 +236,7 @@ func (b *BaseRepository[T, ID]) DeleteById(ctx context.Context, id ID, opts ...O
 	return nil
 }
 
-func (b *BaseRepository[T, ID]) DeleteByIds(ctx context.Context, id []ID, opts ...Option) error {
+func (b *BaseRepository[T, ID]) DeleteByIds(ctx context.Context, id []ID, opts ...OptionPg) error {
 	if nil != opts {
 		tx := b.DbModel().WithContext(ctx).Delete(&b.Entity, id)
 		if tx.Error != nil {
@@ -251,7 +251,7 @@ func (b *BaseRepository[T, ID]) DeleteByIds(ctx context.Context, id []ID, opts .
 	return nil
 }
 
-func (b *BaseRepository[T, ID]) DeleteByIdsString(ctx context.Context, id []string, opts ...Option) error {
+func (b *BaseRepository[T, ID]) DeleteByIdsString(ctx context.Context, id []string, opts ...OptionPg) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
@@ -259,7 +259,7 @@ func (b *BaseRepository[T, ID]) DeleteByIdsString(ctx context.Context, id []stri
 	return nil
 }
 
-func (b *BaseRepository[T, ID]) DeleteAllByTenantNoAndIdsString(ctx context.Context, tenantNo string, id []string, opts ...Option) error {
+func (b *BaseRepository[T, ID]) DeleteAllByTenantNoAndIdsString(ctx context.Context, tenantNo string, id []string, opts ...OptionPg) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("tenant_no = ?", tenantNo).Delete(&b.Entity, id)
 	if tx.Error != nil {
 		return tx.Error
@@ -267,7 +267,7 @@ func (b *BaseRepository[T, ID]) DeleteAllByTenantNoAndIdsString(ctx context.Cont
 	return nil
 }
 
-func (b *BaseRepository[T, ID]) DeleteByNo(ctx context.Context, no string, opts ...Option) error {
+func (b *BaseRepository[T, ID]) DeleteByNo(ctx context.Context, no string, opts ...OptionPg) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no = ?", no).Delete(&b.Entity)
 	if tx.Error != nil {
 		return tx.Error
@@ -283,7 +283,7 @@ func (b *BaseRepository[T, ID]) DeleteByNo(ctx context.Context, no string, opts 
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
@@ -303,7 +303,7 @@ func (b *BaseRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...Opt
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindByIdString(ctx context.Context, id string, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindByIdString(ctx context.Context, id string, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
@@ -324,7 +324,7 @@ func (b *BaseRepository[T, ID]) FindAll(ctx context.Context, t T, arg ...interfa
 			case Condition:
 				where = result(where)
 			case Option:
-				where = b.SetOptionScopes(where, item.(Option))
+				where = b.SetOptionScopes(where, item.(OptionPg))
 			}
 		}
 	}
@@ -344,7 +344,7 @@ func (b *BaseRepository[T, ID]) FindAllLimit(ctx context.Context, t T, limit int
 			case Condition:
 				where = result(where)
 			case Option:
-				where = b.SetOptionScopes(where, item.(Option))
+				where = b.SetOptionScopes(where, item.(OptionPg))
 			}
 		}
 	}
@@ -367,7 +367,7 @@ func (b *BaseRepository[T, ID]) FindAllData(ctx context.Context, arg ...interfac
 			case Condition:
 				where = result(where)
 			case Option:
-				where = b.SetOptionScopes(where, item.(Option))
+				where = b.SetOptionScopes(where, item.(OptionPg))
 			}
 		}
 	}
@@ -454,7 +454,7 @@ func (b *BaseRepository[T, ID]) FindAllPage(ctx context.Context, t T, opts ...Op
 //	@param ids
 //	@return infos
 //	@return result true: 有值;    false: 错误或 没查询到
-func (b *BaseRepository[T, ID]) FindAllByIdIn(ctx context.Context, ids []ID, opts ...Option) (infos []*T, result bool) {
+func (b *BaseRepository[T, ID]) FindAllByIdIn(ctx context.Context, ids []ID, opts ...OptionPg) (infos []*T, result bool) {
 	infos = make([]*T, 0)
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id in (?)", ids).Find(&infos)
 	if tx.Error != nil {
@@ -474,7 +474,7 @@ func (b *BaseRepository[T, ID]) FindAllByIdIn(ctx context.Context, ids []ID, opt
 //	@param ids
 //	@return infos
 //	@return result true: 有值;    false: 错误或 没查询到
-func (b *BaseRepository[T, ID]) FindAllByIdStringIn(ctx context.Context, ids []string, opts ...Option) (infos []*T, result bool) {
+func (b *BaseRepository[T, ID]) FindAllByIdStringIn(ctx context.Context, ids []string, opts ...OptionPg) (infos []*T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id in (?)", ids).Find(&infos)
 	if tx.Error != nil {
 		return nil, false
@@ -502,7 +502,7 @@ func (b *BaseRepository[T, ID]) Count(ctx context.Context, arg ...interface{}) (
 				// 条件
 				where = result(where)
 			case Option:
-				where = b.SetOptionScopes(where, item.(Option))
+				where = b.SetOptionScopes(where, item.(OptionPg))
 			}
 		}
 	}
@@ -533,7 +533,7 @@ func (b *BaseRepository[T, ID]) FindByNo(ctx context.Context, no string, arg ...
 				// 条件
 				where = result(where)
 			case Option:
-				where = b.SetOptionScopes(where, item.(Option))
+				where = b.SetOptionScopes(where, item.(OptionPg))
 			}
 		}
 	}
@@ -556,7 +556,7 @@ func (b *BaseRepository[T, ID]) FindByNo(ctx context.Context, no string, arg ...
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindAllByNoIn(ctx context.Context, no []string, opts ...Option) (info []*T, result bool) {
+func (b *BaseRepository[T, ID]) FindAllByNoIn(ctx context.Context, no []string, opts ...OptionPg) (info []*T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no in ?", no).Find(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
@@ -576,7 +576,7 @@ func (b *BaseRepository[T, ID]) FindAllByNoIn(ctx context.Context, no []string, 
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindAllByNameIn(ctx context.Context, no []string, opts ...Option) (info []*T, result bool) {
+func (b *BaseRepository[T, ID]) FindAllByNameIn(ctx context.Context, no []string, opts ...OptionPg) (info []*T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name in ?", no).Find(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
@@ -596,7 +596,7 @@ func (b *BaseRepository[T, ID]) FindAllByNameIn(ctx context.Context, no []string
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (b *BaseRepository[T, ID]) FindByName(ctx context.Context, no string, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindByName(ctx context.Context, no string, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name=?", no).First(&info)
 	if tx.Error != nil {
 		b.log.Errorf("error=%+v", tx.Error)
@@ -616,7 +616,7 @@ func (b *BaseRepository[T, ID]) FindByName(ctx context.Context, no string, opts 
 //	@param id
 //	@return info
 //	@return result
-func (b *BaseRepository[T, ID]) FindByNameAndIdNot(ctx context.Context, name string, id string, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindByNameAndIdNot(ctx context.Context, name string, id string, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		b.Log().Error("", tx.Error)
@@ -636,7 +636,7 @@ func (b *BaseRepository[T, ID]) FindByNameAndIdNot(ctx context.Context, name str
 //	@param id
 //	@return info
 //	@return result
-func (c *BaseRepository[T, ID]) FindByNoAndIdNot(ctx context.Context, name string, id string, opts ...Option) (info *T, result bool) {
+func (c *BaseRepository[T, ID]) FindByNoAndIdNot(ctx context.Context, name string, id string, opts ...OptionPg) (info *T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -655,7 +655,7 @@ func (c *BaseRepository[T, ID]) FindByNoAndIdNot(ctx context.Context, name strin
 //	@param name
 //	@return info
 //	@return result
-func (c *BaseRepository[T, ID]) FindAllByNoLink(ctx context.Context, code string, opts ...Option) (info []*T, result bool) {
+func (c *BaseRepository[T, ID]) FindAllByNoLink(ctx context.Context, code string, opts ...OptionPg) (info []*T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no_link like ?", "%|"+code+"|%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
@@ -675,7 +675,7 @@ func (c *BaseRepository[T, ID]) FindAllByNoLink(ctx context.Context, code string
 //	@return info
 //	@return result 是否查询到值
 //	@return err
-func (c *BaseRepository[T, ID]) FindByCode(ctx context.Context, no string, opts ...Option) (info *T, result bool) {
+func (c *BaseRepository[T, ID]) FindByCode(ctx context.Context, no string, opts ...OptionPg) (info *T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("code=?", no).First(&info)
 	if tx.Error != nil {
 		c.log.Errorf("error=%+v", tx.Error)
@@ -695,7 +695,7 @@ func (c *BaseRepository[T, ID]) FindByCode(ctx context.Context, no string, opts 
 //	@param id
 //	@return info
 //	@return result
-func (b *BaseRepository[T, ID]) FindByCodeAndIdNot(ctx context.Context, name string, id string, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindByCodeAndIdNot(ctx context.Context, name string, id string, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("code=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		b.Log().Error("", tx.Error)
@@ -715,7 +715,7 @@ func (b *BaseRepository[T, ID]) FindByCodeAndIdNot(ctx context.Context, name str
 //	@param no
 //	@return info
 //	@return result
-func (b *BaseRepository[T, ID]) FindByCodeAndNoNot(ctx context.Context, name string, no string, opts ...Option) (info *T, result bool) {
+func (b *BaseRepository[T, ID]) FindByCodeAndNoNot(ctx context.Context, name string, no string, opts ...OptionPg) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("code=?", name).Where("no != ?", no).First(&info)
 	if tx.Error != nil {
 		b.Log().Error("", tx.Error)

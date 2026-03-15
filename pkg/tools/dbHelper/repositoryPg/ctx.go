@@ -27,8 +27,8 @@ type IRepositoryRange interface {
 	repositoryPgI.IRepositoryBase
 }
 
-func WithCtxOption(ctx *gin.Context) Option {
-	return func(arg *OptionArg) {
+func WithCtxOption(ctx *gin.Context) OptionPg {
+	return func(arg *OptionParams) {
 		arg.Ctx = ctx
 	}
 }
