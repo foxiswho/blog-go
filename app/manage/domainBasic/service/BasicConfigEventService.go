@@ -13,6 +13,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
@@ -22,6 +23,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -269,6 +271,7 @@ func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent
 	slice := make([]modBasicConfigEvent.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
+	holder := holderPg.GetContextAccount(ctx)
 	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigEventEntity]) {
 		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigEventEntity]) {
 			c.PageNum = ct.PageNum
@@ -276,9 +279,10 @@ func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent
 		}
 		//自定义查询
 		p.Condition = r.DbModel().Order("create_at asc")
+		p.Condition.Where("tenant_no=?", holder.GetTenantNo())
 		//自定义查询
 		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
+			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("field like ?", "%"+ct.Wd+"%").Or("description like ?", "%"+ct.Wd+"%")
 		}
 	})
 	if nil != err {
@@ -316,7 +320,10 @@ func (c *BasicConfigEventService) SelectNodeAllPublic(ctx *gin.Context, ct modBa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	holder := holderPg.GetContextAccount(ctx)
+	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		return db.Where("tenant_no=?", holder.GetTenantNo())
+	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigEvent.Vo
@@ -355,11 +362,14 @@ func (c *BasicConfigEventService) AllByModel(ctx *gin.Context, ct modBasicConfig
 	//
 	slice := make([]modBasicConfigEvent.Vo, 0)
 	rt.Data = slice
+	holder := holderPg.GetContextAccount(ctx)
 	//
 	if strPg.IsBlank(ct.ModelNo) {
 		return rt.ErrorMessage("模型编号错误")
 	}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		return db.Where("tenant_no=?", holder.GetTenantNo())
+	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicConfigEvent.Vo

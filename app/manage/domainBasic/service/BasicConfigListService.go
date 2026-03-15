@@ -270,6 +270,7 @@ func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.Q
 	slice := make([]modBasicConfigList.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
+	holder := holderPg.GetContextAccount(ctx)
 	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicConfigListEntity]) {
 		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicConfigListEntity]) {
 			c.PageNum = ct.PageNum
@@ -279,6 +280,7 @@ func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.Q
 			}
 		}
 		p.Condition = r.DbModel().Order("create_at desc")
+		p.Condition.Where("tenant_no=?", holder.GetTenantNo())
 		//自定义查询
 		if "" != ct.Wd {
 			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
