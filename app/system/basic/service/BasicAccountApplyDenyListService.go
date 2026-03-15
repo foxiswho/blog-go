@@ -340,7 +340,7 @@ func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAc
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAccountApplyDenyListEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAccountApplyDenyListEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicAccountApplyDenyListEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

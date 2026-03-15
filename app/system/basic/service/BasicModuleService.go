@@ -442,7 +442,7 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicModuleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
@@ -484,7 +484,7 @@ func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.Que
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicModuleEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicModuleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

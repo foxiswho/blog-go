@@ -473,7 +473,7 @@ func (c *RamMenuService) Query(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.R
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
@@ -524,7 +524,7 @@ func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (r
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

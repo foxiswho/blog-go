@@ -443,17 +443,17 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogCollectCategoryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -485,17 +485,17 @@ func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCol
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogCollectCategoryEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogCollectCategoryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

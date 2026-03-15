@@ -307,7 +307,7 @@ func (c *ApiDiplService) Query(ctx *gin.Context, ct modApiDipl.QueryCt) (rt rg.R
 	slice := make([]modApiDipl.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

@@ -266,7 +266,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAttachmentEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAttachmentEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicAttachmentEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

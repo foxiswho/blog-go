@@ -250,7 +250,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 	r := c.sv
 	slice := make([]modBasicDataDictionary.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -264,7 +264,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
-	
+
 	if nil != err {
 		return rt.Ok()
 	}

@@ -433,7 +433,7 @@ func (c *BasicAreaService) Query(ctx *gin.Context, ct modBasicArea.QueryCt) (rt 
 	slice := make([]modBasicArea.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAreaEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicAreaEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicAreaEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

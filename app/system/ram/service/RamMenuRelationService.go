@@ -278,7 +278,7 @@ func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.Q
 	slice := make([]modRamMenuRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuRelationEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuRelationEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuRelationEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

@@ -292,7 +292,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 	slice := make([]modRamAccountDevice.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountDeviceEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountDeviceEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountDeviceEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

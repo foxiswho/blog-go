@@ -362,24 +362,21 @@ func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) 
 	slice := make([]modBlogArticle.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogArticleEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//发布范围
 		if nil != ct.Where && len(ct.Where) > 0 {
 			for _, tag := range ct.Where {
-				p.Condition.Where("where @> ?", "[\""+tag+"\"]")
+				arg.Db.Where("where @> ?", "[\""+tag+"\"]")
 			}
 		}
 		//标签
@@ -388,13 +385,13 @@ func (c *BlogArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) 
 				//获取缓存，得到 标签编号
 				get, b := c.rdu.Get(ctx, utilsBlog.TagCacheKey(tag))
 				if b {
-					p.Condition.Where("tags @> ?", get)
+					arg.Db.Where("tags @> ?", get)
 				} else {
-					p.Condition.Where("tags @> ?", "[\""+tag+"\"]")
+					arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}
-	}, repositoryPg.WithCtxOption(ctx))
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

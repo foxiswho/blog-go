@@ -314,7 +314,7 @@ func (c *BasicTagsService) Query(ctx *gin.Context, ct modBasicTags.QueryCt) (rt 
 	slice := make([]modBasicTags.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

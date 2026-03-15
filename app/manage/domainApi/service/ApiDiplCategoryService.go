@@ -439,7 +439,7 @@ func (c *ApiDiplCategoryService) Query(ctx *gin.Context, ct modApiDiplCategory.Q
 	slice := make([]modApiDiplCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -481,7 +481,7 @@ func (c *ApiDiplCategoryService) QueryPublic(ctx *gin.Context, ct modApiDiplCate
 	slice := make([]modApiDiplCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

@@ -291,7 +291,7 @@ func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (r
 	slice := make([]modRamChannel.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamChannelEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamChannelEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamChannelEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

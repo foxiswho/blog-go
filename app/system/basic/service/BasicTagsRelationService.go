@@ -345,7 +345,7 @@ func (c *BasicTagsRelationService) Query(ctx *gin.Context, ct modBasicTagsRelati
 	slice := make([]modBasicTagsRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsRelationEntity]) {
 			c.PageNum = ct.PageNum
 		}
@@ -690,7 +690,7 @@ func (c *BasicTagsRelationService) GetCategoryTags(ctx *gin.Context, categoryRoo
 	slice := make([]modBasicTagsRelation.AllVo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsRelationEntity]) {
 			c.PageNum = ct.PageNum
 		}

@@ -1,12 +1,13 @@
 package repositoryPg
 
 import (
+	"context"
+
 	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constContextPg"
 	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/gin-gonic/gin"
 	"github.com/pangu-2/go-tools/tools/dbPg/genericPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"gorm.io/gorm"
@@ -18,8 +19,6 @@ type BaseOrgRepository[T any, ID genericPg.ID] struct {
 	//从内部
 	db *gorm.DB    `autowire:"?"`
 	Pg configPg.Pg `value:"${pg}"`
-	//
-	ctx *gin.Context
 }
 
 func (b *BaseOrgRepository[T, ID]) DbScopes() *gorm.DB {
@@ -58,6 +57,28 @@ func (b *BaseOrgRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...Option) 
 		}
 	}
 	return db
+}
+
+func (b *BaseOrgRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...OptionPg) (*gorm.DB, OptionParams) {
+	arg := OptionParams{
+		Db: db,
+	}
+	if nil == opts || len(opts) == 0 {
+		return db, arg
+	}
+	for _, opt := range opts {
+		opt(&arg)
+	}
+	if nil != arg.Ctx {
+		_, exists := arg.Ctx.Get(constContextPg.CTX_MULITI_TENANT)
+		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
+		if exists {
+			//解析表名称
+			arg.Db.Statement.Parse(b.Entity)
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table)), arg
+		}
+	}
+	return arg.Db, arg
 }
 
 func (b *BaseOrgRepository[T, ID]) Config() configPg.Pg {
@@ -311,22 +332,30 @@ func (b *BaseOrgRepository[T, ID]) FindAllData(arg ...interface{}) (infos []*T, 
 }
 
 // 分页
-func (b *BaseOrgRepository[T, ID]) FindAllPage(t T, option pagePg.Option[*T], opts ...Option) (pagePg.Paginator[*T], error) {
+func (b *BaseOrgRepository[T, ID]) FindAllPage(ctx context.Context, t T, opts ...OptionPg) (pagePg.Paginator[*T], error) {
 	var total int64
-	pg := pagePg.NewPaginatorPg[*T](option)
-	countTx := b.SetOptionScopes(b.DbModel(), opts...).Where(t).Count(&total)
+	//
+	condition, arg := b.SetOptionPgScopes(b.DbModel().WithContext(ctx), opts...)
+	//
+	pageable := arg.Pageable
+	if nil == pageable {
+		pageable = &pagePg.Pageable{Total: total, PageNum: 0, PageSize: 10}
+	}
+	pg := pagePg.NewPaginator[*T]()
+	//
+	countTx := condition.Where(t).Count(&total)
 	if nil != countTx.Error {
 		return pg, countTx.Error
 	}
 	var infos []*T
-	tx := b.SetOptionScopes(b.DbModel(), opts...).Where(t).Find(&infos)
-	//b.log.Debugf("sql=%+v", tx.Statement.SQL.String())
+	tx := countTx.Scopes(Scopes(pageable)).Find(&infos)
+	//b.log.Infof("sql=%+v", tx.Statement.SQL.String())
 	if tx.Error != nil {
 		return pg, tx.Error
 	}
 	pg.Data = infos
 	pg.Total = total
-	pg.Pageable = pagePg.NewPageablePg(total, pg.PageNum, pg.PageSize)
+	pg.Pageable = pagePg.NewPageable(total, pageable.PageNum, pageable.PageSize)
 	pg.TotalPage = pg.Pageable.TotalPage
 	//if total >0 {
 	//	t2 := infos[len(infos)-1]
@@ -336,27 +365,30 @@ func (b *BaseOrgRepository[T, ID]) FindAllPage(t T, option pagePg.Option[*T], op
 }
 
 // FindAllPageQuery 分页
-func (b *BaseOrgRepository[T, ID]) FindAllPageQuery(t T, option pagePg.OptionPageCondition[*T], opts ...Option) (pagePg.Paginator[*T], error) {
+func (b *BaseOrgRepository[T, ID]) FindAllPageQuery(ctx context.Context, t T, opts ...OptionPg) (pagePg.Paginator[*T], error) {
 	var total int64
-	pg, condition := pagePg.NewOptionPageCondition[*T](option)
-	if nil == condition {
-		condition = b.SetOptionScopes(b.DbModel(), opts...)
-	} else {
-		condition = b.SetOptionScopes(condition, opts...)
+	//
+	condition, arg := b.SetOptionPgScopes(b.DbModel().WithContext(ctx), opts...)
+	//
+	pageable := arg.Pageable
+	if nil == pageable {
+		pageable = &pagePg.Pageable{Total: total, PageNum: 0, PageSize: 10}
 	}
+	pg := pagePg.NewPaginator[*T]()
+	//
 	countTx := condition.Where(t).Count(&total)
 	if nil != countTx.Error {
 		return pg, countTx.Error
 	}
 	var infos []*T
-	tx := countTx.Scopes(pg.Scopes()).Find(&infos)
+	tx := countTx.Scopes(Scopes(pageable)).Find(&infos)
 	//b.log.Infof("sql=%+v", tx.Statement.SQL.String())
 	if tx.Error != nil {
 		return pg, tx.Error
 	}
 	pg.Data = infos
 	pg.Total = total
-	pg.Pageable = pagePg.NewPageablePg(total, pg.PageNum, pg.PageSize)
+	pg.Pageable = pagePg.NewPageable(total, pageable.PageNum, pageable.PageSize)
 	pg.TotalPage = pg.Pageable.TotalPage
 	//if total >0 {
 	//	t2 := infos[len(infos)-1]

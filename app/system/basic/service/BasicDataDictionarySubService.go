@@ -265,7 +265,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicDataDictionaryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = 999

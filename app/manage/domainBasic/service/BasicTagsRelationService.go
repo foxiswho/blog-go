@@ -12,6 +12,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -345,14 +346,17 @@ func (c *BasicTagsRelationService) Query(ctx *gin.Context, ct modBasicTagsRelati
 	slice := make([]modBasicTagsRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsRelationEntity]) {
-			c.PageNum = ct.PageNum
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		if "" != ct.Wd {
-			p.Condition = r.DbModel().Where("name like ?", "%"+ct.Wd+"%")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//自定义查询
+		arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -690,27 +694,29 @@ func (c *BasicTagsRelationService) GetCategoryTags(ctx *gin.Context, categoryRoo
 	slice := make([]modBasicTagsRelation.AllVo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsRelationEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsRelationEntity]) {
-			c.PageNum = ct.PageNum
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("category_no,name ASC,create_at desc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		//自定义查询
+		arg.Db.Order("category_no,name ASC,create_at desc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
 				Or("name_short like ?", "%"+ct.Wd+"%").
 				Or("code like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
 		//名称
 		if strPg.IsNotBlank(ct.Name) {
-			p.Condition.Where("name like ?", "%"+ct.Name+"%")
+			arg.Db.Where("name like ?", "%"+ct.Name+"%")
 		}
 		//商户条件 或者系统分类
-		p.Condition.Where(
+		arg.Db.Where(
 			r.Db().Where("tenant_no = ?", holder.GetTenantNo()).
 				Or("type_sys = ?", typeSysPg.System.String()))
 
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

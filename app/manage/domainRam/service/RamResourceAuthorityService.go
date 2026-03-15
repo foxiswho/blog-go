@@ -18,6 +18,7 @@ import (
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/strPg"
 
 	"reflect"
 	"strings"
@@ -327,17 +328,17 @@ func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceA
 	slice := make([]modRamResourceAuthority.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamResourceAuthorityEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamResourceAuthorityEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at asc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db.Order("create_at asc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

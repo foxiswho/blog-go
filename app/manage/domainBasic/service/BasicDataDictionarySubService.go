@@ -270,7 +270,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

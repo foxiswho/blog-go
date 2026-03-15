@@ -439,7 +439,7 @@ func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt
 	slice := make([]modBasicCountry.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicCountryEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicCountryEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicCountryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

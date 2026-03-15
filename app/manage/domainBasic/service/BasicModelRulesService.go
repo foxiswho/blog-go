@@ -223,7 +223,7 @@ func (c *BasicModelRulesService) Query(ctx *gin.Context, ct modBasicModelRules.Q
 	slice := make([]modBasicModelRules.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

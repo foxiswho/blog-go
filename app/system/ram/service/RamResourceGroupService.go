@@ -367,7 +367,7 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamResourceGroupEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamResourceGroupEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamResourceGroupEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

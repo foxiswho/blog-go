@@ -473,24 +473,21 @@ func (c *RamMenuService) Query(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.R
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("name,create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db.Order("name,create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			p.Condition.Where("parent_id !='' ")
+			arg.Db.Where("parent_id !='' ")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -524,24 +521,21 @@ func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (r
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("name,create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db.Order("name,create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			p.Condition.Where("parent_id !='' ")
+			arg.Db.Where("parent_id !='' ")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

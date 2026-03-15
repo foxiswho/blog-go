@@ -72,7 +72,7 @@ func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLogi
 	slice := make([]modRamAccountLoginLog.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountLoginLogEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountLoginLogEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountLoginLogEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

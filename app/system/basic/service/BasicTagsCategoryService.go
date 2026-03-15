@@ -439,7 +439,7 @@ func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCatego
 	slice := make([]modBasicTagsCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
@@ -482,7 +482,7 @@ func (c *BasicTagsCategoryService) QueryPublic(ctx *gin.Context, ct modBasicTags
 	slice := make([]modBasicTagsCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsCategoryEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBasic.BasicTagsCategoryEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

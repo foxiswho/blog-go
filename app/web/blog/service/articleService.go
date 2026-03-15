@@ -239,7 +239,7 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 	slice := make([]modBlogArticle.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityBlog.BlogArticleEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityBlog.BlogArticleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

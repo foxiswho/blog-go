@@ -241,7 +241,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamAccountEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

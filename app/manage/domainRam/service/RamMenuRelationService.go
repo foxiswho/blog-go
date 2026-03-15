@@ -279,17 +279,17 @@ func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.Q
 	slice := make([]modRamMenuRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamMenuRelationEntity]) {
-		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamMenuRelationEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at asc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db.Order("create_at asc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

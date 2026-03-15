@@ -322,7 +322,7 @@ func (c *TcTenantService) Query(ctx *gin.Context, ct modTcTenant.QueryCt) (rt rg
 	slice := make([]modTcTenant.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityTc.TcTenantEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityTc.TcTenantEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityTc.TcTenantEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize

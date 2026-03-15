@@ -292,7 +292,7 @@ func (c *RamRoleService) Query(ctx *gin.Context, ct modRamRole.QueryCt) (rt rg.R
 	slice := make([]modRamRole.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamRoleEntity]) {
+	page, err := r.FindAllPage(ctx, query, func(p *pagePg.PageCondition[*entityRam.RamRoleEntity]) {
 		p.PageOption = func(c *pagePg.Paginator[*entityRam.RamRoleEntity]) {
 			c.PageNum = ct.PageNum
 			c.PageSize = ct.PageSize
