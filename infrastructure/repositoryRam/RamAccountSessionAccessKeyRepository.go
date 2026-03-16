@@ -26,8 +26,8 @@ type RamAccountSessionAccessKeyRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamAccountSessionAccessKeyEntity, int64]
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByAno(no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
-	tx := c.Db().Where("ano=?", no).First(&info)
+func (c *RamAccountSessionAccessKeyRepository) FindByAno(ctx context.Context, no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("ano=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -38,8 +38,8 @@ func (c *RamAccountSessionAccessKeyRepository) FindByAno(no string) (info *entit
 	return info, true
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByAnoAndAppNo(no, appNo string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
-	tx := c.Db().Where("ano=?", no).Where("app_no=?", no).First(&info)
+func (c *RamAccountSessionAccessKeyRepository) FindByAnoAndAppNo(ctx context.Context, no, appNo string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("ano=?", no).Where("app_no=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -50,8 +50,8 @@ func (c *RamAccountSessionAccessKeyRepository) FindByAnoAndAppNo(no, appNo strin
 	return info, true
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByNoAndState(no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
-	tx := c.Db().Where("no=?", no).Where("state=1").First(&info)
+func (c *RamAccountSessionAccessKeyRepository) FindByNoAndState(ctx context.Context, no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("no=?", no).Where("state=1").First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -62,8 +62,8 @@ func (c *RamAccountSessionAccessKeyRepository) FindByNoAndState(no string) (info
 	return info, true
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndNoAndState(tno, no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
-	tx := c.Db().Where("tenant_no=?", tno).Where("no=?", no).Where("state=1").First(&info)
+func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndNoAndState(ctx context.Context, tno, no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tno).Where("no=?", no).Where("state=1").First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -74,8 +74,8 @@ func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndNoAndState(tno, 
 	return info, true
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainAndState(domain []string) (info []*entityRam.RamAccountSessionAccessKeyEntity, result bool) {
-	tx := c.Db().Where("type_domain in ?", domain).Where("state=1").Find(&info)
+func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainAndState(ctx context.Context, domain []string) (info []*entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain in ?", domain).Where("state=1").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

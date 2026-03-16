@@ -123,7 +123,7 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 		info.TypeValueSource = numberPg.Int64ToString(item.ID)
 		info.Mark = utilsRam.ResourceAuthorityMarkByUint64(resourceTypeCategoryPg.Group, group.ID, item.ID)
 		//已存在 则跳过
-		_, b := auth.FindByMark(info.Mark)
+		_, b := auth.FindByMark(ctx, info.Mark)
 		if b {
 			continue
 		}
@@ -455,7 +455,7 @@ func (c *RamResourceAuthorityService) CreateByResourceGroup(ctx *gin.Context, va
 	info.TypeValue = numberPg.Int64ToString(value.ID)
 	info.Mark = info.TypeCategory + ":" + info.TypeValue
 	r := c.sv
-	mark, b := r.FindByMark(info.Mark)
+	mark, b := r.FindByMark(ctx, info.Mark)
 	if b {
 		return mark, true
 	}

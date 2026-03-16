@@ -27,8 +27,8 @@ type RamResourceGroupRepository struct {
 	//
 }
 
-func (c *RamResourceGroupRepository) FindByParentId(code int64) (info *entityRam.RamResourceGroupEntity, result bool) {
-	tx := c.Db().Where("parent_id=?", code).First(&info)
+func (c *RamResourceGroupRepository) FindAllByIdLink(ctx context.Context, code string) (info []*entityRam.RamResourceGroupEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("id_link like ?", "%|"+code+"|%").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,66 +37,4 @@ func (c *RamResourceGroupRepository) FindByParentId(code int64) (info *entityRam
 		return nil, false
 	}
 	return info, true
-}
-
-func (c *RamResourceGroupRepository) FindAllByIdLink(code string) (info []*entityRam.RamResourceGroupEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%|"+code+"|%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamResourceGroupRepository) FindByTypeCategoryAndTypeValue(typeCategory, typeValue string) (info *entityRam.RamResourceGroupEntity, result bool) {
-	tx := c.Db().Where("type_category=?", typeCategory).Where("type_value=?", typeValue).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-// CountByParentIdString
-//
-//	@Description: 统计
-//	@receiver c
-//	@param pid
-//	@return info
-//	@return result
-func (c *RamResourceGroupRepository) CountByParentIdString(pid string) (total int64, result bool) {
-	tx := c.Db().Where("parent_id= ? ", pid).Count(&total)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return 0, false
-	}
-	if 0 == tx.RowsAffected {
-		return 0, false
-	}
-	return total, true
-}
-
-// CountByIdLinkAndNotParentId
-//
-//	@Description: 统计
-//	@receiver c
-//	@param pid
-//	@return info
-//	@return result
-func (c *RamResourceGroupRepository) CountByIdLinkAndNotParentId(id, pid string) (total int64, result bool) {
-	tx := c.Db().Where("parent_id != ? ", pid).Where("id_link like ?", "%"+id+"%").Count(&total)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return 0, false
-	}
-	if 0 == tx.RowsAffected {
-		return 0, false
-	}
-	return total, true
 }

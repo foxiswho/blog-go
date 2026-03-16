@@ -3,14 +3,13 @@ package repositoryRam
 import (
 	"context"
 
+	"reflect"
+
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
-	"gorm.io/gorm"
-
-	"reflect"
 )
 
 func init() {
@@ -25,5 +24,4 @@ func init() {
 
 type RamFavoritesRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamFavoritesEntity, int64]
-	db *gorm.DB `autowire:"?"`
 }

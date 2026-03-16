@@ -27,12 +27,12 @@ type RamResourceRelationRepository struct {
 	//
 }
 
-func (c *RamResourceRelationRepository) DeleteByAuthorityId(code int64) {
-	c.Db().Where("authority_id=?", code).Delete(&entityRam.RamResourceRelationEntity{})
+func (c *RamResourceRelationRepository) DeleteByAuthorityId(ctx context.Context, code int64) {
+	c.DbModel().WithContext(ctx).Where("authority_id=?", code).Delete(&entityRam.RamResourceRelationEntity{})
 }
 
-func (c *RamResourceRelationRepository) FindByMark(code string) (info *entityRam.RamResourceRelationEntity, result bool) {
-	tx := c.Db().Where("mark=?", code).First(&info)
+func (c *RamResourceRelationRepository) FindByMark(ctx context.Context, code string) (info *entityRam.RamResourceRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

@@ -27,30 +27,6 @@ type RamResourceMenuRepository struct {
 	//
 }
 
-func (c *RamResourceMenuRepository) DeleteByMenuId(code int64) {
-	c.Db().Where("menu_id=?", code).Delete(&entityRam.RamResourceMenuEntity{})
-}
-
-func (c *RamResourceMenuRepository) FindAllByMenuIdStringIn(code []string) (info []*entityRam.RamResourceMenuEntity, result bool) {
-	tx := c.Db().Where("menu_id in ?", code).Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamResourceMenuRepository) FindAllByMenuIdIn(code []int64) (info []*entityRam.RamResourceMenuEntity, result bool) {
-	tx := c.Db().Where("menu_id in ?", code).Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
+func (c *RamResourceMenuRepository) DeleteByMenuId(ctx context.Context, code int64) {
+	c.DbModel().WithContext(ctx).Where("menu_id=?", code).Delete(&entityRam.RamResourceMenuEntity{})
 }

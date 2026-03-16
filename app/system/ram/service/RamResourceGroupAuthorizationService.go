@@ -189,13 +189,13 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		//判断 是否是 分类
 		if typeAttrPg.CategoryLast.IsEqual(info.TypeAttr) || typeAttrPg.Category.IsEqual(info.TypeAttr) {
-			link, b := r.FindAllByIdLink(numberPg.Int64ToString(info.ID))
+			link, b := r.FindAllByIdLink(ctx, numberPg.Int64ToString(info.ID))
 			if b {
 				for _, entity := range link {
 					idsCategory = append(idsCategory, numberPg.Int64ToString(entity.ID))
 				}
 				if len(idsCategory) > 0 {
-					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(resourceTypeCategoryPg.Group.String(), idsCategory)
+					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(ctx, resourceTypeCategoryPg.Group.String(), idsCategory)
 					if result {
 						return rt.ErrorMessage("该分类下存在子数据，请先删除子数据")
 					}

@@ -27,19 +27,8 @@ type RamResourceGroupRelationRepository struct {
 	//
 }
 
-func (c *RamResourceGroupRelationRepository) FindAllByTypeCategoryAndTypeValue(typeCategory, typeValue string) (info []*entityRam.RamResourceGroupRelationEntity, result bool) {
-	tx := c.Db().Where("type_category = ?", typeCategory).Where("type_value = ?", typeValue).Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-func (c *RamResourceGroupRelationRepository) FindByMark(code string) (info *entityRam.RamResourceGroupRelationEntity, result bool) {
-	tx := c.Db().Where("mark=?", code).First(&info)
+func (c *RamResourceGroupRelationRepository) FindByMark(ctx context.Context, code string) (info *entityRam.RamResourceGroupRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -50,8 +39,8 @@ func (c *RamResourceGroupRelationRepository) FindByMark(code string) (info *enti
 	return info, true
 }
 
-func (c *RamResourceGroupRelationRepository) DeleteByTypeCategoryAndTypeValue(typeCategory, typeValue string) error {
-	tx := c.Db().Where("type_category = ?", typeCategory).Where("type_value = ?", typeValue).Delete(&entityRam.RamResourceGroupRelationEntity{})
+func (c *RamResourceGroupRelationRepository) DeleteByTypeCategoryAndTypeValue(ctx context.Context, typeCategory, typeValue string) error {
+	tx := c.DbModel().WithContext(ctx).Where("type_category = ?", typeCategory).Where("type_value = ?", typeValue).Delete(&entityRam.RamResourceGroupRelationEntity{})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return tx.Error

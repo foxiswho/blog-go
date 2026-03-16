@@ -26,8 +26,8 @@ type RamAppAccessKeyRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamAppAccessKeyEntity, int64]
 }
 
-func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(no, appNo string) (info *entityRam.RamAppAccessKeyEntity, result bool) {
-	tx := c.Db().Where("tenant_no=?", no).Where("app_no=?", appNo).First(&info)
+func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(ctx context.Context, no, appNo string) (info *entityRam.RamAppAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", no).Where("app_no=?", appNo).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -38,8 +38,8 @@ func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(no, appNo string) (in
 	return info, true
 }
 
-func (c *RamAppAccessKeyRepository) UpdateAllByAppNoAndNoSetState(appNo, id string, state int8) (sum int64, result bool) {
-	tx := c.Db().Where("app_no=?", appNo).Where("id=?", id).Updates(entityRam.RamAppAccessKeyEntity{State: state})
+func (c *RamAppAccessKeyRepository) UpdateAllByAppNoAndNoSetState(ctx context.Context, appNo, id string, state int8) (sum int64, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("app_no=?", appNo).Where("id=?", id).Updates(entityRam.RamAppAccessKeyEntity{State: state})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return 0, false

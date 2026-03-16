@@ -27,11 +27,11 @@ type RamMenuRelationRepository struct {
 	//
 }
 
-func (c *RamMenuRelationRepository) DeleteByMenuId(code int64) {
-	c.Db().Where("menu_id=?", code).Delete(&entityRam.RamMenuRelationEntity{})
+func (c *RamMenuRelationRepository) DeleteByMenuId(ctx context.Context, code int64) {
+	c.DbModel().WithContext(ctx).Where("menu_id=?", code).Delete(&entityRam.RamMenuRelationEntity{})
 }
-func (c *RamMenuRelationRepository) FindAllByMenuIdIn(code []int64) (info []*entityRam.RamMenuRelationEntity, result bool) {
-	tx := c.Db().Where("menu_id in ?", code).Find(&info)
+func (c *RamMenuRelationRepository) FindAllByMenuIdIn(ctx context.Context, code []int64) (info []*entityRam.RamMenuRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("menu_id in ?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

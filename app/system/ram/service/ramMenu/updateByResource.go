@@ -168,7 +168,7 @@ func (c *UpdateByResource) updateDataRelation(idsGroup, idsResource []string) {
 	}
 
 	//获取已经保存过的数据
-	oldData, result := c.menuRelationDb.FindAllByMenuIdIn([]int64{c.menuData.ID})
+	oldData, result := c.menuRelationDb.FindAllByMenuIdIn(c.ctx, []int64{c.menuData.ID})
 	if result {
 		for _, item := range oldData {
 			mapDataOld[utilsRam.MenuTypeByRelation(item.TypeValue, item.Type)] = struct{}{}
@@ -194,11 +194,11 @@ func (c *UpdateByResource) updateDataRelation(idsGroup, idsResource []string) {
 //	@receiver c
 func (c *UpdateByResource) updateResourceMenu() {
 	//删除 原始数据
-	c.resMenuDb.DeleteByMenuId(c.menuData.ID)
+	c.resMenuDb.DeleteByMenuId(c.ctx, c.menuData.ID)
 	//
 	//获取已经保存过的数据
 	{
-		oldData, result := c.menuRelationDb.FindAllByMenuIdIn([]int64{c.menuData.ID})
+		oldData, result := c.menuRelationDb.FindAllByMenuIdIn(c.ctx, []int64{c.menuData.ID})
 		if result {
 			for _, item := range oldData {
 				//资源组
@@ -216,7 +216,7 @@ func (c *UpdateByResource) updateResourceMenu() {
 	//资源组
 	{
 		if len(c.idsGroupNew) > 0 {
-			list, result := c.authDb.FindAllByGroupIdStringIn(c.idsGroupNew)
+			list, result := c.authDb.FindAllByGroupIdStringIn(c.ctx, c.idsGroupNew)
 			if result {
 				for _, item := range list {
 					if !typeAttrPg.Resource.IsEqual(item.TypeAttr) {

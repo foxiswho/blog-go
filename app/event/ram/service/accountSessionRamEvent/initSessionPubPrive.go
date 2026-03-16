@@ -41,7 +41,7 @@ func (c *InitSessionPubPrive) keyTenant(ctx context.Context) {
 	//是否新生成密钥
 	isMakeNewKey := false
 	// 获取 密钥对
-	data, r := c.sessionAk.FindByTypeDomainAndState([]string{typeDomainPg.Manage.Index()})
+	data, r := c.sessionAk.FindByTypeDomainAndState(ctx, []string{typeDomainPg.Manage.Index()})
 	if r {
 		for _, item := range data {
 			//跳过系统
@@ -82,7 +82,7 @@ func (c *InitSessionPubPrive) keySystem(ctx context.Context) {
 	isMakeNewKey := false
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	no, r := c.sessionAk.FindByNoAndState(typeDomainPg.System.Index())
+	no, r := c.sessionAk.FindByNoAndState(ctx, typeDomainPg.System.Index())
 	if !r {
 		privatePubKey = authTokenPg.MakePublicPrivateKey()
 		isMakeNewKey = true

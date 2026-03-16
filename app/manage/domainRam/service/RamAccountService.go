@@ -248,7 +248,7 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		}
 		//部门
 		if nil != ct.Departments && len(ct.Departments) > 0 {
-			depInfo, result := depDb.FindAllByNoLinkArr(ct.Departments)
+			depInfo, result := depDb.FindAllByNoLinkArr(ctx, ct.Departments)
 			if result {
 				sqlDb := r.DbModel()
 				for i, obj := range depInfo {

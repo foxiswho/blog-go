@@ -425,7 +425,7 @@ func (c *RamResourceService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		//判断 是否是 分类
 		if typeAttrPg.CategoryLast.IsEqual(info.TypeAttr) || typeAttrPg.Category.IsEqual(info.TypeAttr) {
-			idString, result := r.CountByParentIdString(numberPg.Int64ToString(info.ID))
+			idString, result := r.CountByParentIdString(ctx, numberPg.Int64ToString(info.ID))
 			if result && idString > 0 {
 				return rt.ErrorMessage("该分类下存在子数据，请先删除子数据")
 			}
@@ -644,7 +644,7 @@ func (c *RamResourceService) SelectCategoryPublic(ctx *gin.Context, ct modRamRes
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResource.Vo, 0)
 	rt.Data = slice
-	infos, result := c.sv.FindByParentIdRoot()
+	infos, result := c.sv.FindByParentIdRoot(ctx)
 	if result {
 		for _, item := range infos {
 			var vo modRamResource.Vo

@@ -102,7 +102,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
 	{
-		no, r := c.sessionAk.FindByNoAndState(typeDomainPg.System.Index())
+		no, r := c.sessionAk.FindByNoAndState(ctx, typeDomainPg.System.Index())
 		if !r {
 			privatePubKey = authTokenPg.MakePublicPrivateKey()
 			isMakeNewKey = true

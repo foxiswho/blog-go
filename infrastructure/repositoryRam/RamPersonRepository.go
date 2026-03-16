@@ -25,28 +25,3 @@ func init() {
 type RamPersonRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamPersonEntity, int64]
 }
-
-/*
-func (c *RamPersonRepository) FindAllByTenantId2(tenantId int64, ctx ...baseContext.SpContext) (infos []entityRam.RamPersonEntity, err error) {
-	var webCtx *gin.Context
-	for _, option := range ctx {
-		option(&webCtx)
-	}
-
-	log.Println("value.tenant=", webCtx.Get("tenant"))
-	tx := c.Db().Model(&entityRam.RamPersonEntity{}).Where("tenant_id=?", tenantId).Find(&infos)
-	value := tx.Statement.Context.Value("tenant")
-	log.Println("value=", value)
-	log.Println("value=", value)
-	log.Println("value=")
-	log.Println("value=", tx.Statement.Context != nil)
-	v, err := knife.Load(tx.Statement.Context, "tenant")
-	log.Println("err=", err)
-	log.Println("value=", v)
-
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	return infos, nil
-}
-*/

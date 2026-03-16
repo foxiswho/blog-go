@@ -254,7 +254,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		}
 		//部门
 		if nil != ct.Departments && len(ct.Departments) > 0 {
-			depInfo, result := depDb.FindAllByNoLinkArr(ct.Departments)
+			depInfo, result := depDb.FindAllByNoLinkArr(ctx, ct.Departments)
 			if result {
 				sqlDb := r.Db()
 				for i, obj := range depInfo {

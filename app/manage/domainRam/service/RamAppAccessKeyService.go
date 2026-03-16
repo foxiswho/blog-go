@@ -141,7 +141,7 @@ func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.UpdateAllByAppNoAndNoSetState(no, numberPg.Int64ToString(info.ID), state.IndexInt8())
+			r.UpdateAllByAppNoAndNoSetState(ctx, no, numberPg.Int64ToString(info.ID), state.IndexInt8())
 		}
 	}
 	return rt.Ok()

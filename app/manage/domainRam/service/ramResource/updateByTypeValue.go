@@ -124,7 +124,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 			ids = append(ids, numberPg.Int64ToString(item.ID))
 		}
 		//查询所有资源组 权限
-		c.groupAuthData, result = c.authDb.FindAllByTypeCategoryAndGroupIdStringIn(resourceTypeCategoryPg.Group.String(), ids)
+		c.groupAuthData, result = c.authDb.FindAllByTypeCategoryAndGroupIdStringIn(c.ctx, resourceTypeCategoryPg.Group.String(), ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
 		}
@@ -146,7 +146,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 	}
 
 	//删除 角色 对应的资源组
-	c.groupRelationDb.DeleteByTypeCategoryAndTypeValue(c.typeCategory.Index(), numberPg.Int64ToString(c.role.ID))
+	c.groupRelationDb.DeleteByTypeCategoryAndTypeValue(c.ctx, c.typeCategory.Index(), numberPg.Int64ToString(c.role.ID))
 	//
 	c.log.Infof("c.groupData=%+v", len(c.groupData))
 	//插入数据
@@ -169,7 +169,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 		info.TypeValue = numberPg.Int64ToString(c.role.ID)
 		info.Mark = utilsRam.ResourceAuthorityMark(c.typeCategory, info.TypeValue, numberPg.Int64ToString(item.ID))
 		//已存在 则跳过
-		_, b := c.groupRelationDb.FindByMark(info.Mark)
+		_, b := c.groupRelationDb.FindByMark(c.ctx, info.Mark)
 		if b {
 			continue
 		}
@@ -220,7 +220,7 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 			info.Method = item.Method
 			info.Mark = utilsRam.ResourceRelationMark(c.typeCategory, info.TypeValue, numberPg.Int64ToString(info.ResourceId))
 			//已存在 则跳过
-			_, b := c.relationDb.FindByMark(info.Mark)
+			_, b := c.relationDb.FindByMark(c.ctx, info.Mark)
 			if b {
 				continue
 			}

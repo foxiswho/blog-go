@@ -60,9 +60,9 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 	}
 	c.log.Infof("authPg=%+v", auth)
 	holder := holderPg.GetContextAccount(ctx)
-	c.resourceRel.DeleteByAuthorityId(auth.ID)
+	c.resourceRel.DeleteByAuthorityId(ctx, auth.ID)
 	if len(ct.Ids) > 0 {
-		c.resourceRel.DeleteByAuthorityId(auth.ID)
+		c.resourceRel.DeleteByAuthorityId(ctx, auth.ID)
 		now := time.Now()
 		//增加权限
 		infos, b := c.resource.FindAllByIdStringIn(ctx, ct.Ids)
@@ -108,11 +108,11 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 // Delete 删除
 func (c *RamResourceAuthorizationService) Delete(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
-		c.resourceAuth.DeleteByMark(code)
+		c.resourceAuth.DeleteByMark(ctx, code)
 		//删除 资源与授权id关系
-		c.resourceRel.DeleteByAuthorityId(info.ID)
+		c.resourceRel.DeleteByAuthorityId(ctx, info.ID)
 		//删除 casbin 内权限规则
 		c.casbin.ClearCasbin(int(info.ID))
 	}
@@ -123,7 +123,7 @@ func (c *RamResourceAuthorizationService) Delete(ctx *gin.Context, code string) 
 // AuthorityValid 设置授权id 有效
 func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
 		//设置有效
 		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
@@ -139,7 +139,7 @@ func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code 
 // AuthorityInValid 设置授权id 无效
 func (c *RamResourceAuthorizationService) AuthorityInValid(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
 		//设置无效
 		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.DISABLE.Index()}, info.ID)

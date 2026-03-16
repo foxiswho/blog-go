@@ -27,20 +27,8 @@ type RamResourceRepository struct {
 	//
 }
 
-func (c *RamResourceRepository) FindByParentId(code int64) (info *entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("parent_id=?", code).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("parent_id='' ").Find(&info)
+func (c *RamResourceRepository) FindByParentIdRoot(ctx context.Context) (info []*entityRam.RamResourceEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("parent_id='' ").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -58,8 +46,8 @@ func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResou
 //	@param pid
 //	@return info
 //	@return result
-func (c *RamResourceRepository) CountByParentIdString(pid string) (total int64, result bool) {
-	tx := c.Db().Where("parent_id= ? ", pid).Count(&total)
+func (c *RamResourceRepository) CountByParentIdString(ctx context.Context, pid string) (total int64, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("parent_id= ? ", pid).Count(&total)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return 0, false

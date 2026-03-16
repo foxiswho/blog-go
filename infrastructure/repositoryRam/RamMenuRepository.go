@@ -26,15 +26,3 @@ type RamMenuRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamMenuEntity, int64]
 	//
 }
-
-func (c *RamMenuRepository) FindAllByIdLink(code string) (info []entityRam.RamMenuEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
