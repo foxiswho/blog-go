@@ -60,8 +60,8 @@ func (c *RamAccountRepository) FindByAccountAndTypeDomain(ctx context.Context, c
 	return info, true
 }
 
-func (c *RamAccountRepository) FindByAccountAndTypeDomainAndIdNot(code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("account=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
+func (c *RamAccountRepository) FindByAccountAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -83,8 +83,8 @@ func (c *RamAccountRepository) FindByPhoneAndTypeDomainAndIdNot(ctx context.Cont
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByPhoneMd5AndTypeDomainAndIdNot(code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("phone_md5=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
+func (c *RamAccountRepository) FindByPhoneMd5AndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("phone_md5=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -105,8 +105,8 @@ func (c *RamAccountRepository) FindByMailAndTypeDomainAndIdNot(ctx context.Conte
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByCodeAndTypeDomainAndIdNot(code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
+func (c *RamAccountRepository) FindByCodeAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -116,8 +116,8 @@ func (c *RamAccountRepository) FindByCodeAndTypeDomainAndIdNot(code, typeDomain,
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByIdentityCodeAndTypeDomainAndIdNot(code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("identity_code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
+func (c *RamAccountRepository) FindByIdentityCodeAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("identity_code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -127,8 +127,8 @@ func (c *RamAccountRepository) FindByIdentityCodeAndTypeDomainAndIdNot(code, typ
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByRealNameAndTypeDomainAndIdNot(code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("real_name=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
+func (c *RamAccountRepository) FindByRealNameAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("real_name=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -138,8 +138,8 @@ func (c *RamAccountRepository) FindByRealNameAndTypeDomainAndIdNot(code, typeDom
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByAccountMd5AndTypeDomain(code, typeDomain string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("account_md5=?", code).Where("type_domain=?", typeDomain).Find(&info)
+func (c *RamAccountRepository) FindByAccountMd5AndTypeDomain(ctx context.Context, code, typeDomain string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account_md5=?", code).Where("type_domain=?", typeDomain).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false, tx.Error
@@ -162,8 +162,8 @@ func (c *RamAccountRepository) FindByNoAndTypeDomainAndIdNot(ctx context.Context
 	return info, true
 }
 
-func (c *RamAccountRepository) FindByPhone(code string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("phone=?", code).Find(&info)
+func (c *RamAccountRepository) FindByPhone(ctx context.Context, code string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("phone=?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false, tx.Error
@@ -174,8 +174,8 @@ func (c *RamAccountRepository) FindByPhone(code string, opts ...repositoryPg.Opt
 	return info, true, nil
 }
 
-func (c *RamAccountRepository) FindByMail(code string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("mail=?", code).Find(&info)
+func (c *RamAccountRepository) FindByMail(ctx context.Context, code string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool, err error) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("mail=?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false, tx.Error
@@ -198,8 +198,8 @@ func (c *RamAccountRepository) FindByIdAndTypeDomain(ctx context.Context, code i
 	return info, true
 }
 
-func (c *RamAccountRepository) FindByNoAndTypeDomain(code int64, typeDomain string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("no=?", code).Where("type_domain=?", typeDomain).First(&info)
+func (c *RamAccountRepository) FindByNoAndTypeDomain(ctx context.Context, code int64, typeDomain string, opts ...repositoryPg.OptionPg) (info *entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", code).Where("type_domain=?", typeDomain).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -210,8 +210,8 @@ func (c *RamAccountRepository) FindByNoAndTypeDomain(code int64, typeDomain stri
 	return info, true
 }
 
-func (c *RamAccountRepository) FindAllByIdStringInAndTypeDomain(ids []string, typeDomain string, opts ...repositoryPg.OptionPg) (infos []*entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("id in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
+func (c *RamAccountRepository) FindAllByIdStringInAndTypeDomain(ctx context.Context, ids []string, typeDomain string, opts ...repositoryPg.OptionPg) (infos []*entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("id in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -221,8 +221,8 @@ func (c *RamAccountRepository) FindAllByIdStringInAndTypeDomain(ids []string, ty
 	}
 	return infos, true
 }
-func (c *RamAccountRepository) FindAllByNoInAndTypeDomain(ids []string, typeDomain string, opts ...repositoryPg.OptionPg) (infos []*entityRam.RamAccountEntity, query bool) {
-	tx := c.SetOptionScopes(c.DbModel(), opts...).Where("no in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
+func (c *RamAccountRepository) FindAllByNoInAndTypeDomain(ctx context.Context, ids []string, typeDomain string, opts ...repositoryPg.OptionPg) (infos []*entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -244,7 +244,7 @@ func (c *RamAccountRepository) FindByTenantNoAccountAndTypeDomainAndIdNot(ctx co
 	}
 	return info, true
 }
-func (c *RamAccountRepository) FindByTenantNoAccountMd5AndTypeDomain(tenantNo, code, typeDomain string) (info *entityRam.RamAccountEntity, query bool, err error) {
+func (c *RamAccountRepository) FindByTenantNoAccountMd5AndTypeDomain(ctx context.Context, tenantNo, code, typeDomain string) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.DbModel().Where("tenant_no=?", tenantNo).Where("account_md5=?", code).Where("type_domain=?", typeDomain).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)

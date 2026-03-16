@@ -89,7 +89,7 @@ func (c *RamAccountService) State(ctx *gin.Context, ids []string, state enumStat
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -127,7 +127,7 @@ func (c *RamAccountService) LogicalDeletion(ctx *gin.Context, ids []string, tp a
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -173,7 +173,7 @@ func (c *RamAccountService) LogicalRecovery(ctx *gin.Context, ids []string, tp a
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -201,7 +201,7 @@ func (c *RamAccountService) PhysicalDeletion(ctx *gin.Context, ids []string, tp 
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -662,7 +662,7 @@ func (c *RamAccountService) ExistAccount(ctx *gin.Context, ct model.BaseExistWdC
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -710,7 +710,7 @@ func (c *RamAccountService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[s
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByCodeAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByCodeAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -726,7 +726,7 @@ func (c *RamAccountService) ExistIdentityCode(ctx *gin.Context, ct model.BaseExi
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -742,7 +742,7 @@ func (c *RamAccountService) ExistRealName(ctx *gin.Context, ct model.BaseExistWd
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

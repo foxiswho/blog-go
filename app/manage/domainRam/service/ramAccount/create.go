@@ -74,7 +74,7 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountC
 		ct.Code = strPg.GetNanoid(10)
 	}
 	r := c.sp.accDb
-	_, ok := r.FindByAccountAndTypeDomainAndIdNot(ct.Account, tp.ToTypeDomain().String(), "0")
+	_, ok := r.FindByAccountAndTypeDomainAndIdNot(ctx, ct.Account, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("账户已存在")
 	}

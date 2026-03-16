@@ -72,7 +72,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	}
 
 	md5 := cryptPg.Md5(ct.Account)
-	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(md5, tp.ToTypeDomain().String())
+	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.ToTypeDomain().String())
 	if nil != err {
 		return rt.Error()
 	}

@@ -92,7 +92,7 @@ func (c *TcTenantAccountService) State(ctx *gin.Context, ids []string, state enu
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -130,7 +130,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -176,7 +176,7 @@ func (c *TcTenantAccountService) LogicalRecovery(ctx *gin.Context, ids []string,
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -204,7 +204,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -706,7 +706,7 @@ func (c *TcTenantAccountService) ExistAccount(ctx *gin.Context, ct model.BaseExi
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -754,7 +754,7 @@ func (c *TcTenantAccountService) ExistIdentityCode(ctx *gin.Context, ct model.Ba
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -770,7 +770,7 @@ func (c *TcTenantAccountService) ExistRealName(ctx *gin.Context, ct model.BaseEx
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
