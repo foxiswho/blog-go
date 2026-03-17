@@ -11,9 +11,9 @@ import (
 	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
-	"github.com/foxiswho/blog-go/pkg/tools/timePg"
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"github.com/gin-gonic/gin"
+	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
 
@@ -31,7 +31,7 @@ func (c *ArchivesController) List(ctx *gin.Context) {
 	param := ctx.Param("code")
 	param = strings.TrimSpace(param)
 	if strPg.IsNotBlank(param) {
-		flexible, b := timePg.IsValidYearMonthFlexible(param)
+		flexible, b := datetimePg.IsValidYearMonthFlexible(param)
 		if b {
 			firstDay := time.Date(flexible.Year(), flexible.Month(), 1, 0, 0, 0, 0, flexible.Location())
 			monthEnd := firstDay.AddDate(0, 1, 0).Add(-1 * time.Second)

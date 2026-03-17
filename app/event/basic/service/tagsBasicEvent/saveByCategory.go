@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
 

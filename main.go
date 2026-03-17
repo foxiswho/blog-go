@@ -17,12 +17,12 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/logsPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
-	"github.com/foxiswho/blog-go/pkg/tools/pathPg"
 	_ "github.com/foxiswho/blog-go/router"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
+	"github.com/pangu-2/go-tools/tools/ioPg"
 )
 
 func init() {
@@ -39,7 +39,7 @@ func init() {
 	if nil != dirPath {
 		for _, path := range dirPath {
 			// 创建目录
-			err := pathPg.DirectoryCreate(path)
+			err := ioPg.DirectoryCreate(path)
 			if err != nil {
 				fmt.Printf("创建目录失败: [%v] => %v", path, err)
 			}

@@ -12,12 +12,12 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model/modelBasePg"
-	"github.com/foxiswho/blog-go/pkg/tools/formatPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"github.com/pangu-2/go-tools/tools/validatePg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
@@ -86,7 +86,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	if strPg.IsBlank(header.Table) {
 		return rt.ErrorMessage("表名称不能为空")
 	}
-	if !formatPg.ValidateString(header.Table) {
+	if !validatePg.ValidateString(header.Table) {
 		return rt.ErrorMessage("表名称格式错误")
 	}
 	rt.Extend = make(map[string]interface{})
@@ -139,7 +139,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				})
 				continue
 			}
-			if !formatPg.ValidateString(field.Field) {
+			if !validatePg.ValidateString(field.Field) {
 				errs = append(errs, modelBasePg.ItemResult{
 					Col:   i,
 					Field: "field",

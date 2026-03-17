@@ -16,10 +16,10 @@ import (
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 
 	"reflect"

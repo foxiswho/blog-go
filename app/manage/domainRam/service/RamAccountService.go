@@ -14,11 +14,11 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/strPg2"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/dbPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -253,14 +253,14 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
-						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					} else {
-						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
 				arg.Db.Where(sqlDb)
 			} else {
-				arg.Db.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db.Where("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//角色
@@ -270,14 +270,14 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 				sqlDb := r.DbModel()
 				for i, obj := range depInfo {
 					if 0 == i {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					} else {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
 				arg.Db.Where(sqlDb)
 			} else {
-				arg.Db.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db.Where("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//级别
@@ -288,14 +288,14 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
 					arg.Db.Where(sqlDb)
 				} else {
-					arg.Db.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+					arg.Db.Where("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 				}
 			}
 		}
@@ -307,9 +307,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
 					arg.Db.Where(sqlDb)
@@ -324,9 +324,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 					sqlDb := r.DbModel()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
 					arg.Db.Where(sqlDb)

@@ -12,8 +12,8 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumRam/enumSexPg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
+	"github.com/pangu-2/go-tools/tools/noPg"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"

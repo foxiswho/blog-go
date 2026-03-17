@@ -15,7 +15,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
+	"github.com/foxiswho/blog-go/pkg/tools/noPg2"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -87,7 +87,7 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 	copier.Copy(&info, &ct)
 	info.ID = strPg.GenerateNumberId18()
 	//租户编号生成
-	info.No = noPg.TenantNo()
+	info.No = noPg2.TenantNo()
 	//自动设置编号
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = info.No

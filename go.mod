@@ -22,7 +22,7 @@ require (
 	github.com/h2non/filetype v1.1.3
 	github.com/jinzhu/copier v0.4.0
 	github.com/minio/minio-go/v7 v7.0.99
-	github.com/pangu-2/go-tools v0.1.19
+	github.com/pangu-2/go-tools v0.1.20
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/sirupsen/logrus v1.9.4
@@ -115,7 +115,6 @@ require (
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	go.uber.org/mock v0.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.25.0 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
@@ -136,5 +135,3 @@ require (
 )
 
 replace github.com/go-ini/ini => gopkg.in/ini.v1 v1.67.1
-
-replace github.com/pangu-2/go-tools v0.1.19 => /Users/fox/project/github-fox/go-tools

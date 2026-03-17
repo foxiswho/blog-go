@@ -9,12 +9,12 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model/modelBasePg"
-	"github.com/foxiswho/blog-go/pkg/tools/formatPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"github.com/pangu-2/go-tools/tools/validatePg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
@@ -70,7 +70,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	if strPg.IsBlank(header.Field) {
 		return rt.ErrorMessage("字段名称不能为空")
 	}
-	if !formatPg.ValidateString(header.Field) {
+	if !validatePg.ValidateString(header.Field) {
 		return rt.ErrorMessage("字段名称格式错误")
 	}
 	model, b := c.Sp.repModel.FindByNo(ctx, c.event.ModelNo)
@@ -128,7 +128,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 				})
 				continue
 			}
-			if !formatPg.ValidateString(field.Field) {
+			if !validatePg.ValidateString(field.Field) {
 				errs = append(errs, modelBasePg.ItemResult{
 					Col:   i,
 					Field: "field",
