@@ -156,7 +156,7 @@ func (c *BasicAreaService) Update(ctx *gin.Context, ct modBasicArea.UpdateCt) (r
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(ctx, find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {

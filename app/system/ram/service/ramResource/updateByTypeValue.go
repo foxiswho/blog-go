@@ -123,7 +123,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 		for _, item := range c.groupData {
 			ids = append(ids, numberPg.Int64ToString(item.ID))
 		}
-		//查询所有资源组 权限
+		//查询所有资	源组 权限
 		c.groupAuthData, result = c.authDb.FindAllByTypeCategoryAndGroupIdStringIn(c.ctx, resourceTypeCategoryPg.Group.String(), ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
