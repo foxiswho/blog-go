@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/eventBasicRules"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 type RulesCacheListener struct {
@@ -21,7 +22,7 @@ type RulesCacheListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *RulesCacheListener) Run() error {
+func (c *RulesCacheListener) Run(ctx context.Context) error {
 	c.log.Infof("[init].listener.[基础.模型字段规则.缓存]===================")
 	//模型事件
 	eventBus.RegisterEvent(constEventBusPg.BasicModelRulesCache).RegisterSubscribe(constEventBusPg.BasicModelRulesCache, func(message any, _ core.EventArgs) {

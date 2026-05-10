@@ -11,6 +11,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	syslog "github.com/go-spring/log"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 // AttachmentListener 附件处理
@@ -25,7 +26,7 @@ type AttachmentListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *AttachmentListener) Run() error {
+func (c *AttachmentListener) Run(ctx context.Context) error {
 	syslog.Infof(context.Background(), syslog.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BasicAttachmentCreate)
 	eventBus.RegisterEvent(constEventBusPg.BasicAttachmentCreate).RegisterSubscribe(constEventBusPg.BasicAttachmentCreate, func(message any, _ core.EventArgs) {
 		syslog.Infof(context.Background(), syslog.TagAppDef, "SchedulerEvent.event=%+v", message)

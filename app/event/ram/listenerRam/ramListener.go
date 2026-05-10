@@ -10,6 +10,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/sdk/ram/model/modRamAccount"
+	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
 
@@ -26,7 +27,7 @@ type RamListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *RamListener) Run() error {
+func (c *RamListener) Run(ctx context.Context) error {
 	//账号 登录日志
 	eventBus.RegisterEvent(constEventBusPg.RamAccountLoginLog).RegisterSubscribe(constEventBusPg.RamAccountLoginLog, func(message any, _ core.EventArgs) {
 		c.log.Infof("SchedulerEvent[账号.登录日志].event=%+v", message)

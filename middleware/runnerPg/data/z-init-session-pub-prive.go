@@ -7,6 +7,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	syslog "github.com/go-spring/log"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 // 加载 密钥缓存
@@ -15,7 +16,7 @@ type InitSessionPubPrive struct {
 	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
 }
 
-func (b *InitSessionPubPrive) Run() error {
+func (b *InitSessionPubPrive) Run(ctx context.Context) error {
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[密钥缓存初始化]===================")
 	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk).Processor(context.Background())
 	return nil

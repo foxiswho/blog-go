@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	gs.Object(&TenantDomainCache{Domain: &mapPg.SafeMap[string, string]{}, DomainData: &mapPg.SafeMap[string, dtoTenantDomain.Dto]{}})
+	gs.Provide(&TenantDomainCache{Domain: &mapPg.SafeMap[string, string]{}, DomainData: &mapPg.SafeMap[string, dtoTenantDomain.Dto]{}})
 }
 
 // TenantDomainCache

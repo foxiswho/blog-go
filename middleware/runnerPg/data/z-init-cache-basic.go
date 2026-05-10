@@ -6,6 +6,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/eventBasicEvent"
 	"github.com/foxiswho/blog-go/app/event/basic/service/eventBasicRules"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 // ZInitCacheBasic
@@ -14,7 +15,7 @@ type ZInitCacheBasic struct {
 	log *log2.Logger `autowire:"?"`
 }
 
-func (c *ZInitCacheBasic) Run() error {
+func (c *ZInitCacheBasic) Run(ctx context.Context) error {
 	c.log.Infof("[init].[启动初始化.基础.缓存]===================")
 	{
 		err := eventBasicEvent.NewStartInit(c.log).Processor(context.Background())

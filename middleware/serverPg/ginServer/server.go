@@ -45,7 +45,7 @@ func NewGinServer(port string) *GinServer {
 }
 
 // 启动 端口
-func (s *GinServer) ListenAndServe(sig gs.ReadySignal) error {
+func (s *GinServer) Run(ctx context.Context, sig gs.ReadySignal) error {
 	addr := s.svr.Addr
 	if addr == "" {
 		addr = ":8080"
@@ -66,6 +66,6 @@ func (s *GinServer) ListenAndServe(sig gs.ReadySignal) error {
 }
 
 // 关闭
-func (s *GinServer) Shutdown(ctx context.Context) error {
-	return s.svr.Shutdown(ctx)
+func (s *GinServer) Stop() error {
+	return s.svr.Shutdown(context.Background())
 }

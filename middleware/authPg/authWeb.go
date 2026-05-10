@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	gs.Object(&GroupWebMiddlewareSp{})
+	gs.Provide(&GroupWebMiddlewareSp{})
 }
 
 // 中间件 服务

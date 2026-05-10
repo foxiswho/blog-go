@@ -25,7 +25,7 @@ import (
 var managerUrlPaths = make([]string, 0)
 
 func init() {
-	gs.Object(&GroupManageMiddlewareSp{})
+	gs.Provide(&GroupManageMiddlewareSp{})
 	//商品模块
 	managerUrlPaths = append(managerUrlPaths, "manage/gc")
 }

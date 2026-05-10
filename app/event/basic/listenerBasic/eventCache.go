@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/eventBasicEvent"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 type EventCacheListener struct {
@@ -21,7 +22,7 @@ type EventCacheListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *EventCacheListener) Run() error {
+func (c *EventCacheListener) Run(ctx context.Context) error {
 	c.log.Infof("[init].listener.[基础.模型事件.缓存]===================")
 	//模型事件
 	eventBus.RegisterEvent(constEventBusPg.BasicConfigEventCache).RegisterSubscribe(constEventBusPg.BasicConfigEventCache, func(message any, _ core.EventArgs) {

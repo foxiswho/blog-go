@@ -23,7 +23,7 @@ import (
 var systemUrlPaths = make([]string, 0)
 
 func init() {
-	gs.Object(&GroupSystemMiddlewareSp{})
+	gs.Provide(&GroupSystemMiddlewareSp{})
 	//商品模块
 	systemUrlPaths = append(systemUrlPaths, "manage/gc")
 }

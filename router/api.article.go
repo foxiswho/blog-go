@@ -9,23 +9,23 @@ import (
 
 func init() {
 	//// 文章
-	//gs.Root(gs.Object(new(controller.ArticleController)).Init(func(c *controller.ArticleController) {
+	//gs.Provide(new(controller.ArticleController)).Init(func(c *controller.ArticleController) {
 	//	r := ginServer.GinServerDefault
 	//	group := r.Group("/api/article", authPg.GroupApiMiddleware(c.Sp))
 	//	group.POST("/push", c.Push)
-	//}))
+	//})
 	////文章分类
-	//gs.Root(gs.Object(new(controller.ArticleCategoryController)).Init(func(c *controller.ArticleCategoryController) {
+	//gs.Provide(new(controller.ArticleCategoryController)).Init(func(c *controller.ArticleCategoryController) {
 	//	r := ginServer.GinServerDefault
 	//	group := r.Group("/api/article-category", authPg.GroupApiMiddleware(c.Sp))
 	//	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
-	//}))
+	//})
 
 	// 收集
-	gs.Root(gs.Object(new(controller.CollectController)).Init(func(c *controller.CollectController) {
+	gs.Provide(new(controller.CollectController)).Init(func(c *controller.CollectController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/api/collect", authPg.GroupApiMiddleware(c.Sp))
 		group.POST("/push", c.Push)
 		group.POST("/pushAll", c.PushAll)
-	}))
+	})
 }

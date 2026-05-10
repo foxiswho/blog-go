@@ -12,7 +12,7 @@ type Pg struct {
 	MultiTenant pg.MultiItem  `json:"multiTenant" value:"${multiTenant}" toml:"multiTenant"` //租户表
 	Multi       pg.Multi      `json:"multi" value:"${multi}" toml:"multi"`                   //多租户/商户表
 	Data        pg.Data       `json:"data" value:"${data}" toml:"data"`                      //数据
-	Profiles    pg.Profiles   `json:"profiles" value:"${profiles}" toml:"profiles"`          //配置
+	Profiles    pg.Profiles   `value:"${profiles}" toml:"profiles"`                          //配置
 	Attachment  pg.Attachment `json:"attachment" value:"${attachment}" toml:"attachment"`    //附件
 	Mail        pg.Mail       `json:"mail" value:"${mail}" toml:"mail"`                      //邮件
 	//Rocketmq    pg.Rocketmq   `json:"rocketmq" value:"${rocketmq}"` toml:"rocketmq"`                          //消息队列

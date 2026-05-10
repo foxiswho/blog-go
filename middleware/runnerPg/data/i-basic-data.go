@@ -15,6 +15,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	syslog "github.com/go-spring/log"
+	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -35,8 +36,7 @@ type IBasicData struct {
 	eventFields *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
 }
 
-func (b *IBasicData) Run() error {
-	ctx := context.Background()
+func (b *IBasicData) Run(ctx context.Context) error {
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[基础数据：国家:中国]===================")
 	{
 		save := entityBasic.BasicCountryEntity{

@@ -9,7 +9,7 @@ import (
 
 func init() {
 	//
-	gs.Root(gs.Object(new(controller.LevelController)).Init(func(c *controller.LevelController) {
+	gs.Provide(new(controller.LevelController)).Init(func(c *controller.LevelController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/tc/level", authPg.GroupManageMiddleware(c.Sp))
 		//group.POST("/create", c.Create)
@@ -27,9 +27,9 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existNo", c.ExistNo)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.TenantController)).Init(func(c *controller.TenantController) {
+	gs.Provide(new(controller.TenantController)).Init(func(c *controller.TenantController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/tc/tenant", authPg.GroupManageMiddleware(c.Sp))
 		//group.POST("/create", c.Create)
@@ -48,9 +48,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/existNo", c.ExistNo)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.TenantDomainController)).Init(func(c *controller.TenantDomainController) {
+	gs.Provide(new(controller.TenantDomainController)).Init(func(c *controller.TenantDomainController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/tc/tenant-domain", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
@@ -70,5 +70,5 @@ func init() {
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/existNo", c.ExistNo)
 		group.POST("/setDefaulted", c.SetDefaulted)
-	}))
+	})
 }

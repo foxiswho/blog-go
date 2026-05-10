@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"gorm.io/gorm"
 )
@@ -20,7 +21,7 @@ type ZInitDiplCache struct {
 	sv  *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
 }
 
-func (b *ZInitDiplCache) Run() error {
+func (b *ZInitDiplCache) Run(ctx context.Context) error {
 	b.log.Infof("初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()

@@ -13,6 +13,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/dbMakePg"
 	"github.com/go-spring/log"
+	_ "github.com/go-spring/spring-core/gs"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +25,7 @@ type AInitTable struct {
 	db       *gorm.DB          `autowire:"?"`
 }
 
-func (b *AInitTable) Run() error {
+func (b *AInitTable) Run(ctx context.Context) error {
 	log.Infof(context.Background(), log.TagAppDef, "初始化表=>表不存在时,则进行初始化")
 	entityData := make([]interface{}, 0)
 	{

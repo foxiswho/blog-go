@@ -50,8 +50,8 @@ required = false
 unique = false
 
 [pg.profiles]
-active = "develop"
-include = "develop"
+active = "dev"
+include = []
 
 [pg.multiTenant]
 contain = []

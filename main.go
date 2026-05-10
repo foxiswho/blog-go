@@ -46,12 +46,9 @@ func init() {
 		}
 	}
 	//
-	gs.Object(log2.New(log2.LevelDebug, false))
+	gs.Provide(log2.New(log2.LevelDebug, false))
 	//指定环境
 	//gs.SetActiveProfiles("dev")
-	//关闭 案例 serverPg
-	gs.EnableSimplePProfServer(false)
-
 }
 func main() {
 
@@ -66,7 +63,7 @@ func main() {
 	}
 
 	// 指定配置文件目录, 如果不设置，默认 conf 目录
-	_ = os.Setenv("GS_SPRING_APP_CONFIG-LOCAL_DIR", "./data/config")
+	_ = os.Setenv("GS_SPRING_APP_CONFIG_DIR", "./data/config")
 	// gin 静态文件路径
 	ginServer.GetInstance().Static("/assets", "./data/assets")
 	ginServer.GetInstance().Static("/attachment", "./data/attachment")
@@ -82,7 +79,7 @@ func main() {
 
 	syslog.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
 	//服务，传入配置 端口
-	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server.port}")).AsServer()
+	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server.port}")).Export(gs.As[gs.Server]())
 	//事件监听
 	fsE.Initialize[eventBus.Module]("panGu")
 	gs.Run()

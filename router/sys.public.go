@@ -10,11 +10,11 @@ import (
 
 func init() {
 	// 登录后
-	gs.Root(gs.Object(&controller.PublicController{}).Init(func(s *controller.PublicController) {
+	gs.Provide(&controller.PublicController{}).Init(func(s *controller.PublicController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/sys/public", authPg.GroupSystemMiddleware(s.Sp))
 		group.GET("/info", s.Public)
 		group.POST("/password", s.UpdatePassword)
 		group.GET("/envInfoPublic", cmd.GetVersion)
-	}))
+	})
 }

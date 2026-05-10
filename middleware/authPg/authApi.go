@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	gs.Object(&GroupApiMiddlewareSp{})
+	gs.Provide(&GroupApiMiddlewareSp{})
 }
 
 // 中间件 服务

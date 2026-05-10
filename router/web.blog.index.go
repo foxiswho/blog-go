@@ -9,42 +9,42 @@ import (
 
 func init() {
 	// 首页
-	gs.Root(gs.Object(new(controller.IndexController)).Init(func(c *controller.IndexController) {
+	gs.Provide(new(controller.IndexController)).Init(func(c *controller.IndexController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/", c.Index)
 		group.GET("/page/:page", c.Page)
-	}))
+	})
 	//文章
-	gs.Root(gs.Object(new(controller.ArticleController)).Init(func(c *controller.ArticleController) {
+	gs.Provide(new(controller.ArticleController)).Init(func(c *controller.ArticleController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/article/search", c.List)
 		group.GET("/article/:id", c.Detail)
-	}))
+	})
 	//文章分类
-	gs.Root(gs.Object(new(controller.CategoryController)).Init(func(c *controller.CategoryController) {
+	gs.Provide(new(controller.CategoryController)).Init(func(c *controller.CategoryController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/category/:cat", c.List)
-	}))
+	})
 
 	// 标签
-	gs.Root(gs.Object(new(controller.TagController)).Init(func(c *controller.TagController) {
+	gs.Provide(new(controller.TagController)).Init(func(c *controller.TagController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/tag/:tag", c.List)
-	}))
+	})
 	// 归档
-	gs.Root(gs.Object(new(controller.ArchivesController)).Init(func(c *controller.ArchivesController) {
+	gs.Provide(new(controller.ArchivesController)).Init(func(c *controller.ArchivesController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("", authPg.GroupWebMiddleware(c.Sp))
 		group.GET("/archives/date/:code", c.List)
-	}))
+	})
 
 	//test
-	gs.Root(gs.Object(new(controller.TestController)).Init(func(c *controller.TestController) {
+	gs.Provide(new(controller.TestController)).Init(func(c *controller.TestController) {
 		r := ginServer.GinServerDefault
 		r.GET("/test/cache", c.Cache)
-	}))
+	})
 }

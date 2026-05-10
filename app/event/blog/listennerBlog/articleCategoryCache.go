@@ -9,6 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/blog/service/articleBlogEvent"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	_ "github.com/go-spring/spring-core/gs"
 )
 
 // ArticleCategoryCacheListener 文章分类处理
@@ -22,7 +23,7 @@ type ArticleCategoryCacheListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *ArticleCategoryCacheListener) Run() error {
+func (c *ArticleCategoryCacheListener) Run(ctx context.Context) error {
 	c.log.Infof("[init].listener.[博客.分类.缓存]===================")
 	//博客文章 分类
 	eventBus.RegisterEvent(constEventBusPg.BlogArticleCategoryCache).RegisterSubscribe(constEventBusPg.BlogArticleCategoryCache, func(message any, _ core.EventArgs) {

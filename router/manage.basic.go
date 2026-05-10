@@ -9,7 +9,7 @@ import (
 
 func init() {
 	//
-	gs.Root(gs.Object(new(controller.AttachmentController)).Init(func(c *controller.AttachmentController) {
+	gs.Provide(new(controller.AttachmentController)).Init(func(c *controller.AttachmentController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/attachment", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/upload", c.Upload)
@@ -23,9 +23,9 @@ func init() {
 		group.POST("/upload-delByOwnerPublic", c.DelByOwner)
 		group.POST("/upload-makeFileOwnerAllPublic", c.MakeFileOwnerAll)
 		group.POST("/upload-updateByFileOwner", c.UpdateByFileOwner)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.AccountApplyDenyListController)).Init(func(c *controller.AccountApplyDenyListController) {
+	gs.Provide(new(controller.AccountApplyDenyListController)).Init(func(c *controller.AccountApplyDenyListController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/accountApplyDenyList", authPg.GroupManageMiddleware(c.Sp))
 		//group.POST("/create", c.Create)
@@ -44,9 +44,9 @@ func init() {
 		group.POST("/exportExcel", c.ExportExcel)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existExpr", c.ExistExpr)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.AreaController)).Init(func(c *controller.AreaController) {
+	gs.Provide(new(controller.AreaController)).Init(func(c *controller.AreaController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/area", authPg.GroupManageMiddleware(c.Sp))
 		//group.POST("/create", c.Create)
@@ -65,9 +65,9 @@ func init() {
 		group.POST("/exportExcel", c.ExportExcel)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.CountryController)).Init(func(c *controller.CountryController) {
+	gs.Provide(new(controller.CountryController)).Init(func(c *controller.CountryController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/country", authPg.GroupManageMiddleware(c.Sp))
 		//group.POST("/create", c.Create)
@@ -87,9 +87,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/existCountryCode", c.ExistCountryCode)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.DataDictionaryController)).Init(func(c *controller.DataDictionaryController) {
+	gs.Provide(new(controller.DataDictionaryController)).Init(func(c *controller.DataDictionaryController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/dataDictionary", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -105,9 +105,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/codeValueAllPublic", c.CodeValueAllPublic)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.DataDictionarySubController)).Init(func(c *controller.DataDictionarySubController) {
+	gs.Provide(new(controller.DataDictionarySubController)).Init(func(c *controller.DataDictionarySubController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/dataDictionarySub", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -122,9 +122,9 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.TagsController)).Init(func(c *controller.TagsController) {
+	gs.Provide(new(controller.TagsController)).Init(func(c *controller.TagsController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/tags", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
@@ -142,9 +142,9 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.TagsCategoryController)).Init(func(c *controller.TagsCategoryController) {
+	gs.Provide(new(controller.TagsCategoryController)).Init(func(c *controller.TagsCategoryController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/tags-category", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
@@ -162,9 +162,9 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.TagsRelationController)).Init(func(c *controller.TagsRelationController) {
+	gs.Provide(new(controller.TagsRelationController)).Init(func(c *controller.TagsRelationController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/tags-relation", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
@@ -186,9 +186,9 @@ func init() {
 		group.GET("/getCategoryRoot/:category", c.GetCategory)
 		group.POST("/getCategoryTagsAll/:category", c.GetCategoryTagsAll)
 		group.POST("/getCategoryTags/:category", c.GetCategoryTags)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ConfigListController)).Init(func(c *controller.ConfigListController) {
+	gs.Provide(new(controller.ConfigListController)).Init(func(c *controller.ConfigListController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-list", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -205,9 +205,9 @@ func init() {
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/detailForm", c.DetailForm)
 		group.POST("/configUpdate", c.ConfigUpdate)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ConfigModelController)).Init(func(c *controller.ConfigModelController) {
+	gs.Provide(new(controller.ConfigModelController)).Init(func(c *controller.ConfigModelController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/config-model", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -223,9 +223,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/existModel", c.ExistModel)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ConfigEventController)).Init(func(c *controller.ConfigEventController) {
+	gs.Provide(new(controller.ConfigEventController)).Init(func(c *controller.ConfigEventController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/configEvent", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -242,9 +242,9 @@ func init() {
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/allByModel", c.AllByModel)
 		group.POST("/modelForm", c.ModelForm)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ConfigEventFieldsController)).Init(func(c *controller.ConfigEventFieldsController) {
+	gs.Provide(new(controller.ConfigEventFieldsController)).Init(func(c *controller.ConfigEventFieldsController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/configEventFields", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -260,9 +260,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/allByEventNo", c.AllByEventNo)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ModelRulesController)).Init(func(c *controller.ModelRulesController) {
+	gs.Provide(new(controller.ModelRulesController)).Init(func(c *controller.ModelRulesController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/modelRules", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/createUpdate", c.CreateUpdate)
@@ -279,9 +279,9 @@ func init() {
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
 		group.POST("/allByValueNo", c.AllByValueNo)
-	}))
+	})
 	//
-	gs.Root(gs.Object(new(controller.ModuleController)).Init(func(c *controller.ModuleController) {
+	gs.Provide(new(controller.ModuleController)).Init(func(c *controller.ModuleController) {
 		r := ginServer.GinServerDefault
 		group := r.Group("/pg2lq/manage/basic/module", authPg.GroupManageMiddleware(c.Sp))
 		group.POST("/create", c.Create)
@@ -297,5 +297,5 @@ func init() {
 		group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 		group.POST("/existName", c.ExistName)
 		group.POST("/existCode", c.ExistCode)
-	}))
+	})
 }

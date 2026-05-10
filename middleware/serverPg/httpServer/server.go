@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	gs.Object(NewServer()).AsServer()
+	gs.Provide(NewServer()).AsServer()
 }
 
 type MyServer struct {
