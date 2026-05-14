@@ -6,7 +6,6 @@ import (
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
@@ -80,31 +79,6 @@ func (c *AccountController) Disable(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct, c.appModule))
-}
-
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state, c.appModule))
 }
 
 // Delete 逻辑删除
@@ -207,13 +181,13 @@ func (c *AccountController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct, c.appModule))
 }
 
-// Create 添加
+// CreateUpdate 添加
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *AccountController) Create(ctx *gin.Context) {
-	var ct modRamAccount.CreateCt
+func (c *AccountController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamAccount.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -224,16 +198,16 @@ func (c *AccountController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct, c.appModule))
+	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct, c.appModule))
 }
 
-// CreateAccount 添加账号
+// CreateUpdateAccount 添加账号/更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *AccountController) CreateAccount(ctx *gin.Context) {
-	var ct modRamAccount.CreateAccountCt
+func (c *AccountController) CreateUpdateAccount(ctx *gin.Context) {
+	var ct modRamAccount.CreateUpdateAccountCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -244,47 +218,7 @@ func (c *AccountController) CreateAccount(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.CreateAccount(ctx, ct, c.appModule))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) Update(ctx *gin.Context) {
-	var ct modRamAccount.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Update(ctx, ct, c.appModule))
-}
-
-// UpdateAccount 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) UpdateAccount(ctx *gin.Context) {
-	var ct modRamAccount.UpdateAccountCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.UpdateAccount(ctx, ct, c.appModule))
+	ctx.JSON(200, c.sv.CreateUpdateAccount(ctx, ct, c.appModule))
 }
 
 // ExistAccount 查重

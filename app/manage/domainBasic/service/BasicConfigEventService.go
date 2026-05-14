@@ -8,7 +8,6 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/configEvent"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -324,19 +323,10 @@ func (c *BasicConfigEventService) SelectNodeAllPublic(ctx *gin.Context, ct modBa
 			copier.Copy(&vo, &item)
 			//
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: "",
-				ParentId: "",
 				Extend:   vo,
-			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = ""
 			}
 			slice = append(slice, code)
 		}

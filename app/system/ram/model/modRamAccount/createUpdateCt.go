@@ -4,7 +4,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 )
 
-type UpdateCt struct {
+type CreateUpdateCt struct {
 	ID           typePg.Uint64String `json:"id" form:"id" validate:"required" label:"id" `
 	Name         string              `json:"name" label:"名称" `                                       // 名称
 	RealName     string              `json:"realName" label:"真实姓名" `                                 // 名称

@@ -7,7 +7,6 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -90,7 +89,7 @@ func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateCt) (rt 
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamLevelEntity
 	copier.Copy(&info, &ct)
@@ -323,12 +322,12 @@ func (c *RamLevelService) Query(ctx *gin.Context, ct modRamLevel.QueryCt) (rt rg
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamLevelService) SelectNodePublic(ctx *gin.Context, ct modRamLevel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamLevelService) SelectNodeAll(ctx *gin.Context, ct modRamLevel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamLevelEntity
 	copier.Copy(&query, &ct)
@@ -340,17 +339,11 @@ func (c *RamLevelService) SelectNodePublic(ctx *gin.Context, ct modRamLevel.Quer
 			var vo modRamLevel.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -375,17 +368,11 @@ func (c *RamLevelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamLevel.Q
 			var vo modRamLevel.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice

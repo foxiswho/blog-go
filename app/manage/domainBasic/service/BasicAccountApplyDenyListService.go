@@ -11,7 +11,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeExprPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeFieldPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -388,17 +387,11 @@ func (c *BasicAccountApplyDenyListService) SelectNodePublic(ctx *gin.Context, ct
 			var vo modBasicAccountApplyDenyList.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -422,17 +415,11 @@ func (c *BasicAccountApplyDenyListService) SelectNodeAllPublic(ctx *gin.Context,
 			var vo modBasicAccountApplyDenyList.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice

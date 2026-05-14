@@ -53,7 +53,7 @@ func NewUpdate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID <= 0 {
 		return rt.ErrorMessage("id不能为空")
@@ -115,7 +115,7 @@ func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	account := c.accountUpdate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
@@ -131,9 +131,9 @@ func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	var ctAccount modRamAccount.UpdateAccountCt
+	var ctAccount modRamAccount.CreateUpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	account := c.accountUpdate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
@@ -302,6 +302,6 @@ func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appMo
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) Process(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) Process(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return c.updateAll(ctx, ct, tp)
 }

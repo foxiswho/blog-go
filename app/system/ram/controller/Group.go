@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamGroup"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
@@ -48,13 +49,13 @@ func (c *GroupController) Create(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Create(ctx, ct))
 }
 
-// Update 更新
+// CreateUpdate 创建/更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *GroupController) Update(ctx *gin.Context) {
-	var ct modRamGroup.UpdateCt
+func (c *GroupController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamGroup.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -184,31 +185,6 @@ func (c *GroupController) Disable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
 }
 
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *GroupController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state))
-}
-
 // Query 查询列表
 //
 //	@Description:
@@ -229,7 +205,7 @@ func (c *GroupController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *GroupController) SelectNodePublic(ctx *gin.Context) {
+func (c *GroupController) SelectNodeAll(ctx *gin.Context) {
 	var ct modRamGroup.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -241,8 +217,7 @@ func (c *GroupController) SelectNodePublic(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectNodeAll(ctx, ct))
 }
 
 func (c *GroupController) SelectNodeAllPublic(ctx *gin.Context) {

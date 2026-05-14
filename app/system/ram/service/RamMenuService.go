@@ -10,7 +10,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
@@ -131,7 +130,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamMenuEntity
 	err := copier.Copy(&info, &ct)
@@ -558,12 +557,12 @@ func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (r
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamMenuService) SelectNodePublic(ctx *gin.Context, ct modRamMenu.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamMenuService) SelectNodeAll(ctx *gin.Context, ct modRamMenu.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamMenuEntity
 	copier.Copy(&query, &ct)
@@ -575,20 +574,12 @@ func (c *RamMenuService) SelectNodePublic(ctx *gin.Context, ct modRamMenu.QueryP
 			var vo modRamMenu.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -613,20 +604,12 @@ func (c *RamMenuService) SelectNodeAllPublic(ctx *gin.Context, ct modRamMenu.Que
 			var vo modRamMenu.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice

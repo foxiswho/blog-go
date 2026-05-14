@@ -7,7 +7,6 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -23,7 +22,6 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
-	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
@@ -40,23 +38,48 @@ type RamTeamService struct {
 	log *log2.Logger                     `autowire:"?"`
 }
 
-// Create 新增
+// CreateUpdate 新增更新
 //
 //	@Description:
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamTeamService) Create(ctx *gin.Context, ct modRamTeam.CreateCt) (rt rg.Rs[string]) {
+func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
+	//
+	holder := holderPg.GetContextAccount(ctx)
+	//
 	var info entityRam.RamTeamEntity
 	copier.Copy(&info, &ct)
+	//
+	r := c.sv
+	//是否是更新
+	isUpdate := false
+	b := false
+	id := "0"
+	//
+	find := &entityRam.RamTeamEntity{}
+	//
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
-	if strPg.IsBlank(info.Code) {
-		info.Code = automatedPg.CREATE_CODE
+	if ct.ID.ToInt64() > 0 {
+		id = ct.ID.ToString()
+		isUpdate = true
+		///
+		find, b = r.FindById(ctx, ct.ID.ToInt64())
+		if !b {
+			return rt.ErrorMessage("数据不存在")
+		}
 	}
-	r := c.sv
+	if strPg.IsBlank(ct.Code) {
+		info.Code = automatedPg.CREATE_CODE
+	} else {
+		_, result := r.FindByCodeAndIdNot(ctx, info.Code, id, repositoryPg.WithCtxOption(ctx))
+		if result {
+			return rt.ErrorMessage("标志已存在")
+		}
+	}
 	//判断是否是自动,不是自动
 	if !automatedPg.IsCreateCode(info.Code) {
 		//判断格式是否满足要求
@@ -68,59 +91,33 @@ func (c *RamTeamService) Create(ctx *gin.Context, ct modRamTeam.CreateCt) (rt rg
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
-	}
-	holder := holderPg.GetContextAccount(ctx)
-	info.TenantNo = holder.GetTenantNo()
-	info.No = noPg.No()
-	if automatedPg.IsCreateCode(info.Code) {
-		info.Code = info.No
-	}
-	c.log.Infof("info%+v", info)
-	err, _ := r.Create(ctx, &info)
-	if err != nil {
-		return rt.ErrorMessage("保存失败 " + err.Error())
-	}
-	c.log.Infof("save=%+v", info)
-	return rg.OkData(numberPg.Int64ToString(info.ID))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-//	@return rt
-func (c *RamTeamService) Update(ctx *gin.Context, ct modRamTeam.UpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
-	var info entityRam.RamTeamEntity
-	copier.Copy(&info, &ct)
-	r := c.sv
-	if ct.ID < 1 {
-		return rt.ErrorMessage("id错误")
-	}
-	if "" == ct.Name {
-		return rt.ErrorMessage("名称不能为空")
-	}
-	if strPg.IsBlank(ct.Code) {
-		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ctx, info.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
-		if result {
-			return rt.ErrorMessage("标志已存在")
-		}
+		info.Code = noPg.No()
 	}
-	find, b := r.FindById(ctx, ct.ID.ToInt64())
-	if !b {
-		return rt.ErrorMessage("数据不存在")
+	if isUpdate {
+		info.ID = 0
+		info.No = ""
+	} else {
+		info.TenantNo = holder.GetTenantNo()
+		info.No = noPg.No()
+		info.State = enumStatePg.ENABLE.Index()
 	}
-	info.ID = 0
-	info.No = ""
+
 	c.log.Infof("info.save=%+v", info)
-	err := r.Update(ctx, info, find.ID)
-	if err != nil {
-		c.log.Errorf("update error=%+v", err)
-		return rt.ErrorMessage(err.Error())
+	if isUpdate {
+		err := r.Update(ctx, info, find.ID)
+		if err != nil {
+			c.log.Errorf("update error=%+v", err)
+			return rt.ErrorMessage(err.Error())
+		}
+	} else {
+		err, _ := r.Create(ctx, &info)
+		if err != nil {
+			return rt.ErrorMessage("保存失败 " + err.Error())
+		}
+		c.log.Infof("save=%+v", info)
 	}
+
 	return rt.Ok()
 }
 
@@ -323,12 +320,12 @@ func (c *RamTeamService) Query(ctx *gin.Context, ct modRamTeam.QueryCt) (rt rg.R
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamTeamService) SelectNodePublic(ctx *gin.Context, ct modRamTeam.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamTeamService) SelectNodeAll(ctx *gin.Context, ct modRamTeam.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamTeamEntity
 	copier.Copy(&query, &ct)
@@ -340,16 +337,9 @@ func (c *RamTeamService) SelectNodePublic(ctx *gin.Context, ct modRamTeam.QueryP
 			var vo modRamTeam.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
-			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
 			}
 			slice = append(slice, code)
 		}
@@ -375,41 +365,11 @@ func (c *RamTeamService) SelectNodeAllPublic(ctx *gin.Context, ct modRamTeam.Que
 			var vo modRamTeam.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamTeamService) SelectPublic(ctx *gin.Context, ct modRamTeam.QueryCt) (rt rg.Rs[[]modRamTeam.Vo]) {
-	c.log.Infof("ct=%+v", ct)
-	var query entityRam.RamTeamEntity
-	copier.Copy(&query, &ct)
-	rt.Data = []modRamTeam.Vo{}
-	infos := c.sv.FindAll(ctx, query)
-	if len(infos) > 0 {
-		slice := make([]modRamTeam.Vo, 0)
-		for _, item := range infos {
-			var vo modRamTeam.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}

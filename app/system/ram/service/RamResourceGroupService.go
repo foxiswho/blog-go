@@ -10,7 +10,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
@@ -144,7 +143,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err := copier.Copy(&info, &ct)
@@ -400,12 +399,12 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectNodePublic(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
@@ -417,20 +416,12 @@ func (c *RamResourceGroupService) SelectNodePublic(ctx *gin.Context, ct modRamRe
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -455,20 +446,12 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice

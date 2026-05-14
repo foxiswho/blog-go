@@ -4,9 +4,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 )
 
-// UpdateAccountCt
+// CreateUpdateAccountCt
 // @Description: 更新账号
-type UpdateAccountCt struct {
+type CreateUpdateAccountCt struct {
 	ID           typePg.Uint64String `json:"id" form:"id" validate:"required" label:"id" `
 	Account      string              `json:"account"  validate:"required,min=1,max=255" label:"账户" ` // 账户
 	Cc           string              `json:"cc" label:"国际区号"`                                        // 国际区号

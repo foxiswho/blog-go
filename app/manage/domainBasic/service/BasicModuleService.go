@@ -532,12 +532,9 @@ func (c *BasicModuleService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicMo
 			var vo modBasicModule.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
 			slice = append(slice, code)

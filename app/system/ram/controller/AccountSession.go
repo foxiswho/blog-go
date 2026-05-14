@@ -16,7 +16,7 @@ func init() {
 
 }
 
-// AccountSessionController 团队
+// AccountSessionController 登录状态
 // @Description:
 type AccountSessionController struct {
 	controllerPg.SpSystemAuth

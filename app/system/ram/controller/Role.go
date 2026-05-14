@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamRole"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
@@ -24,13 +25,13 @@ type RoleController struct {
 	log *log2.Logger            `autowire:"?"`
 }
 
-// Create 创建
+// CreateUpdate 创建/更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *RoleController) Create(ctx *gin.Context) {
-	var ct modRamRole.CreateCt
+func (c *RoleController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamRole.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -41,27 +42,11 @@ func (c *RoleController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *RoleController) Update(ctx *gin.Context) {
-	var ct modRamRole.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() < 1 {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -180,31 +165,6 @@ func (c *RoleController) Disable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
 }
 
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *RoleController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state))
-}
-
 // Query 查询列表
 //
 //	@Description:
@@ -225,7 +185,7 @@ func (c *RoleController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *RoleController) SelectNodePublic(ctx *gin.Context) {
+func (c *RoleController) SelectNodeAll(ctx *gin.Context) {
 	var ct modRamRole.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -237,8 +197,7 @@ func (c *RoleController) SelectNodePublic(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectNodeAll(ctx, ct))
 }
 
 func (c *RoleController) SelectNodeAllPublic(ctx *gin.Context) {

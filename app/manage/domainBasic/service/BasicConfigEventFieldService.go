@@ -397,9 +397,7 @@ func (c *BasicConfigEventFieldsService) SelectNodeAllPublic(ctx *gin.Context, ct
 			var vo modBasicConfigEventFields.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}

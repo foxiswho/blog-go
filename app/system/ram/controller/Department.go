@@ -49,13 +49,13 @@ func (c *DepartmentController) Create(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Create(ctx, ct))
 }
 
-// Update 更新
+// CreateUpdate 创建/更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *DepartmentController) Update(ctx *gin.Context) {
-	var ct modRamDepartment.UpdateCt
+func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamDepartment.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -185,31 +185,6 @@ func (c *DepartmentController) Disable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
 }
 
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DepartmentController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state))
-}
-
 // Query 查询列表
 //
 //	@Description:
@@ -230,12 +205,7 @@ func (c *DepartmentController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *DepartmentController) SelectPublic(ctx *gin.Context) {
-	ct := modRamDepartment.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
-	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
-}
-
-func (c *DepartmentController) SelectNodePublic(ctx *gin.Context) {
+func (c *DepartmentController) SelectNodeAll(ctx *gin.Context) {
 	var ct modRamDepartment.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -247,8 +217,7 @@ func (c *DepartmentController) SelectNodePublic(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectNodeAll(ctx, ct))
 }
 
 func (c *DepartmentController) SelectNodeAllPublic(ctx *gin.Context) {

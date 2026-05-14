@@ -5,7 +5,6 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/configBasic"
 	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -18,7 +17,6 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
-	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
@@ -39,7 +37,7 @@ type BasicConfigListService struct {
 	repConfigList *repositoryBasic.BasicConfigListRepository        `autowire:"?"`
 }
 
-// CreateUpdate 更新
+// CreateUpdate 创建/更新
 //
 //	@Description:
 //	@receiver c
@@ -321,17 +319,11 @@ func (c *BasicConfigListService) SelectNodeAllPublic(ctx *gin.Context, ct modBas
 			var vo modBasicConfigList.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice

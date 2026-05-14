@@ -16,7 +16,7 @@ func init() {
 
 }
 
-// AccountLoginLogController 团队
+// AccountLoginLogController 登录日志
 // @Description:
 type AccountLoginLogController struct {
 	controllerPg.SpSystemAuth

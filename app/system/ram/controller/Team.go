@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamTeam"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
@@ -28,13 +29,13 @@ type TeamController struct {
 	log *log2.Logger            `autowire:"?"`
 }
 
-// Create 创建
+// CreateUpdate 创建/更新
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *TeamController) Create(ctx *gin.Context) {
-	var ct modRamTeam.CreateCt
+func (c *TeamController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamTeam.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -45,27 +46,7 @@ func (c *TeamController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *TeamController) Update(ctx *gin.Context) {
-	var ct modRamTeam.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
+	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -184,31 +165,6 @@ func (c *TeamController) Disable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
 }
 
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *TeamController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state))
-}
-
 // Query 查询列表
 //
 //	@Description:
@@ -229,7 +185,7 @@ func (c *TeamController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *TeamController) SelectNodePublic(ctx *gin.Context) {
+func (c *TeamController) SelectNodeAll(ctx *gin.Context) {
 	var ct modRamTeam.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -241,8 +197,7 @@ func (c *TeamController) SelectNodePublic(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectNodeAll(ctx, ct))
 }
 
 func (c *TeamController) SelectNodeAllPublic(ctx *gin.Context) {
@@ -259,11 +214,6 @@ func (c *TeamController) SelectNodeAllPublic(ctx *gin.Context) {
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
-}
-
-func (c *TeamController) SelectPublic(ctx *gin.Context) {
-	ct := modRamTeam.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
-	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 
 // ExistName 查重

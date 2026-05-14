@@ -10,7 +10,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -529,20 +528,12 @@ func (c *ApiDiplCategoryService) SelectNodePublic(ctx *gin.Context, ct modApiDip
 			var vo modApiDiplCategory.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -566,20 +557,12 @@ func (c *ApiDiplCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modApi
 			var vo modApiDiplCategory.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
