@@ -3,13 +3,29 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 )
+
+func init() {
+	gs.Provide(new(TestController)).Export(gs.As[routerPg.RouteRegistrar]())
+}
 
 // TestController test
 type TestController struct {
+	routerPg.RouteRegistrar
 	log *log2.Logger                          `autowire:"?"`
 	sv  *repositoryBlog.BlogArticleRepository `autowire:"?"`
+}
+
+// RegisterRoutes
+//
+//	@Description: 注册路由
+//	@receiver c
+//	@param e
+func (c *TestController) RegisterRoutes(e *gin.Engine) {
+	e.GET("/test/cache", c.Cache)
 }
 
 func (c *TestController) Cache(ctx *gin.Context) {
@@ -22,7 +38,7 @@ func (c *TestController) Cache(ctx *gin.Context) {
 }
 
 func (c *TestController) FindAllPage(ctx *gin.Context) {
-	
+
 	// 模版
 	ctx.JSON(200, gin.H{"data": "ok"})
 }

@@ -10,19 +10,36 @@ import (
 	"github.com/foxiswho/blog-go/app/web/blog/service"
 	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
 
+func init() {
+	gs.Provide(new(ArchivesController)).Export(gs.As[routerPg.RouteRegistrar]())
+}
+
 // ArchivesController 归档
 type ArchivesController struct {
+	routerPg.RouteRegistrar
 	Sp       *authPg.GroupWebMiddlewareSp     `autowire:""`
 	ca       *cacheTc.TenantDomainCache       `autowire:"?"`
 	sv       *service.ArticleService          `autowire:"?"`
 	catCache *serviceCore.CoreArticleCategory `autowire:"?"`
+}
+
+// RegisterRoutes
+//
+//	@Description: 注册路由
+//	@receiver c
+//	@param e
+func (c *ArchivesController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("", authPg.GroupWebMiddleware(c.Sp))
+	group.GET("/archives/date/:code", c.List)
 }
 
 func (c *ArchivesController) List(ctx *gin.Context) {

@@ -8,15 +8,33 @@ import (
 	"github.com/foxiswho/blog-go/app/web/blog/service"
 	"github.com/foxiswho/blog-go/app/web/utils/webPg"
 	"github.com/foxiswho/blog-go/middleware/authPg"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
+	"github.com/go-spring/spring-core/gs"
 )
 
+func init() {
+	gs.Provide(new(ArticleController)).Export(gs.As[routerPg.RouteRegistrar]())
+}
+
 type ArticleController struct {
+	routerPg.RouteRegistrar
 	Sp       *authPg.GroupWebMiddlewareSp     `autowire:"?"`
 	sv       *service.ArticleService          `autowire:"?"`
 	catCache *serviceCore.CoreArticleCategory `autowire:"?"`
+}
+
+// RegisterRoutes
+//
+//	@Description: 注册路由
+//	@receiver c
+//	@param e
+func (c *ArticleController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("", authPg.GroupWebMiddleware(c.Sp))
+	group.GET("/article/search", c.List)
+	group.GET("/article/:id", c.Detail)
 }
 
 func (c *ArticleController) Detail(ctx *gin.Context) {
