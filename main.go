@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"net/http"
 	"os"
 	"runtime"
 
@@ -50,6 +51,13 @@ func init() {
 	//指定环境
 	//gs.SetActiveProfiles("dev")
 }
+
+type Controller struct{}
+
+func (c *Controller) Echo(ctx *gin.Context) {
+	ctx.String(http.StatusOK, "Hello, gin!")
+}
+
 func main() {
 
 	// 构建信息，golang版本 commit id 时间
@@ -82,5 +90,7 @@ func main() {
 	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server.port}")).Export(gs.As[gs.Server]())
 	//事件监听
 	fsE.Initialize[eventBus.Module]("panGu")
-	gs.Run()
+	gs.Configure(func(app gs.App) {
+		app.Property("spring.http.server.enabled", "false")
+	}).Run()
 }

@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -32,11 +33,21 @@ type GinServer struct {
 	Port      string
 }
 
-func NewGinServer(port string) *GinServer {
+// NewGinServer
+//
+//	@Description: 创建 GinServer 实例，并注册所有路由
+//	@param port: 服务监听端口
+//	@param registrars: 路由注册器集合，由 DI 容器自动注入
+//	@return *GinServer
+func NewGinServer(port string, registrars []routerPg.RouteRegistrar) *GinServer {
 	//syslog.Infof(context.Background(), syslog.TagAppDef, "NewGinServer.port:%+v ", port)
+	engine := GetInstance()
+	for _, r := range registrars {
+		r.RegisterRoutes(engine)
+	}
 	svr := &GinServer{}
 	svr.Port = port
-	svr.svrEngine = GinServerDefault
+	svr.svrEngine = engine
 	svr.svr = &http.Server{
 		Addr:    ":" + port,
 		Handler: svr.svrEngine,
