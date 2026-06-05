@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(LevelController)).Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(LevelController)).Name("SystemLevelController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // LevelController 级别

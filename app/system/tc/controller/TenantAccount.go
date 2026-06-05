@@ -17,7 +17,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(TenantAccountController).SetAppModule(appModulePg.Manage)).Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(TenantAccountController).SetAppModule(appModulePg.Manage)).
+		Name("SystemTenantAccountController").
+		Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TenantAccountController 账户

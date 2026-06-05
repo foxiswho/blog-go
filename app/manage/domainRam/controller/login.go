@@ -6,19 +6,33 @@ import (
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(LoginController)).Name("ManageLoginController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // LoginController 登录
 // @Description:
 type LoginController struct {
+	routerPg.RouteRegistrar
 	sv  *service.AccountLoginService `autowire:"?"`
 	log *log2.Logger                 `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *LoginController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/auth/manage")
+	group.POST("/login", c.Login)
+	group.POST("/refresh", c.RefreshToken)
 }
 
 // Login 登陆

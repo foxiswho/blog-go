@@ -18,7 +18,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/logsPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
-	_ "github.com/foxiswho/blog-go/router"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"

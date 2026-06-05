@@ -4,28 +4,52 @@ import (
 	"fmt"
 	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamPosition"
 	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
 	"github.com/foxiswho/blog-go/pkg/model"
-
+	"github.com/foxiswho/blog-go/pkg/routerPg"
+	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(PositionController)).Name("ManagePositionController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // PositionController 职务
 // @Description:
 type PositionController struct {
-	controllerPg.SpManageAuth
-	sv  *service.RamPositionService `autowire:"?"`
-	log *log2.Logger                `autowire:"?"`
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv  *service.RamPositionService     `autowire:"?"`
+	log *log2.Logger                    `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *PositionController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/ram/position", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/create", c.Create)
+	group.POST("/update", c.Update)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/existName", c.ExistName)
 }
 
 // Create 创建

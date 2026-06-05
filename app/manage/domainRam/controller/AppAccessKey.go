@@ -3,24 +3,45 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAppAccessKey"
 	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(AppAccessKeyController)).Name("ManageAppAccessKeyController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AppAccessKeyController 密钥
 // @Description:
 type AppAccessKeyController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp  `autowire:""`
 	sv  *service.RamAppAccessKeyService `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	log *log2.Logger                     `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AppAccessKeyController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/ram/app-access-key", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/makeNew", c.MakeNewRecord)
 }
 
 // MakeNewRecord 新记录

@@ -8,20 +8,41 @@ import (
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(CountryController)).Name("ManageCountryController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // CountryController 国家
 // @Description:
 type CountryController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv *service.BasicCountryService    `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *CountryController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/basic/country", authPg.GroupManageMiddleware(c.Sp))
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/selectPublicCountryCode", c.SelectPublicCountryCode)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
+	group.POST("/existCountryCode", c.ExistCountryCode)
 }
 
 // Create 创建

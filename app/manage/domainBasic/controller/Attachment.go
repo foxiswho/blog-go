@@ -6,16 +6,43 @@ import (
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
+
+func init() {
+	gs.Provide(new(AttachmentController)).Name("ManageAttachmentController").Export(gs.As[routerPg.RouteRegistrar]())
+}
 
 // AttachmentController 附件上传
 // @Description:
 type AttachmentController struct {
+	routerPg.RouteRegistrar
 	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv  *service.BasicAttachmentService `autowire:""`
 	log *log2.Logger                    `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AttachmentController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/basic/attachment", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/upload", c.Upload)
+	group.POST("/upload-more", c.UploadMore)
+	group.POST("/upload-link", c.UploadLink)
+	group.POST("/upload-list", c.Query)
+	group.POST("/query", c.Query)
+	group.POST("/makeFileOwnerPublic", c.MakeFileOwner)
+	group.POST("/makeFileOwnerAllPublic", c.MakeFileOwnerAll)
+	group.POST("/upload-listByOwnerPublic", c.ListByOwner)
+	group.POST("/upload-delByOwnerPublic", c.DelByOwner)
+	group.POST("/upload-makeFileOwnerAllPublic", c.MakeFileOwnerAll)
+	group.POST("/upload-updateByFileOwner", c.UpdateByFileOwner)
 }
 
 // Upload

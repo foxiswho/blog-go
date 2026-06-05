@@ -14,6 +14,12 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea
+.trae
+.claude
+.opencode
+.codex
+.cursor
+.qoder
 data/logs/
 data/attachment/
 data/account*md

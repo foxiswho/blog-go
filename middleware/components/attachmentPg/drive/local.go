@@ -51,11 +51,11 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 	//md5
 	fileNewName := datetimePg.NowNotFormat() + "-" + cryptPg.Md5(filenameOnly) + fileSuffix
 	attachment := modAttachment.Attachment{
-		SourceName: put.Name,
-		Name:       fileNewName,
-		Size:       put.Size,
-		Ext:        fileSuffix,
-		Domain:     attachmentCfg.Domain,
+		OriginalName: put.Name,
+		Name:         fileNewName,
+		Size:         put.Size,
+		Ext:          fileSuffix,
+		Domain:       attachmentCfg.Domain,
 	}
 	out := path.Join(attachmentCfg.Dir, datetimePg.YearMonth(), fileNewName)
 	out_root := out
@@ -112,7 +112,7 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 	//保存到数据库
 	eventBus.PublishEventAsync(constEventBusPg.BasicAttachmentCreate, entityBasic.BasicAttachmentEntity{
 		Name:        attachment.Name,
-		SourceName:  attachment.SourceName,
+		SourceName:  attachment.OriginalName,
 		Description: attachment.Description,
 		Sort:        attachment.Sort,
 		Size:        attachment.Size,

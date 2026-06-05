@@ -3,20 +3,38 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modPublic"
 	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
+
+func init() {
+	gs.Provide(new(PublicController)).Name("ManagePublicController").Export(gs.As[routerPg.RouteRegistrar]())
+}
 
 // PublicController 用户公共动作
 // @Description:
 type PublicController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv  *service.RamAccountPublicService `autowire:"?"`
 	log *log2.Logger                     `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *PublicController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/public", authPg.GroupManageMiddleware(c.Sp))
+	group.GET("/info", c.Public)
+	group.POST("/password", c.UpdatePassword)
 }
 
 // Public 用户详情

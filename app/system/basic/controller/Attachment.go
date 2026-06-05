@@ -3,48 +3,46 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicAttachment"
 	"github.com/foxiswho/blog-go/app/system/basic/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
-// AttachmentController 附件上传
-// @Description:
+func init() {
+	gs.Provide(new(AttachmentController)).Name("SystemAttachmentController").Export(gs.As[routerPg.RouteRegistrar]())
+}
+
 type AttachmentController struct {
-	controllerPg.SpSystemAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupSystemMiddlewareSp `autowire:""`
 	sv  *service.BasicAttachmentService `autowire:""`
 	log *log2.Logger                    `autowire:"?"`
 }
 
-// Upload
-//
-//	@Description: 但文件上传
-//	@receiver c
-//	@param ctx
+func (c *AttachmentController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/sys/basic/attachment", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/upload", c.Upload)
+	group.POST("/upload-more", c.UploadMore)
+	group.POST("/upload-link", c.UploadLink)
+	group.POST("/upload-list", c.Query)
+	group.POST("/query", c.Query)
+}
+
 func (c *AttachmentController) Upload(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Upload(ctx))
 }
 
-// UploadMore
-//
-//	@Description:  多文件上传
-//	@receiver c
-//	@param ctx
 func (c *AttachmentController) UploadMore(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.UploadMore(ctx))
 }
 
-// UploadLink
-//
-//	@Description:  多url文件上传
-//	@receiver c
-//	@param ctx
 func (c *AttachmentController) UploadLink(ctx *gin.Context) {
 	var ct modBasicAttachment.WebUrlCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -56,15 +54,9 @@ func (c *AttachmentController) UploadLink(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.UploadLink(ctx, ct))
 }
 
-// Query 查询列表
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *AttachmentController) Query(ctx *gin.Context) {
 	var ct modBasicAttachment.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))

@@ -15,7 +15,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(TenantDomainController)).Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(TenantDomainController)).
+		Name("SystemTenantDomainController").
+		Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TenantDomainController 租户

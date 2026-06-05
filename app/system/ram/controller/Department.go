@@ -5,39 +5,51 @@ import (
 
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamDepartment"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
+	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
 	"github.com/foxiswho/blog-go/pkg/model"
-
+	"github.com/foxiswho/blog-go/pkg/routerPg"
+	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(DepartmentController)).Name("SystemDepartmentController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// DepartmentController 部门
-// @Description:
 type DepartmentController struct {
+	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
 	sv  *service.RamDepartmentService `autowire:"?"`
 	log *log2.Logger                  `autowire:"?"`
 }
 
-// Create 创建
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
+func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {
+	r := ginServer.GinServerDefault
+	group := r.Group("/pg2lq/sys/ram/department", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/createUpdate", c.CreateUpdate)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/exportExcel", c.ExportExcel)
+	group.POST("/existName", c.ExistName)
+}
+
 func (c *DepartmentController) Create(ctx *gin.Context) {
 	var ct modRamDepartment.CreateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -49,15 +61,9 @@ func (c *DepartmentController) Create(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Create(ctx, ct))
 }
 
-// CreateUpdate 创建/更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
 	var ct modRamDepartment.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -69,15 +75,9 @@ func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
-// Delete 逻辑删除
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -89,15 +89,9 @@ func (c *DepartmentController) Delete(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
 }
 
-// Recovery 逻辑删除恢复
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -109,15 +103,9 @@ func (c *DepartmentController) Recovery(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.LogicalRecovery(ctx, ct.Ids))
 }
 
-// PhysicalDeletion 物理删除
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -129,11 +117,6 @@ func (c *DepartmentController) PhysicalDeletion(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
 }
 
-// Detail 详情
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Detail(ctx *gin.Context) {
 	param := ctx.Param("id")
 
@@ -145,15 +128,9 @@ func (c *DepartmentController) Detail(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Detail(ctx, strPg.ToInt64(param)))
 }
 
-// Enable 启用
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -165,15 +142,9 @@ func (c *DepartmentController) Enable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
 }
 
-// Disable 禁用
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -185,15 +156,9 @@ func (c *DepartmentController) Disable(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
 }
 
-// Query 查询列表
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) Query(ctx *gin.Context) {
 	var ct modRamDepartment.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -208,7 +173,6 @@ func (c *DepartmentController) Query(ctx *gin.Context) {
 func (c *DepartmentController) SelectNodeAll(ctx *gin.Context) {
 	var ct modRamDepartment.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -223,7 +187,6 @@ func (c *DepartmentController) SelectNodeAll(ctx *gin.Context) {
 func (c *DepartmentController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modRamDepartment.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -241,15 +204,9 @@ func (c *DepartmentController) ExportExcel(ctx *gin.Context) {
 	c.sv.ExportExcel(ctx, ct)
 }
 
-// ExistName 查重
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
 func (c *DepartmentController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))

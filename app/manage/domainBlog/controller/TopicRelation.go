@@ -6,22 +6,37 @@ import (
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
+	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(TopicRelationController)).Name("ManageTopicRelationController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TopicRelationController 文章话题关系
 // @Description:
 type TopicRelationController struct {
+	routerPg.RouteRegistrar
 	Sp  *authPg.GroupManageMiddlewareSp   `autowire:""`
 	sv  *service.BlogTopicRelationService `autowire:"?"`
 	log *log2.Logger                      `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *TopicRelationController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/blog/topic-relation", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/addByTopic", c.AddByTopic)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/delete", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
 }
 
 // AddByTopic 创建

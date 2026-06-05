@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(TenantController)).Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(TenantController)).Name("SystemTenantController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TenantController 租户

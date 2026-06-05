@@ -3,31 +3,38 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamResourceGroupRelation"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
+	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(ResourceGroupRelationController)).Name("SystemResourceGroupRelationController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// ResourceGroupRelationController 资源关系
-// @Description:
 type ResourceGroupRelationController struct {
+	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
 	sv  *service.RamResourceGroupRelationService `autowire:"?"`
 	log *log2.Logger                             `autowire:"?"`
 }
 
-// Selected 已选中的权限
+func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
+	r := ginServer.GinServerDefault
+	group := r.Group("/pg2lq/sys/ram/resource-group-relation", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/selectedByRole", c.SelectedByRole)
+}
+
 func (c *ResourceGroupRelationController) Selected(ctx *gin.Context) {
 	var ct modRamResourceGroupRelation.QueryByTypeValueCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))

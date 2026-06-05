@@ -7,20 +7,49 @@ import (
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(TenantDomainController)).Name("ManageTenantDomainController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TenantDomainController 租户
 // @Description:
 type TenantDomainController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv *service.TcTenantDomainService  `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *TenantDomainController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/tc/tenant-domain", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/create", c.Create)
+	group.POST("/update", c.Update)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
+	group.POST("/existNo", c.ExistNo)
+	group.POST("/setDefaulted", c.SetDefaulted)
 }
 
 // Create 创建
@@ -31,7 +60,6 @@ type TenantDomainController struct {
 func (c *TenantDomainController) Create(ctx *gin.Context) {
 	var ct modTcTenantDomain.CreateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -51,7 +79,6 @@ func (c *TenantDomainController) Create(ctx *gin.Context) {
 func (c *TenantDomainController) Update(ctx *gin.Context) {
 	var ct modTcTenantDomain.UpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -71,7 +98,6 @@ func (c *TenantDomainController) Update(ctx *gin.Context) {
 func (c *TenantDomainController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -91,7 +117,6 @@ func (c *TenantDomainController) Delete(ctx *gin.Context) {
 func (c *TenantDomainController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -111,7 +136,6 @@ func (c *TenantDomainController) Recovery(ctx *gin.Context) {
 func (c *TenantDomainController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -145,7 +169,6 @@ func (c *TenantDomainController) Detail(ctx *gin.Context) {
 func (c *TenantDomainController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -165,7 +188,6 @@ func (c *TenantDomainController) Enable(ctx *gin.Context) {
 func (c *TenantDomainController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -185,7 +207,6 @@ func (c *TenantDomainController) Disable(ctx *gin.Context) {
 func (c *TenantDomainController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -205,7 +226,6 @@ func (c *TenantDomainController) State(ctx *gin.Context) {
 func (c *TenantDomainController) Query(ctx *gin.Context) {
 	var ct modTcTenantDomain.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -217,16 +237,31 @@ func (c *TenantDomainController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
+// SelectNodePublic 选择节点公开
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
 func (c *TenantDomainController) SelectNodePublic(ctx *gin.Context) {
 	ct := modTcTenantDomain.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
 }
 
+// SelectNodeAllPublic 选择所有节点公开
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
 func (c *TenantDomainController) SelectNodeAllPublic(ctx *gin.Context) {
 	ct := modTcTenantDomain.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
+// SelectPublic 选择公开
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
 func (c *TenantDomainController) SelectPublic(ctx *gin.Context) {
 	ct := modTcTenantDomain.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
@@ -240,7 +275,6 @@ func (c *TenantDomainController) SelectPublic(ctx *gin.Context) {
 func (c *TenantDomainController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -260,7 +294,6 @@ func (c *TenantDomainController) ExistName(ctx *gin.Context) {
 func (c *TenantDomainController) ExistNo(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -280,7 +313,6 @@ func (c *TenantDomainController) ExistNo(ctx *gin.Context) {
 func (c *TenantDomainController) ExistCode(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -300,7 +332,6 @@ func (c *TenantDomainController) ExistCode(ctx *gin.Context) {
 func (c *TenantDomainController) SetDefaulted(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))

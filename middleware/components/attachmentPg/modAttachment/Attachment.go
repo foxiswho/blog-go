@@ -2,7 +2,7 @@ package modAttachment
 
 type Attachment struct {
 	Name          string `json:"name" label:"名称" `
-	SourceName    string `json:"sourceName" label:"名称" `
+	OriginalName  string `json:"originalName" label:"原名称"`
 	Description   string `json:"description" label:"描述" `
 	Sort          int64  `json:"sort" label:"排序" `
 	Url           string `json:"url" label:"url" `   //全路径

@@ -2,26 +2,47 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicAccountApplyDenyList"
 	"github.com/foxiswho/blog-go/app/manage/domainBasic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(AccountApplyDenyListController)).Name("ManageAccountApplyDenyListController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AccountApplyDenyListController 账号申请黑名单
 // @Description:
 type AccountApplyDenyListController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupManageMiddlewareSp           `autowire:""`
 	sv *service.BasicAccountApplyDenyListService `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AccountApplyDenyListController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/basic/accountApplyDenyList", authPg.GroupManageMiddleware(c.Sp))
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/exportExcel", c.ExportExcel)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existExpr", c.ExistExpr)
 }
 
 // Create 创建

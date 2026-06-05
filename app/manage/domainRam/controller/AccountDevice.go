@@ -3,25 +3,38 @@ package controller
 import (
 	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAccountDevice"
 	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
+	"github.com/foxiswho/blog-go/middleware/authPg"
 	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/routerPg"
+	"github.com/gin-gonic/gin"
+	"github.com/go-spring/spring-core/gs"
+	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-
+	gs.Provide(new(AccountDeviceController)).Name("ManageAccountDeviceController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AccountDeviceController 设备
 // @Description:
 type AccountDeviceController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp   `autowire:""`
 	sv  *service.RamAccountDeviceService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	log *log2.Logger                      `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AccountDeviceController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/pg2lq/manage/ram/account-device", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
 }
 
 // PhysicalDeletion 物理删除
