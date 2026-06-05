@@ -109,6 +109,15 @@ CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -a -ldflags '-extldflags "-stati
 ./blogGo
 ```
 
+## 升级依赖
+```bash
+
+go get -u ./
+
+go mod tidy
+```
+
+
 # 账号
 ## manage 账号
 ```bash

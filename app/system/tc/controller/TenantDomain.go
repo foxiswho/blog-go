@@ -35,18 +35,15 @@ type TenantDomainController struct {
 //	@param e
 func (c *TenantDomainController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/tc/tenant-domain", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
@@ -54,13 +51,13 @@ func (c *TenantDomainController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/setDefaulted", c.SetDefaulted)
 }
 
-// Create 创建
+// CreateUpdate 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *TenantDomainController) Create(ctx *gin.Context) {
-	var ct modTcTenantDomain.CreateCt
+func (c *TenantDomainController) CreateUpdate(ctx *gin.Context) {
+	var ct modTcTenantDomain.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -71,27 +68,11 @@ func (c *TenantDomainController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *TenantDomainController) Update(ctx *gin.Context) {
-	var ct modTcTenantDomain.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -251,6 +232,11 @@ func (c *TenantDomainController) Query(ctx *gin.Context) {
 func (c *TenantDomainController) SelectNodePublic(ctx *gin.Context) {
 	ct := modTcTenantDomain.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+
+func (c *TenantDomainController) SelectNodeAll(ctx *gin.Context) {
+	ct := modTcTenantDomain.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *TenantDomainController) SelectNodeAllPublic(ctx *gin.Context) {

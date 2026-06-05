@@ -20,25 +20,21 @@ func init() {
 
 type TagsRelationController struct {
 	routerPg.RouteRegistrar
-	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`
+	Sp *authPg.GroupSystemMiddlewareSp   `autowire:""`
 	sv *service.BasicTagsRelationService `autowire:"?"`
 }
 
 func (c *TagsRelationController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/tags-relation", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 	group.POST("/all", c.All)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
@@ -209,6 +205,11 @@ func (c *TagsRelationController) All(ctx *gin.Context) {
 func (c *TagsRelationController) SelectNodePublic(ctx *gin.Context) {
 	ct := modBasicTagsRelation.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+
+func (c *TagsRelationController) SelectNodeAll(ctx *gin.Context) {
+	ct := modBasicTagsRelation.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *TagsRelationController) SelectNodeAllPublic(ctx *gin.Context) {

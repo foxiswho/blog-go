@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicArea"
 	"github.com/foxiswho/blog-go/app/system/basic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
@@ -27,26 +28,23 @@ type AreaController struct {
 
 func (c *AreaController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/area", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/exportExcel", c.ExportExcel)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
 }
 
-func (c *AreaController) Create(ctx *gin.Context) {
-	var ct modBasicArea.CreateCt
+func (c *AreaController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicArea.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -56,21 +54,11 @@ func (c *AreaController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-func (c *AreaController) Update(ctx *gin.Context) {
-	var ct modBasicArea.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 func (c *AreaController) Delete(ctx *gin.Context) {
@@ -217,6 +205,19 @@ func (c *AreaController) SelectNodePublic(ctx *gin.Context) {
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+func (c *AreaController) SelectNodeAll(ctx *gin.Context) {
+	var ct modBasicArea.QueryPublicCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 func (c *AreaController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modBasicArea.QueryPublicCt

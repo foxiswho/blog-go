@@ -41,7 +41,7 @@ type TcLevelService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcLevelService) Create(ctx *gin.Context, ct modTcLevel.CreateCt) (rt rg.Rs[string]) {
+func (c *TcLevelService) Create(ctx *gin.Context, ct modTcLevel.CreateUpdateCt) (rt rg.Rs[string]) {
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -61,7 +61,7 @@ func (c *TcLevelService) Create(ctx *gin.Context, ct modTcLevel.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcLevelService) Update(ctx *gin.Context, ct modTcLevel.UpdateCt) (rt rg.Rs[string]) {
+func (c *TcLevelService) Update(ctx *gin.Context, ct modTcLevel.CreateUpdateCt) (rt rg.Rs[string]) {
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
 	}

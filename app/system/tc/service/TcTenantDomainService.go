@@ -47,7 +47,7 @@ type TcTenantDomainService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.CreateCt) (rt rg.Rs[string]) {
+func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -104,7 +104,7 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.UpdateCt) (rt rg.Rs[string]) {
+func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")

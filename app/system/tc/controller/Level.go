@@ -33,30 +33,27 @@ type LevelController struct {
 //	@param e
 func (c *LevelController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/tc/level", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existNo", c.ExistNo)
 }
 
-// Create 创建
+// CreateUpdate 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *LevelController) Create(ctx *gin.Context) {
-	var ct modTcLevel.CreateCt
+func (c *LevelController) CreateUpdate(ctx *gin.Context) {
+	var ct modTcLevel.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -67,7 +64,11 @@ func (c *LevelController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
 }
 
 // Update 更新
@@ -76,7 +77,7 @@ func (c *LevelController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *LevelController) Update(ctx *gin.Context) {
-	var ct modTcLevel.UpdateCt
+	var ct modTcLevel.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -254,6 +255,10 @@ func (c *LevelController) SelectNodePublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
 }
 
+func (c *LevelController) SelectNodeAll(ctx *gin.Context) {
+	ct := modTcLevel.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
+}
 func (c *LevelController) SelectNodeAllPublic(ctx *gin.Context) {
 	ct := modTcLevel.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))

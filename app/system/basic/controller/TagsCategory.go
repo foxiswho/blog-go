@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicTagsCategory"
 	"github.com/foxiswho/blog-go/app/system/basic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
@@ -21,31 +22,28 @@ func init() {
 
 type TagsCategoryController struct {
 	routerPg.RouteRegistrar
-	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`
+	Sp *authPg.GroupSystemMiddlewareSp   `autowire:""`
 	sv *service.BasicTagsCategoryService `autowire:"?"`
 }
 
 func (c *TagsCategoryController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/tags-category", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
 }
 
-func (c *TagsCategoryController) Create(ctx *gin.Context) {
-	var ct modBasicTagsCategory.CreateCt
+func (c *TagsCategoryController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicTagsCategory.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -55,21 +53,11 @@ func (c *TagsCategoryController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-func (c *TagsCategoryController) Update(ctx *gin.Context) {
-	var ct modBasicTagsCategory.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 func (c *TagsCategoryController) Delete(ctx *gin.Context) {
@@ -204,6 +192,20 @@ func (c *TagsCategoryController) SelectNodePublic(ctx *gin.Context) {
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+
+func (c *TagsCategoryController) SelectNodeAll(ctx *gin.Context) {
+	var ct modBasicTagsCategory.QueryPublicCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *TagsCategoryController) SelectNodeAllPublic(ctx *gin.Context) {

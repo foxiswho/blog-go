@@ -44,7 +44,7 @@ type BasicTagsService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityBasic.BasicTagsEntity
 	err := copier.Copy(&info, &ct)
@@ -103,7 +103,7 @@ func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateCt) (r
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicTagsService) Update(ctx *gin.Context, ct modBasicTags.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicTagsService) Update(ctx *gin.Context, ct modBasicTags.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicTagsEntity
 	copier.Copy(&info, &ct)

@@ -28,24 +28,23 @@ type BasicModuleController struct {
 
 func (c *BasicModuleController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/module", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/selectPublic", c.SelectPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
 }
 
-func (c *BasicModuleController) Create(ctx *gin.Context) {
-	var ct modBasicModule.CreateCt
+func (c *BasicModuleController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicModule.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -55,21 +54,11 @@ func (c *BasicModuleController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-func (c *BasicModuleController) Update(ctx *gin.Context) {
-	var ct modBasicModule.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 func (c *BasicModuleController) Delete(ctx *gin.Context) {
@@ -182,6 +171,20 @@ func (c *BasicModuleController) Query(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
+}
+
+func (c *BasicModuleController) SelectNodeAll(ctx *gin.Context) {
+	var ct modBasicModule.QueryPublicCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *BasicModuleController) SelectNodeAllPublic(ctx *gin.Context) {

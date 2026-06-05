@@ -53,7 +53,6 @@ func (c *TenantAccountController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/tc/tenant-account", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)

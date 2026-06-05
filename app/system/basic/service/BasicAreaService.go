@@ -45,7 +45,7 @@ type BasicAreaService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicAreaService) Create(ctx *gin.Context, ct modBasicArea.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicAreaService) Create(ctx *gin.Context, ct modBasicArea.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicAreaEntity
 	err := copier.Copy(&info, &ct)
@@ -114,7 +114,7 @@ func (c *BasicAreaService) Create(ctx *gin.Context, ct modBasicArea.CreateCt) (r
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicAreaService) Update(ctx *gin.Context, ct modBasicArea.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicAreaService) Update(ctx *gin.Context, ct modBasicArea.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicAreaEntity
 	copier.Copy(&info, &ct)

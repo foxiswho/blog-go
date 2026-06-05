@@ -46,7 +46,7 @@ type BasicCountryService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	err := copier.Copy(&info, &ct)
@@ -115,7 +115,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	copier.Copy(&info, &ct)

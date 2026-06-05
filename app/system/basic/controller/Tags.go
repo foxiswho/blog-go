@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicTags"
 	"github.com/foxiswho/blog-go/app/system/basic/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
@@ -27,25 +28,22 @@ type TagsController struct {
 
 func (c *TagsController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/tags", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
 }
 
-func (c *TagsController) Create(ctx *gin.Context) {
-	var ct modBasicTags.CreateCt
+func (c *TagsController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicTags.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -55,21 +53,11 @@ func (c *TagsController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-func (c *TagsController) Update(ctx *gin.Context) {
-	var ct modBasicTags.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 func (c *TagsController) Delete(ctx *gin.Context) {
@@ -196,6 +184,10 @@ func (c *TagsController) SelectNodePublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
 }
 
+func (c *TagsController) SelectNodeAll(ctx *gin.Context) {
+	ct := modBasicTags.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
+}
 func (c *TagsController) SelectNodeAllPublic(ctx *gin.Context) {
 	ct := modBasicTags.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))

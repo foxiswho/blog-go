@@ -28,18 +28,15 @@ type CountryController struct {
 
 func (c *CountryController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/country", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/selectPublicCountryCode", c.SelectPublicCountryCode)
 	group.POST("/selectNodePublicCountryCode", c.SelectNodePublicCountryCode)
@@ -48,8 +45,8 @@ func (c *CountryController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/existCountryCode", c.ExistCountryCode)
 }
 
-func (c *CountryController) Create(ctx *gin.Context) {
-	var ct modBasicCountry.CreateCt
+func (c *CountryController) CreateUpdate(ctx *gin.Context) {
+	var ct modBasicCountry.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
@@ -59,21 +56,11 @@ func (c *CountryController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-func (c *CountryController) Update(ctx *gin.Context) {
-	var ct modBasicCountry.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 func (c *CountryController) Delete(ctx *gin.Context) {
@@ -220,6 +207,19 @@ func (c *CountryController) SelectNodePublic(ctx *gin.Context) {
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+func (c *CountryController) SelectNodeAll(ctx *gin.Context) {
+	var ct modBasicCountry.QueryPublicCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 func (c *CountryController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modBasicCountry.QueryPublicCt

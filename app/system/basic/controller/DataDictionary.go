@@ -31,11 +31,11 @@ func (c *DataDictionaryController) RegisterRoutes(e *gin.Engine) {
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
@@ -167,6 +167,19 @@ func (c *DataDictionaryController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
+func (c *DataDictionaryController) SelectNodeAll(ctx *gin.Context) {
+	var ct modBasicDataDictionary.SelectNodeCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
+}
 func (c *DataDictionaryController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modBasicDataDictionary.SelectNodeCt
 	if err := ctx.ShouldBind(&ct); err != nil {

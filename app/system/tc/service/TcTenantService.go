@@ -46,7 +46,7 @@ type TcTenantService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt rg.Rs[string]) {
+func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -108,7 +108,7 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt rg.Rs[string]) {
+func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.CreateUpdateCt) (rt rg.Rs[string]) {
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
 	}

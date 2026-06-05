@@ -33,31 +33,28 @@ type TenantController struct {
 //	@param e
 func (c *TenantController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/tc/tenant", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
-	group.POST("/update", c.Update)
+	group.POST("/create", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existCode", c.ExistCode)
 	group.POST("/existNo", c.ExistNo)
 }
 
-// Create 创建
+// CreateUpdate 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *TenantController) Create(ctx *gin.Context) {
-	var ct modTcTenant.CreateCt
+func (c *TenantController) CreateUpdate(ctx *gin.Context) {
+	var ct modTcTenant.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -68,27 +65,11 @@ func (c *TenantController) Create(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *TenantController) Update(ctx *gin.Context) {
-	var ct modTcTenant.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
 }
 
 // Delete 逻辑删除
@@ -253,6 +234,11 @@ func (c *TenantController) Query(ctx *gin.Context) {
 func (c *TenantController) SelectNodePublic(ctx *gin.Context) {
 	ct := modTcTenant.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+
+func (c *TenantController) SelectNodeAll(ctx *gin.Context) {
+	ct := modTcTenant.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *TenantController) SelectNodeAllPublic(ctx *gin.Context) {

@@ -46,7 +46,7 @@ type BasicModuleService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicModuleEntity
 	err := copier.Copy(&info, &ct)
@@ -117,7 +117,7 @@ func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicModuleEntity
 	err := copier.Copy(&info, &ct)
