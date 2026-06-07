@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 
+	"github.com/foxiswho/blog-go/app/core/cache/cacheRam"
 	"github.com/foxiswho/blog-go/app/event/ram/service/accountSessionRamEvent"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -12,12 +13,13 @@ import (
 
 // 加载 密钥缓存
 type InitSessionPubPrive struct {
-	log       *log2.Logger                                        `autowire:"?"`
-	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	log                  *log2.Logger                                        `autowire:"?"`
+	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?"`
 }
 
 func (b *InitSessionPubPrive) Run(ctx context.Context) error {
 	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[密钥缓存初始化]===================")
-	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk).Processor(context.Background())
+	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk, b.cacheSessionPubPrive).Processor(context.Background())
 	return nil
 }

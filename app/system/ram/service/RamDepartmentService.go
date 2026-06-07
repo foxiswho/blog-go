@@ -49,7 +49,7 @@ type RamDepartmentService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.CreateCt) (rt rg.Rs[string]) {
+func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	err := copier.Copy(&info, &ct)

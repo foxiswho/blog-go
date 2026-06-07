@@ -49,7 +49,7 @@ type RamResourceGroupService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup.CreateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err2 := copier.Copy(&info, &ct)

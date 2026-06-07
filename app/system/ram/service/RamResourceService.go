@@ -46,7 +46,7 @@ type RamResourceService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateCt) (rt rg.Rs[string]) {
+func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceEntity
 	err2 := copier.Copy(&info, &ct)

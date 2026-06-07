@@ -45,7 +45,7 @@ type RamPostService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamPostService) Create(ctx *gin.Context, ct modRamPost.CreateCt) (rt rg.Rs[string]) {
+func (c *RamPostService) Create(ctx *gin.Context, ct modRamPost.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamPostEntity
 	copier.Copy(&info, &ct)

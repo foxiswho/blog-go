@@ -120,3 +120,7 @@ data = "data"
 theme = "nisarg"
 # 后缀 例如 .html
 suffix = ".html"
+
+[pg.auth.loginEncrypt]
+# 默认加密
+default = true

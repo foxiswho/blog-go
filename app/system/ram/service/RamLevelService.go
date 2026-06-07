@@ -45,7 +45,7 @@ type RamLevelService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateCt) (rt rg.Rs[string]) {
+func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamLevelEntity
 	copier.Copy(&info, &ct)

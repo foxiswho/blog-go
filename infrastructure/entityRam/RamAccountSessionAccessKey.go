@@ -26,6 +26,7 @@ type RamAccountSessionAccessKeyEntity struct {
 	ExpiryDate  *time.Time `gorm:"column:expiry_date;type:timestamptz;comment:有效期" json:"expiry_date" comment:"有效期" `
 	TypeDomain  string     `gorm:"column:type_domain;type:varchar(80);index;default:'general';comment:域类型" json:"type_domain" comment:"域类型" `
 	AppNo       string     `gorm:"column:app_no;type:varchar(80);index;default:;comment:应用编号" json:"app_no" comment:"应用编号" `
+	Client      string     `gorm:"column:client;type:varchar(80);index;default:;comment:端" json:"client" comment:"端" `
 }
 
 func (*RamAccountSessionAccessKeyEntity) TableName() string {

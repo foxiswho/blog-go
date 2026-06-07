@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/farseer-go/eventBus"
+	"github.com/foxiswho/blog-go/app/core/cache/cacheRam"
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamLogin"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/middleware/components/authTokenPg"
 	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
 	"github.com/foxiswho/blog-go/pkg/configPg"
+	"github.com/foxiswho/blog-go/pkg/configPg/pg"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
@@ -42,11 +44,13 @@ func init() {
 // AccountLoginService 登录
 // @Description:
 type AccountLoginService struct {
-	dao       *repositoryRam.RamAccountRepository                 `autowire:"?"`
-	daoAuth   *repositoryRam.RamAccountAuthorizationRepository    `autowire:"?"`
-	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
-	pg        configPg.Pg                                         `value:"${pg}"`
-	log       *log2.Logger                                        `autowire:"?"`
+	dao                  *repositoryRam.RamAccountRepository                 `autowire:"?"`
+	daoAuth              *repositoryRam.RamAccountAuthorizationRepository    `autowire:"?"`
+	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?" `
+	pg                   configPg.Pg                                         `value:"${pg}"`
+	log                  *log2.Logger                                        `autowire:"?"`
+	authLogin            pg.Auth                                             `value:"${pg.auth}"`
 }
 
 func NewAccountLoginService() *AccountLoginService {
@@ -70,6 +74,17 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	if strPg.IsBlank(ct.Password) {
 		return rt.ErrorMessage("密码不能为空")
 	}
+	pwd := ct.Password
+	syslog.Infof(context.Background(), syslog.TagAppDef, "authLogin=%+v", c.authLogin)
+	//解密密码
+	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
+		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
+		if login.ErrorIs() {
+			return rt.ErrorMessage(login.Message)
+		}
+		pwd = login.Data
+	}
+	syslog.Infof(context.Background(), syslog.TagAppDef, "pwd=%+v", pwd)
 
 	md5 := cryptPg.Md5(ct.Account)
 	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.ToTypeDomain().String())
@@ -86,8 +101,8 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	if !result {
 		return rt.ErrorMessage("用户密码未设置")
 	}
-	if !userPg.PasswordVerify(pwdInfo.Value, ct.Password, pwdInfo.ExtraData) {
-		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", ct.Password, userPg.PasswordSalt(ct.Password, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
+	if !userPg.PasswordVerify(pwdInfo.Value, pwd, pwdInfo.ExtraData) {
+		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", pwd, userPg.PasswordSalt(pwd, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//

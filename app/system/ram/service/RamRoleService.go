@@ -69,7 +69,7 @@ func (c *RamRoleService) Create(ctx *gin.Context, ct modRamRole.CreateUpdateCt) 
 		//不是自动
 		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
 		if result {
-			return rt.ErrorMessage("标志已存在")
+			return rt.ErrorMessage("码值已存在")
 		}
 	}
 	holder := holderPg.GetContextAccount(ctx)
@@ -109,7 +109,7 @@ func (c *RamRoleService) Update(ctx *gin.Context, ct modRamRole.CreateUpdateCt) 
 	} else {
 		_, result := r.FindByCodeAndIdNot(ctx, info.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
 		if result {
-			return rt.ErrorMessage("标志已存在")
+			return rt.ErrorMessage("码值已存在")
 		}
 	}
 	find, b := r.FindById(ctx, ct.ID.ToInt64())

@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 
+	"github.com/foxiswho/blog-go/app/core/cache/cacheRam"
 	"github.com/foxiswho/blog-go/app/system/ram/model/modPublic"
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamAccount"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
+	"github.com/foxiswho/blog-go/pkg/configPg/pg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/passwordTypePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -32,9 +34,11 @@ func init() {
 // RamAccountPublicService 账户公共动作
 // @Description:
 type RamAccountPublicService struct {
-	sv    *repositoryRam.RamAccountRepository              `autowire:"?"`
-	aAuth *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	log   *log2.Logger                                     `autowire:"?"`
+	sv                   *repositoryRam.RamAccountRepository              `autowire:"?"`
+	aAuth                *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
+	log                  *log2.Logger                                     `autowire:"?"`
+	authLogin            pg.Auth                                          `value:"${pg.auth}"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                   `autowire:"?" `
 }
 
 func NewRamAccountPublicService() *RamAccountPublicService {
@@ -63,6 +67,28 @@ func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[mod
 	return rt.Ok()
 }
 
+// InfoPublic 登陆用户信息
+func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs[modPublic.InfoPublicVo]) {
+	c.log.Infof("holder=%+v", holder)
+	c.log.Infof("HolderData=%+v", holder.HolderData)
+	if nil == holder.HolderData {
+		return rt.ErrorMessage("账号登陆失败")
+	}
+	data := rt.Data
+	account := holder.GetAccount()
+	copier.Copy(&data.Info, &account)
+	data.Info.RealName = account.Name
+	data.Info.Avatar = ""
+	data.Info.Username = account.Account
+	data.Info.UserId = numberPg.Int64ToString(account.ID)
+	data.Info.Departments = make([]string, 0)
+	if len(account.Os.Departments) > 0 {
+		data.Info.Departments = account.Os.Departments
+	}
+	rt.Data = data
+	return rt.Ok()
+}
+
 // UpdatePassword 修改密码
 //
 //	@Description:
@@ -72,6 +98,16 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 	if "" == ct.PasswordNew {
 		return rt.ErrorMessage("密码不能为空")
 	}
+	pwd := ct.PasswordNew
+	//解密密码
+	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
+		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
+		if login.ErrorIs() {
+			return rt.ErrorMessage(login.Message)
+		}
+		pwd = login.Data
+	}
+
 	holder := holderPg.GetContextAccount(ctx)
 	account := holder.GetAccount()
 	r := c.sv
@@ -86,7 +122,7 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 	}
 	entity := entityRam.RamAccountAuthorizationEntity{}
 	entity.ExtraData = strPg.GetNanoid(8)
-	entity.Value = userPg.PasswordSalt(ct.PasswordNew, entity.ExtraData)
+	entity.Value = userPg.PasswordSalt(pwd, entity.ExtraData)
 	if nil == passwd {
 		entity.Ano = info.No
 		entity.TenantNo = info.TenantNo

@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/foxiswho/blog-go/app/core/cache/cacheRam"
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/middleware/components/authTokenPg"
 	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
 	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typePubPrivePg"
+	"github.com/foxiswho/blog-go/pkg/enum/state/clientPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/jsonPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -18,20 +21,52 @@ import (
 // InitSessionPubPrive
 // @Description: 加载密钥
 type InitSessionPubPrive struct {
-	log       *log2.Logger                                        `autowire:"?"`
-	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	log                  *log2.Logger                                        `autowire:"?"`
+	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?"`
 }
 
-func NewInitSessionPubPrive(log *log2.Logger, sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository) *InitSessionPubPrive {
+func NewInitSessionPubPrive(log *log2.Logger,
+	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository,
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive,
+) *InitSessionPubPrive {
 	return &InitSessionPubPrive{
-		log:       log,
-		sessionAk: sessionAk,
+		log:                  log,
+		sessionAk:            sessionAk,
+		cacheSessionPubPrive: cacheSessionPubPrive,
 	}
 }
 
 func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
+	typeDomain := typeDomainPg.System
+	client := clientPg.Browser
+	pubPriv := typePubPrivePg.Login
+	mapKey := make(map[string]*entityRam.RamAccountSessionAccessKeyEntity)
 	// 系统
-	c.keySystem(ctx)
+	data, r := c.sessionAk.FindByTypeDomainInAndState(ctx, []string{typeDomain.Index(), pubPriv.Index()})
+	if r {
+		for _, item := range data {
+			//系统 浏览器
+			if clientPg.Browser.IsEqual(item.Client) {
+				mapKey[item.TypeDomain+client.Index()] = item
+			}
+			//登录密钥
+			if typePubPrivePg.Login.IsEqual(item.TypeDomain) {
+				mapKey[item.TypeDomain] = item
+			}
+		}
+	}
+	//系统 浏览器
+	{
+		entity := mapKey[typeDomain.Index()+client.Index()]
+		c.keySystem(ctx, typeDomain, client, entity)
+	}
+	//登录密钥
+	{
+		entity := mapKey[pubPriv.Index()]
+		c.loginPubPriveKey(ctx, pubPriv, entity)
+	}
+	//
 	//租户
 	c.keyTenant(ctx)
 	return nil
@@ -41,7 +76,7 @@ func (c *InitSessionPubPrive) keyTenant(ctx context.Context) {
 	//是否新生成密钥
 	isMakeNewKey := false
 	// 获取 密钥对
-	data, r := c.sessionAk.FindByTypeDomainAndState(ctx, []string{typeDomainPg.Manage.Index()})
+	data, r := c.sessionAk.FindByTypeDomainInAndState(ctx, []string{typeDomainPg.Manage.Index()})
 	if r {
 		for _, item := range data {
 			//跳过系统
@@ -77,24 +112,25 @@ func (c *InitSessionPubPrive) keyTenant(ctx context.Context) {
 	}
 }
 
-func (c *InitSessionPubPrive) keySystem(ctx context.Context) {
+// 系统
+func (c *InitSessionPubPrive) keySystem(ctx context.Context,
+	domain typeDomainPg.TypeDomain, client clientPg.Client, entity *entityRam.RamAccountSessionAccessKeyEntity) {
 	//是否新生成密钥
 	isMakeNewKey := false
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	no, r := c.sessionAk.FindByNoAndState(ctx, typeDomainPg.System.Index())
-	if !r {
+	if nil == entity {
 		privatePubKey = authTokenPg.MakePublicPrivateKey()
 		isMakeNewKey = true
 	} else {
 		//密钥不存在，生成
-		if strPg.IsBlank(no.Data) {
+		if strPg.IsBlank(entity.Data) {
 			privatePubKey = authTokenPg.MakePublicPrivateKey()
 			isMakeNewKey = true
 		} else {
 			//解析
 			var privatePubKeyEnt entityRam.RamAsaJsonPrivatePublicKey
-			err := json.Unmarshal([]byte(no.Data), &privatePubKeyEnt)
+			err := json.Unmarshal([]byte(entity.Data), &privatePubKeyEnt)
 			if err != nil {
 				//解析失败，重新生成
 				privatePubKey = authTokenPg.MakePublicPrivateKey()
@@ -116,11 +152,12 @@ func (c *InitSessionPubPrive) keySystem(ctx context.Context) {
 			save := entityRam.RamAccountSessionAccessKeyEntity{
 				Ano:        "",
 				Data:       toJson,
-				No:         typeDomainPg.System.Index(),
-				TenantNo:   typeDomainPg.System.Index(),
+				No:         domain.Index(),
+				TenantNo:   domain.Index(),
 				Key:        privatePubKey.PublicKey,
-				Type:       typeDomainPg.System.Index(),
-				TypeDomain: typeDomainPg.System.Index(),
+				Type:       domain.Index(),
+				TypeDomain: domain.Index(),
+				Client:     client.Index(),
 			}
 			save.KindUnique = userPg.SaltMake(privatePubKey.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
 			c.sessionAk.Create(ctx, &save)
@@ -128,4 +165,20 @@ func (c *InitSessionPubPrive) keySystem(ctx context.Context) {
 	}
 	//缓存
 	cacheAuthPubPrivPg.Set(cacheAuthPubPrivPg.KeySystem(), dataKey)
+}
+
+// 登录密钥
+func (c *InitSessionPubPrive) loginPubPriveKey(ctx context.Context,
+	pubPriv typePubPrivePg.PubPrive, entity *entityRam.RamAccountSessionAccessKeyEntity) {
+	isMakeNewKey := true
+	privatePubKeyEnt := entityRam.RamAsaJsonPrivatePublicKey{}
+	if nil != entity && strPg.IsNotBlank(entity.Data) {
+		err := json.Unmarshal([]byte(entity.Data), &privatePubKeyEnt)
+		if err == nil {
+			//解析成功
+			isMakeNewKey = false
+		}
+	}
+	//重新生成,判断密钥，是否需要保存
+	c.cacheSessionPubPrive.LoginPubPriveKeyByNew(ctx, isMakeNewKey, privatePubKeyEnt)
 }

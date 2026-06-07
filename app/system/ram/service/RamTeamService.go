@@ -77,7 +77,7 @@ func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam.CreateUpda
 	} else {
 		_, result := r.FindByCodeAndIdNot(ctx, info.Code, id, repositoryPg.WithCtxOption(ctx))
 		if result {
-			return rt.ErrorMessage("标志已存在")
+			return rt.ErrorMessage("码值已存在")
 		}
 	}
 	//判断是否是自动,不是自动
@@ -87,9 +87,9 @@ func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam.CreateUpda
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, info.Code, id, repositoryPg.WithCtxOption(ctx))
 		if result {
-			return rt.ErrorMessage("标志已存在")
+			return rt.ErrorMessage("码值已存在")
 		}
 	} else {
 		info.Code = noPg.No()

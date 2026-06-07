@@ -48,7 +48,7 @@ type RamMenuService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg.Rs[string]) {
+func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamMenuEntity
 	err := copier.Copy(&info, &ct)

@@ -6,8 +6,8 @@ import (
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamMenu"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
+	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -33,7 +33,6 @@ type MenuController struct {
 func (c *MenuController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
 	group := r.Group("/pg2lq/sys/ram/menu", authPg.GroupSystemMiddleware(c.Sp))
-	group.POST("/create", c.Create)
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
@@ -47,20 +46,6 @@ func (c *MenuController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/existName", c.ExistName)
 }
 
-func (c *MenuController) Create(ctx *gin.Context) {
-	var ct modRamMenu.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
 func (c *MenuController) CreateUpdate(ctx *gin.Context) {
 	var ct modRamMenu.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
@@ -72,7 +57,11 @@ func (c *MenuController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
 }
 
 func (c *MenuController) Delete(ctx *gin.Context) {

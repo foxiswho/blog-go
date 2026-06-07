@@ -6,8 +6,8 @@ import (
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamGroup"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
+	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -46,20 +46,6 @@ func (c *GroupController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/existName", c.ExistName)
 }
 
-func (c *GroupController) Create(ctx *gin.Context) {
-	var ct modRamGroup.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
 func (c *GroupController) CreateUpdate(ctx *gin.Context) {
 	var ct modRamGroup.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
@@ -71,7 +57,11 @@ func (c *GroupController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
 }
 
 func (c *GroupController) Delete(ctx *gin.Context) {

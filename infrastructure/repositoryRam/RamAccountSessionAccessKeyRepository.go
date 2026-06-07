@@ -61,6 +61,17 @@ func (c *RamAccountSessionAccessKeyRepository) FindByNoAndState(ctx context.Cont
 	}
 	return info, true
 }
+func (c *RamAccountSessionAccessKeyRepository) FindByNoAndClientAndState(ctx context.Context, no string, client string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("no=?", no).Where("state=1").Where("client=?", client).First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
 
 func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndNoAndState(ctx context.Context, tno, no string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tno).Where("no=?", no).Where("state=1").First(&info)
@@ -74,8 +85,32 @@ func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndNoAndState(ctx c
 	return info, true
 }
 
-func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainAndState(ctx context.Context, domain []string) (info []*entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainAndState(ctx context.Context, domain string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain = ?", domain).Where("state=1").First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainInAndState(ctx context.Context, domain []string) (info []*entityRam.RamAccountSessionAccessKeyEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_domain in ?", domain).Where("state=1").Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
+func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainInAndClientAndState(ctx context.Context, domain, client []string) (info []*entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain in ?", domain).Where("client in ?", client).Where("state=1").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

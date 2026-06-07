@@ -6,8 +6,8 @@ import (
 	"github.com/foxiswho/blog-go/app/system/ram/model/modRamDepartment"
 	"github.com/foxiswho/blog-go/app/system/ram/service"
 	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
+	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -47,20 +47,6 @@ func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/existName", c.ExistName)
 }
 
-func (c *DepartmentController) Create(ctx *gin.Context) {
-	var ct modRamDepartment.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
-}
-
 func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
 	var ct modRamDepartment.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
@@ -72,7 +58,11 @@ func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
 }
 
 func (c *DepartmentController) Delete(ctx *gin.Context) {

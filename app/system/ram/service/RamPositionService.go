@@ -45,7 +45,7 @@ type RamPositionService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamPositionService) Create(ctx *gin.Context, ct modRamPosition.CreateCt) (rt rg.Rs[string]) {
+func (c *RamPositionService) Create(ctx *gin.Context, ct modRamPosition.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamPositionEntity
 	copier.Copy(&info, &ct)
