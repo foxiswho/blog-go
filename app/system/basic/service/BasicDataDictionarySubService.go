@@ -357,12 +357,12 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	return rt.Ok()
 }
 
-// SelectKeyValueAllPublic 码值
+// TypeCodeList 码值
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) SelectKeyValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[[]model.BaseNodeKeyValue]) {
+func (c *BasicDataDictionarySubService) TypeCodeList(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[[]model.BaseNodeKeyValue]) {
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.ErrorMessage("上级码值[typeCode]不能为空")
 	}

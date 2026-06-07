@@ -453,3 +453,22 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 	}
 	return rt.Ok()
 }
+
+func (c *BasicAttachmentService) UpdateDetail(ctx *gin.Context, ct modBasicAttachment.DetailByFileOwnerCt) (rt rg.Rs[[]modBasicAttachment.Vo]) {
+	if strPg.IsBlank(ct.FileOwner) {
+		return rt.ErrorMessage("所有者key不能为空")
+	}
+	list := make([]modBasicAttachment.Vo, 0)
+	entity := entityBasic.BasicAttachmentEntity{}
+	entity.FileOwner = ct.FileOwner
+	infos := c.sv.FindAll(ctx, entity)
+	if infos != nil && len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicAttachment.Vo
+			copier.Copy(&vo, &item)
+			vo.Url = item.Domain + item.File
+			list = append(list, vo)
+		}
+	}
+	return rt.OkData(list)
+}

@@ -26,9 +26,10 @@ type DataDictionaryController struct {
 }
 
 func (c *DataDictionaryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/dataDictionary", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/pg2lq/sys/basic/data-dictionary", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
+	group.POST("/typeCodePublic", c.TypeCodeList)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.POST("/delete", c.Delete)
@@ -222,7 +223,7 @@ func (c *DataDictionaryController) ExistCode(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))
 }
 
-func (c *DataDictionaryController) SelectKeyValueAllPublic(ctx *gin.Context) {
+func (c *DataDictionaryController) TypeCodeList(ctx *gin.Context) {
 	var ct modBasicDataDictionary.SelectNodeCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		translate := validatorPg.Translate(err, &ct)
@@ -233,5 +234,5 @@ func (c *DataDictionaryController) SelectKeyValueAllPublic(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.dictSubRep.SelectKeyValueAllPublic(ctx, ct))
+	ctx.JSON(200, c.dictSubRep.TypeCodeList(ctx, ct))
 }
