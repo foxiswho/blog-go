@@ -8,7 +8,7 @@ import (
 	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheDiplPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"gorm.io/gorm"
@@ -25,7 +25,7 @@ func (b *ZInitDiplCache) Run(ctx context.Context) error {
 	b.log.Infof("初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
-	infos := b.sv.FindAll(context.Background(), query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+	infos := b.sv.FindAll(context.Background(), query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db = db.Order("create_at desc")
 		db = db.Where("expiry_date >= ?", datetimePg.Now())
 		return db

@@ -10,7 +10,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	_ "github.com/go-spring/spring-core/gs"
 )
 
@@ -27,9 +27,9 @@ type AttachmentListener struct {
 //	@receiver c
 //	@param ctx
 func (c *AttachmentListener) Run(ctx context.Context) error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BasicAttachmentCreate)
+	log.Infof(context.Background(), log.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BasicAttachmentCreate)
 	eventBus.RegisterEvent(constEventBusPg.BasicAttachmentCreate).RegisterSubscribe(constEventBusPg.BasicAttachmentCreate, func(message any, _ core.EventArgs) {
-		syslog.Infof(context.Background(), syslog.TagAppDef, "SchedulerEvent.event=%+v", message)
+		log.Infof(context.Background(), log.TagAppDef, "SchedulerEvent.event=%+v", message)
 		dto := message.(entityBasic.BasicAttachmentEntity)
 		if len(dto.File) > 0 {
 			err := attachment.NewCreate(c.dao, dto).Processor(context.Background())

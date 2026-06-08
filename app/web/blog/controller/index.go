@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"context"
-
 	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
@@ -12,7 +10,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
@@ -45,7 +43,7 @@ func (c *IndexController) Index(ctx *gin.Context) {
 	ctx.Bind(&ct)
 	//
 	rt := c.sv.Query(ctx, ct)
-	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data.Pageable)
+	log.Infof(context.Background(), log.TagBizDef, "Data=%+v", rt.Data.Pageable)
 	//
 	tenantNo := webPg.GetTenantNo(ctx)
 	tree, _ := c.catCache.FormatTree(ctx, tenantNo)

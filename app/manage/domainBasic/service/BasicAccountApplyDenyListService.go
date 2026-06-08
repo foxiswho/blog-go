@@ -15,10 +15,10 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -30,7 +30,7 @@ import (
 
 func init() {
 	gs.Provide(new(BasicAccountApplyDenyListService)).Init(func(s *BasicAccountApplyDenyListService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -340,7 +340,7 @@ func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAc
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -350,7 +350,7 @@ func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAc
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

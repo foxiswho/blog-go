@@ -25,7 +25,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -37,7 +37,7 @@ import (
 
 func init() {
 	gs.Provide(NewAccountLoginService).Init(func(s *AccountLoginService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -75,7 +75,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		return rt.ErrorMessage("密码不能为空")
 	}
 	pwd := ct.Password
-	syslog.Infof(context.Background(), syslog.TagAppDef, "authLogin=%+v", c.authLogin)
+	log.Infof(context.Background(), log.TagAppDef, "authLogin=%+v", c.authLogin)
 	//解密密码
 	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
 		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
@@ -84,7 +84,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		}
 		pwd = login.Data
 	}
-	syslog.Infof(context.Background(), syslog.TagAppDef, "pwd=%+v", pwd)
+	log.Infof(context.Background(), log.TagAppDef, "pwd=%+v", pwd)
 
 	md5 := cryptPg.Md5(ct.Account)
 	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.ToTypeDomain().String())

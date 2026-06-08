@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/tagsBasicEvent"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
@@ -27,7 +27,7 @@ type TagsListener struct {
 //	@receiver c
 //	@param ctx
 func (c *TagsListener) Run(ctx context.Context) error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BlogArticle)
+	log.Infof(context.Background(), log.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BlogArticle)
 	//博客文章
 	eventBus.RegisterEvent(constEventBusPg.BlogArticle).RegisterSubscribe(constEventBusPg.BlogArticle, func(message any, _ core.EventArgs) {
 		c.log.Infof("SchedulerEvent.event=%+v", message)

@@ -9,8 +9,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -23,7 +24,7 @@ import (
 
 func init() {
 	gs.Provide(new(TcLevelService)).Init(func(s *TcLevelService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -240,7 +241,7 @@ func (c *TcLevelService) Query(ctx *gin.Context, ct modTcLevel.QueryCt) (rt rg.R
 	slice := make([]modTcLevel.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

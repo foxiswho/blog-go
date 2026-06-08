@@ -5,6 +5,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -39,7 +40,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	if strPg.IsBlank(id) {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sp.accDb.FindByIdAndTypeDomain(ctx, numberPg.StrToInt64(id), c.tp.ToTypeDomain().String(), withDbPg.WithCtx(ctx))
+	find, b := c.sp.accDb.FindByIdAndTypeDomain(ctx, numberPg.StrToInt64(id), c.tp.ToTypeDomain().String(), optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

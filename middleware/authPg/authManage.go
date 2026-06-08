@@ -14,7 +14,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/convPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -71,7 +71,7 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			t, r := authTokenPg.VerifyByPublicKey(get.Public, token)
 			if r.ErrorIs() {
-				syslog.Debugf(context.Background(), syslog.TagAppDef, "JWT= %+v", r)
+				log.Debugf(context.Background(), log.TagAppDef, "JWT= %+v", r)
 				c.JSON(200, r)
 				c.Abort()
 				return

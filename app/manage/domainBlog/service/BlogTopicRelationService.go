@@ -10,8 +10,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -22,7 +23,7 @@ import (
 
 func init() {
 	gs.Provide(new(BlogTopicRelationService)).Init(func(s *BlogTopicRelationService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -48,7 +49,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if nil == ct.Nos || 0 == len(ct.Nos) {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, withDbPg.WithCtx(ctx))
+	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, optionsPg.WithCtx(ctx))
 	if !result {
 		return rt.ErrorMessage("话题 不存在")
 	}
@@ -78,7 +79,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		if r {
 			continue
 		}
-		find, b := c.article.FindByNo(ctx, article.No, withDbPg.WithCtx(ctx))
+		find, b := c.article.FindByNo(ctx, article.No, optionsPg.WithCtx(ctx))
 		if !b {
 			continue
 		}
@@ -108,7 +109,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.relation
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -140,7 +141,7 @@ func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelati
 	slice := make([]modBlogTopicRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.relation
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -151,7 +152,7 @@ func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelati
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

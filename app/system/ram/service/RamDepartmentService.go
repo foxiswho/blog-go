@@ -13,9 +13,10 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -31,7 +32,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamDepartmentService)).Init(func(s *RamDepartmentService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -71,7 +72,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ctx, info.Code, withDbPg.WithCtx(ctx))
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -79,7 +80,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 	info.TypeSys = typeSysPg.General.Index()
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -135,7 +136,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Crea
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -149,7 +150,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Crea
 	var childData []*entityRam.RamDepartmentEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -159,7 +160,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.Crea
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(ctx, find.No, withDbPg.WithCtx(ctx))
+			childData, result2 = r.FindAllByNoLink(ctx, find.No, optionsPg.WithCtx(ctx))
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -311,7 +312,7 @@ func (c *RamDepartmentService) State(ctx *gin.Context, ids []string, state enumS
 		return rt.ErrorMessage("id错误")
 	}
 	ctxR := c.sv
-	finds, b := ctxR.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := ctxR.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -346,7 +347,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -379,7 +380,7 @@ func (c *RamDepartmentService) LogicalRecovery(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -404,7 +405,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -431,7 +432,7 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -442,7 +443,7 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -476,7 +477,7 @@ func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment
 	slice := make([]modRamDepartment.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -487,7 +488,7 @@ func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -646,7 +647,7 @@ func (c *RamDepartmentService) ExistName(ctx *gin.Context, ct model.BaseExistWdC
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -667,7 +668,7 @@ func (c *RamDepartmentService) ExistCode(ctx *gin.Context, ct model.BaseExistWdC
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

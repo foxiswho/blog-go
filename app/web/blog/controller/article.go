@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"context"
-
 	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
 	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/foxiswho/blog-go/app/web/blog/service"
@@ -11,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 )
 
@@ -68,7 +66,7 @@ func (c *ArticleController) List(ctx *gin.Context) {
 	ctx.Bind(&ct)
 	//
 	rt := c.sv.Query(ctx, ct)
-	syslog.Infof(context.Background(), syslog.TagBizDef, "Data=%+v", rt.Data.Pageable)
+	log.Infof(context.Background(), log.TagBizDef, "Data=%+v", rt.Data.Pageable)
 	//
 	tenantNo := webPg.GetTenantNo(ctx)
 	tree, _ := c.catCache.FormatTree(ctx, tenantNo)

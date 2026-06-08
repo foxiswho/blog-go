@@ -10,7 +10,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 
 	"reflect"
@@ -22,7 +22,7 @@ import (
 
 func init() {
 	gs.Provide(NewRamAccountPasswordService).Init(func(s *RamAccountPasswordService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 

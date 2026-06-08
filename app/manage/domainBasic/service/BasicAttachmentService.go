@@ -19,9 +19,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -34,7 +34,7 @@ import (
 
 func init() {
 	gs.Provide(new(BasicAttachmentService)).Init(func(s *BasicAttachmentService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -191,7 +191,7 @@ func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttach
 		//
 		query.State = enumStatePg.ENABLE.Index()
 		//
-		infos := r.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+		infos := r.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db = db.Where("file_owner in ?", fileOwner)
 			return db
@@ -263,7 +263,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -273,7 +273,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").Where("source_name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -397,7 +397,7 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 			var query entityBasic.BasicAttachmentEntity
 			query.State = enumStatePg.ENABLE.Index()
 			//
-			infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+			infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 				db = db.Order("create_at desc")
 				db = db.Where("id in ?", ids)
 				return db

@@ -11,8 +11,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/noPg"
 
@@ -28,7 +29,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamResourceService)).Init(func(s *RamResourceService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -64,7 +65,7 @@ func (c *RamResourceService) Create(ctx *gin.Context, ct modRamResource.CreateCt
 	}
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -144,7 +145,7 @@ func (c *RamResourceService) Update(ctx *gin.Context, ct modRamResource.UpdateCt
 	var childData []*entityRam.RamResourceEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -321,7 +322,7 @@ func (c *RamResourceService) State(ctx *gin.Context, ids []string, state enumSta
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -356,7 +357,7 @@ func (c *RamResourceService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -389,7 +390,7 @@ func (c *RamResourceService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -414,7 +415,7 @@ func (c *RamResourceService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -448,7 +449,7 @@ func (c *RamResourceService) Query(ctx *gin.Context, ct modRamResource.QueryCt) 
 	slice := make([]modRamResource.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -462,7 +463,7 @@ func (c *RamResourceService) Query(ctx *gin.Context, ct modRamResource.QueryCt) 
 		if !ct.ALL {
 			arg.Db = arg.Db.Where("parent_no !='' ")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -496,7 +497,7 @@ func (c *RamResourceService) QueryPublic(ctx *gin.Context, ct modRamResource.Que
 	slice := make([]modRamResource.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -510,7 +511,7 @@ func (c *RamResourceService) QueryPublic(ctx *gin.Context, ct modRamResource.Que
 		if !ct.ALL {
 			arg.Db = arg.Db.Where("parent_no !='' ")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -673,7 +674,7 @@ func (c *RamResourceService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

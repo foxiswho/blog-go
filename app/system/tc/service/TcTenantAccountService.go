@@ -15,8 +15,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg"
@@ -28,7 +29,7 @@ import (
 
 func init() {
 	gs.Provide(NewTcTenantAccountService).Init(func(s *TcTenantAccountService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -240,7 +241,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

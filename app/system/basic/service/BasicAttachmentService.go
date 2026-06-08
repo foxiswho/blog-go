@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicAttachment"
@@ -15,9 +16,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -36,7 +37,7 @@ import (
 
 func init() {
 	gs.Provide(new(BasicAttachmentService)).Init(func(s *BasicAttachmentService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -193,7 +194,7 @@ func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttach
 		//
 		query.State = enumStatePg.ENABLE.Index()
 		//
-		infos := r.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+		infos := r.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db = db.Where("file_owner in ?", fileOwner)
 			return db
@@ -265,7 +266,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -399,7 +400,7 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 			var query entityBasic.BasicAttachmentEntity
 			query.State = enumStatePg.ENABLE.Index()
 			//
-			infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+			infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 				db = db.Order("create_at desc")
 				db = db.Where("id in ?", ids)
 				return db
@@ -490,16 +491,34 @@ func (c *BasicAttachmentService) UpdateAddByFileOwner(ctx *gin.Context, ct modBa
 	if len(ids) < 1 {
 		return rt.ErrorMessage("没有选择任何数据")
 	}
-	list := make([]modBasicAttachment.Vo, 0)
-	entity := entityBasic.BasicAttachmentEntity{}
-	entity.FileOwner = fileOwner
-	infos := c.sv.FindAll(ctx, entity)
+	list := make([]entityBasic.BasicAttachmentEntity, 0)
+	infos := c.sv.FindAllOption(ctx, optionsPg.WithOption(func(db *optionsPg.OptionParams) {
+		db.Db.Where("file_owner in ?", ids)
+	}))
 	if infos != nil && len(infos) > 0 {
+		now := time.Now()
 		for _, item := range infos {
-			var vo modBasicAttachment.Vo
+			var vo entityBasic.BasicAttachmentEntity
 			copier.Copy(&vo, &item)
 			vo.Url = item.Domain + item.File
+			vo.FileOwnerCopy = item.FileOwner
+			vo.FileOwner = fileOwner
+			vo.No = noPg.No()
+			vo.ID = 0
+			vo.CreateAt = &now
+			vo.UpdateAt = &now
+			if strPg.IsNotBlank(ct.FileOwnerSub) {
+				vo.FileOwnerSub = strings.TrimSpace(ct.FileOwnerSub)
+			} else {
+				vo.FileOwnerSub = "main"
+			}
+			vo.TypeData = "copy"
+			//
 			list = append(list, vo)
+		}
+		err, _ := c.sv.CreateBatch(ctx, list)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
 		}
 	}
 	return rt.Ok()

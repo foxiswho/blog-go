@@ -19,7 +19,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/logsPg"
 	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/ioPg"
@@ -84,7 +84,7 @@ func main() {
 	//html := template.Must(template.ParseFiles("file1", "file2"))
 	//ginServer.GetInstance().SetHTMLTemplate(html)
 
-	syslog.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
+	log.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
 	//服务，传入配置 端口
 	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server.port}")).Export(gs.As[gs.Server]())
 	//事件监听

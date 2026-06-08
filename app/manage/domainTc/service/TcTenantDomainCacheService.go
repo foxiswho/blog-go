@@ -10,14 +10,14 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
 
 func init() {
 	gs.Provide(new(TcTenantDomainCacheService)).Init(func(s *TcTenantDomainCacheService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -58,7 +58,7 @@ func (c *TcTenantDomainCacheService) InitTenantDomain(ctx context.Context) {
 		}
 		//
 		for _, item := range infos {
-			syslog.Infof(context.Background(), syslog.TagAppDef, "domian=tenant,%+v=%+v", item.Code, item.TenantNo)
+			log.Infof(context.Background(), log.TagAppDef, "domian=tenant,%+v=%+v", item.Code, item.TenantNo)
 			c.ca.Domain.Store(item.Code, item.TenantNo)
 			dto := dtoTenantDomain.Dto{
 				TenantNo: item.TenantNo,

@@ -1,4 +1,4 @@
-package withDbPg
+package optionsPg
 
 import (
 	"github.com/foxiswho/blog-go/pkg/log2"
@@ -11,34 +11,34 @@ type OptionParams struct {
 	Ctx       *gin.Context
 	Log       *log2.Logger
 	Db        *gorm.DB
-	Condition ConditionOption
+	Condition Condition
 	Pageable  *pagePg.Pageable
 }
 
-type OptionFn func(arg *OptionParams)
+type Option func(arg *OptionParams)
 
-func WithOptionPg(opt OptionFn) OptionFn {
+func WithOption(opt Option) Option {
 	return opt
 }
-func WithDb(db *gorm.DB) OptionFn {
+func WithDb(db *gorm.DB) Option {
 	return func(arg *OptionParams) {
 		arg.Db = db
 	}
 }
-func WithCtx(ctx *gin.Context) OptionFn {
+func WithCtx(ctx *gin.Context) Option {
 	return func(arg *OptionParams) {
 		arg.Ctx = ctx
 	}
 }
 
 // WithPageable 设置分页参数
-func WithPageable(pageable pagePg.Pageable) OptionFn {
+func WithPageable(pageable pagePg.Pageable) Option {
 	return func(arg *OptionParams) {
 		arg.Pageable = &pageable
 	}
 }
 
-func Scopes(page *pagePg.Pageable) func(db *gorm.DB) *gorm.DB {
+func WithScopes(page *pagePg.Pageable) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		size := int64(0)
 		offset := int(10)

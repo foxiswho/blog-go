@@ -8,7 +8,7 @@ import (
 
 	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 )
 
@@ -40,7 +40,7 @@ type GinServer struct {
 //	@param registrars: 路由注册器集合，由 DI 容器自动注入
 //	@return *GinServer
 func NewGinServer(port string, registrars []routerPg.RouteRegistrar) *GinServer {
-	//syslog.Infof(context.Background(), syslog.TagAppDef, "NewGinServer.port:%+v ", port)
+	//log.Infof(context.Background(), log.TagAppDef, "NewGinServer.port:%+v ", port)
 	engine := GetInstance()
 	for _, r := range registrars {
 		r.RegisterRoutes(engine)
@@ -67,7 +67,7 @@ func (s *GinServer) Run(ctx context.Context, sig gs.ReadySignal) error {
 	}
 	<-sig.TriggerAndWait() // 等待启动信号
 	//
-	syslog.Infof(context.Background(), syslog.TagAppDef, "starting successfully...")
+	log.Infof(context.Background(), log.TagAppDef, "starting successfully...")
 	fmt.Println()
 	fmt.Printf("host: %+v\n", "localhost")
 	fmt.Printf("port: %+v\n", s.Port)

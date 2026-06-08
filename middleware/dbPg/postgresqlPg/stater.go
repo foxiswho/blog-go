@@ -8,7 +8,7 @@ import (
 
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,18 +22,18 @@ type Factory struct {
 }
 
 func (factory *Factory) CreateDB() (*gorm.DB, error) {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[Postgresql]===================")
-	syslog.Debugf(context.Background(), syslog.TagAppDef, "数据库连接地址： enabled:%+v,URL:=>%s", factory.database.Enabled, factory.database.URL)
+	log.Infof(context.Background(), log.TagAppDef, "[init].[Postgresql]===================")
+	log.Debugf(context.Background(), log.TagAppDef, "数据库连接地址： enabled:%+v,URL:=>%s", factory.database.Enabled, factory.database.URL)
 	//fmt.Printf("数据库连接地址： enabled:%+v,URL:=>%s", factory.database.Enabled, factory.database.URL)
 	if !factory.database.Enabled {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "未启用数据库： %s", factory.database.Enabled)
+		log.Debugf(context.Background(), log.TagAppDef, "未启用数据库： %s", factory.database.Enabled)
 		return nil, nil
 	}
 	db, err := gorm.Open(postgres.Open(factory.database.URL), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		syslog.Errorf(context.Background(), syslog.TagAppDef, "open gorm postgresql %s error: %v", factory.database.URL, err)
+		log.Errorf(context.Background(), log.TagAppDef, "open gorm postgresql %s error: %v", factory.database.URL, err)
 		panic(errors.New(err.Error()))
 		return nil, err
 	}
@@ -87,24 +87,24 @@ func init() {
 }
 
 func newClient(c configPg.Database) (*gorm.DB, error) {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[Postgresql]===================")
-	syslog.Debugf(context.Background(), syslog.TagAppDef, "数据库连接地址： enabled:%+v,URL:=>%s", c.Enabled, c.URL)
+	log.Infof(context.Background(), log.TagAppDef, "[init].[Postgresql]===================")
+	log.Debugf(context.Background(), log.TagAppDef, "数据库连接地址： enabled:%+v,URL:=>%s", c.Enabled, c.URL)
 	//fmt.Printf("数据库连接地址： enabled:%+v,URL:=>%s", c.Enabled, c.URL)
 	if !c.Enabled {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "未启用数据库： %s", c.Enabled)
+		log.Debugf(context.Background(), log.TagAppDef, "未启用数据库： %s", c.Enabled)
 		return nil, nil
 	}
 	db, err := gorm.Open(postgres.Open(c.URL), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		syslog.Errorf(context.Background(), syslog.TagAppDef, "open gorm postgresql %s error: %v", c.URL, err)
+		log.Errorf(context.Background(), log.TagAppDef, "open gorm postgresql %s error: %v", c.URL, err)
 		panic(errors.New(err.Error()))
 		return nil, err
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		syslog.Errorf(context.Background(), syslog.TagAppDef, "failed to get database connection")
+		log.Errorf(context.Background(), log.TagAppDef, "failed to get database connection")
 	}
 	// 设置最大空闲连接数
 	sqlDB.SetMaxIdleConns(10)

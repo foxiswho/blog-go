@@ -14,8 +14,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -28,7 +29,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamAppCategoryService)).Init(func(s *RamAppCategoryService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -68,14 +69,14 @@ func (c *RamAppCategoryService) Create(ctx *gin.Context, ct modRamAppCategory.Cr
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ctx, info.Code, withDbPg.WithCtx(ctx))
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(info.ParentNo) {
-		parent, result = r.FindByNo(ctx, info.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, info.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -132,7 +133,7 @@ func (c *RamAppCategoryService) Update(ctx *gin.Context, ct modRamAppCategory.Up
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -146,7 +147,7 @@ func (c *RamAppCategoryService) Update(ctx *gin.Context, ct modRamAppCategory.Up
 	var childData []*entityRam.RamAppCategoryEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -317,7 +318,7 @@ func (c *RamAppCategoryService) State(ctx *gin.Context, ids []string, state enum
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -352,7 +353,7 @@ func (c *RamAppCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -385,7 +386,7 @@ func (c *RamAppCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -410,7 +411,7 @@ func (c *RamAppCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -437,7 +438,7 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 	slice := make([]modRamAppCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -447,7 +448,7 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -479,7 +480,7 @@ func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCatego
 	slice := make([]modRamAppCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -489,7 +490,7 @@ func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCatego
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), withDbPg.WithCtx(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -604,7 +605,7 @@ func (c *RamAppCategoryService) ExistName(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -624,7 +625,7 @@ func (c *RamAppCategoryService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

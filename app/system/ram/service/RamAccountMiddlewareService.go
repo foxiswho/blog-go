@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 
@@ -21,7 +21,7 @@ import (
 
 func init() {
 	gs.Provide(NewRamAccountMiddlewareService).Init(func(s *RamAccountMiddlewareService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 

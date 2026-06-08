@@ -176,7 +176,7 @@ func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
-	var dataCt modRamAccount.CreateUpdateAccountCt
+	var dataCt modRamAccount.CreateUpdateCt
 	copier.Copy(&dataCt, &ct)
 	var entity entityRam.RamAccountEntity
 	//赋值 数据

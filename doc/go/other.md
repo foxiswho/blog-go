@@ -27,7 +27,7 @@ func ScopeRulePgWhere(ctx *gin.Context, tableName string) func(db *gorm.DB) *gor
         //
         get := ctx.Get(constContext.CTX_RULE)
         if nil != get {
-            syslog.Debugf(context.Background(), syslog.TagAppDef,"multiRule:%+v", get)
+            log.Debugf(context.Background(), log.TagAppDef,"multiRule:%+v", get)
             iHolderRule = get.(interfaces.IHolderRule)
             multiRule = iHolderRule.(*MultiRule)
         }

@@ -7,7 +7,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/ram/service/accountSessionRamEvent"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	_ "github.com/go-spring/spring-core/gs"
 )
 
@@ -19,7 +19,7 @@ type InitSessionPubPrive struct {
 }
 
 func (b *InitSessionPubPrive) Run(ctx context.Context) error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[密钥缓存初始化]===================")
+	log.Infof(context.Background(), log.TagAppDef, "[init].[密钥缓存初始化]===================")
 	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk, b.cacheSessionPubPrive).Processor(context.Background())
 	return nil
 }

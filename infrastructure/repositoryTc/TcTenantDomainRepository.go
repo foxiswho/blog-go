@@ -7,17 +7,17 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityTc"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 )
 
 func init() {
 	gs.Provide(new(TcTenantDomainRepository)).Init(func(s *TcTenantDomainRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[TcTenantDomainRepository])).Init(func(s *support.BaseService[TcTenantDomainRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 

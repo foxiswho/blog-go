@@ -8,7 +8,7 @@ import (
 
 	"aidanwoods.dev/go-paseto"
 	"github.com/foxiswho/blog-go/pkg/configPg/pg"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
@@ -103,7 +103,7 @@ func VerifyByPublicKey(pubKey, signed string) (t *paseto.Token, rt rg.Rs[string]
 	parser.AddRule(paseto.ValidAt(time.Now()))
 	token, err := parser.ParseV4Public(publicKey, signed, nil)
 	if nil != err {
-		syslog.Errorf(context.Background(), syslog.TagAppDef, "验证失败= %+v", err)
+		log.Errorf(context.Background(), log.TagAppDef, "验证失败= %+v", err)
 		return nil, rt.ErrorMessage("验证失败")
 	}
 	return token, rt.Ok()

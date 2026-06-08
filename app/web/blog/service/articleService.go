@@ -23,9 +23,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/sdk/blog/key/blogKeyPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -36,7 +36,7 @@ import (
 
 func init() {
 	gs.Provide(new(ArticleService)).Init(func(s *ArticleService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -216,8 +216,8 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 		raw := markdownPg.Markdown([]byte(find.Content))
 		info.ContentConv = raw.String()
 	}
-	//syslog.Infof(context.Background(), syslog.TagAppDef, "info:%+v", info)
-	//syslog.Infof(context.Background(), syslog.TagAppDef, "info.create:%+v", datetimePg.Format(info.CreateAt, "2006"))
+	//log.Infof(context.Background(), log.TagAppDef, "info:%+v", info)
+	//log.Infof(context.Background(), log.TagAppDef, "info.create:%+v", datetimePg.Format(info.CreateAt, "2006"))
 	return rt.OkData(info)
 }
 
@@ -240,7 +240,7 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 	slice := make([]modBlogArticle.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

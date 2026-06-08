@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -17,7 +17,7 @@ import (
 
 func init() {
 	gs.Provide(new(ArticleCategoryService)).Init(func(s *ArticleCategoryService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 

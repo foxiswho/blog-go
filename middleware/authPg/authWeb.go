@@ -8,7 +8,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
+	"github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
 )
 
@@ -41,7 +41,7 @@ func GroupWebMiddleware(m *GroupWebMiddlewareSp) gin.HandlerFunc {
 		if m.domain.IsServerHostExist(c.Request.Host, m.server) {
 			val = "1000"
 		}
-		syslog.Infof(context.Background(), syslog.TagAppDef, "租户.no => %+v", val)
+		log.Infof(context.Background(), log.TagAppDef, "租户.no => %+v", val)
 		c.Set(constHeaderPg.WebTenantNo, val)
 		c.Set(constHeaderPg.WebTemplatePg, m.pg)
 		c.Set(constHeaderPg.WebTemplatePgServer, m.server)

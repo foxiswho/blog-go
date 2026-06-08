@@ -36,7 +36,10 @@ type BasicAttachmentEntity struct {
 	Client        string     `gorm:"column:client;type:varchar(80);index;comment:客户端" json:"client" comment:"客户端" `
 	ProtocolSpace string     `gorm:"column:protocol_space;type:varchar(80);index;comment:协议空间" json:"protocol_space" comment:"协议空间" `
 	FileOwner     string     `gorm:"column:file_owner;type:varchar(80);index;comment:拥有者" json:"file_owner" comment:"拥有者/文件属于谁" `
+	FileOwnerSub  string     `gorm:"column:file_owner_sub;type:varchar(80);index;comment:子类型" json:"file_owner_sub" comment:"子类型" `
+	FileOwnerCopy string     `gorm:"column:file_owner_copy;type:varchar(80);index;comment:拥有者源" json:"file_owner_copy" comment:"拥有者源" `
 	TypeData      string     `gorm:"column:type_data;type:varchar(80);comment:类型数据" json:"type_data" comment:"类型数据/源/复制" `
+	RefNo         string     `gorm:"column:ref_no;type:varchar(80);comment:关联业务号" json:"ref_no" comment:"关联业务号" `
 }
 
 func (*BasicAttachmentEntity) TableName() string {
