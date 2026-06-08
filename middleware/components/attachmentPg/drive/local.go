@@ -27,8 +27,9 @@ var _ types.FileProvider = (*Local)(nil)
 // Local 本地文件上传
 // @Description:
 type Local struct {
-	pg  configPg.Pg  `value:"${pg}"`
-	log *log2.Logger `autowire:"?"`
+	pg     configPg.Pg     `value:"${pg}"`
+	server configPg.Server `value:"${server}"`
+	log    *log2.Logger    `autowire:"?"`
 }
 
 func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAttachment.Ext) (modAttachment.Attachment, error) {
@@ -41,7 +42,10 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		fileSuffix = strPg.Replace(fileSuffix, "?", "")
 	}
 	attachmentCfg := s.pg.Attachment
-
+	domain := attachmentCfg.Domain
+	if strPg.IsBlank(domain) {
+		domain = s.server.Domain
+	}
 	//修改为正确后缀
 	if strings.Contains(fileSuffix, "awebp") {
 		fileSuffix = strPg.Replace(fileSuffix, "awebp", "webp")
@@ -55,12 +59,12 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		Name:         fileNewName,
 		Size:         put.Size,
 		Ext:          fileSuffix,
-		Domain:       attachmentCfg.Domain,
+		Domain:       domain,
 	}
 	out := path.Join(attachmentCfg.Dir, datetimePg.YearMonth(), fileNewName)
 	out_root := out
 	//是否存在跟目录
-	if strPg.IsNotBlank(attachmentCfg.Domain) {
+	if strPg.IsNotBlank(attachmentCfg.DirRoot) {
 		out_root = path.Join(attachmentCfg.DirRoot, out)
 		if s.ExistsObject(out_root) {
 			return attachment, errors.New("文件已存在，请勿重复上传")
@@ -90,7 +94,7 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		out = "/" + out
 	}
 	attachment.File = out
-	attachment.Url = out
+	attachment.Url = domain + out
 	_, err = io.Copy(dst, r)
 	if err != nil {
 		s.log.Errorf("err=%+v\n", err)
@@ -122,6 +126,7 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		Label:         attachment.Label,
 		File:          attachment.File,
 		Domain:        attachment.Domain,
+		Url:           attachment.Url,
 		No:            attachment.No,
 		Method:        attachment.Method,
 		Ext:           attachment.Ext,

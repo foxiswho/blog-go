@@ -15,7 +15,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -193,12 +193,11 @@ func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttach
 		//
 		query.State = enumStatePg.ENABLE.Index()
 		//
-		var con repositoryPg.Condition = func(db *gorm.DB) *gorm.DB {
+		infos := r.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
-			db.Where("file_owner in ?", fileOwner)
+			db = db.Where("file_owner in ?", fileOwner)
 			return db
-		}
-		infos := r.FindAll(ctx, query, con)
+		}))
 		if nil != infos {
 			//字段赋值
 			for _, item := range infos {
@@ -266,7 +265,7 @@ func (c *BasicAttachmentService) Query(ctx *gin.Context, ct modBasicAttachment.Q
 	r := c.sv
 	slice := make([]modBasicAttachment.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -400,9 +399,9 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 			var query entityBasic.BasicAttachmentEntity
 			query.State = enumStatePg.ENABLE.Index()
 			//
-			infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+			infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 				db = db.Order("create_at desc")
-				db.Where("id in ?", ids)
+				db = db.Where("id in ?", ids)
 				return db
 			}))
 			if infos != nil && len(infos) > 0 {
@@ -471,4 +470,37 @@ func (c *BasicAttachmentService) UpdateDetail(ctx *gin.Context, ct modBasicAttac
 		}
 	}
 	return rt.OkData(list)
+}
+
+// UpdateAddByFileOwner 添加拥有着
+func (c *BasicAttachmentService) UpdateAddByFileOwner(ctx *gin.Context, ct modBasicAttachment.AddByFileOwnerCt) (rt rg.Rs[string]) {
+	fileOwner := strings.TrimSpace(ct.FileOwner)
+	if strPg.IsBlank(fileOwner) {
+		return rt.ErrorMessage("所有者key不能为空")
+	}
+	if nil == ct.Nos || len(ct.Nos) < 1 {
+		return rt.ErrorMessage("没有选择任何数据")
+	}
+	ids := make([]string, 0)
+	for _, id := range ct.Nos {
+		if strPg.IsNotBlank(id) {
+			ids = append(ids, strings.TrimSpace(id))
+		}
+	}
+	if len(ids) < 1 {
+		return rt.ErrorMessage("没有选择任何数据")
+	}
+	list := make([]modBasicAttachment.Vo, 0)
+	entity := entityBasic.BasicAttachmentEntity{}
+	entity.FileOwner = fileOwner
+	infos := c.sv.FindAll(ctx, entity)
+	if infos != nil && len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicAttachment.Vo
+			copier.Copy(&vo, &item)
+			vo.Url = item.Domain + item.File
+			list = append(list, vo)
+		}
+	}
+	return rt.Ok()
 }

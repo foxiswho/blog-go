@@ -67,3 +67,17 @@ func (c *AttachmentController) Query(ctx *gin.Context) {
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
+
+func (c *AttachmentController) UpdateAddByFileOwner(ctx *gin.Context) {
+	var ct modBasicAttachment.AddByFileOwnerCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.UpdateAddByFileOwner(ctx, ct))
+}

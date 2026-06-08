@@ -11,7 +11,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	"github.com/go-spring/spring-core/gs"
 	"github.com/jinzhu/copier"
@@ -63,14 +62,14 @@ func (c *BasicModuleService) Create(ctx *gin.Context, ct modBasicModule.CreateCt
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -131,7 +130,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -145,7 +144,7 @@ func (c *BasicModuleService) Update(ctx *gin.Context, ct modBasicModule.UpdateCt
 	var childData []*entityBasic.BasicModuleEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -316,7 +315,7 @@ func (c *BasicModuleService) State(ctx *gin.Context, ids []string, state enumSta
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -351,7 +350,7 @@ func (c *BasicModuleService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -384,7 +383,7 @@ func (c *BasicModuleService) LogicalRecovery(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -409,7 +408,7 @@ func (c *BasicModuleService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -436,7 +435,7 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -449,7 +448,7 @@ func (c *BasicModuleService) Query(ctx *gin.Context, ct modBasicModule.QueryCt) 
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -481,7 +480,7 @@ func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.Que
 	slice := make([]modBasicModule.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -494,7 +493,7 @@ func (c *BasicModuleService) QueryPublic(ctx *gin.Context, ct modBasicModule.Que
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -579,7 +578,7 @@ func (c *BasicModuleService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -599,7 +598,7 @@ func (c *BasicModuleService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

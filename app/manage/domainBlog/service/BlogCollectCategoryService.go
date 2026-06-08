@@ -14,7 +14,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -69,14 +68,14 @@ func (c *BlogCollectCategoryService) Create(ctx *gin.Context, ct modBlogCollectC
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(ctx, info.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -137,7 +136,7 @@ func (c *BlogCollectCategoryService) Update(ctx *gin.Context, ct modBlogCollectC
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -151,7 +150,7 @@ func (c *BlogCollectCategoryService) Update(ctx *gin.Context, ct modBlogCollectC
 	var childData []*entityBlog.BlogCollectCategoryEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ctx, ct.ParentNo, repositoryPg.WithCtxOption(ctx))
+		parent, result = r.FindByNo(ctx, ct.ParentNo, withDbPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -322,7 +321,7 @@ func (c *BlogCollectCategoryService) State(ctx *gin.Context, ids []string, state
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -357,7 +356,7 @@ func (c *BlogCollectCategoryService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -390,7 +389,7 @@ func (c *BlogCollectCategoryService) LogicalRecovery(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -415,7 +414,7 @@ func (c *BlogCollectCategoryService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -442,7 +441,7 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -452,7 +451,7 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -484,7 +483,7 @@ func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCol
 	slice := make([]modBlogCollectCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -494,7 +493,7 @@ func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCol
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -609,7 +608,7 @@ func (c *BlogCollectCategoryService) ExistName(ctx *gin.Context, ct model.BaseEx
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -629,7 +628,7 @@ func (c *BlogCollectCategoryService) ExistNo(ctx *gin.Context, ct model.BaseExis
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

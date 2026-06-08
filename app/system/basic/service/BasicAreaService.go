@@ -12,7 +12,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
@@ -433,7 +433,7 @@ func (c *BasicAreaService) Query(ctx *gin.Context, ct modBasicArea.QueryCt) (rt 
 	slice := make([]modBasicArea.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}

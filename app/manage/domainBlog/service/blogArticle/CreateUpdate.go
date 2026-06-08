@@ -22,7 +22,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoString"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/foxiswho/blog-go/pkg/tools/versionPg"
 	"github.com/gin-gonic/gin"
 	"github.com/go-spring/spring-core/gs"
@@ -154,7 +154,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sp.sv.FindByCode(ctx, c.entitySave.Code, repositoryPg.WithCtxOption(ctx))
+		_, result := c.sp.sv.FindByCode(ctx, c.entitySave.Code, withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -171,7 +171,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("数据不存在")
 		}
 		if strPg.IsNotBlank(c.ct.CategoryNo) {
-			c.recordCategory, result = c.sp.catDb.FindByNo(ctx, c.ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
+			c.recordCategory, result = c.sp.catDb.FindByNo(ctx, c.ct.CategoryNo, withDbPg.WithCtx(ctx))
 			if !result {
 				return rt.ErrorMessage("数据不存在")
 			}
@@ -233,7 +233,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	c.entitySave.Tags = datatypes.NewJSONType(tags)
 	catDb := c.sp.catDb
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := catDb.FindByNo(ctx, ct.CategoryNo, repositoryPg.WithCtxOption(ctx))
+		_, result := catDb.FindByNo(ctx, ct.CategoryNo, withDbPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}

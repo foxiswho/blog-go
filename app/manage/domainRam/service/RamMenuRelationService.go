@@ -12,7 +12,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -98,7 +97,7 @@ func (c *RamMenuRelationService) Update(ctx *gin.Context, ct modRamMenuRelation.
 		return rt.ErrorMessage("编号不能为空")
 	}
 	r := c.sv
-	_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+	_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("编号已存在")
 	}
@@ -195,7 +194,7 @@ func (c *RamMenuRelationService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -253,7 +252,7 @@ func (c *RamMenuRelationService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -280,7 +279,7 @@ func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.Q
 	slice := make([]modRamMenuRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -290,7 +289,7 @@ func (c *RamMenuRelationService) Query(ctx *gin.Context, ct modRamMenuRelation.Q
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

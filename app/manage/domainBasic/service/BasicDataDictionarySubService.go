@@ -15,7 +15,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -270,7 +270,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -283,7 +283,7 @@ func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataD
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -389,7 +389,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 			return rt.Ok()
 		}
 		values := make(map[string][]model.BaseNodeKeyValue)
-		infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 			db.Where("type_code in ?", ids)
 			return db
 		}))
@@ -403,7 +403,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 				}
 				//
 				code := model.BaseNodeKeyValue{
-					Key:    item.Code,
+					Value:  item.Code,
 					Label:  item.Name,
 					Extend: vo,
 				}
@@ -429,7 +429,7 @@ func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct 
 				}
 				//
 				code := model.BaseNodeKeyValue{
-					Key:    item.Code,
+					Value:  item.Code,
 					Label:  item.Name,
 					Extend: vo,
 				}

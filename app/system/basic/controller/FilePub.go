@@ -30,6 +30,7 @@ func (c *FilePubController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/upload-link", c.UploadLink)
 	group.POST("/upload-list", c.Query)
 	group.POST("/upload-detail", c.UploadDetail)
+	group.POST("/upload-addByFileOwner", c.UploadAddByFileOwner)
 	group.POST("/query", c.Query)
 }
 
@@ -81,4 +82,18 @@ func (c *FilePubController) UploadDetail(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.UpdateDetail(ctx, ct))
+}
+
+func (c *FilePubController) UploadAddByFileOwner(ctx *gin.Context) {
+	var ct modBasicAttachment.AddByFileOwnerCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.UpdateAddByFileOwner(ctx, ct))
 }

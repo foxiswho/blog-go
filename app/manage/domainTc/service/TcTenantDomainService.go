@@ -14,7 +14,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -131,7 +131,7 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 	}
 	r := c.sv
 	{
-		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), repositoryPg.WithCtxOption(ctx))
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString(), withDbPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -260,7 +260,7 @@ func (c *TcTenantDomainService) State(ctx *gin.Context, ct model.BaseStateIdsCt[
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -294,7 +294,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -326,7 +326,7 @@ func (c *TcTenantDomainService) LogicalRecovery(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -350,7 +350,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -376,7 +376,7 @@ func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.Que
 	slice := make([]modTcTenantDomain.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -386,7 +386,7 @@ func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.Que
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -510,7 +510,7 @@ func (c *TcTenantDomainService) ExistName(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -530,7 +530,7 @@ func (c *TcTenantDomainService) ExistCode(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -550,7 +550,7 @@ func (c *TcTenantDomainService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id, repositoryPg.WithCtxOption(ctx))
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id, withDbPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -576,7 +576,7 @@ func (c *TcTenantDomainService) SetDefaulted(ctx *gin.Context, ct model.BaseStat
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}

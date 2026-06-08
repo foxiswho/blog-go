@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/sdk/basic/key/basicEventKey"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/goccy/go-json"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -140,7 +140,7 @@ func (c *EventMakeCache) Nos(ctx context.Context) error {
 		}
 		query.TenantNo = c.ct.TenantNo
 		query.State = enumStatePg.ENABLE.Index()
-		infos := c.Sp.repEvent.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		infos := c.Sp.repEvent.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 			db = db.Order("create_at desc")
 			db.Where("no in ?", nos)
 			return db

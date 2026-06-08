@@ -10,7 +10,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -49,7 +48,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if nil == ct.Nos || 0 == len(ct.Nos) {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, repositoryPg.WithCtxOption(ctx))
+	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, withDbPg.WithCtx(ctx))
 	if !result {
 		return rt.ErrorMessage("话题 不存在")
 	}
@@ -79,7 +78,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		if r {
 			continue
 		}
-		find, b := c.article.FindByNo(ctx, article.No, repositoryPg.WithCtxOption(ctx))
+		find, b := c.article.FindByNo(ctx, article.No, withDbPg.WithCtx(ctx))
 		if !b {
 			continue
 		}
@@ -109,7 +108,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.relation
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -141,7 +140,7 @@ func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelati
 	slice := make([]modBlogTopicRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.relation
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -152,7 +151,7 @@ func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelati
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}

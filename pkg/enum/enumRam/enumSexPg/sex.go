@@ -4,6 +4,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
 )
 
+// Sex 性别
 type Sex string
 
 const (

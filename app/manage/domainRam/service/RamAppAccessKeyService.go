@@ -13,7 +13,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -120,7 +120,7 @@ func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -167,7 +167,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -199,7 +199,7 @@ func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -224,7 +224,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -251,7 +251,7 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -261,7 +261,7 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -295,13 +295,12 @@ func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAcce
 	if strPg.IsBlank(ct.AppNo) {
 		query.AppNo = "-1"
 	}
-	var con repositoryPg.Condition = func(db *gorm.DB) *gorm.DB {
-		db = db.Order("create_at desc")
-		return db
-	}
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query, con)
+	infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("create_at desc")
+		return db
+	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAppAccessKey.Vo

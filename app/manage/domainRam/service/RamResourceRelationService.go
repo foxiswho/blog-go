@@ -10,7 +10,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -183,7 +182,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -241,7 +240,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ctx, ids, repositoryPg.WithCtxOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, withDbPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -268,9 +267,9 @@ func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRe
 	//
 	slice := make([]modRamResourceRelation.Vo, 0)
 	//
-	page, err := c.sv.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := c.sv.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-	}), repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	}), withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		arg.Db = arg.Db.Order("create_at desc")
 	}))
 	if nil != err {

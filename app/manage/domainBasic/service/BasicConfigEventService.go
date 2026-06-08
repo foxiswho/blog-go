@@ -12,7 +12,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -271,7 +271,7 @@ func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent
 	rt.Data.Data = slice
 	r := c.sv
 	holder := holderPg.GetContextAccount(ctx)
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -282,7 +282,7 @@ func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent
 		if strPg.IsNotBlank(ct.Wd) {
 			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").Or("field like ?", "%"+ct.Wd+"%").Or("description like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
@@ -314,7 +314,7 @@ func (c *BasicConfigEventService) SelectNodeAllPublic(ctx *gin.Context, ct modBa
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
 	holder := holderPg.GetContextAccount(ctx)
-	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tenant_no=?", holder.GetTenantNo())
 	}))
 	if len(infos) > 0 {
@@ -351,7 +351,7 @@ func (c *BasicConfigEventService) AllByModel(ctx *gin.Context, ct modBasicConfig
 	if strPg.IsBlank(ct.ModelNo) {
 		return rt.ErrorMessage("模型编号错误")
 	}
-	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+	infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tenant_no=?", holder.GetTenantNo())
 	}))
 	if len(infos) > 0 {

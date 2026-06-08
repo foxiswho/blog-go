@@ -30,7 +30,7 @@ type CreateCt struct {
 	JobRank      string           `json:"jobRank" label:"职级" `
 	Avatar       string           `json:"avatar" label:"头像" `
 	Birthday     *typePg.DateOnly `json:"birthday" label:"生日" `
-	Sex          string           `json:"sex" label:"性别1男2女3未知" `
+	Sex          string           `json:"sex" label:"性别:男;女;未知" `
 	IdentityCode string           `json:"identityCode" label:"身份编号 "`
 
 	//MailVerify       jsonPg.Int8        `json:"mailVerify" label:"邮箱验证1是2否" `                           // 邮箱验证1是2否

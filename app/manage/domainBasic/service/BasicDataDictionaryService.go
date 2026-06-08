@@ -14,7 +14,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/withDbPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -250,7 +250,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 	r := c.sv
 	slice := make([]modBasicDataDictionary.Vo, 0)
 	rt.Data.Data = slice
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
@@ -263,7 +263,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	}), repositoryPg.WithCtx(ctx))
+	}), withDbPg.WithCtx(ctx))
 
 	if nil != err {
 		return rt.Ok()
@@ -319,9 +319,9 @@ func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query, repositoryPg.WithCondition(func(db *gorm.DB) *gorm.DB {
-		db.Order("sort,create_at asc")
-		db.Where("type_code is null or type_code = '' ")
+	infos := c.sv.FindAll(ctx, query, withDbPg.Condition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("sort,create_at asc")
+		db = db.Where("type_code is null or type_code = '' ")
 		return db
 	}))
 	if len(infos) > 0 {

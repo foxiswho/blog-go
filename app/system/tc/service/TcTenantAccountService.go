@@ -15,7 +15,6 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
 	syslog "github.com/go-spring/log"
 	"github.com/go-spring/spring-core/gs"
@@ -241,7 +240,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
+	page, err := r.FindAllPage(ctx, query, withDbPg.WithOptionPg(func(arg *withDbPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
 		}
