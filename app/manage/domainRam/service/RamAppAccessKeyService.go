@@ -256,10 +256,10 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 			ct.PageSize = 20
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {

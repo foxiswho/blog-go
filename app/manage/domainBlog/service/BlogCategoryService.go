@@ -424,9 +424,9 @@ func (c *BlogCategoryService) Query(ctx *gin.Context, ct modBlogCategory.QueryCt
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at asc")
+		arg.Db = arg.Db.Order("create_at asc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
@@ -467,9 +467,9 @@ func (c *BlogCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCategory.Q
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at asc")
+		arg.Db = arg.Db.Order("create_at asc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {

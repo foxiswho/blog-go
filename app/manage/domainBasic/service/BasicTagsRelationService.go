@@ -352,9 +352,9 @@ func (c *BasicTagsRelationService) Query(ctx *gin.Context, ct modBasicTagsRelati
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at asc")
+		arg.Db = arg.Db.Order("create_at asc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
@@ -700,19 +700,19 @@ func (c *BasicTagsRelationService) GetCategoryTags(ctx *gin.Context, categoryRoo
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("category_no,name ASC,create_at desc")
+		arg.Db = arg.Db.Order("category_no,name ASC,create_at desc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").
 				Or("name_short like ?", "%"+ct.Wd+"%").
 				Or("code like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
 		//名称
 		if strPg.IsNotBlank(ct.Name) {
-			arg.Db.Where("name like ?", "%"+ct.Name+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Name+"%")
 		}
 		//商户条件 或者系统分类
-		arg.Db.Where(
+		arg.Db = arg.Db.Where(
 			r.Db().Where("tenant_no = ?", holder.GetTenantNo()).
 				Or("type_sys = ?", typeSysPg.System.String()))
 

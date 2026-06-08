@@ -270,9 +270,9 @@ func (c *ApiDiplAccessKeyService) Query(ctx *gin.Context, ct modApiDiplAccessKey
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//排序
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {

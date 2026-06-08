@@ -246,20 +246,20 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
 		if "" != ct.Wd {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		// 时间区间查询
 		if nil != ct.CreateAtStart && nil != ct.CreateAtEnd {
-			arg.Db.Where("create_at between ? and ?", ct.CreateAtStart, ct.CreateAtEnd)
+			arg.Db = arg.Db.Where("create_at between ? and ?", ct.CreateAtStart, ct.CreateAtEnd)
 		}
 		//标签
 		if nil != ct.TagsQuery && len(ct.TagsQuery) > 0 {
 			for _, tag := range ct.TagsQuery {
 				if strPg.IsNotBlank(tag) {
-					arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
+					arg.Db = arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}
@@ -269,9 +269,9 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 				//获取缓存，得到 编号
 				get, b := c.rdu.Get(ctx, blogKeyPg.ArticleCategoryTenantNoAndNoByCode(tenantNo, tag))
 				if b {
-					arg.Db.Where("categorys @> ?", "[\""+get+"\"]")
+					arg.Db = arg.Db.Where("categorys @> ?", "[\""+get+"\"]")
 				} else {
-					arg.Db.Where("categorys @> ?", "[\""+tag+"\"]")
+					arg.Db = arg.Db.Where("categorys @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}

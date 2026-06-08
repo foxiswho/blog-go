@@ -439,9 +439,9 @@ func (c *BasicAreaService) Query(ctx *gin.Context, ct modBasicArea.QueryCt) (rt 
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//排序
-		arg.Db.Order("create_at asc")
+		arg.Db = arg.Db.Order("create_at asc")
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {

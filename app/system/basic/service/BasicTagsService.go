@@ -320,10 +320,10 @@ func (c *BasicTagsService) Query(ctx *gin.Context, ct modBasicTags.QueryCt) (rt 
 			ct.PageSize = 20
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}))
 	if nil != err {

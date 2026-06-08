@@ -454,14 +454,14 @@ func (c *RamResourceService) Query(ctx *gin.Context, ct modRamResource.QueryCt) 
 			ct.PageSize = 20
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		arg.Db.Order("name,create_at desc")
+		arg.Db = arg.Db.Order("name,create_at desc")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			arg.Db.Where("parent_no !='' ")
+			arg.Db = arg.Db.Where("parent_no !='' ")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
@@ -502,14 +502,14 @@ func (c *RamResourceService) QueryPublic(ctx *gin.Context, ct modRamResource.Que
 			ct.PageSize = 20
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		arg.Db.Order("name,create_at desc")
+		arg.Db = arg.Db.Order("name,create_at desc")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			arg.Db.Where("parent_no !='' ")
+			arg.Db = arg.Db.Where("parent_no !='' ")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {

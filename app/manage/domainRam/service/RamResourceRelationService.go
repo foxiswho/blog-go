@@ -271,7 +271,7 @@ func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRe
 	page, err := c.sv.FindAllPage(ctx, query, repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 	}), repositoryPg.WithOptionPg(func(arg *repositoryPg.OptionParams) {
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 	}))
 	if nil != err {
 		return rt.Ok()

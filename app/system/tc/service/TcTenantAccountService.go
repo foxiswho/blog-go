@@ -246,11 +246,11 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			ct.PageSize = 20
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		arg.Db.Order("create_at desc")
-		arg.Db.Where("type_domain= ?", tp.ToTypeDomain().String())
+		arg.Db = arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Where("type_domain= ?", tp.ToTypeDomain().String())
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("account like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("account like ?", "%"+ct.Wd+"%")
 		}
 		//部门
 		if nil != ct.Departments && len(ct.Departments) > 0 {
@@ -264,9 +264,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 						sqlDb = sqlDb.Or("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				arg.Db.Where(sqlDb)
+				arg.Db = arg.Db.Where(sqlDb)
 			} else {
-				arg.Db.Where("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr("0"))
+				arg.Db = arg.Db.Where("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//角色
@@ -281,9 +281,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				arg.Db.Where(sqlDb)
+				arg.Db = arg.Db.Where(sqlDb)
 			} else {
-				arg.Db.Where("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr("0"))
+				arg.Db = arg.Db.Where("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//级别
@@ -299,9 +299,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					arg.Db.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				} else {
-					arg.Db.Where("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr("0"))
+					arg.Db = arg.Db.Where("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 				}
 			}
 		}
@@ -318,7 +318,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					arg.Db.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				}
 			}
 		}
@@ -335,7 +335,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					arg.Db.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				}
 			}
 		}
@@ -344,9 +344,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.RegisterTimeRange {
 				count := len(ct.RegisterTimeRange)
 				if count == 2 && nil != ct.RegisterTimeRange[0] && nil != ct.RegisterTimeRange[1] {
-					arg.Db.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
+					arg.Db = arg.Db.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
 				} else if count == 1 && nil != ct.RegisterTimeRange[0] {
-					arg.Db.Where("register_time >= ?", ct.RegisterTimeRange[0])
+					arg.Db = arg.Db.Where("register_time >= ?", ct.RegisterTimeRange[0])
 				}
 			}
 		}
@@ -355,9 +355,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.LoginTimeRange {
 				count := len(ct.LoginTimeRange)
 				if count == 2 && nil != ct.LoginTimeRange[0] && nil != ct.LoginTimeRange[1] {
-					arg.Db.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
+					arg.Db = arg.Db.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
 				} else if count == 1 && nil != ct.LoginTimeRange[0] {
-					arg.Db.Where("login_time >= ?", ct.LoginTimeRange[0])
+					arg.Db = arg.Db.Where("login_time >= ?", ct.LoginTimeRange[0])
 				}
 			}
 		}
@@ -366,9 +366,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.BirthdayRange {
 				count := len(ct.BirthdayRange)
 				if count == 2 && nil != ct.BirthdayRange[0] && nil != ct.BirthdayRange[1] {
-					arg.Db.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
+					arg.Db = arg.Db.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
 				} else if count == 1 && nil != ct.BirthdayRange[0] {
-					arg.Db.Where("birthday >= ?", ct.BirthdayRange[0])
+					arg.Db = arg.Db.Where("birthday >= ?", ct.BirthdayRange[0])
 				}
 			}
 		}

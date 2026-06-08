@@ -340,15 +340,15 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//发布范围
 		if nil != ct.Where && len(ct.Where) > 0 {
 			for _, tag := range ct.Where {
-				arg.Db.Where("where @> ?", "[\""+tag+"\"]")
+				arg.Db = arg.Db.Where("where @> ?", "[\""+tag+"\"]")
 			}
 		}
 		//标签
@@ -357,9 +357,9 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 				//获取缓存，得到 标签编号
 				get, b := c.rdu.Get(ctx, utilsBlog.TagCacheKey(tag))
 				if b {
-					arg.Db.Where("tags @> ?", get)
+					arg.Db = arg.Db.Where("tags @> ?", get)
 				} else {
-					arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
+					arg.Db = arg.Db.Where("tags @> ?", "[\""+tag+"\"]")
 				}
 			}
 		}

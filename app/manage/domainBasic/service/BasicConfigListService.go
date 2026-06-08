@@ -275,10 +275,10 @@ func (c *BasicConfigListService) Query(ctx *gin.Context, ct modBasicConfigList.Q
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//排序
-		arg.Db.Order("create_at asc")
-		arg.Db.Where("tenant_no=?", holder.GetTenantNo())
+		arg.Db = arg.Db.Order("create_at asc")
+		arg.Db = arg.Db.Where("tenant_no=?", holder.GetTenantNo())
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%")
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 	}), repositoryPg.WithCtx(ctx))
 	if nil != err {
