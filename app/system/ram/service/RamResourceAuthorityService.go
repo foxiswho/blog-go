@@ -76,7 +76,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 //	@return rt
 func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority.CreatByGroupCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	if ct.GroupId.ToInt64() < 1 {
+	if strPg.IsBlank(ct.GroupNo) {
 		return rt.ErrorMessage("请选择资源组")
 	}
 	if ct.Ids == nil || len(ct.Ids) < 1 {
@@ -85,16 +85,18 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 	ids := make([]string, 0)
 	for _, id := range ct.Ids {
 		id = strings.TrimSpace(id)
-		ids = append(ids, id)
+		if strPg.IsNotBlank(id) {
+			ids = append(ids, id)
+		}
 	}
 	if len(ids) < 1 {
 		return rt.ErrorMessage("请选择数据")
 	}
-	group, result := c.groupDb.FindById(ctx, ct.GroupId.ToInt64())
+	group, result := c.groupDb.FindByNo(ctx, ct.GroupNo)
 	if !result {
 		return rt.ErrorMessage("资源组不存在")
 	}
-	resourceData, r := c.resDb.FindAllByIdStringIn(ctx, ids)
+	resourceData, r := c.resDb.FindAllByNoIn(ctx, ids)
 	if !r {
 		return rt.ErrorMessage("资源数据不存在")
 	}
@@ -115,9 +117,9 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 		info.TypeSys = typeSysPg.General.String()
 		info.TypeAttr = typeAttrPg.Resource.String()
 		info.TypeDomain = group.TypeDomain
-		info.GroupId = group.ID
-		info.TypeValue = numberPg.Int64ToString(group.ID)
-		info.ResourceId = item.ID
+		info.GroupNo = group.No
+		info.TypeValue = group.No
+		info.ResourceNo = item.No
 		info.Path = item.Path
 		info.Method = item.Method
 		info.TypeValueSource = numberPg.Int64ToString(item.ID)

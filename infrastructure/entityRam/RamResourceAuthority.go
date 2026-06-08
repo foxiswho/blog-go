@@ -25,8 +25,8 @@ type RamResourceAuthorityEntity struct {
 	TypeAttr        string     `gorm:"column:type_attr;type:varchar(100);index;default:;comment:属性|菜单分类|资源" json:"type_attr" comment:"属性;菜单menu;按钮button;资源:resource;其他other" `
 	TypeValueSource string     `gorm:"column:type_value_source;type:varchar(100);index;default:;comment:原始类型id" json:"type_value_source" comment:"原始类型id" `
 	Mark            string     `gorm:"column:mark;type:varchar(80);index;default:;comment:标记" json:"mark" comment:"标记" `
-	ResourceId      int64      `gorm:"column:resource_id;type:bigint;not null;index;default:0;comment:资源id" json:"resource_id" comment:"资源id" `
-	GroupId         int64      `gorm:"column:group_id;type:bigint;not null;index;default:0;comment:资源组id" json:"group_id" comment:"资源组id" `
+	ResourceNo      string     `gorm:"column:resource_no;type:varchar(80);index;default:;comment:资源" json:"resource_no" comment:"资源"`
+	GroupNo         string     `gorm:"column:group_no;type:varchar(80);index;default:;comment:资源组" json:"group_no" comment:"资源组"`
 	Path            string     `gorm:"column:path;type:varchar(5000);comment:路径" json:"path" comment:"路径" `
 	Method          string     `gorm:"column:method;type:varchar(255);comment:方法" json:"method" comment:"方法" `
 }

@@ -1,9 +1,10 @@
 package modRamResourceAuthority
 
 import (
+	"time"
+
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
-	"time"
 )
 
 type QueryCt struct {
@@ -16,7 +17,7 @@ type QueryCt struct {
 	NameFull     string              `json:"nameFull" label:"全称" `      // 全称
 	Description  string              `json:"description" label:"描述" `   // 描述
 	State        typePg.Int8         `json:"state" label:"状态:1启用;2禁用" ` // 状态:1启用;2禁用
-	CreateBy     typePg.Int8         `json:"createBy" label:"创建人" `     // 创建人
+	CreateBy     string              `json:"createBy" label:"创建人" `     // 创建人
 	CreateAt     *time.Time          `json:"createAt" label:"创建时间" `    // 创建时间
 	TypeCategory string              `json:"typeCategory" label:"类型" `
 	TypeValue    string              `json:"typeValue" label:"类型值" `

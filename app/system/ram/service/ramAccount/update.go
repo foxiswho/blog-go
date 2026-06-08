@@ -8,6 +8,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumRam/enumSexPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/go-spring/log"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -145,6 +146,9 @@ func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp
 	//赋值
 	var entity entityRam.RamAccountEntity
 	copier.Copy(&entity, &dataCt)
+	//
+	log.Infof(ctx, log.TagBizDef, "entity=%+v", entity)
+	log.Infof(ctx, log.TagBizDef, "dataCt=%+v", dataCt)
 	//
 	r := c.sp.accDb
 	info, query := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())

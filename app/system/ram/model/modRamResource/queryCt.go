@@ -1,9 +1,10 @@
 package modRamResource
 
 import (
+	"time"
+
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/tools/typePg"
-	"time"
 )
 
 type QueryCt struct {
@@ -19,6 +20,6 @@ type QueryCt struct {
 	CreateBy    string              `json:"createBy" label:"创建人" `     // 创建人
 	CreateAt    *time.Time          `json:"createAt" label:"创建时间" `    // 创建时间
 	ALL         bool                `json:"all" label:"所有数据" `
-	ParentId    string              `json:"parentId" label:"上级" `
+	ParentNo    string              `json:"parentNo" label:"上级" `
 	TypeAttr    string              `json:"typeAttr" label:"属性" `
 }

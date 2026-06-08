@@ -1,12 +1,14 @@
 package modRamResource
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"time"
+
+	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 )
 
 type Vo struct {
 	ID          typePg.Uint64String `json:"id" label:"id" `
+	No          string              `json:"no" label:"编号" `
 	Name        string              `json:"name" label:"名称" `     // 名称
 	NameFl      string              `json:"nameFl" label:"名称外文" ` // 名称外文
 	Code        string              `json:"code" label:"标志" `

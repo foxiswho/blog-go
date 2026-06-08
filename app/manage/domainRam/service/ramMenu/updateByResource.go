@@ -225,11 +225,11 @@ func (c *UpdateByResource) updateResourceMenu() {
 					var info entityRam.RamResourceMenuEntity
 					copier.Copy(&info, &item)
 					info.ID = 0
-					info.ResourceId = item.ID
-					info.GroupId = item.GroupId
-					info.ParentId = c.menuData.ParentId
-					info.IdLink = c.menuData.IdLink
-					info.MenuId = c.menuData.ID
+					info.ResourceNo = item.ResourceNo
+					info.GroupNo = item.GroupNo
+					info.ParentNo = c.menuData.ParentNo
+					info.NoLink = c.menuData.NoLink
+					info.MenuNo = c.menuData.No
 					saveData = append(saveData, info)
 				}
 			}
@@ -248,10 +248,10 @@ func (c *UpdateByResource) updateResourceMenu() {
 					var info entityRam.RamResourceMenuEntity
 					copier.Copy(&info, &item)
 					info.ID = 0
-					info.ResourceId = item.ID
-					info.ParentId = c.menuData.ParentId
-					info.IdLink = c.menuData.IdLink
-					info.MenuId = c.menuData.ID
+					info.ResourceNo = item.No
+					info.ParentNo = c.menuData.ParentNo
+					info.NoLink = c.menuData.NoLink
+					info.MenuNo = c.menuData.No
 					saveData = append(saveData, info)
 				}
 			}

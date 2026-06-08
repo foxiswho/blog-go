@@ -115,12 +115,12 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 		info.TypeSys = typeSysPg.General.String()
 		info.TypeAttr = typeAttrPg.Resource.String()
 		info.TypeDomain = group.TypeDomain
-		info.GroupId = group.ID
-		info.TypeValue = numberPg.Int64ToString(group.ID)
-		info.ResourceId = item.ID
+		info.GroupNo = group.No
+		info.TypeValue = group.No
+		info.ResourceNo = item.No
 		info.Path = item.Path
 		info.Method = item.Method
-		info.TypeValueSource = numberPg.Int64ToString(item.ID)
+		info.TypeValueSource = item.No
 		info.Mark = utilsRam.ResourceAuthorityMarkByUint64(resourceTypeCategoryPg.Group, group.ID, item.ID)
 		//已存在 则跳过
 		_, b := auth.FindByMark(ctx, info.Mark)

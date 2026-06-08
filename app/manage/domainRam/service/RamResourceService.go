@@ -627,7 +627,7 @@ func (c *RamResourceService) SelectCategoryPublic(ctx *gin.Context, ct modRamRes
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResource.Vo, 0)
 	rt.Data = slice
-	infos, result := c.sv.FindByParentIdRoot(ctx)
+	infos, result := c.sv.FindByParentNoRoot(ctx)
 	if result {
 		for _, item := range infos {
 			var vo modRamResource.Vo

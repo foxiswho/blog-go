@@ -192,13 +192,13 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 	c.log.Infof("c.groupAuthData=%+v", len(c.groupAuthData))
 	if len(c.groupAuthData) > 0 {
-		ids := make([]int64, 0)
+		ids := make([]string, 0)
 		for _, item := range c.groupAuthData {
-			ids = append(ids, item.ResourceId)
+			ids = append(ids, item.ResourceNo)
 		}
 		result := false
 		data := make([]*entityRam.RamResourceEntity, 0)
-		data, result = c.resDb.FindAllByIdIn(c.ctx, ids)
+		data, result = c.resDb.FindAllByNoIn(c.ctx, ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
 		}

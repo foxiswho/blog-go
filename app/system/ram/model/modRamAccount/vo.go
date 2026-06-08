@@ -37,7 +37,7 @@ type Vo struct {
 	Avatar        string              `json:"avatar" label:"头像" `
 	Birthday      *typePg.DateOnly    `json:"birthday" label:"生日" `
 	Sex           string              `json:"sex" label:"性别" `
-	IdentityNo    string              `json:"identityCode" label:"身份编号 "`
+	IdentityCode  string              `json:"identityCode" label:"身份编号 "`
 	Os            OsVo                `json:"os"`
 	LoginTime     *typePg.Time        `json:"loginTime" comment:"登陆时间" `
 	//

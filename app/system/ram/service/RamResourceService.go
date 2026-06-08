@@ -598,18 +598,26 @@ func (c *RamResourceService) SelectNodeAllPublic(ctx *gin.Context, ct modRamReso
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceService) SelectPublic(ctx *gin.Context, ct modRamResource.QueryCt) (rt rg.Rs[[]modRamResource.Vo]) {
+func (c *RamResourceService) SelectPublic(ctx *gin.Context, ct modRamResource.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResource.Vo, 0)
+	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResource.Vo
 			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
+			//
+			code := model.BaseNodeNo{
+				Value:    item.No,
+				Label:    item.Name,
+				ParentNo: item.ParentNo,
+				Extend:   vo,
+			}
+			//
+			slice = append(slice, code)
 		}
 		rt.Data = slice
 	}
@@ -621,18 +629,26 @@ func (c *RamResourceService) SelectPublic(ctx *gin.Context, ct modRamResource.Qu
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceService) SelectCategoryPublic(ctx *gin.Context, ct modRamResource.QueryCt) (rt rg.Rs[[]modRamResource.Vo]) {
+func (c *RamResourceService) SelectCategoryPublic(ctx *gin.Context, ct modRamResource.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResource.Vo, 0)
+	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos, result := c.sv.FindByParentIdRoot(ctx)
+	infos, result := c.sv.FindByParentNoRoot(ctx)
 	if result {
 		for _, item := range infos {
 			var vo modRamResource.Vo
 			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
+			//
+			code := model.BaseNodeNo{
+				Value:    item.No,
+				Label:    item.Name,
+				ParentNo: item.ParentNo,
+				Extend:   vo,
+			}
+			//
+			slice = append(slice, code)
 		}
 		rt.Data = slice
 	}

@@ -34,6 +34,7 @@ func (c *ResourceController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
 	group := r.Group("/pg2lq/sys/ram/resource", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
+	group.POST("/createUpdateByCategory", c.CreateUpdateByCategory)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
@@ -44,6 +45,7 @@ func (c *ResourceController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/selectCategoryPublic", c.SelectCategoryPublic)
+	group.POST("/selectCategory", c.SelectCategory)
 	group.POST("/existName", c.ExistName)
 }
 
@@ -58,6 +60,24 @@ func (c *ResourceController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
+}
+func (c *ResourceController) CreateUpdateByCategory(ctx *gin.Context) {
+	var ct modRamResource.CreateUpdateCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ct.ParentNo = ""
 	if ct.ID.ToInt64() > 0 {
 		ctx.JSON(200, c.sv.Update(ctx, ct))
 	} else {
@@ -195,6 +215,10 @@ func (c *ResourceController) SelectPublic(ctx *gin.Context) {
 
 func (c *ResourceController) SelectCategoryPublic(ctx *gin.Context) {
 	ct := modRamResource.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ctx.JSON(200, c.sv.SelectCategoryPublic(ctx, ct))
+}
+func (c *ResourceController) SelectCategory(ctx *gin.Context) {
+	ct := modRamResource.QueryCt{}
 	ctx.JSON(200, c.sv.SelectCategoryPublic(ctx, ct))
 }
 
