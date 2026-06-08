@@ -242,6 +242,7 @@ func (c *BasicDataDictionaryService) PhysicalDeletion(ctx *gin.Context, ids []st
 //	@receiver c
 //	@param ct
 func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicDataDictionary.Vo]]) {
+	c.log.Debugf("ct=%+v", ct)
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
@@ -253,11 +254,11 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 		}
 		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		arg.Db.Order("create_at desc")
-		arg.Db.Where("type_code is null or type_code=''")
+		arg.Db = arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Where("(type_code is null or type_code='')")
 		//自定义查询
 		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db.Where("name like ?", "%"+ct.Wd+"%").
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").
 				Or("code like ?", "%"+ct.Wd+"%").
 				Or("name_fl like ?", "%"+ct.Wd+"%").
 				Or("name_full like ?", "%"+ct.Wd+"%")

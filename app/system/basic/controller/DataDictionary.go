@@ -29,6 +29,7 @@ func (c *DataDictionaryController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/pg2lq/sys/basic/data-dictionary", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
+	group.GET("/typeCodePublic/:id", c.TypeCodeListGet)
 	group.POST("/typeCodePublic", c.TypeCodeList)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
@@ -234,5 +235,15 @@ func (c *DataDictionaryController) TypeCodeList(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
+	ctx.JSON(200, c.dictSubRep.TypeCodeList(ctx, ct))
+}
+func (c *DataDictionaryController) TypeCodeListGet(ctx *gin.Context) {
+	param := ctx.Param("id")
+	if "" == param {
+		ctx.JSON(200, rg.Error[string]("码值类型不能为空"))
+		return
+	}
+	var ct modBasicDataDictionary.SelectNodeCt
+	ct.TypeCode = param
 	ctx.JSON(200, c.dictSubRep.TypeCodeList(ctx, ct))
 }
