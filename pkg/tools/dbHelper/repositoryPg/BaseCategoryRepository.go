@@ -40,7 +40,9 @@ func (b *BaseCategoryRepository[T, ID]) Log() *log2.Logger {
 }
 
 func (b *BaseCategoryRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...OptionPg) *gorm.DB {
-	arg := OptionParams{}
+	arg := OptionParams{
+		Db: db,
+	}
 	for _, opt := range opts {
 		opt(&arg)
 	}
@@ -49,11 +51,11 @@ func (b *BaseCategoryRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...Opt
 		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
 		if exists {
 			//解析表名称
-			db.Statement.Parse(b.Entity)
-			return db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table))
+			arg.Db.Statement.Parse(b.Entity)
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, arg.Db.Statement.Schema.Table))
 		}
 	}
-	return db
+	return arg.Db
 }
 
 func (b *BaseCategoryRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...OptionPg) (*gorm.DB, OptionParams) {
@@ -72,7 +74,7 @@ func (b *BaseCategoryRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...O
 		if exists {
 			//解析表名称
 			arg.Db.Statement.Parse(b.Entity)
-			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table)), arg
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, arg.Db.Statement.Schema.Table)), arg
 		}
 	}
 	return arg.Db, arg

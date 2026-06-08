@@ -106,7 +106,7 @@ func (b *BaseRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...OptionPg) *
 		if exists {
 			//解析表名称
 			arg.Db.Statement.Parse(b.Entity)
-			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table))
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, arg.Db.Statement.Schema.Table))
 		}
 	}
 	return arg.Db
@@ -128,7 +128,7 @@ func (b *BaseRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...OptionPg)
 		if exists {
 			//解析表名称
 			arg.Db.Statement.Parse(b.Entity)
-			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, db.Statement.Schema.Table)), arg
+			return arg.Db.Scopes(multiTenantPg.ScopeRulePgWhere(arg.Ctx, arg.Db.Statement.Schema.Table)), arg
 		}
 	}
 	return arg.Db, arg
