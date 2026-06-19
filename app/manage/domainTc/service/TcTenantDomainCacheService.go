@@ -10,9 +10,9 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
 	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

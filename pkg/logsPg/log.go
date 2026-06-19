@@ -1,7 +1,7 @@
 package logsPg
 
 import (
-	"github.com/go-spring/log"
+	"go-spring.org/log"
 )
 
 var (

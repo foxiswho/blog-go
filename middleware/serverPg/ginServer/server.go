@@ -8,8 +8,8 @@ import (
 
 	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 // GinServerDefault 初始化默认服务

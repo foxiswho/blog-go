@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/foxiswho/blog-go/pkg/configPg/settingPg"
-	"github.com/go-spring/log"
+	"go-spring.org/log"
 )
 
 // ManageConfigKey

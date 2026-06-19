@@ -14,9 +14,9 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/entityRam"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

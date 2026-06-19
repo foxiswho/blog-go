@@ -5,7 +5,7 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

@@ -6,7 +6,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/ram/listenerRam"
 	"github.com/foxiswho/blog-go/middleware/runnerPg/data"
 	"github.com/foxiswho/blog-go/middleware/runnerPg/table"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

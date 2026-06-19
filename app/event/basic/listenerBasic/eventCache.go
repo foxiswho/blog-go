@@ -9,7 +9,7 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/eventBasicEvent"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	_ "github.com/go-spring/spring-core/gs"
+	_ "go-spring.org/spring/gs"
 )
 
 type EventCacheListener struct {

@@ -9,9 +9,9 @@ import (
 	"github.com/foxiswho/blog-go/app/event/basic/service/tagsBasicEvent"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	_ "github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // TagsListener 标签处理

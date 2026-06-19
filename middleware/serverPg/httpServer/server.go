@@ -5,8 +5,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

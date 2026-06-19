@@ -11,8 +11,8 @@ import (
 	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 

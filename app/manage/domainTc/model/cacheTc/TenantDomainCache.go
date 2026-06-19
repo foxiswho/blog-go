@@ -4,7 +4,7 @@ import (
 	"github.com/foxiswho/blog-go/app/manage/domainTc/model/dtoTenantDomain"
 	"github.com/foxiswho/blog-go/pkg/configPg"
 	"github.com/foxiswho/blog-go/pkg/tools/mapPg"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/spring/gs"
 
 	"strings"
 )

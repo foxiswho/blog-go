@@ -11,8 +11,8 @@ import (
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
@@ -23,7 +23,7 @@ func init() {
 // @Description:
 type AccountController struct {
 	routerPg.RouteRegistrar
-	Sp        *authPg.GroupManageMiddlewareSp `autowire:""`
+	Sp        *authPg.GroupManageMiddlewareSp    `autowire:""`
 	sv        *service.RamAccountService         `autowire:"?"`
 	ap        *service.RamAccountPasswordService `autowire:"?"`
 	appModule appModulePg.AppModule

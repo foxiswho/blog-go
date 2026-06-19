@@ -5,7 +5,7 @@ import (
 
 	"github.com/foxiswho/blog-go/pkg/consts/constContextPg"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
+	"go-spring.org/log"
 )
 
 func GetContextAccount(ctx *gin.Context) (holder HolderPg) {

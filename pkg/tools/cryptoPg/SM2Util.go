@@ -6,10 +6,10 @@ import (
 	"encoding/hex"
 
 	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/go-spring/log"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/x509"
+	"go-spring.org/log"
 )
 
 type SM2Util struct {

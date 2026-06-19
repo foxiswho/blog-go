@@ -5,8 +5,8 @@ import (
 
 	_ "github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
 	"github.com/foxiswho/blog-go/pkg/configPg/pg"
-	"github.com/go-spring/spring-core/gs"
 	g "github.com/redis/go-redis/v9"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

@@ -3,7 +3,7 @@ package attachmentPg
 import (
 	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/drive"
 	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

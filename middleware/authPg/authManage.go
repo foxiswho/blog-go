@@ -14,11 +14,11 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/convPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 // 验证 ownerCode 必填

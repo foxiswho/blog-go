@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-spring/log"
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/x509"
+	"go-spring.org/log"
 )
 
 func Test_SM2Util_001(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	_ "github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
 	_ "github.com/foxiswho/blog-go/middleware/serverPg/httpServer"
 	_ "github.com/foxiswho/blog-go/router"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/spring/gs"
 	"os"
 )
 

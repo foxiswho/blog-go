@@ -7,8 +7,8 @@ import (
 	"github.com/foxiswho/blog-go/app/event/ram/service/accountSessionRamEvent"
 	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	_ "github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // 加载 密钥缓存

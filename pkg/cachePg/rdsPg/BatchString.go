@@ -7,10 +7,10 @@ import (
 
 	"github.com/foxiswho/blog-go/pkg/consts/constBlogPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/redis/go-redis/v9"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

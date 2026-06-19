@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/foxiswho/blog-go/pkg/configPg"
-	_ "github.com/go-spring/spring-core/gs"
+	_ "go-spring.org/spring/gs"
 )
 
 // ZzBootstrap

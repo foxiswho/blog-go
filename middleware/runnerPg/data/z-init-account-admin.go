@@ -5,7 +5,7 @@ import (
 
 	"github.com/foxiswho/blog-go/app/event/ram/service/accountDomainInit"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	_ "github.com/go-spring/spring-core/gs"
+	_ "go-spring.org/spring/gs"
 )
 
 // ZInitAccountAdmin

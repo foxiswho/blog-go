@@ -9,7 +9,7 @@ import (
 
 	"aidanwoods.dev/go-paseto"
 	"github.com/foxiswho/blog-go/pkg/configPg/pg"
-	"github.com/go-spring/log"
+	"go-spring.org/log"
 	"github.com/pangu-2/go-tools/tools/noPg"
 )
 

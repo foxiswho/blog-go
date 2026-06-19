@@ -10,8 +10,8 @@ import (
 	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
 	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
 	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/go-spring/log"
-	_ "github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // AttachmentListener 附件处理

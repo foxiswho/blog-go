@@ -10,9 +10,9 @@ import (
 	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/foxiswho/blog-go/pkg/sdk/blog/key/blogKeyPg"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/spring-core/gs"
 	"github.com/goccy/go-json"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {

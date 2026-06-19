@@ -8,7 +8,7 @@ import (
 	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/foxiswho/blog-go/pkg/interfaces"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
+	"go-spring.org/log"
 	"gorm.io/gorm"
 )
 
