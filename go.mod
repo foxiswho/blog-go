@@ -24,12 +24,14 @@ require (
 	github.com/redis/go-redis/v9 v9.20.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/sirupsen/logrus v1.9.4
+	github.com/tjfoc/gmsm v1.4.1
 	github.com/xuri/excelize/v2 v2.10.1
 	github.com/yuin/goldmark v1.8.2
 	github.com/yuin/goldmark-emoji v1.0.6
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
 	go-spring.org/log v0.1.1
+	go-spring.org/spring v1.3.1
 	go.abhg.dev/goldmark/anchor v0.2.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.abhg.dev/goldmark/toc v0.12.0
@@ -55,7 +57,6 @@ require (
 	github.com/casbin/govaluate v1.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
-	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.1.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/expr-lang/expr v1.17.8 // indirect
@@ -64,7 +65,6 @@ require (
 	github.com/gin-contrib/sse v1.1.1 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/glebarez/sqlite v1.11.0 // indirect
-	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-sql-driver/mysql v1.10.0 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
@@ -112,13 +112,12 @@ require (
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/timandy/routine v1.1.6 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
-	go-spring.org/spring v1.3.1 // indirect
+	go-spring.org/gs-mock v0.0.9 // indirect
 	go-spring.org/stdlib v0.1.3 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect

@@ -1,6 +1,6 @@
 [server]
 # 端口
-port = 9981
+addr = ":9981"
 # 不带 / 后缀
 domain = "http://localhost:9981"
 

@@ -2,14 +2,16 @@ package ginServer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 
-	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
+	"go-spring.org/stdlib/errutil"
 )
 
 // GinServerDefault 初始化默认服务
@@ -39,18 +41,29 @@ type GinServer struct {
 //	@param port: 服务监听端口
 //	@param registrars: 路由注册器集合，由 DI 容器自动注入
 //	@return *GinServer
-func NewGinServer(port string, registrars []routerPg.RouteRegistrar) *GinServer {
+func NewGinServer(cfg gs.SimpleHttpServerConfig, e *gin.Engine) *GinServer {
 	//log.Infof(context.Background(), log.TagAppDef, "NewGinServer.port:%+v ", port)
-	engine := GetInstance()
-	for _, r := range registrars {
-		r.RegisterRoutes(engine)
+	//engine := GetInstance()
+	//for _, r := range registrars {
+	//	r.RegisterRoutes(engine)
+	//}
+	port := "8080"
+	idx := strings.LastIndex(cfg.Address, ":")
+	if idx != -1 && idx < len(cfg.Address)-1 {
+		port = cfg.Address[idx+1:]
+	} else {
+		cfg.Address = ":" + port
 	}
 	svr := &GinServer{}
 	svr.Port = port
-	svr.svrEngine = engine
+	svr.svrEngine = e
 	svr.svr = &http.Server{
-		Addr:    ":" + port,
-		Handler: svr.svrEngine,
+		Handler:           svr.svrEngine,
+		Addr:              cfg.Address,
+		ReadTimeout:       cfg.ReadTimeout,
+		ReadHeaderTimeout: cfg.HeaderTimeout,
+		WriteTimeout:      cfg.WriteTimeout,
+		IdleTimeout:       cfg.IdleTimeout,
 	}
 	return svr
 }
@@ -73,7 +86,11 @@ func (s *GinServer) Run(ctx context.Context, sig gs.ReadySignal) error {
 	fmt.Printf("port: %+v\n", s.Port)
 	fmt.Printf("url: http://localhost:%+v\n", s.Port)
 	fmt.Println()
-	return s.svr.Serve(ln)
+	err = s.svr.Serve(ln)
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return errutil.Explain(err, "failed to serve on %s", s.svr.Addr)
 }
 
 // 关闭
