@@ -9,10 +9,6 @@ import (
 	"go-spring.org/spring/gs"
 )
 
-func init() {
-	gs.Provide(NewServer()).AsServer()
-}
-
 type MyServer struct {
 	svr *http.Server
 }

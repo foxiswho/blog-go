@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
@@ -41,12 +42,12 @@ type GinServer struct {
 //	@param port: 服务监听端口
 //	@param registrars: 路由注册器集合，由 DI 容器自动注入
 //	@return *GinServer
-func NewGinServer(cfg gs.SimpleHttpServerConfig, e *gin.Engine) *GinServer {
+func NewGinServer(cfg gs.SimpleHttpServerConfig, registrars []routerPg.RouteRegistrar) *GinServer {
 	//log.Infof(context.Background(), log.TagAppDef, "NewGinServer.port:%+v ", port)
-	//engine := GetInstance()
-	//for _, r := range registrars {
-	//	r.RegisterRoutes(engine)
-	//}
+	engine := GetInstance()
+	for _, r := range registrars {
+		r.RegisterRoutes(engine)
+	}
 	port := "8080"
 	idx := strings.LastIndex(cfg.Address, ":")
 	if idx != -1 && idx < len(cfg.Address)-1 {
@@ -56,7 +57,7 @@ func NewGinServer(cfg gs.SimpleHttpServerConfig, e *gin.Engine) *GinServer {
 	}
 	svr := &GinServer{}
 	svr.Port = port
-	svr.svrEngine = e
+	svr.svrEngine = engine
 	svr.svr = &http.Server{
 		Handler:           svr.svrEngine,
 		Addr:              cfg.Address,
