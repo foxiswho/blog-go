@@ -34,13 +34,7 @@ func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
 
 func (c *ResourceGroupRelationController) Selected(ctx *gin.Context) {
 	var ct modRamResourceGroupRelation.QueryByTypeValueCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Selected(ctx, ct))

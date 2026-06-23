@@ -557,6 +557,29 @@ func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (r
 	return rt.Ok()
 }
 
+// QueryAll 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *RamMenuService) QueryAll(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[[]modRamMenu.Vo]) {
+	c.log.Infof("ct=%+v", ct)
+	var query entityRam.RamMenuEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modRamMenu.Vo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modRamMenu.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
 // SelectNodeAll 查询
 //
 //	@Description:
@@ -611,29 +634,6 @@ func (c *RamMenuService) SelectNodeAllPublic(ctx *gin.Context, ct modRamMenu.Que
 			}
 
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamMenuService) SelectPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[[]modRamMenu.Vo]) {
-	c.log.Infof("ct=%+v", ct)
-	var query entityRam.RamMenuEntity
-	copier.Copy(&query, &ct)
-	slice := make([]modRamMenu.Vo, 0)
-	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query)
-	if len(infos) > 0 {
-		for _, item := range infos {
-			var vo modRamMenu.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}

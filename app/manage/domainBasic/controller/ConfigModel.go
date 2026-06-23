@@ -49,13 +49,7 @@ func (c *ConfigModelController) RegisterRoutes(e *gin.Engine) {
 
 func (c *ConfigModelController) CreateUpdate(ctx *gin.Context) {
 	var ct modBasicConfigModel.CreateUpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct))

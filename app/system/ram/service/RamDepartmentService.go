@@ -465,47 +465,25 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 	return rt.Ok()
 }
 
-// QueryPublic 查询
+// QueryAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) QueryPublic(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment.Vo]]) {
+func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[[]modRamDepartment.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment.Vo, 0)
-	rt.Data.Data = slice
-	r := c.sv
-	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
-		if ct.PageSize < 1 {
-			ct.PageSize = 20
-		}
-		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
-		//自定义查询
-		arg.Db = arg.Db.Order("create_at desc")
-		//自定义查询
-		if strPg.IsNotBlank(ct.Wd) {
-			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
-		}
-	}), optionsPg.WithCtx(ctx))
-	if nil != err {
-		return rt.Ok()
-	}
-
-	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-
-		pg := pagePg.NewPaginatorByPageable[modRamDepartment.Vo](page.Pageable)
-		//字段赋值
-		for _, item := range page.Data {
+	rt.Data = slice
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
 			var vo modRamDepartment.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
-		pg.Data = slice
-		pg.Pageable = page.Pageable
-		rt.Data = pg
-		return rt.Ok()
+		rt.Data = slice
 	}
 	return rt.Ok()
 }
@@ -564,29 +542,6 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 			}
 
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamDepartmentService) SelectPublic(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[[]modRamDepartment.Vo]) {
-	c.log.Infof("ct=%+v", ct)
-	var query entityRam.RamDepartmentEntity
-	copier.Copy(&query, &ct)
-	slice := make([]modRamDepartment.Vo, 0)
-	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query)
-	if len(infos) > 0 {
-		for _, item := range infos {
-			var vo modRamDepartment.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}
