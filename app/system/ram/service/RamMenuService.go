@@ -86,10 +86,12 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) 
 		if !typeAttrPg.Category.IsEqual(parent.TypeAttr) {
 			return rt.ErrorMessage("上级属性为分类属性时,才能有下级")
 		}
+		info.TypeAttr = typeAttrPg.CategoryLast.Index()
 	} else {
-		if !typeAttrPg.Category.IsEqual(ct.TypeAttr) {
-			return rt.ErrorMessage("顶级属性为分类属性")
-		}
+		info.TypeAttr = typeAttrPg.Category.Index()
+		//if !typeAttrPg.Category.IsEqual(info.TypeAttr) {
+		//	return rt.ErrorMessage("顶级属性为分类属性")
+		//}
 	}
 	info.TypeSys = typeSysPg.General.Index()
 	info.ParentId = ct.ParentId
@@ -188,10 +190,12 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) 
 		if !typeAttrPg.Category.IsEqual(parent.TypeAttr) {
 			return rt.ErrorMessage("上级属性为分类属性时,才能有下级")
 		}
+		info.TypeAttr = typeAttrPg.CategoryLast.Index()
 	} else {
-		if !typeAttrPg.Category.IsEqual(ct.TypeAttr) {
-			return rt.ErrorMessage("顶级属性为分类属性")
-		}
+		//if !typeAttrPg.Category.IsEqual(ct.TypeAttr) {
+		//	return rt.ErrorMessage("顶级属性为分类属性")
+		//}
+		info.TypeAttr = typeAttrPg.Category.Index()
 	}
 
 	//
@@ -280,7 +284,7 @@ func (c *RamMenuService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(ctx, entityRam.RamMenuEntity{IdLink: item.IdLink}, item.ID)
+			r.Update(ctx, entityRam.RamMenuEntity{NoLink: item.IdLink}, item.ID)
 		}
 	}
 	maps = nil

@@ -97,7 +97,7 @@ port = 6379
 addrs = ["127.0.0.1:6379"]
 database = 0
 username = ""
-password = ""
+password = "a12345678"
 
 [mail]
 host = "127.0.0.1"

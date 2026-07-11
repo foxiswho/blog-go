@@ -9,5 +9,5 @@ type CreateCt struct {
 	OrgId       string `json:"orgId" label:"组织id" `     // 组织id
 	ParentId    string `json:"parentId" label:"上级" `
 	ParentNo    string `json:"parentNo" comment:"分类" `
-	Code        string `json:"code" label:"标志" `
+	Code        string `json:"code" label:"码值" `
 }

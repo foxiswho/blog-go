@@ -9,7 +9,7 @@ type UpdateCt struct {
 	Name        string              `json:"name" form:"name" validate:"required,min=1,max=255" label:"名称" `
 	NameFl      string              `json:"nameFl" label:"名称外文" `
 	No          string              `json:"no" form:"no" label:"编号代号"`
-	Code        string              `json:"code" label:"标志" `
+	Code        string              `json:"code" label:"码值" `
 	CategoryNo  string              `json:"categoryNo" label:"分类编号" `
 	Type        string              `json:"type" label:"类型" validate:"required,min=1,max=255"`
 	Url         string              `json:"url" label:"建议url" validate:"required,min=1,max=255"`
