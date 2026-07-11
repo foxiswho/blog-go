@@ -1,6 +1,6 @@
 package modBasicConfigEvent
 
-import "github.com/foxiswho/blog-go/pkg/tools/typePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 
 type ItemVo struct {
 	Id                            typePg.Uint64String `json:"id" form:"id" label:"id" `

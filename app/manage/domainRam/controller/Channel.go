@@ -2,16 +2,16 @@ package controller
 
 import (
 	"fmt"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamChannel"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamChannel"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 
-	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 
 	"github.com/pangu-2/go-tools/tools/strPg"
 )

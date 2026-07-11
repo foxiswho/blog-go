@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	modAttachment2 "github.com/foxiswho/blog-go/middleware/components/attachmentPg/modAttachment"
-	_ "github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	modAttachment2 "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"
+	_ "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/minio/minio-go/v7"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"

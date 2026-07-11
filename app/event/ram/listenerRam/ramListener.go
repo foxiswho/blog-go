@@ -5,11 +5,11 @@ import (
 
 	"github.com/farseer-go/eventBus"
 	"github.com/farseer-go/fs/core"
-	"github.com/foxiswho/blog-go/app/event/ram/listenerRam/service"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/sdk/ram/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/ram/listenerRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	_ "go-spring.org/spring/gs"
 )

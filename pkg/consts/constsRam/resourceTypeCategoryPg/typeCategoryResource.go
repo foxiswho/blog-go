@@ -1,7 +1,7 @@
 package resourceTypeCategoryPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // ResourceTypeCategory 资源 权限类别

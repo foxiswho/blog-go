@@ -1,6 +1,6 @@
 package configPg
 
-import "github.com/foxiswho/blog-go/pkg/configPg/pg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 
 type Pg struct {
 	Domain pg.Domain `json:"domain" value:"${domain}" label:"域模块"`

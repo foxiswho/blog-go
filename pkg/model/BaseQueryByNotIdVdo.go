@@ -3,7 +3,7 @@ package model
 import (
 	"encoding/json"
 
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 type BaseQueryByNotIdVdo[ID any] struct {

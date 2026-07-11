@@ -1,11 +1,11 @@
 package runnerPg
 
 import (
-	"github.com/foxiswho/blog-go/app/event/basic/listenerBasic"
-	"github.com/foxiswho/blog-go/app/event/blog/listennerBlog"
-	"github.com/foxiswho/blog-go/app/event/ram/listenerRam"
-	"github.com/foxiswho/blog-go/middleware/runnerPg/data"
-	"github.com/foxiswho/blog-go/middleware/runnerPg/table"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/listenerBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/blog/listennerBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/ram/listenerRam"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/runnerPg/data"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/runnerPg/table"
 	"go-spring.org/spring/gs"
 )
 

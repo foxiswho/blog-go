@@ -1,7 +1,7 @@
 package enumOrderDeliveryPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // DeliveryType 订单发货类型

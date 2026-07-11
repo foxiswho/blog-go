@@ -1,7 +1,7 @@
 package typeDomainPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeDomain 域类型;普通;系统;商户

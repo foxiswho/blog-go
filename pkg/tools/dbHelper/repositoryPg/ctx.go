@@ -1,7 +1,7 @@
 package repositoryPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPgI"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPgI"
 )
 
 type IRepositoryRange interface {

@@ -1,6 +1,6 @@
 package modRamAccount
 
-import "github.com/foxiswho/blog-go/infrastructure/entityRam"
+import "github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 
 type LoginLogDto struct {
 	Ip          string         `json:"ip"`

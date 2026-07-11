@@ -3,14 +3,14 @@ package controller
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/core/blog/serviceCore"
-	"github.com/foxiswho/blog-go/app/web/blog/model/modBlogArticle"
-	"github.com/foxiswho/blog-go/app/web/blog/service"
-	"github.com/foxiswho/blog-go/app/web/utils/webPg"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/pkg/routerPg"
-	"github.com/foxiswho/blog-go/pkg/templatePg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/core/blog/serviceCore"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/model/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/utils/webPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )

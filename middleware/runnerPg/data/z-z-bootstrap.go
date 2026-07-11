@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/foxiswho/blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	_ "go-spring.org/spring/gs"
 )
 

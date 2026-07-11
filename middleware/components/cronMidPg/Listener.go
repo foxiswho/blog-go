@@ -3,7 +3,7 @@ package cronMidPg
 import (
 	"context"
 	"fmt"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 )
 
 // Listener 启动

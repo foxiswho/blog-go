@@ -1,7 +1,7 @@
 package types
 
 import (
-	modAttachment2 "github.com/foxiswho/blog-go/middleware/components/attachmentPg/modAttachment"
+	modAttachment2 "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"
 	"io"
 )
 

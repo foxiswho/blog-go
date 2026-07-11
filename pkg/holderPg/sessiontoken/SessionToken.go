@@ -1,7 +1,7 @@
 package sessiontoken
 
 import (
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 	"time"
 )
 

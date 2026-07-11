@@ -3,8 +3,8 @@ package data
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/event/basic/service/tagsBasicEvent"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/service/tagsBasicEvent"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	_ "go-spring.org/spring/gs"
 )
 

@@ -1,8 +1,8 @@
 package enumStatePg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 )
 

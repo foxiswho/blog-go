@@ -3,11 +3,11 @@ package authPg
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/cacheTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )

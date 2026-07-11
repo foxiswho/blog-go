@@ -1,10 +1,10 @@
 package constsCacheRam
 
 import (
-	"github.com/foxiswho/blog-go/pkg/consts/constsCachePg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typePubPrivePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/clientPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsCachePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typePubPrivePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 )
 
 const (

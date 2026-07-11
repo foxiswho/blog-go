@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/foxiswho/blog-go/pkg/configPg/pg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 	"github.com/redis/go-redis/v9"
 )
 

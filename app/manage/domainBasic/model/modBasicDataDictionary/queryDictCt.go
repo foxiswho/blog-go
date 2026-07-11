@@ -1,6 +1,6 @@
 package modBasicDataDictionary
 
-import "github.com/foxiswho/blog-go/pkg/model"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 
 type QueryDictCt struct {
 	model.BaseQueryCt

@@ -7,7 +7,7 @@
 > redis: 7
 
 
-管理后台的前端代码：[https://github.com/foxiswho/blog-go-frontend](https://github.com/foxiswho/blog-go-frontend "管理后台前端代码")
+管理后台的前端代码：[https://github.com/hongmengzhu/xianfu-blog-go-frontend](https://github.com/hongmengzhu/xianfu-blog-go-frontend "管理后台前端代码")
 
 ## 功能说明
 - [x] 文章 增删该查
@@ -40,7 +40,7 @@ export PATH=.:$PATH:$GOBIN
 ```
 ### 拉取代码
 ```bash
-git clone https://github.com/foxiswho/blog-go
+git clone https://github.com/hongmengzhu/xianfu-blog-go
 ```
 ### 进入目录
 ```go

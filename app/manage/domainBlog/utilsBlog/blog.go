@@ -1,7 +1,7 @@
 package utilsBlog
 
 import (
-	"github.com/foxiswho/blog-go/pkg/consts/constTags"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constTags"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"strings"
 )

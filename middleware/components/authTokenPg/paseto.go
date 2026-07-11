@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"aidanwoods.dev/go-paseto"
-	"github.com/foxiswho/blog-go/pkg/configPg/pg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/log"

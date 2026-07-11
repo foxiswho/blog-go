@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamResourceMenu"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service/ramMenu"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceMenu"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service/ramMenu"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 

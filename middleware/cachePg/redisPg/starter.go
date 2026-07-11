@@ -3,8 +3,8 @@ package redisPg
 import (
 	"fmt"
 
-	_ "github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
-	"github.com/foxiswho/blog-go/pkg/configPg/pg"
+	_ "github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 	g "github.com/redis/go-redis/v9"
 	"go-spring.org/spring/gs"
 )

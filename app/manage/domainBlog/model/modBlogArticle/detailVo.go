@@ -3,9 +3,9 @@ package modBlogArticle
 import (
 	"time"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogTopic"
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type DetailVo struct {

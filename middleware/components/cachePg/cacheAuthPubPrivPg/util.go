@@ -1,7 +1,7 @@
 package cacheAuthPubPrivPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 )
 
 func KeySystem() string {

@@ -1,7 +1,7 @@
 package holderApiPg
 
 import (
-	_ "github.com/foxiswho/blog-go/pkg/interfaces"
+	_ "github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 type DiplHolder struct {

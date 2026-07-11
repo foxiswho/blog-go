@@ -1,7 +1,7 @@
 package quickAuthProtocolPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // Protocol 快捷登录协议

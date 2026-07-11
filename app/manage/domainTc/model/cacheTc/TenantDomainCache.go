@@ -1,9 +1,9 @@
 package cacheTc
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainTc/model/dtoTenantDomain"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/tools/mapPg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/dtoTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/mapPg"
 	"go-spring.org/spring/gs"
 
 	"strings"

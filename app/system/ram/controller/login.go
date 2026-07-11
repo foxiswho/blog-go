@@ -1,13 +1,13 @@
 package controller
 
 import (
-	modRamLogin2 "github.com/foxiswho/blog-go/app/system/ram/model/modRamLogin"
-	"github.com/foxiswho/blog-go/app/system/ram/service"
-	"github.com/foxiswho/blog-go/middleware/serverPg/ginServer"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
 

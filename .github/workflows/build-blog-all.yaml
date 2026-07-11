@@ -55,9 +55,9 @@ jobs:
           WORK_DIR=$(pwd)
           # ldflags
           ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
           #
           build_flags='-a -gcflags="all=-trimpath='${WORK_DIR}'" '
           build_flags=${build_flags}' -asmflags="all=-trimpath='${WORK_DIR}'" -trimpath'
@@ -80,7 +80,7 @@ jobs:
           mkdir -p ./tmp
           mkdir -p ./xf
           # 定义远程ZIP URL和本地保存名称
-          REMOTE_ZIP_URL="https://github.com/foxiswho/blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-manage-dist-subdirectory.zip"
+          REMOTE_ZIP_URL="https://github.com/hongmengzhu/xianfu-blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-manage-dist-subdirectory.zip"
           REMOTE_ZIP_NAME="manage.zip"
           
           # 用curl下载（添加重试机制，避免网络波动）
@@ -96,7 +96,7 @@ jobs:
           unzip -o ./tmp/$REMOTE_ZIP_NAME -d ./xf/manage
           
           # 定义远程ZIP URL和本地保存名称
-          REMOTE_ZIP_URL="https://github.com/foxiswho/blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-sys-dist-subdirectory.zip"
+          REMOTE_ZIP_URL="https://github.com/hongmengzhu/xianfu-blog-go-frontend/releases/download/${{ github.event.inputs.frontend_tag }}/blogGo-sys-dist-subdirectory.zip"
           REMOTE_ZIP_NAME="sys.zip"
           
           # 用curl下载（添加重试机制，避免网络波动）

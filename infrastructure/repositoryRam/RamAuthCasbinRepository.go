@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )

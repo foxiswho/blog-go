@@ -1,6 +1,6 @@
 package multiTenantPg
 
-import "github.com/foxiswho/blog-go/pkg/configPg/pg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 
 // 系统
 var multiTableSys = pg.MultiItem{

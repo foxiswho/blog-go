@@ -1,6 +1,6 @@
 package modBasicDataDictionary
 
-import "github.com/foxiswho/blog-go/pkg/tools/typePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 
 type SelectNodeCt struct {
 	TypeCode  string      `json:"typeCode" label:"码值" `

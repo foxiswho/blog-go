@@ -1,6 +1,6 @@
 package modBasicConfigEvent
 
-import "github.com/foxiswho/blog-go/pkg/tools/typePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 
 type ModelFormItem struct {
 	Name            string      `json:"name" label:"字段中文名称"`

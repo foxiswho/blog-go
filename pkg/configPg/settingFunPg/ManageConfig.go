@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/foxiswho/blog-go/pkg/configPg/settingPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/settingPg"
 	"go-spring.org/log"
 )
 

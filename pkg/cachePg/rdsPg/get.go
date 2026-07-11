@@ -6,9 +6,9 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/pkg/consts/constBlogPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/go-viper/mapstructure/v2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constBlogPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"github.com/redis/go-redis/v9"
 	"go-spring.org/log"

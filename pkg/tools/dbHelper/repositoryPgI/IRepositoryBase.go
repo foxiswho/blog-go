@@ -1,8 +1,8 @@
 package repositoryPgI
 
 import (
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"gorm.io/gorm"
 )
 

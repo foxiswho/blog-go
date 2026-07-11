@@ -1,8 +1,8 @@
 package attachmentPg
 
 import (
-	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/drive"
-	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/drive"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
 	"go-spring.org/spring/gs"
 )
 

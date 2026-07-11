@@ -5,10 +5,10 @@ import (
 
 	"github.com/farseer-go/eventBus"
 	"github.com/farseer-go/fs/core"
-	"github.com/foxiswho/blog-go/app/event/blog/model/modEventBlogArticleCategory"
-	"github.com/foxiswho/blog-go/app/event/blog/service/articleBlogEvent"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/blog/model/modEventBlogArticleCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/blog/service/articleBlogEvent"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	_ "go-spring.org/spring/gs"
 )
 

@@ -1832,10 +1832,10 @@
     });
 
     if (typeof exports == "object") {
-        module.exports = require("github.com/foxiswho/blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone");
+        module.exports = require("github.com/hongmengzhu/xianfu-blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone");
     } else if (typeof define == "function" && define.amd) {
-        define([], function(){ return require("github.com/foxiswho/blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone"); });
+        define([], function(){ return require("github.com/hongmengzhu/xianfu-blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone"); });
     } else {
-        this["Dropzone"] = require("github.com/foxiswho/blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone");
+        this["Dropzone"] = require("github.com/hongmengzhu/xianfu-blog-go/blog/static/Hplus-v.4.1.0/js/plugins/dropzone/dropzone");
     }
 })()

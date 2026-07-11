@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/farseer-go/eventBus"
-	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicRules"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicRules"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 )
 
 // StartInit 启动后初始化 所有租户 分类缓存

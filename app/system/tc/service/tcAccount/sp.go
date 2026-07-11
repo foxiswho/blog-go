@@ -1,8 +1,8 @@
 package tcAccount
 
 import (
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"go-spring.org/spring/gs"
 )
 

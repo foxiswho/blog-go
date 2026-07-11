@@ -1,6 +1,6 @@
 package modSysPub
 
-import "github.com/foxiswho/blog-go/pkg/model"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 
 type AuthConfigVo struct {
 	LoginEncrypt bool                  `json:"loginEncrypt" lable:"登陆加密"`

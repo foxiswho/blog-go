@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 // BasePutIdState 基础 状态更新

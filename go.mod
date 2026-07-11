@@ -1,4 +1,4 @@
-module github.com/foxiswho/blog-go
+module github.com/hongmengzhu/xianfu-blog-go
 
 go 1.26
 

@@ -3,12 +3,12 @@ package data
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityApi"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryApi"
-	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheDiplPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryApi"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheDiplPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	_ "go-spring.org/spring/gs"
 	"gorm.io/gorm"

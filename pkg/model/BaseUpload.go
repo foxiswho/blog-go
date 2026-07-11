@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"mime/multipart"
 
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 type BaseUploadBo struct {

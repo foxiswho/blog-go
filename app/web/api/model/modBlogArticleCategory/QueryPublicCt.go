@@ -1,7 +1,7 @@
 package modBlogArticleCategory
 
 import (
-	"github.com/foxiswho/blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 )
 
 type QueryPublicCt struct {

@@ -1,8 +1,8 @@
 package optionsPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"gorm.io/gorm"
 )

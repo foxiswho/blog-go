@@ -1,7 +1,7 @@
 package modBasicConfigEventFields
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicConfigEvent"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicConfigEvent"
 )
 
 type CreateUpdateCt struct {

@@ -4,9 +4,9 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type DetailVo struct {

@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicAttachment"
-	"github.com/foxiswho/blog-go/app/system/basic/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/routerPg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicAttachment"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
 

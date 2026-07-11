@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/web/api/model/modBlogArticleCategory"
-	"github.com/foxiswho/blog-go/app/web/api/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogArticleCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 

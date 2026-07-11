@@ -1,7 +1,7 @@
 package accessMethodPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // AccessMethod 类型源|采集|手写

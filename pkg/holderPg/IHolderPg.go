@@ -2,7 +2,7 @@ package holderPg
 
 import (
 	"encoding/json"
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 // HolderSimple 用户Session 会话信息 登录人信息

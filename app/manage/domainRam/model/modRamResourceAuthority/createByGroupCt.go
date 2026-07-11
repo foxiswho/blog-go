@@ -1,6 +1,6 @@
 package modRamResourceAuthority
 
-import "github.com/foxiswho/blog-go/pkg/tools/typePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 
 type CreatByGroupCt struct {
 	GroupId typePg.Int64String `json:"groupId" form:"groupId" validate:"required" label:"资源组id" `

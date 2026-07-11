@@ -1,8 +1,8 @@
 package modPublic
 
 import (
-	"github.com/foxiswho/blog-go/app/system/pub/model/modSysPub"
-	"github.com/foxiswho/blog-go/app/system/ram/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/pub/model/modSysPub"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccount"
 )
 
 type InfoPublicVo struct {

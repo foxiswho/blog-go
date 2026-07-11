@@ -1,6 +1,6 @@
 package modBasicTagsRelation
 
-import "github.com/foxiswho/blog-go/app/system/basic/model/modBasicTagsCategory"
+import "github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicTagsCategory"
 
 type GroupVo struct {
 	General []modBasicTagsCategory.Vo `json:"general" label:"普通"`

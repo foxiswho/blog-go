@@ -1,6 +1,6 @@
 package authTokenPg
 
-import "github.com/foxiswho/blog-go/pkg/interfaces"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 
 // Param 用户 会话信息 登录人信息
 type Param struct {

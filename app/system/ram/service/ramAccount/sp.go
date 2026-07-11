@@ -1,7 +1,7 @@
 package ramAccount
 
 import (
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"go-spring.org/spring/gs"
 )
 

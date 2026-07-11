@@ -1,7 +1,7 @@
 package typeReadingPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeReading 阅读类型||未看|在看|已看
