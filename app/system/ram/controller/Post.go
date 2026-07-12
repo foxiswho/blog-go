@@ -31,7 +31,7 @@ type PostController struct {
 
 func (c *PostController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/post", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/post", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

@@ -32,7 +32,7 @@ type ResourceAuthorityController struct {
 
 func (c *ResourceAuthorityController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/resource-authority", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/resource-authority", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createByGroup", c.CreatByGroup)
 	group.POST("/updateByRole", c.UpdateByRole)
 	group.GET("/detail/:id", c.Detail)

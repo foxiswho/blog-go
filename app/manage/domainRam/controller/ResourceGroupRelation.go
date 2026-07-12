@@ -28,6 +28,6 @@ type ResourceGroupRelationController struct {
 //	@receiver c
 //	@param e
 func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
-	//group := e.Group("/pg2lq/manage/ram/resource-group-relation", authPg.GroupManageMiddleware(c.Sp))
+	//group := e.Group("/xianfu/manage/ram/resource-group-relation", authPg.GroupManageMiddleware(c.Sp))
 	//group.POST("/selectedByRole", c.Query)
 }

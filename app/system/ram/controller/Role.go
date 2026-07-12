@@ -31,7 +31,7 @@ type RoleController struct {
 
 func (c *RoleController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/role", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/role", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

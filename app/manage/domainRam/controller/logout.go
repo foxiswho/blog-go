@@ -27,7 +27,7 @@ type LogoutController struct {
 //	@receiver c
 //	@param e
 func (c *LogoutController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/auth/manage")
+	group := e.Group("/xianfu/auth/manage")
 	group.Any("/logout", c.Logout)
 }
 

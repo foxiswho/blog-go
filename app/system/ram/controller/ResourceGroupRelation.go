@@ -28,7 +28,7 @@ type ResourceGroupRelationController struct {
 
 func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/resource-group-relation", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/resource-group-relation", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/selectedByRole", c.SelectedByRole)
 }
 

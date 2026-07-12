@@ -32,7 +32,7 @@ type AppAccessKeyController struct {
 //	@receiver c
 //	@param e
 func (c *AppAccessKeyController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/app-access-key", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/app-access-key", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.POST("/state", c.State)

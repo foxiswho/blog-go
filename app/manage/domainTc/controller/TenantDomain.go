@@ -31,7 +31,7 @@ type TenantDomainController struct {
 //	@receiver c
 //	@param e
 func (c *TenantDomainController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/tc/tenant-domain", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/tc/tenant-domain", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

@@ -32,7 +32,7 @@ type TopicRelationController struct {
 //	@receiver c
 //	@param e
 func (c *TopicRelationController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/blog/topic-relation", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/blog/topic-relation", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/addByTopic", c.AddByTopic)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/delete", c.PhysicalDeletion)

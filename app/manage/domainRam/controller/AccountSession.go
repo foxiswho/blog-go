@@ -32,7 +32,7 @@ type AccountSessionController struct {
 //	@receiver c
 //	@param e
 func (c *AccountSessionController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/account-session", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/account-session", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 }

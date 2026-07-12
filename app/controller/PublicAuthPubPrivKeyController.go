@@ -19,7 +19,7 @@ type PublicAuthPubPrivKeyController struct {
 }
 
 func (c *PublicAuthPubPrivKeyController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/pub")
+	group := e.Group("/xianfu/pub")
 	group.GET("/config", c.config)
 }
 

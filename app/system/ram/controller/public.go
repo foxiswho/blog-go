@@ -27,7 +27,7 @@ type PublicController struct {
 
 func (c *PublicController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/public", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/public", authPg.GroupSystemMiddleware(c.Sp))
 	group.GET("/info", c.Public)
 	group.GET("/infoPublic", c.InfoPublic)
 	group.POST("/password", c.UpdatePassword)

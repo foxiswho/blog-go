@@ -32,7 +32,7 @@ type PublicController struct {
 //	@receiver c
 //	@param e
 func (c *PublicController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/public", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/public", authPg.GroupManageMiddleware(c.Sp))
 	group.GET("/info", c.Public)
 	group.POST("/password", c.UpdatePassword)
 }

@@ -50,7 +50,7 @@ func (c *TenantAccountController) SetAppModule(appModule appModulePg.AppModule) 
 //	@receiver c
 //	@param e
 func (c *TenantAccountController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/tc/tenant-account", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/tc/tenant-account", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.GET("/detail/:id", c.Detail)

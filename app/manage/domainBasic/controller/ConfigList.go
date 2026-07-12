@@ -34,7 +34,7 @@ type ConfigListController struct {
 //	@receiver c
 //	@param e
 func (c *ConfigListController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/config-list", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/config-list", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

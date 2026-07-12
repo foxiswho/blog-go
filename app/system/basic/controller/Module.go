@@ -26,7 +26,7 @@ type BasicModuleController struct {
 }
 
 func (c *BasicModuleController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/module", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/basic/module", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

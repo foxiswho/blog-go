@@ -31,7 +31,7 @@ type AttachmentController struct {
 //	@receiver c
 //	@param e
 func (c *AttachmentController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/attachment", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/attachment", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/upload", c.Upload)
 	group.POST("/upload-more", c.UploadMore)
 	group.POST("/upload-link", c.UploadLink)

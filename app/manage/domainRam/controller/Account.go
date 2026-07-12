@@ -41,7 +41,7 @@ func (c *AccountController) SetAppModule(appModule appModulePg.AppModule) *Accou
 //	@receiver c
 //	@param e
 func (c *AccountController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/account", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/account", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.POST("/state", c.State)

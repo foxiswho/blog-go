@@ -32,7 +32,7 @@ type TenantController struct {
 //	@receiver c
 //	@param e
 func (c *TenantController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/tc/tenant", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/tc/tenant", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/create", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

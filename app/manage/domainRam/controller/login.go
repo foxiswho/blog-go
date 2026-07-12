@@ -30,7 +30,7 @@ type LoginController struct {
 //	@receiver c
 //	@param e
 func (c *LoginController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/auth/manage")
+	group := e.Group("/xianfu/auth/manage")
 	group.POST("/login", c.Login)
 	group.POST("/refresh", c.RefreshToken)
 }

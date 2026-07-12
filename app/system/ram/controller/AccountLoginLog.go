@@ -26,7 +26,7 @@ type AccountLoginLogController struct {
 
 func (c *AccountLoginLogController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/account-login-log", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/account-login-log", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 }

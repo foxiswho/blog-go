@@ -35,7 +35,7 @@ type PositionController struct {
 //	@receiver c
 //	@param e
 func (c *PositionController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/position", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/position", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

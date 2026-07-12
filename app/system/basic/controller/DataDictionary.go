@@ -25,7 +25,7 @@ type DataDictionaryController struct {
 }
 
 func (c *DataDictionaryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/data-dictionary", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/basic/data-dictionary", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.GET("/typeCodePublic/:id", c.TypeCodeListGet)

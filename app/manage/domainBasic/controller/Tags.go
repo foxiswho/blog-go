@@ -33,7 +33,7 @@ type TagsController struct {
 //	@receiver c
 //	@param e
 func (c *TagsController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/tags", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/tags", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

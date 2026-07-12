@@ -32,7 +32,7 @@ type DataDictionarySubController struct {
 //	@receiver c
 //	@param e
 func (c *DataDictionarySubController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/dataDictionarySub", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/dataDictionarySub", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

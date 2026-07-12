@@ -36,7 +36,7 @@ type TeamController struct {
 //	@receiver c
 //	@param e
 func (c *TeamController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/team", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/team", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

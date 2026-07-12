@@ -34,7 +34,7 @@ type AccountApplyDenyListController struct {
 //	@receiver c
 //	@param e
 func (c *AccountApplyDenyListController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/accountApplyDenyList", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/accountApplyDenyList", authPg.GroupManageMiddleware(c.Sp))
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/query", c.Query)
 	group.POST("/selectPublic", c.SelectPublic)

@@ -26,7 +26,7 @@ type TagsCategoryController struct {
 }
 
 func (c *TagsCategoryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/tags-category", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/basic/tags-category", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)

@@ -22,7 +22,7 @@ type FilePubController struct {
 }
 
 func (c *FilePubController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/filePub", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/basic/filePub", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/upload", c.Upload)
 	group.POST("/upload-more", c.UploadMore)
 	group.POST("/upload-link", c.UploadLink)

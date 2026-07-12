@@ -34,7 +34,7 @@ type ModelRulesController struct {
 //	@receiver c
 //	@param e
 func (c *ModelRulesController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/modelRules", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/modelRules", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.POST("/createUpdateData", c.CreateUpdateData)
 	group.GET("/detail/:id", c.Detail)

@@ -24,7 +24,7 @@ type TagsRelationController struct {
 }
 
 func (c *TagsRelationController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/sys/basic/tags-relation", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/basic/tags-relation", authPg.GroupSystemMiddleware(c.Sp))
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)

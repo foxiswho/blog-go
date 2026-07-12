@@ -33,7 +33,7 @@ type CountryController struct {
 //	@receiver c
 //	@param e
 func (c *CountryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/basic/country", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/basic/country", authPg.GroupManageMiddleware(c.Sp))
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/query", c.Query)
 	group.POST("/selectPublic", c.SelectPublic)

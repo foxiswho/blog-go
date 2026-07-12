@@ -23,7 +23,7 @@ type LoginController struct {
 
 func (c *LoginController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/auth/sys")
+	group := r.Group("/xianfu/auth/sys")
 	group.POST("/login", c.Login)
 	group.POST("/refresh", c.RefreshToken)
 }

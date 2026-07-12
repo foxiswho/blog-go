@@ -44,7 +44,7 @@ func (c *AccountController) SetAppModule(appModule appModulePg.AppModule) *Accou
 //	@param e
 func (c *AccountController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
-	group := r.Group("/pg2lq/sys/ram/account", authPg.GroupSystemMiddleware(c.Sp))
+	group := r.Group("/xianfu/sys/ram/account", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.GET("/detail/:id", c.Detail)

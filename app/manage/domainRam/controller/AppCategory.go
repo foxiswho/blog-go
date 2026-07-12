@@ -34,7 +34,7 @@ type AppCategoryController struct {
 //	@receiver c
 //	@param e
 func (c *AppCategoryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/app-category", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/app-category", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

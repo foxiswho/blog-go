@@ -32,7 +32,7 @@ type AccountLoginLogController struct {
 //	@receiver c
 //	@param e
 func (c *AccountLoginLogController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/account-login-log", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/account-login-log", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 }

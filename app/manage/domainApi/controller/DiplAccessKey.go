@@ -28,7 +28,7 @@ type DiplAccessKeyController struct {
 }
 
 func (c *DiplAccessKeyController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/api/dipl-access-key", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/api/dipl-access-key", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.POST("/state", c.State)

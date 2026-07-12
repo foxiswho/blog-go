@@ -35,7 +35,7 @@ type DepartmentController struct {
 //	@receiver c
 //	@param e
 func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/department", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/department", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)

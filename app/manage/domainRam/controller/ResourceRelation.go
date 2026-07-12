@@ -32,7 +32,7 @@ type ResourceRelationController struct {
 //	@receiver c
 //	@param e
 func (c *ResourceRelationController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/pg2lq/manage/ram/resource-relation", authPg.GroupManageMiddleware(c.Sp))
+	group := e.Group("/xianfu/manage/ram/resource-relation", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/delete", c.Delete)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
