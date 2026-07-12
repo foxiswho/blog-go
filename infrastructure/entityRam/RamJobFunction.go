@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// RamPositionEntity 职位
-type RamPositionEntity struct {
+// RamJobFunctionEntity 职务
+type RamJobFunctionEntity struct {
 	ID          int64      `gorm:"column:id;type:bigserial;primaryKey;autoIncrement:true" json:"id" comment:"" `
 	No          string     `gorm:"column:no;type:varchar(80);index;default:;comment:编号" json:"no" comment:"编号" `
 	Name        string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `                                                             // 名称
@@ -24,11 +24,11 @@ type RamPositionEntity struct {
 	Sort        int64      `gorm:"column:sort;type:bigint;not null;default:0;;comment:排序" json:"sort" comment:"排序" ` // 排序
 }
 
-// TableName RamPositionEntity's table name
-func (*RamPositionEntity) TableName() string {
-	return "ram_position"
+// TableName RamJobFunctionEntity's table name
+func (*RamJobFunctionEntity) TableName() string {
+	return "ram_job_function"
 }
 
-func (*RamPositionEntity) TableComment() string {
-	return "职位"
+func (*RamJobFunctionEntity) TableComment() string {
+	return "职务"
 }

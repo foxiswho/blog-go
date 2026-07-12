@@ -30,8 +30,9 @@ type Vo struct {
 	TypeDomain    string              `json:"typeDomain" label:"域类型" `              // 域类型
 	TypeIdentity  string              `json:"typeIdentity" label:"身份类型;普通;经理;副经理" ` // 身份类型;普通;经理;副经理
 	Description   string              `json:"description" label:"描述" `              // 描述
-	Position      string              `json:"position" label:"岗位" `
-	Job           string              `json:"job" label:"职位" `
+	JobFunction   string              `json:"position" label:"职务" `
+	Post          string              `json:"jobFunction" label:"岗位" `
+	Position      string              `json:"job" label:"职位" `
 	JobTitle      string              `json:"jobTitle" label:"职衔" `
 	JobRank       string              `json:"jobRank" label:"职级" `
 	Avatar        string              `json:"avatar" label:"头像" `
@@ -44,6 +45,7 @@ type Vo struct {
 	DepartmentNoName string `json:"departmentNoName" label:"主部门"`
 	LevelNoName      string `json:"levelNoName" label:"级别"`
 	GroupNoName      string `json:"groupNoName" label:"组"`
-	PositionName     string `json:"positionName" label:"岗位"`
-	JobName          string `json:"jobName" label:"职位"`
+	PositionName     string `json:"positionName" label:"职位"`
+	PostName         string `json:"postName" label:"岗位"`
+	JobFunctionName  string `json:"jobFunctionName" label:"职务"`
 }

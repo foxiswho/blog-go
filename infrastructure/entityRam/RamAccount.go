@@ -41,10 +41,11 @@ type RamAccountEntity struct {
 	LevelNo       string                                      `gorm:"column:level_no;type:varchar(80);index;default:;comment:级别编号" json:"level_no" comment:"级别编号" `
 	GroupNo       string                                      `gorm:"column:group_no;type:varchar(80);index;default:;comment:组编号" json:"group_no" comment:"组编号" `
 	DepartmentNo  string                                      `gorm:"column:department_no;type:varchar(80);index;default:;comment:部门编号" json:"department_no" comment:"部门编号" `
-	Job           string                                      `gorm:"column:job;type:varchar(100);;comment:职位" json:"job" comment:"职位" `
+	JobFunction   string                                      `gorm:"column:job_function;type:varchar(100);;comment:职务" json:"job_function" comment:"职务" `
 	JobTitle      string                                      `gorm:"column:job_title;type:varchar(100);;comment:职衔" json:"job_title" comment:"职衔" `
 	JobRank       string                                      `gorm:"column:job_rank;type:varchar(100);;comment:职级" json:"job_rank" comment:"职级" `
-	Position      string                                      `gorm:"column:position;type:varchar(100);;comment:岗位" json:"position" comment:"岗位" `
+	Position      string                                      `gorm:"column:position;type:varchar(100);;comment:职位" json:"position" comment:"职位" `
+	Post          string                                      `gorm:"column:post;type:varchar(100);;comment:岗位" json:"post" comment:"岗位" `
 	Name          string                                      `gorm:"column:name;type:varchar(255);comment:名称" json:"realName" comment:"名称" `
 	RealName      string                                      `gorm:"column:real_name;type:varchar(255);comment:真实姓名" json:"real_name" comment:"真实姓名" `
 	IdentityCode  string                                      `gorm:"column:identity_code;type:varchar(255);comment:身份编号" json:"identity_code" comment:"身份编号" `

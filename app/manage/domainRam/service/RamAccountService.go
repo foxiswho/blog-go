@@ -436,8 +436,8 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 				idsPosition = append(idsPosition, item.Position)
 			}
 			//
-			if strPg.IsNotBlank(item.Job) {
-				idsPost = append(idsPost, item.Job)
+			if strPg.IsNotBlank(item.Post) {
+				idsPost = append(idsPost, item.Post)
 			}
 
 		}
@@ -598,9 +598,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 				}
 			}
 			//职位
-			if strPg.IsNotBlank(item.Job) {
-				if get, ok := mapPost[item.Job]; ok {
-					vo.JobName = get.Name
+			if strPg.IsNotBlank(item.Post) {
+				if get, ok := mapPost[item.Post]; ok {
+					vo.PostName = get.Name
 				}
 			}
 			slice = append(slice, vo)
