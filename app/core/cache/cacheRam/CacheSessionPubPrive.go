@@ -7,10 +7,14 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsCachePg/constsCacheRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typePubPrivePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/cryptoPg"
 	"github.com/pangu-2/go-tools/tools/jsonPg"
@@ -113,4 +117,64 @@ func (c *CacheSessionPubPrive) DecodeByLogin(ctx context.Context, pwd string) (r
 		return rt.ErrorMessage(ret.Message)
 	}
 	return rt.OkData(ret.Data)
+}
+
+//	PaseKeyByNew 获取密钥对
+//
+// @Description:
+// @receiver *CacheSessionPubPrive
+// @param
+// @return
+func (c *CacheSessionPubPrive) PaseKeyByNew(ctx context.Context, isMakeNewKey bool,
+	jsonEntity *entityRam.RamAsaJsonPrivatePublicKey, typeDomain typeDomainPg.TypeDomain, client clientPg.Client, tenantNo string) entityRam.RamAsaJsonPrivatePublicKey {
+	privatePubKey := authTokenPg.Result{}
+	//
+	// 需要重新生成
+	if isMakeNewKey {
+		jsonEntity = &entityRam.RamAsaJsonPrivatePublicKey{}
+		privatePubKey = authTokenPg.MakePublicPrivateKey()
+		jsonEntity.Private = privatePubKey.PrivateKey
+		jsonEntity.Public = privatePubKey.PublicKey
+		// 删除已存在的
+		c.sessionAk.DeleteByTypeDomainAndClientAndState(ctx, typeDomain.Index(), []string{client.Index()})
+		//
+		toJson, _ := jsonPg.ObjToJson(jsonEntity)
+		save := entityRam.RamAccountSessionAccessKeyEntity{
+			Ano:        "",
+			Data:       toJson,
+			No:         tenantNo + ":" + typeDomain.Index() + ":" + client.Index(),
+			TenantNo:   tenantNo,
+			TypeDomain: typeDomain.Index(),
+			Client:     client.Index(),
+			Type:       typeDomain.Index(),
+			Key:        privatePubKey.PublicKey,
+			State:      enumStatePg.ENABLE.Index(),
+		}
+		str := toJson + save.No + save.TenantNo + save.TypeDomain + save.Client
+		save.KindUnique = userPg.SaltMake(str, save.Key)
+		err, _ := c.sessionAk.Create(ctx, &save)
+		if err != nil {
+			log.Debugf(ctx, log.TagBizDef, "创建新密钥失败.%+v", err)
+		}
+	} else {
+		//toJson, _ := jsonPg.ObjToJson(jsonEntity)
+	}
+	entity := *jsonEntity
+	//缓存
+	cacheAuthPubPrivPg.Set(cacheAuthPubPrivPg.Key(tenantNo, typeDomain, client), entity)
+	return entity
+}
+
+//	PaseKeyByNew 获取密钥对
+//
+// @Description:
+// @receiver *CacheSessionPubPrive
+// @param
+// @return
+func (c *CacheSessionPubPrive) PaseKey(ctx context.Context, typeDomain typeDomainPg.TypeDomain, client clientPg.Client, tenantNo string, jsonEntity *entityRam.RamAsaJsonPrivatePublicKey) entityRam.RamAsaJsonPrivatePublicKey {
+	get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.Key(tenantNo, typeDomain, client))
+	if b {
+		return get
+	}
+	return c.PaseKeyByNew(ctx, true, jsonEntity, typeDomain, client, tenantNo)
 }

@@ -165,7 +165,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 		info.TypeCategory = c.typeCategory.String()
 		info.TypeSys = typeSysPg.General.String()
 		info.TypeDomain = item.TypeDomain
-		info.GroupId = item.ID
+		info.GroupNo = item.No
 		info.TypeValue = numberPg.Int64ToString(c.role.ID)
 		info.Mark = utilsRam.ResourceAuthorityMark(c.typeCategory, info.TypeValue, numberPg.Int64ToString(item.ID))
 		//已存在 则跳过

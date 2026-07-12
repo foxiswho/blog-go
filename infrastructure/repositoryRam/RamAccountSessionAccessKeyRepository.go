@@ -120,3 +120,20 @@ func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainInAndClientAndSta
 	}
 	return info, true
 }
+func (c *RamAccountSessionAccessKeyRepository) DeleteByTypeDomainInAndClientAndState(ctx context.Context, domain, client []string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain in ?", domain).Where("client in ?", client).Where("state=1").Delete(c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return false
+	}
+	return true
+}
+
+func (c *RamAccountSessionAccessKeyRepository) DeleteByTypeDomainAndClientAndState(ctx context.Context, domain string, client []string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain = ?", domain).Where("client in ?", client).Where("state=1").Delete(c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return false
+	}
+	return true
+}

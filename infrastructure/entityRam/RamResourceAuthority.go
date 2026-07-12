@@ -29,6 +29,10 @@ type RamResourceAuthorityEntity struct {
 	GroupNo         string     `gorm:"column:group_no;type:varchar(80);index;default:;comment:资源组" json:"group_no" comment:"资源组"`
 	Path            string     `gorm:"column:path;type:varchar(5000);comment:路径" json:"path" comment:"路径" `
 	Method          string     `gorm:"column:method;type:varchar(255);comment:方法" json:"method" comment:"方法" `
+	AuthCode        string     `gorm:"column:auth_code;type:varchar(3055);comment:权限标识" json:"auth_code" comment:"权限标识" `
+	TenantNo        string     `gorm:"column:tenant_no;type:varchar(80);index;default:;comment:租户编号" json:"tenant_no" comment:"租户编号" ` // 租户
+	TerminalCode    string     `gorm:"column:terminal_code;type:varchar(80);index;default:;comment:终端类型" json:"terminal_code" comment:"终端类型" `
+	SystemNo        string     `gorm:"column:system_no;type:varchar(80);index;default:'default';comment:系统编号" json:"systemNo" comment:"系统编号"`
 }
 
 func (*RamResourceAuthorityEntity) TableName() string {
@@ -38,3 +42,9 @@ func (*RamResourceAuthorityEntity) TableName() string {
 func (*RamResourceAuthorityEntity) TableComment() string {
 	return "资源权限"
 }
+
+/**
+ * 其他说明
+ * terminal_code 终端编码，终端类型 终端类型编码，如：app、web、pc、mobile、iot、other，大屏，租户后台，仓库系统，仓库小程序，仓库APP，仓库IOT，仓库其他，仓库其他小程序，仓库其他APP，仓库其他IOT，仓库其他小程序APP，仓库其他小程序IOT，仓库其他小程序APPIOT，仓库其他小程序APPIOT，仓库其他小程序APPIOT，仓库其他小程序APPIOT，仓库其他小程序APPIOT，仓库其他小程序
+ * system_no 系统编号 作业app，仙域app
+ */

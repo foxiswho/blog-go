@@ -56,6 +56,7 @@ type RamAccountEntity struct {
 	ExtraData     datatypes.JSON                              `gorm:"column:extra_data;type:jsonb;comment:额外数据" json:"extraData" comment:"额外数据" `
 	ExtraCond     datatypes.JSONType[RamAccountJsonExtraCond] `gorm:"column:extra_cond;type:jsonb;index;default:'{}';comment:扩展搜索条件" json:"extraCond" comment:"扩展搜索条件" `
 	AppNo         string                                      `gorm:"column:app_no;type:varchar(80);index;default:;comment:应用编号" json:"appNo" comment:"应用编号" `
+	SystemNo      string                                      `gorm:"column:system_no;type:varchar(80);index;default:;comment:接入业务系统编号(如:purchase_platform)" json:"systemNo" comment:"接入业务系统编号"`
 }
 
 // TableName RamAccount's table name

@@ -132,7 +132,7 @@ func (c *RamResourceGroupRelationService) Selected(ctx *gin.Context, ct modRamRe
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			slice = append(slice, numberPg.Int64ToString(item.GroupId))
+			slice = append(slice, item.GroupNo)
 		}
 		rt.Data = slice
 	}

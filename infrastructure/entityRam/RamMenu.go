@@ -51,6 +51,8 @@ type RamMenuEntity struct {
 	LinkSrc                string     `gorm:"column:link_src;type:varchar(2000);comment:链接地址" json:"link_src" comment:"链接地址" `                                     // 链接地址
 	Api                    string     `gorm:"column:api;type:varchar(2000);comment:后端接口" json:"api" comment:"后端接口" `                                               // 后端接口
 	ApiMd5                 string     `gorm:"column:api_md5;type:varchar(80);comment:接口MD5" json:"api_md5" comment:"接口MD5" `                                       // 接口MD5
+	TerminalCode           string     `gorm:"column:terminal_code;type:varchar(80);index;default:;comment:终端类型" json:"terminal_code" comment:"终端类型" `
+	SystemNo               string     `gorm:"column:system_no;type:varchar(80);index;default:'default';comment:系统编号" json:"systemNo" comment:"系统编号"`
 }
 
 func (*RamMenuEntity) TableName() string {
