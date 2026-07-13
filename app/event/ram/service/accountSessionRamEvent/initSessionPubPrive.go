@@ -74,7 +74,7 @@ func (c *InitSessionPubPrive) keyTenant(ctx context.Context, domain typeDomainPg
 // 系统
 func (c *InitSessionPubPrive) keySystem(ctx context.Context,
 	domain typeDomainPg.TypeDomain, client clientPg.Client) {
-	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, "1", nil)
+	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, typeDomainPg.System.Index(), nil)
 }
 
 // 登录密钥

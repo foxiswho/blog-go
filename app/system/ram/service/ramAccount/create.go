@@ -54,12 +54,12 @@ func NewCreate(
 	}
 }
 
-// accountCreate 创建
+// accountCreateSimple 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) accountCreateSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if len(ct.Account) <= 0 {
 		return rt.ErrorMessage("账户不能为空")
@@ -146,13 +146,13 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateUpdateAc
 	return rt.Ok()
 }
 
-// CreateAccount 创建
+// CreateAccountSimple 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	account := c.accountCreate(ctx, ct, tp)
+func (c *Create) CreateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	account := c.accountCreateSimple(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -172,7 +172,7 @@ func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp
 	var ctAccount modRamAccount.CreateUpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	ctAccount.ID = 0
-	account := c.accountCreate(ctx, ctAccount, tp)
+	account := c.accountCreateSimple(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}

@@ -120,6 +120,17 @@ func (c *RamAccountSessionAccessKeyRepository) FindByTypeDomainInAndClientAndSta
 	}
 	return info, true
 }
+func (c *RamAccountSessionAccessKeyRepository) FindByTenantNoAndTypeDomainInAndClientAndState(ctx context.Context, tenantNo, domain, client string) (info *entityRam.RamAccountSessionAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no = ?", tenantNo).Where("type_domain = ?", domain).Where("client = ?", client).Where("state=1").First(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
 func (c *RamAccountSessionAccessKeyRepository) DeleteByTypeDomainInAndClientAndState(ctx context.Context, domain, client []string) (result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_domain in ?", domain).Where("client in ?", client).Where("state=1").Delete(c.Entity)
 	if tx.Error != nil {

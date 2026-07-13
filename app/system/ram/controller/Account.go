@@ -53,7 +53,7 @@ func (c *AccountController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 	group.POST("/updatePassword", c.UpdatePassword)
-	group.POST("/createUpdateAccount", c.CreateUpdateAccount)
+	group.POST("/createUpdateSimple", c.CreateUpdateSimple)
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.POST("/existAccount", c.ExistAccount)
 	group.POST("/existPhone", c.ExistPhone)
@@ -176,12 +176,12 @@ func (c *AccountController) CreateUpdate(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct, c.appModule))
 }
 
-func (c *AccountController) CreateUpdateAccount(ctx *gin.Context) {
+func (c *AccountController) CreateUpdateSimple(ctx *gin.Context) {
 	var ct modRamAccount.CreateUpdateAccountCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
-	ctx.JSON(200, c.sv.CreateUpdateAccount(ctx, ct, c.appModule))
+	ctx.JSON(200, c.sv.CreateUpdateAccountSimple(ctx, ct, c.appModule))
 }
 
 // ExistAccount 查重

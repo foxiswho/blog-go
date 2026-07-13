@@ -633,18 +633,18 @@ func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.Crea
 		c.sp, ctx).Process(ctx, ct, tp)
 }
 
-// CreateUpdateAccount 更新
+// CreateUpdateAccountSimple 更新
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountService) CreateUpdateAccount(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *RamAccountService) CreateUpdateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	if ct.ID.ToInt64() > 0 {
 		return ramAccount.NewUpdate(c.log,
 			c.sp, ctx).UpdateAccount(ctx, ct, tp)
 	}
 	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccount(ctx, ct, tp)
+		c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
 }
 
 // ExistAccount 查重

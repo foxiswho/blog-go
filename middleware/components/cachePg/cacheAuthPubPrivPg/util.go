@@ -11,11 +11,11 @@ const (
 )
 
 func KeySystem() string {
-	return typeDomainPg.System.Index()
+	return Key(typeDomainPg.System.Index(), typeDomainPg.System, clientPg.Browser)
 }
 
 func KeyManage(tenantNo string) string {
-	return typeDomainPg.Manage.Index() + ":" + tenantNo
+	return Key(tenantNo, typeDomainPg.Manage, clientPg.Browser)
 }
 
 func Key(tenantNo string, typeDomain typeDomainPg.TypeDomain, client clientPg.Client) string {
