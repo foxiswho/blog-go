@@ -42,10 +42,6 @@ func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 	data, r := c.sessionAk.FindByTypeDomainInAndState(ctx, []string{typeDomain.Index(), pubPriv.Index()})
 	if r {
 		for _, item := range data {
-			//系统 浏览器
-			if clientPg.Browser.IsEqual(item.Client) {
-				mapKey[item.TypeDomain+client.Index()] = item
-			}
 			//登录密钥
 			if typePubPrivePg.Login.IsEqual(item.TypeDomain) {
 				mapKey[item.TypeDomain] = item
@@ -54,7 +50,7 @@ func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 	}
 	//系统 浏览器
 	{
-		c.keySystem(ctx, typeDomain, client)
+		c.keySystem(ctx, typeDomainPg.System, client)
 	}
 	//登录密钥
 	{
@@ -63,7 +59,7 @@ func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 	}
 	//
 	//租户
-	c.keyTenant(ctx, typeDomain, client)
+	c.keyTenant(ctx, typeDomainPg.Tenant, client)
 	return nil
 }
 

@@ -37,6 +37,7 @@ func (c *ResourceGroupController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
 	group := r.Group("/xianfu/sys/ram/resource-group", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
+	group.POST("/createUpdateCategory", c.CreateUpdateCategory)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
@@ -49,6 +50,8 @@ func (c *ResourceGroupController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/updateByResourceGroup", c.UpdateByResourceGroup)
 	group.POST("/resourceSelected", c.Selected)
 	group.POST("/existName", c.ExistName)
+	group.POST("/selectCategory", c.SelectCategory)
+	group.POST("/queryAllCategory", c.QueryAllCategory)
 }
 
 func (c *ResourceGroupController) CreateUpdate(ctx *gin.Context) {
@@ -60,6 +63,17 @@ func (c *ResourceGroupController) CreateUpdate(ctx *gin.Context) {
 		ctx.JSON(200, c.sv.Update(ctx, ct))
 	} else {
 		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
+}
+func (c *ResourceGroupController) CreateUpdateCategory(ctx *gin.Context) {
+	var ct modRamResourceGroup.CreateUpdateCt
+	if !routerPg.BindJson(ctx, &ct) {
+		return
+	}
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.UpdateCategory(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.CreateCategory(ctx, ct))
 	}
 }
 
@@ -139,9 +153,13 @@ func (c *ResourceGroupController) SelectNodeAllPublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
-func (c *ResourceGroupController) SelectPublic(ctx *gin.Context) {
+func (c *ResourceGroupController) SelectCategory(ctx *gin.Context) {
 	ct := modRamResourceGroup.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
-	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectCategory(ctx, ct))
+}
+func (c *ResourceGroupController) QueryAllCategory(ctx *gin.Context) {
+	ct := modRamResourceGroup.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ctx.JSON(200, c.sv.QueryAllCategory(ctx, ct))
 }
 
 func (c *ResourceGroupController) UpdateByResourceGroup(ctx *gin.Context) {

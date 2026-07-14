@@ -9,6 +9,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsPg/terminalCodePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -18,6 +19,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
+	"gorm.io/gorm"
 
 	"reflect"
 
@@ -199,6 +201,191 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 		//如果是资源
 		return rt.ErrorMessage("属性不能是资源属性")
 	}
+	//
+	//设置上级 link
+	if strPg.IsNotBlank(ct.ParentNo) {
+		info.IdLink = constNodePg.NoLinkAssemble(parent.IdLink, numberPg.Int64ToString(find.ID))
+		info.NoLink = constNodePg.NoLinkAssemble(parent.NoLink, find.No)
+		info.ParentNo = parent.No
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+	} else {
+		info.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(find.ID))
+		info.NoLink = constNodePg.NoLinkDefault(find.No)
+		info.ParentNo = ""
+		info.ParentId = ""
+	}
+	info.No = ""
+	c.log.Infof("info.IdLink=%+v", info.IdLink)
+	err = r.Update(ctx, info, info.ID)
+	if err != nil {
+		c.log.Errorf("update error=%+v", err)
+		return rt.ErrorMessage(err.Error())
+	}
+	c.log.Infof("save.info=%+v", info)
+	//更改上级后，相关子集修改
+	if strPg.IsNotBlank(ct.ParentNo) && nil != childData {
+		maps := slicePg.ToMapArray(childData, func(t *entityRam.RamResourceGroupEntity) (string, *entityRam.RamResourceGroupEntity) {
+			if len(t.ParentId) == 0 {
+				return constNodePg.ROOT, t
+			}
+			return t.ParentId, t
+		})
+		for _, item := range maps[numberPg.Int64ToString(find.ID)] {
+			item.IdLink = constNodePg.NoLinkAssemble(info.IdLink, numberPg.Int64ToString(find.ID))
+			item.NoLink = constNodePg.NoLinkAssemble(info.NoLink, item.No)
+			c.childParentIdLink(maps, item)
+		}
+		c.log.Infof("maps=%+v", maps)
+		for _, val := range maps {
+			for _, item := range val {
+				if item.ID == find.ID {
+					continue
+				}
+				err = r.Update(ctx, entityRam.RamResourceGroupEntity{IdLink: item.IdLink}, item.ID)
+				if err != nil {
+					return rt.ErrorMessage(err.Error())
+				}
+			}
+		}
+		maps = nil
+	}
+	return rt.Ok()
+}
+
+// CreateCategory 新增
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+//	@return rt
+func (c *RamResourceGroupService) CreateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ct)
+	var info entityRam.RamResourceGroupEntity
+	err2 := copier.Copy(&info, &ct)
+	if err2 != nil {
+		c.log.Error("copier.Copy=%+v", err2)
+		return rt.ErrorMessage(err2.Error())
+	}
+	if "" == ct.Name {
+		return rt.ErrorMessage("名称不能为空")
+	}
+	if strPg.IsBlank(ct.Code) {
+		info.Code = automatedPg.CREATE_CODE
+	}
+	//holder := holderPg.GetContextAccount(ctx)
+	parent := &entityRam.RamResourceGroupEntity{}
+	r := c.sv
+	//判断是否是自动,不是自动
+	if !automatedPg.IsCreateCode(info.Code) {
+		//判断格式是否满足要求
+		if !automatedPg.FormatVerify(info.Code) {
+			return rt.ErrorMessage("标志格式不能为空")
+		}
+		//不是自动
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
+		if result {
+			return rt.ErrorMessage("标志已存在")
+		}
+	}
+	//默认资源组
+	if strPg.IsBlank(ct.TypeCategory) {
+		ct.TypeCategory = resourceTypeCategoryPg.Group.String()
+	}
+	//默认 资源
+
+	if strPg.IsNotBlank(ct.ParentNo) {
+		result := false
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
+		if !result {
+			return rt.ErrorMessage("上级不存在")
+		}
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+		info.ParentNo = parent.No
+	}
+	//
+	ct.TypeAttr = typeAttrPg.CategoryLast.String()
+	info.No = noPg.No()
+	info.ID = 0
+	info.State = enumStatePg.ENABLE.Index()
+	c.log.Infof("info=%+v", info)
+	err, _ := r.Create(ctx, &info)
+	if err != nil {
+		return rt.ErrorMessage("保存失败 " + err.Error())
+	}
+	//设置上级 link
+	if strPg.IsNotBlank(ct.ParentNo) {
+		info.IdLink = constNodePg.NoLinkAssemble(parent.IdLink, numberPg.Int64ToString(info.ID))
+		info.NoLink = constNodePg.NoLinkAssemble(parent.NoLink, info.No)
+		info.ParentNo = parent.No
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+	} else {
+		info.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(info.ID))
+		info.NoLink = constNodePg.NoLinkDefault(info.No)
+		info.ParentNo = ""
+		info.ParentId = ""
+	}
+	err = r.Update(ctx, info, info.ID)
+	if err != nil {
+		return rt.ErrorMessage(err.Error())
+	}
+	c.log.Infof("save=%+v", info)
+	return rg.OkData(numberPg.Int64ToString(info.ID))
+}
+
+// UpdateCategory 更新
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+//	@return rt
+func (c *RamResourceGroupService) UpdateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ct)
+	var info entityRam.RamResourceGroupEntity
+	err := copier.Copy(&info, &ct)
+	if err != nil {
+		return rt.ErrorMessage(err.Error())
+	}
+	if ct.ID < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	if "" == ct.Name {
+		return rt.ErrorMessage("名称不能为空")
+	}
+	if strPg.IsBlank(ct.TypeAttr) {
+		return rt.ErrorMessage("属性不能为空")
+	}
+	r := c.sv
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	//上级
+	parent := &entityRam.RamResourceGroupEntity{}
+	var childData []*entityRam.RamResourceGroupEntity
+	if strPg.IsNotBlank(ct.ParentNo) {
+		result := false
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
+		if !result {
+			return rt.ErrorMessage("上级不存在")
+		}
+		if parent.ID == ct.ID.ToInt64() {
+			return rt.ErrorMessage("上级不能等于自己")
+		}
+		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
+		if parent.No != find.ParentNo {
+			result2 := false
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
+			if result2 {
+				//c.log.Infof("data=%+v \n", childData)
+				for _, item := range childData {
+					if item.ID == parent.ID {
+						return rt.ErrorMessage("无法保存，不能设置为自己的子集")
+					}
+				}
+			}
+		}
+	}
+	info.TypeAttr = typeAttrPg.CategoryLast.Index()
 	//
 	//设置上级 link
 	if strPg.IsNotBlank(ct.ParentNo) {
@@ -459,22 +646,67 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	return rt.Ok()
 }
 
-// SelectPublic 查询
+// SelectCategory 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectPublic(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]modRamResourceGroup.Vo]) {
+func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResourceGroup.Vo, 0)
+	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
+	//
+	query.TypeAttr = typeAttrPg.CategoryLast.String()
+	//
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
+			code := model.BaseNodeNo{
+				Value:    item.No,
+				Label:    item.Name,
+				ParentNo: item.ParentNo,
+				Extend:   vo,
+			}
+			slice = append(slice, code)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// QueryAllCategory 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *RamResourceGroupService) QueryAllCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]modRamResourceGroup.Vo]) {
+	c.log.Infof("ct=%+v", ct)
+	var query entityRam.RamResourceGroupEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modRamResourceGroup.Vo, 0)
+	rt.Data = slice
+	//
+	query.TypeAttr = typeAttrPg.CategoryLast.String()
+	//
+	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("terminal_code asc,sort asc,id asc")
+		return db
+	}))
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modRamResourceGroup.Vo
+			copier.Copy(&vo, &item)
+			//
+			if strPg.IsNotBlank(item.TerminalCode) {
+				if t, ok := terminalCodePg.IsExistTerminalCode(item.TerminalCode); ok {
+					vo.TerminalCodeName = t.Name()
+				}
+			}
+			//
 			slice = append(slice, vo)
 		}
 		rt.Data = slice

@@ -179,11 +179,15 @@ func (c *CacheSessionPubPrive) PaseKey(ctx context.Context, typeDomain typeDomai
 	isMakeNewKey := true
 	info, result := c.sessionAk.FindByTenantNoAndTypeDomainInAndClientAndState(ctx, tenantNo, typeDomain.Index(), client.Index())
 	if result {
-		isMakeNewKey = false
 		if strPg.IsNotBlank(info.Data) {
-			json.Unmarshal(info.Data)
+			isMakeNewKey = false
+			jsonEntity = &entityRam.RamAsaJsonPrivatePublicKey{}
+			err := json.Unmarshal([]byte(info.Data), jsonEntity)
+			if err != nil {
+				//解析失败，重新生成
+				isMakeNewKey = true
+			}
 		}
-		jsonEntity = &
 	}
 	return c.PaseKeyByNew(ctx, isMakeNewKey, jsonEntity, typeDomain, client, tenantNo)
 }
