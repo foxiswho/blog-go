@@ -14,10 +14,11 @@ const (
 	VERIFY_ANONYMOUS_URL_TRUE  = "PASS"
 	VERIFY_ANONYMOUS_URL_FALSE = "NO"
 	//
-	AJAX                = "XMLHttpRequest"
-	HeaderAuthorization = "Authorization"
-	HeaderUserAgent     = "User-Agent"
-	CookieName          = "token"
+	AJAX                       = "XMLHttpRequest"
+	HeaderAuthorization        = "Authorization"
+	HeaderUserAgent            = "User-Agent"
+	CookieName                 = "token"
+	HeaderAuthorization_system = "Authorization-sys"
 	//
 	WebTenantNo = "web-tenant-no"
 	// web 模板 Pg 存储

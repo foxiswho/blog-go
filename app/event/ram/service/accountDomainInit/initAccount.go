@@ -22,10 +22,10 @@ import (
 )
 
 var domain = []string{
-	typeDomainPg.System.Index(),
+	typeDomainPg.System.Code(),
 	//iamConstant.Merchant.Index(),
 	//iamConstant.Tenant.Index(),
-	typeDomainPg.Manage.Index(),
+	typeDomainPg.Manage.Code(),
 }
 
 // InitAccount
@@ -128,7 +128,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	t.sp.authDb.Create(ctx, &authorizationEntity)
 	//
 	//记录文件日志
-	dataFilePg.NewAccountFileRecord(t.sp.pg, dataFilePg.MakeContent(save.Account, pwd, typeDomainPg.System.Index())).Write()
+	dataFilePg.NewAccountFileRecord(t.sp.pg, dataFilePg.MakeContent(save.Account, pwd, typeDomainPg.System.Code())).Write()
 }
 
 func (t *InitAccount) manageAccount(ctx context.Context, domain string) {

@@ -11,7 +11,7 @@ const (
 )
 
 func KeySystem() string {
-	return Key(typeDomainPg.System.Index(), typeDomainPg.System, clientPg.Browser)
+	return Key(typeDomainPg.System.Code(), typeDomainPg.System, clientPg.Browser)
 }
 
 func KeyManage(tenantNo string) string {
@@ -19,5 +19,5 @@ func KeyManage(tenantNo string) string {
 }
 
 func Key(tenantNo string, typeDomain typeDomainPg.TypeDomain, client clientPg.Client) string {
-	return CachePrefix + tenantNo + ":" + typeDomain.Index() + ":" + client.Index()
+	return CachePrefix + tenantNo + ":" + typeDomain.Code() + ":" + client.Index()
 }

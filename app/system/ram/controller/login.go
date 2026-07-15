@@ -5,7 +5,7 @@ import (
 	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
@@ -33,7 +33,7 @@ func (c *LoginController) Login(ctx *gin.Context) {
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
-	ctx.JSON(200, c.sv.Login(ctx, ct, appModulePg.System))
+	ctx.JSON(200, c.sv.Login(ctx, ct, typeDomainPg.System))
 }
 
 func (c *LoginController) RefreshToken(ctx *gin.Context) {

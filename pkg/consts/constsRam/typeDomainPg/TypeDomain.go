@@ -45,7 +45,7 @@ func (this TypeDomain) String() string {
 }
 
 // 值
-func (this TypeDomain) Index() string {
+func (this TypeDomain) Code() string {
 	return string(this)
 }
 

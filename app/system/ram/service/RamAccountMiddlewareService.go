@@ -78,7 +78,7 @@ func (c *RamAccountMiddlewareService) FindByLoginNo(ctx *gin.Context, no string)
 		TenantNo: []string{info.TenantNo},
 	}
 	pg.HolderData = accountHolder2
-	pg.TypeDomain = typeDomainPg.System.Index()
+	pg.TypeDomain = typeDomainPg.System.Code()
 	pg.Rule = &rule
 	rt.Data = pg
 	return rt.Ok()

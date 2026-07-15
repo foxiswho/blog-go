@@ -32,7 +32,7 @@ func init() {
 	})
 }
 
-// RamPositionService 职务
+// RamPositionService 职位
 // @Description:
 type RamPositionService struct {
 	sv  *repositoryRam.RamPositionRepository `autowire:"?"`

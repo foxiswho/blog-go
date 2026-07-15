@@ -39,7 +39,7 @@ func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 	pubPriv := typePubPrivePg.Login
 	mapKey := make(map[string]*entityRam.RamAccountSessionAccessKeyEntity)
 	// 系统
-	data, r := c.sessionAk.FindByTypeDomainInAndState(ctx, []string{typeDomain.Index(), pubPriv.Index()})
+	data, r := c.sessionAk.FindByTypeDomainInAndState(ctx, []string{typeDomain.Code(), pubPriv.Index()})
 	if r {
 		for _, item := range data {
 			//登录密钥
@@ -70,7 +70,7 @@ func (c *InitSessionPubPrive) keyTenant(ctx context.Context, domain typeDomainPg
 // 系统
 func (c *InitSessionPubPrive) keySystem(ctx context.Context,
 	domain typeDomainPg.TypeDomain, client clientPg.Client) {
-	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, typeDomainPg.System.Index(), nil)
+	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, typeDomainPg.System.Code(), nil)
 }
 
 // 登录密钥

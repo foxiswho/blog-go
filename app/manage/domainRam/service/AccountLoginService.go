@@ -102,7 +102,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
 	{
-		no, r := c.sessionAk.FindByTenantNoAndNoAndState(ctx, info.TenantNo, typeDomainPg.General.Index())
+		no, r := c.sessionAk.FindByTenantNoAndNoAndState(ctx, info.TenantNo, typeDomainPg.General.Code())
 		if !r {
 			privatePubKey = authTokenPg.MakePublicPrivateKey()
 			isMakeNewKey = true
@@ -151,11 +151,11 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 			save := entityRam.RamAccountSessionAccessKeyEntity{
 				Ano:        info.No,
 				Data:       toJson,
-				No:         typeDomainPg.General.Index(),
+				No:         typeDomainPg.General.Code(),
 				TenantNo:   info.TenantNo,
 				Key:        tokenResult.PublicKey,
-				Type:       typeDomainPg.Manage.Index(),
-				TypeDomain: typeDomainPg.Manage.Index(),
+				Type:       typeDomainPg.Manage.Code(),
+				TypeDomain: typeDomainPg.Manage.Code(),
 			}
 			save.KindUnique = userPg.SaltMake(tokenResult.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
 			c.sessionAk.Create(ctx, &save)

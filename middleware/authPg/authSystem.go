@@ -38,7 +38,7 @@ type GroupSystemMiddlewareSp struct {
 // 权限验证 中间件
 func GroupSystemMiddleware(m *GroupSystemMiddlewareSp) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader(constHeaderPg.HeaderAuthorization)
+		token := c.GetHeader(constHeaderPg.HeaderAuthorization_system)
 		if strPg.IsNotBlank(token) {
 			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.KeySystem())
 			if !b {

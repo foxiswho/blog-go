@@ -12,14 +12,14 @@ const (
 )
 
 func SessionPubPrive_system() string {
-	return constsCachePg.Prefix_Auth + pubprive + typeDomainPg.System.Index()
+	return constsCachePg.Prefix_Auth + pubprive + typeDomainPg.System.Code()
 }
 func SessionPubPrive_system_desktop() string {
-	return constsCachePg.Prefix_Auth + pubprive + typeDomainPg.System.Index()
+	return constsCachePg.Prefix_Auth + pubprive + typeDomainPg.System.Code()
 }
 
 func SessionPubPrive_key(tp typeDomainPg.TypeDomain, client clientPg.Client) string {
-	return constsCachePg.Prefix_Auth + pubprive + tp.Index() + "-" + client.Index()
+	return constsCachePg.Prefix_Auth + pubprive + tp.Code() + "-" + client.Index()
 }
 
 // SessionPubPrive_login 登录

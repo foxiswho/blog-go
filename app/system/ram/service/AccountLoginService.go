@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"reflect"
 	"time"
 
@@ -13,13 +12,12 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
@@ -27,7 +25,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
-	"github.com/pangu-2/go-tools/tools/jsonPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -63,8 +60,11 @@ func NewAccountLoginService() *AccountLoginService {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp appModulePg.AppModule) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain) (rt rg.Rs[modRamLogin.LoginSuccess]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
+	//
+	client := clientPg.Browser
+	//
 	if !c.dao.Config().Domain.System {
 		return rt.ErrorMessage("系统管理模块已禁用，不允许操作")
 	}
@@ -87,7 +87,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	log.Infof(context.Background(), log.TagAppDef, "pwd=%+v", pwd)
 
 	md5 := cryptPg.Md5(ct.Account)
-	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.ToTypeDomain().String())
+	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.Code())
 	if nil != err {
 		return rt.Error()
 	}
@@ -111,32 +111,14 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	mult := multiTenantPg.MultiTenantPg{
 		TenantNo: make([]string, 0),
 	}
-	mult.TenantNo = append(mult.TenantNo, typeDomainPg.System.Index())
-	//是否新生成密钥
-	isMakeNewKey := false
+	mult.TenantNo = append(mult.TenantNo, tp.Code())
+	//
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	{
-		no, r := c.sessionAk.FindByNoAndState(ctx, typeDomainPg.System.Index())
-		if !r {
-			privatePubKey = authTokenPg.MakePublicPrivateKey()
-			isMakeNewKey = true
-		} else {
-			if strPg.IsBlank(no.Data) {
-				privatePubKey = authTokenPg.MakePublicPrivateKey()
-				isMakeNewKey = true
-			} else {
-				var privatePubKeyEnt entityRam.RamAsaJsonPrivatePublicKey
-				err := json.Unmarshal([]byte(no.Data), &privatePubKeyEnt)
-				if err != nil {
-					privatePubKey = authTokenPg.MakePublicPrivateKey()
-					isMakeNewKey = true
-				} else {
-					privatePubKey.PrivateKey = privatePubKeyEnt.Private
-					privatePubKey.PublicKey = privatePubKeyEnt.Public
-				}
-			}
-		}
+	key := c.cacheSessionPubPrive.PaseKey(ctx, tp, client, typeDomainPg.System.Code(), nil)
+	if strPg.IsNotBlank(key.Public) {
+		privatePubKey.PrivateKey = key.Private
+		privatePubKey.PublicKey = key.Public
 	}
 	//生成 令牌
 	param := authTokenPg.Param{
@@ -147,49 +129,19 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		Name:        info.Name,
 		Type:        string(tp),
 		Result:      privatePubKey,
-		TenantNo:    typeDomainPg.System.Index(),
+		TenantNo:    typeDomainPg.System.Code(),
 	}
 	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
 	if ret.ErrorIs() {
 		return rt.ErrorMessage(ret.Message)
 	}
 	tokenResult := ret.Data
-	//判断密钥，是否需要保存
-	{
-		key := cacheAuthPubPrivPg.KeySystem()
-		dataKey := entityRam.RamAsaJsonPrivatePublicKey{
-			Private: tokenResult.PrivateKey,
-			Public:  tokenResult.PublicKey,
-		}
-		if isMakeNewKey {
-			toJson, _ := jsonPg.ObjToJson(dataKey)
-			save := entityRam.RamAccountSessionAccessKeyEntity{
-				Ano:        info.No,
-				Data:       toJson,
-				No:         typeDomainPg.System.Index(),
-				TenantNo:   info.TenantNo,
-				Key:        tokenResult.PublicKey,
-				Type:       typeDomainPg.System.Index(),
-				TypeDomain: typeDomainPg.System.Index(),
-			}
-			save.KindUnique = userPg.SaltMake(tokenResult.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
-			c.sessionAk.Create(ctx, &save)
-			//缓存
-			cacheAuthPubPrivPg.Set(key, dataKey)
-		}
-		//缓存
-		_, b2 := cacheAuthPubPrivPg.Get(key)
-		if !b2 {
-			c.log.Errorf("密钥不存在，重新加载")
-			cacheAuthPubPrivPg.Set(key, dataKey)
-		}
-	}
 	//记录登录日志
 	{
 		var tmp entityRam.RamAccountEntity
 		copier.Copy(&tmp, info)
 		tmp.LoginTime = &now
-		tmp.TenantNo = typeDomainPg.System.Index()
+		tmp.TenantNo = typeDomainPg.System.Code()
 		obj := modRamAccount.LoginLogDto{
 			Account:     tmp,
 			Ano:         tmp.No,
@@ -209,7 +161,11 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		Account: info.Account,
 		Name:    info.Name,
 	}
-	success := modRamLogin.LoginSuccess{Info: successInfo, Token: tokenResult.Token, AccessToken: tokenResult.Token, AuthCode: []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
+	success := modRamLogin.LoginSuccess{
+		Info:        successInfo,
+		Token:       tokenResult.Token,
+		AccessToken: tokenResult.Token,
+		AuthCode:    []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
 	rt.Data = success
 	return rt.Ok()
 }

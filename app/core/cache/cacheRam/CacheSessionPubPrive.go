@@ -136,17 +136,17 @@ func (c *CacheSessionPubPrive) PaseKeyByNew(ctx context.Context, isMakeNewKey bo
 		jsonEntity.Private = privatePubKey.PrivateKey
 		jsonEntity.Public = privatePubKey.PublicKey
 		// 删除已存在的
-		c.sessionAk.DeleteByTypeDomainAndClientAndState(ctx, typeDomain.Index(), []string{client.Index()})
+		c.sessionAk.DeleteByTypeDomainAndClientAndState(ctx, typeDomain.Code(), []string{client.Index()})
 		//
 		toJson, _ := jsonPg.ObjToJson(jsonEntity)
 		save := entityRam.RamAccountSessionAccessKeyEntity{
 			Ano:        "",
 			Data:       toJson,
-			No:         tenantNo + ":" + typeDomain.Index() + ":" + client.Index(),
+			No:         tenantNo + ":" + typeDomain.Code() + ":" + client.Index(),
 			TenantNo:   tenantNo,
-			TypeDomain: typeDomain.Index(),
+			TypeDomain: typeDomain.Code(),
 			Client:     client.Index(),
-			Type:       typeDomain.Index(),
+			Type:       typeDomain.Code(),
 			Key:        privatePubKey.PublicKey,
 			State:      enumStatePg.ENABLE.Index(),
 		}
@@ -177,7 +177,7 @@ func (c *CacheSessionPubPrive) PaseKey(ctx context.Context, typeDomain typeDomai
 		return get
 	}
 	isMakeNewKey := true
-	info, result := c.sessionAk.FindByTenantNoAndTypeDomainInAndClientAndState(ctx, tenantNo, typeDomain.Index(), client.Index())
+	info, result := c.sessionAk.FindByTenantNoAndTypeDomainInAndClientAndState(ctx, tenantNo, typeDomain.Code(), client.Index())
 	if result {
 		if strPg.IsNotBlank(info.Data) {
 			isMakeNewKey = false
