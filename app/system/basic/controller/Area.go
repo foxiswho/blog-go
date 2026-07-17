@@ -35,6 +35,7 @@ func (c *AreaController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
+	group.POST("/queryAll", c.QueryAll)
 	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/exportExcel", c.ExportExcel)
@@ -126,7 +127,7 @@ func (c *AreaController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *AreaController) SelectPublic(ctx *gin.Context) {
+func (c *AreaController) QueryAll(ctx *gin.Context) {
 	var ct modBasicArea.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
@@ -134,7 +135,7 @@ func (c *AreaController) SelectPublic(ctx *gin.Context) {
 	if ct.State.ToInt8() <= 0 {
 		ct.State = enumStatePg.ENABLE.IndexPg()
 	}
-	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
+	ctx.JSON(200, c.sv.QueryAll(ctx, ct))
 }
 
 func (c *AreaController) SelectNodePublic(ctx *gin.Context) {

@@ -523,12 +523,12 @@ func (c *BasicAreaService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicArea
 	return rt.Ok()
 }
 
-// SelectPublic 查询
+// QueryAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicAreaService) SelectPublic(ctx *gin.Context, ct modBasicArea.QueryPublicCt) (rt rg.Rs[[]modBasicArea.Vo]) {
+func (c *BasicAreaService) QueryAll(ctx *gin.Context, ct modBasicArea.QueryPublicCt) (rt rg.Rs[[]modBasicArea.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicAreaEntity
 	copier.Copy(&query, &ct)

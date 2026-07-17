@@ -15,17 +15,17 @@ import (
 )
 
 func init() {
-	gs.Provide(new(PublicController)).Name("SystemPublicController").Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(AuthPublicController)).Name("SystemPublicController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-type PublicController struct {
+type AuthPublicController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
 	sv  *service.RamAccountPublicService `autowire:"?"`
 	log *log2.Logger                     `autowire:"?"`
 }
 
-func (c *PublicController) RegisterRoutes(e *gin.Engine) {
+func (c *AuthPublicController) RegisterRoutes(e *gin.Engine) {
 	r := ginServer.GinServerDefault
 	group := r.Group("/xianfu/sys/public", authPg.GroupSystemMiddleware(c.Sp))
 	group.GET("/info", c.Public)
@@ -34,14 +34,14 @@ func (c *PublicController) RegisterRoutes(e *gin.Engine) {
 	group.GET("/envInfoPublic", cmd.GetVersion)
 }
 
-func (c *PublicController) Public(ctx *gin.Context) {
+func (c *AuthPublicController) Public(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Public(holderPg.GetContextAccount(ctx)))
 }
-func (c *PublicController) InfoPublic(ctx *gin.Context) {
+func (c *AuthPublicController) InfoPublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.InfoPublic(holderPg.GetContextAccount(ctx)))
 }
 
-func (c *PublicController) UpdatePassword(ctx *gin.Context) {
+func (c *AuthPublicController) UpdatePassword(ctx *gin.Context) {
 	var ct modPublic.PasswordCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return

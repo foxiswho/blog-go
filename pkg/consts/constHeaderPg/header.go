@@ -18,7 +18,7 @@ const (
 	HeaderAuthorization        = "Authorization"
 	HeaderUserAgent            = "User-Agent"
 	CookieName                 = "token"
-	HeaderAuthorization_system = "Authorization-sys"
+	HeaderAuthorization_system = "authorization-sys"
 	//
 	WebTenantNo = "web-tenant-no"
 	// web 模板 Pg 存储

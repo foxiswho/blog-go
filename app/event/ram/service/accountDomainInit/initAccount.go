@@ -144,14 +144,14 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 			NameFull: "默认",
 			Code:     constsPg.ACCOUNT_MANAGE_No,
 			State:    enumStatePg.ENABLE.Index(),
-			Founder:  "1000",
+			Founder:  constsPg.ACCOUNT_MANAGE_No,
 		}
 		t.sp.tenantDb.Create(ctx, tenant)
 	}
 	save := entityRam.RamAccountEntity{
 		ID:            1000,
-		No:            domain,
-		Code:          domain,
+		No:            constsPg.ACCOUNT_MANAGE_No,
+		Code:          constsPg.ACCOUNT_MANAGE_No,
 		TenantNo:      tenant.No,
 		TypeDomain:    domain,
 		TypeIdentity:  typeIdentityPg.General.Index(),
