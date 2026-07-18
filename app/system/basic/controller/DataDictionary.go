@@ -28,8 +28,9 @@ func (c *DataDictionaryController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/xianfu/sys/basic/data-dictionary", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createUpdate", c.CreateUpdate)
 	group.GET("/detail/:id", c.Detail)
-	group.GET("/typeCodePublic/:id", c.TypeCodeListGet)
+	group.GET("/typeCodePublic/:id", c.TypeCodePublicGet)
 	group.POST("/typeCodePublic", c.TypeCodeList)
+	group.POST("/typeCodeAllPublic", c.TypeCodeAllPublic)
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.POST("/delete", c.Delete)
@@ -151,6 +152,14 @@ func (c *DataDictionaryController) ExistCode(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))
 }
 
+func (c *DataDictionaryController) TypeCodeAllPublic(ctx *gin.Context) {
+	var ct modBasicDataDictionary.SelectNodeAllCt
+	if !routerPg.BindJson(ctx, &ct) {
+		return
+	}
+	ctx.JSON(200, c.dictSubRep.TypeCodeAllPublic(ctx, ct))
+}
+
 func (c *DataDictionaryController) TypeCodeList(ctx *gin.Context) {
 	var ct modBasicDataDictionary.SelectNodeCt
 	if !routerPg.BindJson(ctx, &ct) {
@@ -158,7 +167,7 @@ func (c *DataDictionaryController) TypeCodeList(ctx *gin.Context) {
 	}
 	ctx.JSON(200, c.dictSubRep.TypeCodeList(ctx, ct))
 }
-func (c *DataDictionaryController) TypeCodeListGet(ctx *gin.Context) {
+func (c *DataDictionaryController) TypeCodePublicGet(ctx *gin.Context) {
 	param := ctx.Param("id")
 	if "" == param {
 		ctx.JSON(200, rg.Error[string]("码值类型不能为空"))
