@@ -33,7 +33,7 @@ func (c *LoginController) Login(ctx *gin.Context) {
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
-	ctx.JSON(200, c.sv.Login(ctx, ct, typeDomainPg.System))
+	ctx.JSON(200, c.sv.Login(ctx, ct, typeDomainPg.System, typeDomainPg.System.Code()))
 }
 
 func (c *LoginController) RefreshToken(ctx *gin.Context) {

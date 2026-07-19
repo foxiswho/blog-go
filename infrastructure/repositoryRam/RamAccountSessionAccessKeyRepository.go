@@ -148,3 +148,20 @@ func (c *RamAccountSessionAccessKeyRepository) DeleteByTypeDomainAndClientAndSta
 	}
 	return true
 }
+
+func (c *RamAccountSessionAccessKeyRepository) DeleteByTypeDomainAndClientAndTypeAndState(ctx context.Context, domain, client, keyType string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type_domain = ?", domain).Where("client = ?", client).Where("type=?", keyType).Where("state=1").Delete(c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return false
+	}
+	return true
+}
+func (c *RamAccountSessionAccessKeyRepository) DeleteByTenantNoAndTypeDomainAndClientAndTypeAndState(ctx context.Context, tenantNo, domain, client, keyType string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tenantNo).Where("type_domain = ?", domain).Where("type_domain = ?", domain).Where("client = ?", client).Where("type=?", keyType).Where("state=1").Delete(c.Entity)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return false
+	}
+	return true
+}

@@ -60,7 +60,7 @@ func NewAccountLoginService() *AccountLoginService {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain, tenantNo string) (rt rg.Rs[modRamLogin.LoginSuccess]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
 	//
 	client := clientPg.Browser
@@ -87,7 +87,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	log.Infof(context.Background(), log.TagAppDef, "pwd=%+v", pwd)
 
 	md5 := cryptPg.Md5(ct.Account)
-	info, b, err := c.dao.FindByAccountMd5AndTypeDomain(ctx, md5, tp.Code())
+	info, b, err := c.dao.FindByAccountMd5AndTypeDomainAndTenantNo(ctx, md5, tp.Code(), tenantNo)
 	if nil != err {
 		return rt.Error()
 	}
@@ -115,7 +115,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	//
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	key := c.cacheSessionPubPrive.PaseKey(ctx, tp, client, typeDomainPg.System.Code(), nil)
+	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, tenantNo, nil)
 	if strPg.IsNotBlank(key.Public) {
 		privatePubKey.PrivateKey = key.Private
 		privatePubKey.PublicKey = key.Public
@@ -129,7 +129,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		Name:        info.Name,
 		Type:        string(tp),
 		Result:      privatePubKey,
-		TenantNo:    typeDomainPg.System.Code(),
+		TenantNo:    tenantNo,
 	}
 	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
 	if ret.ErrorIs() {
@@ -168,6 +168,42 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		AuthCode:    []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
 	rt.Data = success
 	return rt.Ok()
+}
+
+func (c *AccountLoginService) MakeToken(ctx *gin.Context,
+	mult multiTenantPg.MultiTenantPg,
+	account *entityRam.RamAccountEntity,
+	tp typeDomainPg.TypeDomain,
+	client clientPg.Client,
+) (rt rg.Rs[authTokenPg.ResultAccessRefresh]) {
+	token := authTokenPg.ResultAccessRefresh{}
+	//
+	privatePubKey := authTokenPg.Result{}
+	// 获取 密钥对
+	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, account.TenantNo, nil)
+	if strPg.IsNotBlank(key.Public) {
+		privatePubKey.PrivateKey = key.Private
+		privatePubKey.PublicKey = key.Public
+	}
+	//生成 令牌
+	param := authTokenPg.Param{
+		UniqueId:    strPg.GenerateNumberId22(),
+		MultiTenant: mult,
+		LoginNo:     account.No,
+		No:          account.No,
+		Name:        account.Name,
+		Type:        string(tp),
+		Result:      privatePubKey,
+		TenantNo:    account.TenantNo,
+	}
+	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
+	if ret.ErrorIs() {
+		return rt.ErrorMessage(ret.Message)
+	}
+	tokenResult := ret.Data
+	token.Access = tokenResult.Token
+	//
+	return rt.OkData(token)
 }
 
 func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]) {

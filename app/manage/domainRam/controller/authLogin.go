@@ -5,7 +5,7 @@ import (
 	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -13,12 +13,12 @@ import (
 )
 
 func init() {
-	gs.Provide(new(LoginController)).Name("ManageLoginController").Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(AuthLoginController)).Name("ManageAuthLoginController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// LoginController 登录
+// AuthLoginController 登录
 // @Description:
-type LoginController struct {
+type AuthLoginController struct {
 	routerPg.RouteRegistrar
 	sv  *service.AccountLoginService `autowire:"?"`
 	log *log2.Logger                 `autowire:"?"`
@@ -29,7 +29,7 @@ type LoginController struct {
 //	@Description:
 //	@receiver c
 //	@param e
-func (c *LoginController) RegisterRoutes(e *gin.Engine) {
+func (c *AuthLoginController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/xianfu/auth/manage")
 	group.POST("/login", c.Login)
 	group.POST("/refresh", c.RefreshToken)
@@ -40,7 +40,7 @@ func (c *LoginController) RegisterRoutes(e *gin.Engine) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *LoginController) Login(ctx *gin.Context) {
+func (c *AuthLoginController) Login(ctx *gin.Context) {
 	var ct modRamLogin2.LoginCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -52,7 +52,7 @@ func (c *LoginController) Login(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Login(ctx, ct, appModulePg.Manage))
+	ctx.JSON(200, c.sv.Login(ctx, ct, typeDomainPg.Manage))
 }
 
 // RefreshToken 刷新
@@ -60,7 +60,7 @@ func (c *LoginController) Login(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *LoginController) RefreshToken(ctx *gin.Context) {
+func (c *AuthLoginController) RefreshToken(ctx *gin.Context) {
 	var ct modRamLogin2.TokenRefreshCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文

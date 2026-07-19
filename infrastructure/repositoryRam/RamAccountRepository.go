@@ -150,6 +150,20 @@ func (c *RamAccountRepository) FindByAccountMd5AndTypeDomain(ctx context.Context
 	}
 	return info, true, nil
 }
+func (c *RamAccountRepository) FindByAccountMd5AndTypeDomainAndTenantNo(ctx context.Context, code, typeDomain, tenantNo string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).
+		Where("tenant_no=?", tenantNo).
+		Where("account_md5=?", code).
+		Where("type_domain=?", typeDomain).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false, tx.Error
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false, nil
+	}
+	return info, true, nil
+}
 
 func (c *RamAccountRepository) FindByNoAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)

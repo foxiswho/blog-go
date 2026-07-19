@@ -64,13 +64,15 @@ func (c *InitSessionPubPrive) Processor(ctx context.Context) error {
 }
 
 func (c *InitSessionPubPrive) keyTenant(ctx context.Context, domain typeDomainPg.TypeDomain, client clientPg.Client) {
-	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, "1", nil)
+	c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, domain, client, "1", nil)
+	c.cacheSessionPubPrive.PaseKeyRefreshToken(ctx, domain, client, "1", nil)
 }
 
 // 系统
 func (c *InitSessionPubPrive) keySystem(ctx context.Context,
 	domain typeDomainPg.TypeDomain, client clientPg.Client) {
-	c.cacheSessionPubPrive.PaseKey(ctx, domain, client, typeDomainPg.System.Code(), nil)
+	c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, domain, client, typeDomainPg.System.Code(), nil)
+	c.cacheSessionPubPrive.PaseKeyRefreshToken(ctx, domain, client, typeDomainPg.System.Code(), nil)
 }
 
 // 登录密钥

@@ -42,6 +42,7 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader(constHeaderPg.HeaderAuthorization)
 		if !strPg.IsBlank(token) {
+			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			var payload map[string]interface{}
 			unverified, b := authTokenPg.ParseUnverified(token)
 			if b {
@@ -62,13 +63,13 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 				m.log.Debugf("[中间件].payload= %+v", payload)
 			}
 			m.log.Debugf("[中间件].tenantNo= %+v", tenantNo)
+			//密钥
 			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.KeyManage(tenantNo))
 			if !b {
 				c.JSON(200, rg.Error[string]("密钥不存在"))
 				c.Abort()
 				return
 			}
-			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			t, r := authTokenPg.VerifyByPublicKey(get.Public, token)
 			if r.ErrorIs() {
 				log.Debugf(context.Background(), log.TagAppDef, "JWT= %+v", r)
