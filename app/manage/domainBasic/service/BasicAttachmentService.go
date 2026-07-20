@@ -450,3 +450,49 @@ func (c *BasicAttachmentService) UpdateByFileOwner(ctx *gin.Context, ct modBasic
 	}
 	return rt.Ok()
 }
+
+// AddByFileOwner 设置文件拥有者/file token/ 文件归属
+func (c *BasicAttachmentService) AddByFileOwner(ctx *gin.Context, ct modBasicAttachment.AddByFileOwnerCt) (rt rg.Rs[[]modBasicAttachment.MakeFileOwner]) {
+	if strPg.IsBlank(ct.FileOwner) {
+		return rt.ErrorMessage("文件拥有者参数错误")
+	}
+	if nil == ct.Nos || len(ct.Nos) == 0 {
+		return rt.ErrorMessage("文件不存在")
+	}
+	ids := make([]string, 0)
+	for _, item := range ct.Nos {
+		if strPg.IsNotBlank(item) {
+			ids = append(ids, item)
+		}
+	}
+	if len(ids) == 0 {
+		return rt.ErrorMessage("文件不存在")
+	}
+	var query entityBasic.BasicAttachmentEntity
+	query.State = enumStatePg.ENABLE.Index()
+	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("create_at desc")
+		db = db.Where("id in ?", ids)
+		return db
+	}))
+	if nil != infos && len(infos) > 0 {
+		for _, item := range infos {
+			var save entityBasic.BasicAttachmentEntity
+			copier.Copy(&save, &item)
+			//
+			save.ID = 0
+			save.No = noPg.No()
+			save.TypeData = "copy"
+			save.FileOwnerCopy = item.FileOwner
+			//
+			save.FileOwner = ct.FileOwner
+			if strPg.IsNotBlank(ct.FileOwnerSub) {
+				save.FileOwnerSub = ct.FileOwnerSub
+			}
+			c.sv.DbModel().Create(save)
+		}
+	}
+	data := make([]modBasicAttachment.MakeFileOwner, 0)
+	rt.Data = data
+	return rt.Ok()
+}

@@ -40,9 +40,11 @@ func (c *AttachmentController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/makeFileOwnerPublic", c.MakeFileOwner)
 	group.POST("/makeFileOwnerAllPublic", c.MakeFileOwnerAll)
 	group.POST("/upload-listByOwnerPublic", c.ListByOwner)
+	group.POST("/upload-detail", c.ListByOwner)
 	group.POST("/upload-delByOwnerPublic", c.DelByOwner)
 	group.POST("/upload-makeFileOwnerAllPublic", c.MakeFileOwnerAll)
 	group.POST("/upload-updateByFileOwner", c.UpdateByFileOwner)
+	group.POST("/upload-addByFileOwner", c.AddByFileOwnerCt)
 }
 
 // Upload
@@ -201,4 +203,24 @@ func (c *AttachmentController) UpdateByFileOwner(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.UpdateByFileOwner(ctx, ct))
+}
+
+// AddByFileOwnerCt
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
+func (c *AttachmentController) AddByFileOwnerCt(ctx *gin.Context) {
+	var ct modBasicAttachment.AddByFileOwnerCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		//对 返回 错误进行转义 成中文
+		translate := validatorPg.Translate(err, &ct)
+		if len(translate) > 0 {
+			ctx.JSON(200, rg.ErrorMessageData[string](translate))
+			return
+		}
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.sv.AddByFileOwner(ctx, ct))
 }
