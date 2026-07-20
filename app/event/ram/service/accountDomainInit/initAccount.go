@@ -46,12 +46,19 @@ func (t *InitAccount) Processor(ctx context.Context) error {
 	mapDomain := make(map[string]*entityRam.RamAccountEntity)
 	find := make(map[string]bool)
 	// 获取超管账号
-	info, result := t.sp.accDb.FindAllByNoIn(ctx, domain)
+	info, result := t.sp.accDb.FindByTypeDomainIn(ctx, domain)
 	if result {
 		if len(info) > 0 {
 			for _, v := range info {
 				mapDomain[v.No] = v
-				find[v.No] = true
+				//系统
+				if typeDomainPg.System.IsEqual(v.No) {
+					find[v.No] = true
+				}
+				//租户
+				if constsPg.ACCOUNT_MANAGE_No == v.No {
+					find[typeDomainPg.Manage.Code()] = true
+				}
 			}
 		}
 	}
@@ -147,6 +154,7 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 			Founder:  constsPg.ACCOUNT_MANAGE_No,
 		}
 		t.sp.tenantDb.Create(ctx, tenant)
+		//
 	}
 	save := entityRam.RamAccountEntity{
 		ID:            1000,

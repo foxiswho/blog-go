@@ -26,6 +26,18 @@ type RamAccountRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamAccountEntity, int64]
 }
 
+func (c *RamAccountRepository) FindByTypeDomainIn(ctx context.Context, typeDomain []string, opts ...optionsPg.Option) (info []*entityRam.RamAccountEntity, query bool) {
+	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("type_domain in ?", typeDomain).Find(&info)
+	if tx.Error != nil {
+		c.Log().Error("", tx.Error)
+		return nil, false
+	}
+	if 0 == tx.RowsAffected {
+		return nil, false
+	}
+	return info, true
+}
+
 func (c *RamAccountRepository) FindByAccount(ctx context.Context, code string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account=?", code).First(&info)
 	if tx.Error != nil {

@@ -1,9 +1,5 @@
 package appDomainPg
 
-import (
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
-)
-
 // 域模式
 type AppDomain string
 
@@ -14,18 +10,3 @@ const (
 	WEB         AppDomain = "WEB"
 	ManageOwner AppDomain = "manageOwner"
 )
-
-func (c AppDomain) ToTypeDomain() typeDomainPg.TypeDomain {
-	switch c {
-	case System:
-		return typeDomainPg.System
-	case Manage:
-		return typeDomainPg.Merchant
-	case Tenant:
-		return typeDomainPg.Tenant
-	case WEB:
-		return typeDomainPg.General
-	default:
-		return typeDomainPg.General
-	}
-}

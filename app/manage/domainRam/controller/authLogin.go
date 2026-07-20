@@ -6,6 +6,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -72,5 +73,5 @@ func (c *AuthLoginController) RefreshToken(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.RefreshToken(ctx, ct))
+	ctx.JSON(200, c.sv.RefreshToken(ctx, ct, typeDomainPg.Manage, clientPg.Browser))
 }

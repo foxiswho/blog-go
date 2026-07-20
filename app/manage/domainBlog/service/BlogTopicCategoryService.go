@@ -470,6 +470,28 @@ func (c *BlogTopicCategoryService) Query(ctx *gin.Context, ct modBlogTopicCatego
 	return rt.Ok()
 }
 
+// QueryAll 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BlogTopicCategoryService) QueryAll(ctx *gin.Context, ct modBlogTopicCategory.QueryPublicCt) (rt rg.Rs[[]modBlogTopicCategory.Vo]) {
+	var query entityBlog.BlogTopicCategoryEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBlogTopicCategory.Vo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBlogTopicCategory.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
 // QueryPublic 查询
 //
 //	@Description:
@@ -513,12 +535,12 @@ func (c *BlogTopicCategoryService) QueryPublic(ctx *gin.Context, ct modBlogTopic
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogTopicCategoryService) SelectNodePublic(ctx *gin.Context, ct modBlogTopicCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *BlogTopicCategoryService) SelectNodeAll(ctx *gin.Context, ct modBlogTopicCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	var query entityBlog.BlogTopicCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -565,28 +587,6 @@ func (c *BlogTopicCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 			}
 
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *BlogTopicCategoryService) SelectPublic(ctx *gin.Context, ct modBlogTopicCategory.QueryPublicCt) (rt rg.Rs[[]modBlogTopicCategory.Vo]) {
-	var query entityBlog.BlogTopicCategoryEntity
-	copier.Copy(&query, &ct)
-	slice := make([]modBlogTopicCategory.Vo, 0)
-	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query)
-	if len(infos) > 0 {
-		for _, item := range infos {
-			var vo modBlogTopicCategory.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}

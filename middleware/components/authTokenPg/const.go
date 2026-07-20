@@ -8,5 +8,7 @@ const (
 	OrgNo         = "org"
 	Type          = "tp"
 	//
+	Subject = "sub"
+	//
 	AuthScheme = "Bearer"
 )

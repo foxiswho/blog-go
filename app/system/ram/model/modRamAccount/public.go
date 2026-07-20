@@ -1,8 +1,9 @@
 package modRamAccount
 
 import (
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 	"time"
+
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type AccountPub struct {
@@ -32,4 +33,5 @@ type AccountPub struct {
 	UserId        string      `json:"userId"  `
 	Username      string      `json:"username"  `
 	RealName      string      `json:"realName"`
+	Roles         []string    `json:"roles"`
 }

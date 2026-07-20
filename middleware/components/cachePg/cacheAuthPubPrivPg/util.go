@@ -15,7 +15,7 @@ func KeySystem() string {
 	return Key(sessionKeyTypePg.AccessToken, typeDomainPg.System.Code(), typeDomainPg.System, clientPg.Browser)
 }
 
-func KeyManage(tenantNo string) string {
+func AccessTokenKeyManage(tenantNo string) string {
 	return Key(sessionKeyTypePg.AccessToken, tenantNo, typeDomainPg.Manage, clientPg.Browser)
 }
 

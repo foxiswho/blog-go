@@ -45,8 +45,8 @@ func (c *TopicCategoryController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/selectPublic", c.SelectPublic)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/queryAll", c.QueryAll)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
 	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
 	group.POST("/existName", c.ExistName)
 	group.POST("/existNo", c.ExistNo)
@@ -251,7 +251,7 @@ func (c *TopicCategoryController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *TopicCategoryController) SelectNodePublic(ctx *gin.Context) {
+func (c *TopicCategoryController) SelectNodeAll(ctx *gin.Context) {
 	var ct modBlogTopicCategory.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -264,7 +264,7 @@ func (c *TopicCategoryController) SelectNodePublic(ctx *gin.Context) {
 		return
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+	ctx.JSON(200, c.sv.SelectNodeAll(ctx, ct))
 }
 
 func (c *TopicCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
@@ -283,7 +283,7 @@ func (c *TopicCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
-func (c *TopicCategoryController) SelectPublic(ctx *gin.Context) {
+func (c *TopicCategoryController) QueryAll(ctx *gin.Context) {
 	var ct modBlogTopicCategory.QueryPublicCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
@@ -296,7 +296,7 @@ func (c *TopicCategoryController) SelectPublic(ctx *gin.Context) {
 		return
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
+	ctx.JSON(200, c.sv.QueryAll(ctx, ct))
 }
 
 // ExistName 查重

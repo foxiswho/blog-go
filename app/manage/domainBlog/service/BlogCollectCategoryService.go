@@ -473,6 +473,28 @@ func (c *BlogCollectCategoryService) Query(ctx *gin.Context, ct modBlogCollectCa
 	return rt.Ok()
 }
 
+// QueryAll 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BlogCollectCategoryService) QueryAll(ctx *gin.Context, ct modBlogCollectCategory.QueryPublicCt) (rt rg.Rs[[]modBlogCollectCategory.Vo]) {
+	var query entityBlog.BlogCollectCategoryEntity
+	copier.Copy(&query, &ct)
+	slice := make([]modBlogCollectCategory.Vo, 0)
+	rt.Data = slice
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBlogCollectCategory.Vo
+			copier.Copy(&vo, &item)
+			slice = append(slice, vo)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
 // QueryPublic 查询
 //
 //	@Description:
@@ -516,12 +538,12 @@ func (c *BlogCollectCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCol
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogCollectCategoryService) SelectNodePublic(ctx *gin.Context, ct modBlogCollectCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *BlogCollectCategoryService) SelectNodeAll(ctx *gin.Context, ct modBlogCollectCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	var query entityBlog.BlogCollectCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -568,28 +590,6 @@ func (c *BlogCollectCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 			}
 
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *BlogCollectCategoryService) SelectPublic(ctx *gin.Context, ct modBlogCollectCategory.QueryPublicCt) (rt rg.Rs[[]modBlogCollectCategory.Vo]) {
-	var query entityBlog.BlogCollectCategoryEntity
-	copier.Copy(&query, &ct)
-	slice := make([]modBlogCollectCategory.Vo, 0)
-	rt.Data = slice
-	infos := c.sv.FindAll(ctx, query)
-	if len(infos) > 0 {
-		for _, item := range infos {
-			var vo modBlogCollectCategory.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}

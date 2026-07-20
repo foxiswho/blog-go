@@ -78,7 +78,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	log.Infof(context.Background(), log.TagAppDef, "authLogin=%+v", c.authLogin)
 	//解密密码
 	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
-		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
+		login := c.cacheSessionPubPrive.DecodeByLoginSystem(ctx, pwd)
 		if login.ErrorIs() {
 			return rt.ErrorMessage(login.Message)
 		}
@@ -106,75 +106,61 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//
-	now := time.Now()
 	//租户默认
 	mult := multiTenantPg.MultiTenantPg{
 		TenantNo: make([]string, 0),
 	}
 	mult.TenantNo = append(mult.TenantNo, tp.Code())
-	//
-	privatePubKey := authTokenPg.Result{}
-	// 获取 密钥对
-	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, tenantNo, nil)
-	if strPg.IsNotBlank(key.Public) {
-		privatePubKey.PrivateKey = key.Private
-		privatePubKey.PublicKey = key.Public
+	//生成 token
+	token := c.MakeToken(ctx, mult, info, tp, client, true)
+	if token.ErrorIs() {
+		return rt.ErrorMessage(token.Message)
 	}
-	//生成 令牌
-	param := authTokenPg.Param{
-		UniqueId:    strPg.GenerateNumberId22(),
-		MultiTenant: mult,
-		LoginNo:     info.No,
-		No:          info.No,
-		Name:        info.Name,
-		Type:        string(tp),
-		Result:      privatePubKey,
-		TenantNo:    tenantNo,
-	}
-	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
-	if ret.ErrorIs() {
-		return rt.ErrorMessage(ret.Message)
-	}
-	tokenResult := ret.Data
+	dataToken := token.Data
 	//记录登录日志
-	{
-		var tmp entityRam.RamAccountEntity
-		copier.Copy(&tmp, info)
-		tmp.LoginTime = &now
-		tmp.TenantNo = typeDomainPg.System.Code()
-		obj := modRamAccount.LoginLogDto{
-			Account:     tmp,
-			Ano:         tmp.No,
-			AppNo:       "",
-			Client:      "",
-			LoginSource: "",
-			Ip:          ctx.ClientIP(),
-			ExtraData:   make(map[string]any),
-		}
-		ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
-		obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
-		//保存到数据库
-		eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
-	}
-
+	c.loginLogSave(ctx, info)
+	//
 	successInfo := modRamLogin.LoginSuccessInfo{
 		Account: info.Account,
 		Name:    info.Name,
 	}
 	success := modRamLogin.LoginSuccess{
-		Info:        successInfo,
-		Token:       tokenResult.Token,
-		AccessToken: tokenResult.Token,
-		AuthCode:    []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
+		Info:         successInfo,
+		AccessToken:  dataToken.Access,
+		RefreshToken: dataToken.Refresh,
+		AuthCode:     []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
 	rt.Data = success
 	return rt.Ok()
 }
 
+func (c *AccountLoginService) loginLogSave(ctx *gin.Context, account *entityRam.RamAccountEntity) {
+	now := time.Now()
+	var tmp entityRam.RamAccountEntity
+	copier.Copy(&tmp, account)
+	tmp.LoginTime = &now
+	tmp.TenantNo = typeDomainPg.System.Code()
+	obj := modRamAccount.LoginLogDto{
+		Account:     tmp,
+		Ano:         tmp.No,
+		AppNo:       "",
+		Client:      "",
+		LoginSource: "",
+		Ip:          ctx.ClientIP(),
+		ExtraData:   make(map[string]any),
+	}
+	ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
+	obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
+	//保存到数据库
+	eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
+}
+
+// MakeToken 生成 token
 func (c *AccountLoginService) MakeToken(ctx *gin.Context,
 	mult multiTenantPg.MultiTenantPg,
 	account *entityRam.RamAccountEntity,
 	tp typeDomainPg.TypeDomain,
 	client clientPg.Client,
+	makeRefresh bool,
 ) (rt rg.Rs[authTokenPg.ResultAccessRefresh]) {
 	token := authTokenPg.ResultAccessRefresh{}
 	//
@@ -202,6 +188,36 @@ func (c *AccountLoginService) MakeToken(ctx *gin.Context,
 	}
 	tokenResult := ret.Data
 	token.Access = tokenResult.Token
+	//刷新 token
+	if makeRefresh {
+		{
+			//
+			privatePubKey2 := authTokenPg.Result{}
+			// 获取 密钥对
+			key2 := c.cacheSessionPubPrive.PaseKeyRefreshToken(ctx, tp, client, account.TenantNo, nil)
+			if strPg.IsNotBlank(key2.Public) {
+				privatePubKey2.PrivateKey = key2.Private
+				privatePubKey2.PublicKey = key2.Public
+			}
+			//生成 令牌
+			param = authTokenPg.Param{
+				UniqueId:    strPg.GenerateNumberId22(),
+				MultiTenant: mult,
+				LoginNo:     account.No,
+				No:          account.No,
+				Name:        account.Name,
+				Type:        string(tp),
+				Result:      privatePubKey2,
+				TenantNo:    account.TenantNo,
+			}
+			ret2 := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
+			if ret2.ErrorIs() {
+				return rt.ErrorMessage(ret.Message)
+			}
+			tokenResult2 := ret2.Data
+			token.Refresh = tokenResult2.Token
+		}
+	}
 	//
 	return rt.OkData(token)
 }

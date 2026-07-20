@@ -34,6 +34,7 @@ type PublicController struct {
 func (c *PublicController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/xianfu/manage/public", authPg.GroupManageMiddleware(c.Sp))
 	group.GET("/info", c.Public)
+	group.GET("/infoPublic", c.Public)
 	group.POST("/password", c.UpdatePassword)
 }
 

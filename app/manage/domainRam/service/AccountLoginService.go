@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/farseer-go/eventBus"
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modPublic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
@@ -78,7 +81,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	log.Infof(context.Background(), log.TagAppDef, "authLogin=%+v", c.authLogin)
 	//解密密码
 	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
-		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
+		login := c.cacheSessionPubPrive.DecodeByLoginManage(ctx, pwd, clientPg.Browser, ct.OrgCode)
 		if login.ErrorIs() {
 			return rt.ErrorMessage(login.Message)
 		}
@@ -106,16 +109,69 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//
-	now := time.Now()
 	//租户默认
 	mult := multiTenantPg.MultiTenantPg{
 		TenantNo: make([]string, 0),
 	}
 	mult.TenantNo = append(mult.TenantNo, info.TenantNo)
+	//生成 token
+	token := c.MakeToken(ctx, mult, info, tp, client, true)
+	if token.ErrorIs() {
+		return rt.ErrorMessage(token.Message)
+	}
+	dataToken := token.Data
+	//记录登录日志
+	c.loginLogSave(ctx, info)
+	//
+	successInfo := modRamLogin.LoginSuccessInfo{
+		Account: info.Account,
+		Name:    info.Name,
+	}
+	successInfo.Roles = make([]string, 0)
+	successInfo.Roles = append(successInfo.Roles, "administrator")
+	success := modRamLogin.LoginSuccess{
+		Info:         successInfo,
+		AccessToken:  dataToken.Access,
+		RefreshToken: dataToken.Refresh,
+		AuthCode:     []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
+	rt.Data = success
+	return rt.Ok()
+}
+
+func (c *AccountLoginService) loginLogSave(ctx *gin.Context, account *entityRam.RamAccountEntity) {
+	now := time.Now()
+	var tmp entityRam.RamAccountEntity
+	copier.Copy(&tmp, account)
+	tmp.LoginTime = &now
+	tmp.TenantNo = typeDomainPg.System.Code()
+	obj := modRamAccount.LoginLogDto{
+		Account:     tmp,
+		Ano:         tmp.No,
+		AppNo:       "",
+		Client:      "",
+		LoginSource: "",
+		Ip:          ctx.ClientIP(),
+		ExtraData:   make(map[string]any),
+	}
+	ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
+	obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
+	//保存到数据库
+	eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
+}
+
+// MakeToken 生成 token
+func (c *AccountLoginService) MakeToken(ctx *gin.Context,
+	mult multiTenantPg.MultiTenantPg,
+	account *entityRam.RamAccountEntity,
+	tp typeDomainPg.TypeDomain,
+	client clientPg.Client,
+	makeRefresh bool,
+) (rt rg.Rs[authTokenPg.ResultAccessRefresh]) {
+	token := authTokenPg.ResultAccessRefresh{}
 	//
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, typeDomainPg.System.Code(), nil)
+	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, account.TenantNo, nil)
 	if strPg.IsNotBlank(key.Public) {
 		privatePubKey.PrivateKey = key.Private
 		privatePubKey.PublicKey = key.Public
@@ -124,50 +180,51 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	param := authTokenPg.Param{
 		UniqueId:    strPg.GenerateNumberId22(),
 		MultiTenant: mult,
-		LoginNo:     info.No,
-		No:          info.No,
-		Name:        info.Name,
+		LoginNo:     account.No,
+		No:          account.No,
+		Name:        account.Name,
 		Type:        string(tp),
 		Result:      privatePubKey,
-		TenantNo:    info.TenantNo,
+		TenantNo:    account.TenantNo,
 	}
 	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
 	if ret.ErrorIs() {
 		return rt.ErrorMessage(ret.Message)
 	}
 	tokenResult := ret.Data
-	//记录登录日志
-	{
-		var tmp entityRam.RamAccountEntity
-		copier.Copy(&tmp, info)
-		tmp.LoginTime = &now
-		tmp.TenantNo = info.TenantNo
-		obj := modRamAccount.LoginLogDto{
-			Account:     tmp,
-			Ano:         tmp.No,
-			AppNo:       "",
-			Client:      "",
-			LoginSource: "",
-			Ip:          ctx.ClientIP(),
-			ExtraData:   make(map[string]any),
+	token.Access = tokenResult.Token
+	//刷新 token
+	if makeRefresh {
+		{
+			//
+			privatePubKey2 := authTokenPg.Result{}
+			// 获取 密钥对
+			key2 := c.cacheSessionPubPrive.PaseKeyRefreshToken(ctx, tp, client, account.TenantNo, nil)
+			if strPg.IsNotBlank(key2.Public) {
+				privatePubKey2.PrivateKey = key2.Private
+				privatePubKey2.PublicKey = key2.Public
+			}
+			//生成 令牌
+			param = authTokenPg.Param{
+				UniqueId:    strPg.GenerateNumberId22(),
+				MultiTenant: mult,
+				LoginNo:     account.No,
+				No:          account.No,
+				Name:        account.Name,
+				Type:        string(tp),
+				Result:      privatePubKey2,
+				TenantNo:    account.TenantNo,
+			}
+			ret2 := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
+			if ret2.ErrorIs() {
+				return rt.ErrorMessage(ret.Message)
+			}
+			tokenResult2 := ret2.Data
+			token.Refresh = tokenResult2.Token
 		}
-		ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
-		obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
-		//保存到数据库
-		eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
 	}
-
-	successInfo := modRamLogin.LoginSuccessInfo{
-		Account: info.Account,
-		Name:    info.Name,
-	}
-	success := modRamLogin.LoginSuccess{
-		Info:        successInfo,
-		Token:       tokenResult.Token,
-		AccessToken: tokenResult.Token,
-		AuthCode:    []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
-	rt.Data = success
-	return rt.Ok()
+	//
+	return rt.OkData(token)
 }
 
 func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]) {
@@ -178,8 +235,79 @@ func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]
 //
 //	@Description:  刷新
 //	@receiver c
-func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin.TokenRefreshCt) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin.TokenRefreshCt, tp typeDomainPg.TypeDomain, client clientPg.Client) (rt rg.Rs[modPublic.LoginToken]) {
 	token := ctx.GetHeader("Authorization")
-	rt.Data = modRamLogin.LoginSuccess{Token: token, AccessToken: token}
-	return rt.Ok()
+	if strPg.IsNotBlank(token) {
+		tokenRefresh := ctx.GetHeader("Authorization-Refresh")
+		token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
+		if strPg.IsNotBlank(token) {
+			var accessPayload map[string]interface{}
+			var refreshPayload map[string]interface{}
+			{
+				unverified, b := authTokenPg.ParseUnverified(token)
+				if b {
+					// 解析为map便于查看
+					if err := json.Unmarshal(unverified, &accessPayload); err != nil {
+						return rt.ErrorMessage("解析载荷JSON失败")
+					}
+				}
+			}
+			{
+				if strPg.IsNotBlank(tokenRefresh) {
+					unverified2, b := authTokenPg.ParseUnverified(tokenRefresh)
+					if b {
+						// 解析为map便于查看
+						if err := json.Unmarshal(unverified2, &refreshPayload); err != nil {
+							return rt.ErrorMessage("解析载荷JSON失败")
+						}
+					}
+				}
+			}
+			tenantNoAcc := ""
+			tenantNoRef := ""
+			loginNoAcc := ""
+			loginNoRef := ""
+			{
+				if get, ok := accessPayload[authTokenPg.TenantNo]; ok {
+					tenantNoAcc = get.(string)
+				}
+				if get, ok := accessPayload[authTokenPg.Subject]; ok {
+					loginNoAcc = get.(string)
+				}
+			}
+			{
+				if get, ok := refreshPayload[authTokenPg.TenantNo]; ok {
+					tenantNoRef = get.(string)
+				}
+				if get, ok := refreshPayload[authTokenPg.Subject]; ok {
+					loginNoRef = get.(string)
+				}
+			}
+			if strPg.IsNotBlank(loginNoAcc) && strPg.IsNotBlank(loginNoRef) &&
+				strPg.IsNotBlank(tenantNoAcc) && strPg.IsNotBlank(tenantNoRef) &&
+				loginNoAcc == loginNoRef && tenantNoAcc == tenantNoRef {
+				info, result := c.dao.FindByNo(ctx, loginNoAcc)
+				if result {
+					//租户默认
+					mult := multiTenantPg.MultiTenantPg{
+						TenantNo: make([]string, 0),
+					}
+					mult.TenantNo = append(mult.TenantNo, info.TenantNo)
+					//生成 token
+					tokenRet := c.MakeToken(ctx, mult, info, tp, client, true)
+					if tokenRet.ErrorIs() {
+						return rt.ErrorMessage(tokenRet.Message)
+					}
+					dataToken := tokenRet.Data
+					ret := modPublic.LoginToken{
+						AccessToken:  dataToken.Access,
+						RefreshToken: dataToken.Refresh,
+					}
+					return rt.OkData(ret)
+				}
+			}
+		}
+	}
+
+	return rt.ErrorMessage("刷新token失败")
 }

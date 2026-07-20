@@ -64,7 +64,7 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 			}
 			m.log.Debugf("[中间件].tenantNo= %+v", tenantNo)
 			//密钥
-			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.KeyManage(tenantNo))
+			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.AccessTokenKeyManage(tenantNo))
 			if !b {
 				c.JSON(200, rg.Error[string]("密钥不存在"))
 				c.Abort()

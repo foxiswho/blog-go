@@ -85,6 +85,8 @@ func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs
 	if len(account.Os.Departments) > 0 {
 		data.Info.Departments = account.Os.Departments
 	}
+	data.Info.Roles = make([]string, 0)
+	data.Info.Roles = append(data.Info.Roles, "administrator")
 	rt.Data = data
 	return rt.Ok()
 }
@@ -101,7 +103,7 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 	pwd := ct.PasswordNew
 	//解密密码
 	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
-		login := c.cacheSessionPubPrive.DecodeByLogin(ctx, pwd)
+		login := c.cacheSessionPubPrive.DecodeByLoginSystem(ctx, pwd)
 		if login.ErrorIs() {
 			return rt.ErrorMessage(login.Message)
 		}
