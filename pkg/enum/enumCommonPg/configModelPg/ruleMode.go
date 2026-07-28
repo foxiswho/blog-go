@@ -1,6 +1,6 @@
 package configModelPg
 
-import "github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 
 // RuleMode 规则类型
 type RuleMode string

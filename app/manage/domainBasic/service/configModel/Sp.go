@@ -1,9 +1,14 @@
 package configModel
 
 import (
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/spring/gs"
 )
+
+func init() {
+	gs.Provide(new(Sp))
+}
 
 type Sp struct {
 	log       *log2.Logger                                      `autowire:"?"`

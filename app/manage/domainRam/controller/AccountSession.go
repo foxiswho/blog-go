@@ -1,27 +1,40 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAccountSession"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccountSession"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
-	"github.com/foxiswho/blog-go/pkg/model"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(AccountSessionController)).Name("ManageAccountSessionController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AccountSessionController 团队
 // @Description:
 type AccountSessionController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp   `autowire:""`
 	sv  *service.RamAccountSessionService `autowire:"?"`
 	log *log2.Logger                      `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AccountSessionController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/ram/account-session", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
 }
 
 // PhysicalDeletion 物理删除

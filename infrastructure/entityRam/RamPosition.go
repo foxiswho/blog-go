@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// RamPositionEntity 职务
+// RamPositionEntity 职位
 type RamPositionEntity struct {
 	ID          int64      `gorm:"column:id;type:bigserial;primaryKey;autoIncrement:true" json:"id" comment:"" `
 	No          string     `gorm:"column:no;type:varchar(80);index;default:;comment:编号" json:"no" comment:"编号" `
@@ -30,5 +30,5 @@ func (*RamPositionEntity) TableName() string {
 }
 
 func (*RamPositionEntity) TableComment() string {
-	return "职务"
+	return "职位"
 }

@@ -15,6 +15,7 @@ type Redis struct {
 	ConnectTimeout int      `value:"${connect-timeout:=0}"`
 	ReadTimeout    int      `value:"${read-timeout:=0}"`
 	WriteTimeout   int      `value:"${write-timeout:=0}"`
+	Driver         string   `value:"${driver:=DefaultDriver}"`
 }
 
 func (r Redis) GetAddress() string {

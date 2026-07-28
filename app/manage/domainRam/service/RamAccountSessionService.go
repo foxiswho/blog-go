@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAccountSession"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccountSession"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -22,7 +22,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamAccountSessionService)).Init(func(s *RamAccountSessionService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -45,7 +45,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -55,7 +55,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -65,38 +65,30 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSession.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamAccountSession.Vo]]) {
+func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSession.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountSession.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountSessionEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAccountSession.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAccountSessionEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAccountSessionEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("update_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("update_at desc")
 		//自定义查询
-		//if "" != ct.Wd {
-		//	p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		//if strPg.IsNotBlank(ct.Wd) {
+		//	arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		//}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAccountSession.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAccountSession.Vo](page.Pageable)
 		mapAcc := make(map[string]*entityRam.RamAccountEntity)
 		idsAcc := make([]string, 0)
 		for _, item := range page.Data {
@@ -107,7 +99,7 @@ func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSessi
 		// 账号
 		{
 			if len(idsAcc) > 0 {
-				acc, b := c.accDb.FindAllByNoIn(idsAcc)
+				acc, b := c.accDb.FindAllByNoIn(ctx, idsAcc)
 				if b {
 					for _, item := range acc {
 						mapAcc[item.No] = item

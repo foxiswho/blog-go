@@ -4,30 +4,31 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcTenantDomain"
-	"github.com/foxiswho/blog-go/infrastructure/entityTc"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(TcTenantDomainService)).Init(func(s *TcTenantDomainService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -46,7 +47,7 @@ type TcTenantDomainService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.CreateCt) (rt rg.Rs[string]) {
+func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -57,7 +58,7 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 	if strPg.IsBlank(ct.TenantNo) {
 		return rt.ErrorMessage("租户编号不能为空")
 	}
-	ten, result := c.ten.FindByNo(ct.TenantNo)
+	ten, result := c.ten.FindByNo(ctx, ct.TenantNo)
 	if !result {
 		return rt.ErrorMessage("租户 不存在")
 	}
@@ -70,7 +71,7 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 			return rt.ErrorMessage("编号格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByNo(ct.Code)
+		_, result := r.FindByNo(ctx, ct.Code)
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -87,13 +88,13 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 	info.CreateBy = holder.GetAccountNo()
 	info.TenantNo = ten.No
 	c.log.Infof("info=%+v", info)
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
 	c.log.Infof("save=%+v", info)
 	// 设置默认
-	c.setDefaulted(ten.No, info.ID)
+	c.setDefaulted(ctx, ten.No, info.ID)
 	return rt.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -103,7 +104,7 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.UpdateCt) (rt rg.Rs[string]) {
+func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
@@ -117,18 +118,18 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 	if strPg.IsBlank(ct.TenantNo) {
 		return rt.ErrorMessage("租户编号不能为空")
 	}
-	ten, result := c.ten.FindByNo(ct.TenantNo)
+	ten, result := c.ten.FindByNo(ctx, ct.TenantNo)
 	if !result {
 		return rt.ErrorMessage("租户 不存在")
 	}
 	r := c.sv
 	{
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -138,12 +139,12 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 	info.No = ""
 	info.TenantNo = ten.No
 	c.log.Infof("save=%+v", info)
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage("更新失败:" + err.Error())
 	}
 	// 设置默认
-	c.setDefaulted(ten.No, info.ID)
+	c.setDefaulted(ctx, ten.No, info.ID)
 	return rt.Ok()
 }
 
@@ -154,8 +155,8 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Up
 //	@param tenantNo
 //	@param newId
 //	@return rt
-func (c *TcTenantDomainService) setDefaulted(tenantNo string, newId int64) (rt rg.Rs[string]) {
-	infos, query := c.sv.FindAllByTenantNo(tenantNo)
+func (c *TcTenantDomainService) setDefaulted(ctx *gin.Context, tenantNo string, newId int64) (rt rg.Rs[string]) {
+	infos, query := c.sv.FindAllByTenantNo(ctx, tenantNo)
 	if query {
 		defaultCount := 0
 		for _, item := range infos {
@@ -166,14 +167,14 @@ func (c *TcTenantDomainService) setDefaulted(tenantNo string, newId int64) (rt r
 		// 默认值只能有一个
 		if defaultCount > 1 {
 			//设置所有默认值为否
-			c.sv.SetDefaultedByTenantNo(yesNoIntPg.No.IndexInt8(), tenantNo)
+			c.sv.SetDefaultedByTenantNo(ctx, yesNoIntPg.No.IndexInt8(), tenantNo)
 			//设置当前默认值是是
 			if newId > 0 {
-				c.sv.Update(entityTc.TcTenantDomainEntity{Defaulted: yesNoIntPg.Yes.IndexInt8()}, newId)
+				c.sv.Update(ctx, entityTc.TcTenantDomainEntity{Defaulted: yesNoIntPg.Yes.IndexInt8()}, newId)
 			}
 		} else if defaultCount == 0 && newId > 0 {
 			//如果没有默认值，则设置当前默认值是是
-			c.sv.Update(entityTc.TcTenantDomainEntity{Defaulted: yesNoIntPg.Yes.IndexInt8()}, newId)
+			c.sv.Update(ctx, entityTc.TcTenantDomainEntity{Defaulted: yesNoIntPg.Yes.IndexInt8()}, newId)
 		}
 	}
 	return rt.Ok()
@@ -188,7 +189,7 @@ func (c *TcTenantDomainService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -196,7 +197,7 @@ func (c *TcTenantDomainService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 	copier.Copy(&info, &find)
 	//
 	if strPg.IsNotBlank(find.TenantNo) {
-		tmp, result := c.ten.FindByNo(find.TenantNo)
+		tmp, result := c.ten.FindByNo(ctx, find.TenantNo)
 		if result {
 			info.TenantName = tmp.Name
 		}
@@ -252,13 +253,13 @@ func (c *TcTenantDomainService) State(ctx *gin.Context, ct model.BaseStateIdsCt[
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityTc.TcTenantDomainEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityTc.TcTenantDomainEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -283,7 +284,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -291,13 +292,13 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityTc.TcTenantDomainEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityTc.TcTenantDomainEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -315,7 +316,7 @@ func (c *TcTenantDomainService) LogicalRecovery(ctx *gin.Context, ids []string) 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -323,7 +324,7 @@ func (c *TcTenantDomainService) LogicalRecovery(ctx *gin.Context, ids []string) 
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityTc.TcTenantDomainEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityTc.TcTenantDomainEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -339,7 +340,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -349,7 +350,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -359,34 +360,29 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modTcTenantDomain.Vo]]) {
+func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.QueryCt) (rt rg.Rs[pagePg.Paginator[modTcTenantDomain.Vo]]) {
 	var query entityTc.TcTenantDomainEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modTcTenantDomain.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityTc.TcTenantDomainEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityTc.TcTenantDomainEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modTcTenantDomain.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modTcTenantDomain.Vo](page.Pageable)
 		mapTenant := make(map[string]*entityTc.TcTenantEntity)
 		idsTenant := make([]string, 0)
 		for _, item := range page.Data {
@@ -395,7 +391,7 @@ func (c *TcTenantDomainService) Query(ctx *gin.Context, ct modTcTenantDomain.Que
 			}
 		}
 		if len(idsTenant) > 0 {
-			info, result := c.ten.FindAllByNoIn(idsTenant)
+			info, result := c.ten.FindAllByNoIn(ctx, idsTenant)
 			if result {
 				for _, item := range info {
 					mapTenant[item.No] = item
@@ -435,7 +431,7 @@ func (c *TcTenantDomainService) SelectNodePublic(ctx *gin.Context, ct modTcTenan
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -456,7 +452,7 @@ func (c *TcTenantDomainService) SelectNodeAllPublic(ctx *gin.Context, ct modTcTe
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -478,7 +474,7 @@ func (c *TcTenantDomainService) SelectPublic(ctx *gin.Context, ct modTcTenantDom
 	var query entityTc.TcTenantDomainEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modTcTenantDomain.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modTcTenantDomain.Vo, 0)
 		for _, item := range infos {
@@ -504,7 +500,7 @@ func (c *TcTenantDomainService) ExistName(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -524,7 +520,7 @@ func (c *TcTenantDomainService) ExistCode(ctx *gin.Context, ct model.BaseExistWd
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -544,7 +540,7 @@ func (c *TcTenantDomainService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -570,16 +566,16 @@ func (c *TcTenantDomainService) SetDefaulted(ctx *gin.Context, ct model.BaseStat
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	//如果是 默认启用，那么要把 当前租户下的所有都设置为 否
 	if state.IsEqual(yesNoIntPg.Yes.IndexInt8()) {
-		c.setDefaulted(finds[0].TenantNo, 0)
+		c.setDefaulted(ctx, finds[0].TenantNo, 0)
 	}
 	for _, info := range finds {
-		err := r.Update(entityTc.TcTenantDomainEntity{Defaulted: state.IndexInt8()}, info.ID)
+		err := r.Update(ctx, entityTc.TcTenantDomainEntity{Defaulted: state.IndexInt8()}, info.ID)
 		if err != nil {
 			c.log.Error("更新失败", "id:", info.ID, "err", err)
 		}

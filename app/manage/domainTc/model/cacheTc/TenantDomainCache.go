@@ -1,11 +1,17 @@
 package cacheTc
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainTc/model/dtoTenantDomain"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/tools/mapPg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/dtoTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/mapPg"
+	"go-spring.org/spring/gs"
+
 	"strings"
 )
+
+func init() {
+	gs.Provide(&TenantDomainCache{Domain: &mapPg.SafeMap[string, string]{}, DomainData: &mapPg.SafeMap[string, dtoTenantDomain.Dto]{}})
+}
 
 // TenantDomainCache
 // @Description: 域名缓存

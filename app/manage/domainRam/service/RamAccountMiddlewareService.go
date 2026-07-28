@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -21,7 +21,7 @@ import (
 
 func init() {
 	gs.Provide(NewRamAccountMiddlewareService).Init(func(s *RamAccountMiddlewareService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -48,7 +48,7 @@ func (c *RamAccountMiddlewareService) FindByLoginNo(ctx *gin.Context, no, tenant
 	if strPg.IsBlank(no) {
 		return rt.ErrorMessage("账号登陆失败")
 	}
-	info, b := c.sv.FindByNo(no)
+	info, b := c.sv.FindByNo(ctx, no)
 	if !b {
 		return rt.ErrorMessage("账号不存在")
 	}
@@ -80,7 +80,7 @@ func (c *RamAccountMiddlewareService) FindByLoginNo(ctx *gin.Context, no, tenant
 		TenantNo: accountHolder2.Os.Tenants,
 	}
 	pg.HolderData = accountHolder2
-	pg.TypeDomain = typeDomainPg.Manage.Index()
+	pg.TypeDomain = typeDomainPg.Manage.Code()
 	pg.Rule = &rule
 	rt.Data = pg
 	return rt.Ok()

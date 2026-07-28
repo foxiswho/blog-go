@@ -5,12 +5,13 @@ import (
 
 	"github.com/farseer-go/eventBus"
 	"github.com/farseer-go/fs/core"
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/service/attachment"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service/attachment"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // AttachmentListener 附件处理
@@ -25,13 +26,13 @@ type AttachmentListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *AttachmentListener) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BasicAttachmentCreate)
+func (c *AttachmentListener) Run(ctx context.Context) error {
+	log.Infof(context.Background(), log.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BasicAttachmentCreate)
 	eventBus.RegisterEvent(constEventBusPg.BasicAttachmentCreate).RegisterSubscribe(constEventBusPg.BasicAttachmentCreate, func(message any, _ core.EventArgs) {
-		syslog.Infof(context.Background(), syslog.TagAppDef, "SchedulerEvent.event=%+v", message)
+		log.Infof(context.Background(), log.TagAppDef, "SchedulerEvent.event=%+v", message)
 		dto := message.(entityBasic.BasicAttachmentEntity)
 		if len(dto.File) > 0 {
-			err := attachment.NewCreate(c.dao, dto).Processor()
+			err := attachment.NewCreate(c.dao, dto).Processor(context.Background())
 			if nil != err {
 				c.log.Error("", err)
 			}

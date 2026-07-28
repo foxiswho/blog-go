@@ -1,16 +1,17 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"time"
+
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type QueryCt struct {
 	model.BaseQueryCt
 	Name              string             `json:"name" label:"名称" `    // 名称
 	Account           string             `json:"account" label:"账户" ` // 账户
-	Code              string             `json:"code" label:"标志" `
+	Code              string             `json:"code" label:"码值" `
 	Wd                string             `json:"wd" label:"关键词" `         // 关键词
 	Description       string             `json:"description" label:"描述" ` // 描述
 	Sex               string             `json:"sex" label:"性别" `
@@ -25,8 +26,9 @@ type QueryCt struct {
 	LevelNo           string             `json:"levelNo" label:"级别" `
 	GroupNo           string             `json:"groupNo" label:"组" `
 	RoleNo            string             `json:"roleNo" label:"角色" `
-	Job               string             `json:"job" label:"职位" `
-	Position          string             `json:"position" label:"岗位" `
+	JobFunction       string             `json:"jobFunction" label:"职务" `
+	Post              string             `json:"post" label:"岗位" `
+	Position          string             `json:"position" label:"职位" `
 	RegisterTimeRange []*typePg.Time     `json:"registerTimeRange" label:"注册时间" `
 	LoginTimeRange    []*typePg.Time     `json:"loginTimeRange" label:"登陆时间" `
 	BirthdayRange     []*typePg.DateOnly `json:"birthdayRange" label:"生日" `

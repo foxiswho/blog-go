@@ -1,7 +1,7 @@
 package modBasicTagsCategory
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type UpdateCt struct {
@@ -14,5 +14,5 @@ type UpdateCt struct {
 	Description string              `json:"description" label:"描述" ` // 描述
 	ParentId    string              `json:"parentId" label:"上级" `
 	ParentNo    string              `json:"parentNo" comment:"分类" `
-	Code        string              `json:"code" label:"标志" `
+	Code        string              `json:"code" label:"码值" `
 }

@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/go-spring/log"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
+	"go-spring.org/log"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 

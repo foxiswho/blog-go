@@ -1,7 +1,7 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 )
 
 type OsVo struct {

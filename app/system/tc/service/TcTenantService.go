@@ -4,30 +4,31 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcTenant"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/entityTc"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcTenant"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/noPg2"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(TcTenantService)).Init(func(s *TcTenantService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -45,7 +46,7 @@ type TcTenantService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt rg.Rs[string]) {
+func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -62,21 +63,21 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 			return rt.ErrorMessage("编号格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByNo(ct.Code)
+		_, result := r.FindByNo(ctx, ct.Code)
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
 	}
 	if strPg.IsNotBlank(ct.Founder) {
 		{
-			_, result := c.acc.FindByNo(ct.Founder)
+			_, result := c.acc.FindByNo(ctx, ct.Founder)
 			if !result {
 				return rt.ErrorMessage("创始人不存在")
 			}
 		}
 		// 判断创始人是否已经绑定过租户
 		{
-			_, result := r.FindByFounder(ct.Founder)
+			_, result := r.FindByFounder(ctx, ct.Founder)
 			if result {
 				return rt.ErrorMessage("该帐户已绑定租户")
 			}
@@ -86,14 +87,14 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 	copier.Copy(&info, &ct)
 	info.ID = strPg.GenerateNumberId18()
 	//租户编号生成
-	info.No = noPg.TenantNo()
+	info.No = noPg2.TenantNo()
 	//自动设置编号
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = info.No
 	}
 	info.CreateBy = holder.GetAccountNo()
 	c.log.Infof("info=%+v", info)
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -107,7 +108,7 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt rg.Rs[string]) {
+func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.CreateUpdateCt) (rt rg.Rs[string]) {
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -119,25 +120,25 @@ func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt 
 	}
 	r := c.sv
 	{
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
 	}
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	if strPg.IsNotBlank(ct.Founder) {
 		{
-			_, result := c.acc.FindByNo(ct.Founder)
+			_, result := c.acc.FindByNo(ctx, ct.Founder)
 			if !result {
 				return rt.ErrorMessage("创始人不存在")
 			}
 		}
 		// 判断创始人是否已经绑定过租户
 		{
-			_, result := r.FindByFounder(ct.Founder)
+			_, result := r.FindByFounderAndNotIdString(ctx, ct.Founder, ct.ID.ToString())
 			if result {
 				return rt.ErrorMessage("该帐户已绑定租户")
 			}
@@ -148,7 +149,7 @@ func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt 
 	//编号，不参与更新
 	info.No = ""
 	c.log.Infof("save=%+v", info)
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage("更新失败:" + err.Error())
 	}
@@ -164,7 +165,7 @@ func (c *TcTenantService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modTcTena
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -201,13 +202,13 @@ func (c *TcTenantService) State(ctx *gin.Context, ids []string, state enumStateP
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityTc.TcTenantEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityTc.TcTenantEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -235,7 +236,7 @@ func (c *TcTenantService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -243,13 +244,13 @@ func (c *TcTenantService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityTc.TcTenantEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityTc.TcTenantEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -267,7 +268,7 @@ func (c *TcTenantService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -275,7 +276,7 @@ func (c *TcTenantService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityTc.TcTenantEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityTc.TcTenantEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -291,7 +292,7 @@ func (c *TcTenantService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -301,7 +302,7 @@ func (c *TcTenantService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -311,34 +312,29 @@ func (c *TcTenantService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantService) Query(ctx *gin.Context, ct modTcTenant.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modTcTenant.Vo]]) {
+func (c *TcTenantService) Query(ctx *gin.Context, ct modTcTenant.QueryCt) (rt rg.Rs[pagePg.Paginator[modTcTenant.Vo]]) {
 	var query entityTc.TcTenantEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modTcTenant.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityTc.TcTenantEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityTc.TcTenantEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modTcTenant.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modTcTenant.Vo](page.Pageable)
 		mapAccount := make(map[string]*entityRam.RamAccountEntity)
 		idsFounder := make([]string, 0)
 		for _, item := range page.Data {
@@ -347,7 +343,7 @@ func (c *TcTenantService) Query(ctx *gin.Context, ct modTcTenant.QueryCt) (rt rg
 			}
 		}
 		if len(idsFounder) > 0 {
-			info, result := c.acc.FindAllByNoIn(idsFounder)
+			info, result := c.acc.FindAllByNoIn(ctx, idsFounder)
 			if result {
 				for _, item := range info {
 					mapAccount[item.No] = item
@@ -388,7 +384,7 @@ func (c *TcTenantService) SelectNodePublic(ctx *gin.Context, ct modTcTenant.Quer
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -409,7 +405,7 @@ func (c *TcTenantService) SelectNodeAllPublic(ctx *gin.Context, ct modTcTenant.Q
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -431,7 +427,7 @@ func (c *TcTenantService) SelectPublic(ctx *gin.Context, ct modTcTenant.QueryCt)
 	var query entityTc.TcTenantEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modTcTenant.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modTcTenant.Vo, 0)
 		for _, item := range infos {
@@ -457,7 +453,7 @@ func (c *TcTenantService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[str
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -477,7 +473,7 @@ func (c *TcTenantService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[str
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -497,7 +493,7 @@ func (c *TcTenantService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt[strin
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNoAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNoAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

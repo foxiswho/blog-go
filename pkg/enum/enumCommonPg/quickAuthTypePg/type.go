@@ -1,7 +1,7 @@
 package quickAuthTypePg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // Type 快捷登录类型

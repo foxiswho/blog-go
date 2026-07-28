@@ -1,26 +1,47 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAppAccessKey"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppAccessKey"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(AppAccessKeyController)).Name("ManageAppAccessKeyController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AppAccessKeyController 密钥
 // @Description:
 type AppAccessKeyController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv  *service.RamAppAccessKeyService `autowire:"?"`
 	log *log2.Logger                    `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AppAccessKeyController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/ram/app-access-key", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/makeNew", c.MakeNewRecord)
 }
 
 // MakeNewRecord 新记录

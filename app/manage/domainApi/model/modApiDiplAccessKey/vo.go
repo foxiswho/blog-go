@@ -1,7 +1,7 @@
 package modApiDiplAccessKey
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 	"time"
 )
 
@@ -9,7 +9,7 @@ type Vo struct {
 	ID          typePg.Uint64String `json:"id" label:"id" `
 	Name        string              `json:"name" label:"名称" ` // 名称
 	No          string              `json:"no" label:"编号代号"`
-	Code        string              `json:"code" label:"标志" `
+	Code        string              `json:"code" label:"码值" `
 	State       typePg.Int8         `json:"state" label:"状态:1启用;2禁用" ` // 状态:1启用;2禁用
 	Description string              `json:"description" label:"描述" `   // 描述
 	CreateAt    *time.Time          `json:"createAt" label:"创建时间" `    // 创建时间

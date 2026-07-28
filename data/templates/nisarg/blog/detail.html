@@ -1,0 +1,140 @@
+{{ define "nisarg/blog/detail.html" }}
+{{template "nisarg/blog/header.html" .}}
+	<div class="container">
+		<div class="row">
+			<div id="primary" class="col-md-9 content-area">
+				<main id="main" role="main">
+					<article id="post-{{.data.ID}}" class="post-content">
+	<!--						<span class="sticky-post">Featured</span>-->
+	<!--						&lt;!&ndash; <div class="featured-image">-->
+	<!--							<img src="" alt="{{.data.Name}}" />-->
+	<!--						</div> &ndash;&gt;-->
+						<header class="entry-header">
+							<span class="screen-reader-text">{{.data.Name}}</span>
+							<h1 class="entry-title">{{.data.Name}}</h1>
+							<div class="entry-meta">
+								<h5 class="entry-date">
+									<i class="fa fa-calendar-o"></i> 
+				<a href="{{$.sitePage.SiteUrl}}/article/{{.data.ID}}" title="{{dateformat .data.CreateAt "1504"}}" rel="bookmark">
+				<time class="entry-date" datetime="{{dateformat .data.CreateAt "2006-01-02T15:04:05"}}+08:00" pubdate>{{dateformat .data.CreateAt "2006年01月02日"}} </time>
+									</a>
+									<span class="byline"><span class="sep"></span><i class="fa fa-user"></i>
+<span class="author vcard">
+										<a class="url fn n" href="{{$.sitePage.SiteUrl}}/article/author/{{.data.Author}}" title="View all posts by {{.data.Author}}" rel="author">{{.data.Author}}</a>
+</span></span> 
+<i class="fa fa-comments-o"></i>
+<span class="screen-reader-text">评论 </span> 
+				<a href="{{$.sitePage.SiteUrl}}/article/{{.data.ID}}#comments" class="comments-link" >{{.data.Statistics.Comment}} 条评论</a>
+				<i class="fa fa-users" style="margin-left:10px;"></i> {{.data.Statistics.Read}} 人阅读
+			</h5>
+							</div><!-- .entry-meta -->
+						</header><!-- .entry-header -->
+						<div class="entry-content">
+							{{unescaped .data.ContentConv}}
+
+							<p>（全文完）<!--
+
+
+
+<p align="center"><a href= target=_blank><img decoding="async" src=""></a></p>
+
+
+
+
+
+<p align="center"><img decoding="async" src="{{$.sitePage.SiteUrl}}/wp-content/uploads/2020/03/coolshell.weixin.jpg"> <img decoding="async" loading="lazy" src="{{$.sitePage.SiteUrl}}/wp-content/uploads/2020/03/coolshell.mini_.jpg" width="300" height="300"> <br />关注CoolShell微信公众账号和微信小程序</p>
+
+ 
+
+--></p>
+<div style="margin-top: 15px; font-size: 16px;color: #cc0000;">
+<p align="center"><strong>（转载本站文章请注明作者和出处 <a href="{{$.sitePage.SiteUrl}}">{{$.sitePage.SiteName}}</a> ，请勿用于任何商业用途）</strong></p>
+						</div><!-- .entry-content -->
+						
+						<footer class="entry-footer">
+		<hr>
+							<div class="row">
+								<div class="col-md-6 cattegories">
+									<span class="cat-links"><i class="fa fa-folder-open"></i>
+										{{if .dataIs }}
+											{{if .data.CategoryObj }}
+												{{range .data.CategoryObj}}
+												<a href="{{$.sitePage.SiteUrl}}/category/{{.Code}}" rel="category tag">{{.Name}}</a>,
+												{{end}}
+											{{end}}
+										{{end}}
+									</span>
+								</div>
+								<div class="col-md-6 tags">
+									<span class="tags-links"><i class="fa fa-tags"></i>
+										{{range $i,$v:=.data.Tags}}
+										<a class="tag" href="{{$.sitePage.SiteUrl}}/tag/{{$v}}" rel="tag" style="font-size: medium;">{{$v}}</a>
+										{{end}}
+									</span>
+								</div>
+							</div>
+		                </footer><!-- .entry-footer -->
+					</article><!-- #post-{{.data.ID}} -->
+<!-- related posts START -->
+<!--    <div id="related_posts">-->
+<!--		<div class="wp_rp_wrap  wp_rp_vertical_m" >-->
+<!--			<div class="wp_rp_content">-->
+<!--				<h3 class="related_post_title">相关文章</h3>-->
+<!--				<ul class="related_post wp_rp">-->
+<!--					<li><a href="{{$.sitePage.SiteUrl}}/articles/1379.html" class="wp_rp_thumbnail">-->
+<!--						<img src="{{$.sitePage.SiteUrl}}/wp-content/plugins/wordpress-23-related-posts-plugin/static/thumbs/13.jpg" alt="如何调试bash脚本" width="150" height="150" /></a>-->
+<!--						<a href="{{$.sitePage.SiteUrl}}/articles/1379.html" class="wp_rp_title">如何调试bash脚本</a>-->
+<!--					</li>-->
+<!--					<li ><a href="{{$.sitePage.SiteUrl}}/articles/19219.html" class="wp_rp_thumbnail">-->
+<!--						<img src="{{$.sitePage.SiteUrl}}/wp-content/uploads/2019/03/linux.ninja_-150x150.png" alt="打造高效的工作环境 &#8211; Shell 篇" width="150" height="150" /></a>-->
+<!--						<a href="{{$.sitePage.SiteUrl}}/articles/19219.html" class="wp_rp_title">打造高效的工作环境 &#8211; Shell 篇</a>-->
+<!--					</li>-->
+<!--				</ul>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
+		<div class="fixed"></div>    <!-- related posts END -->
+
+				</main><!-- #main -->
+				<!-- <div class="post-navigation">
+					{{if .PrevPost}}
+					<a href="{{.data.PrevPost.Permalink}}" class="prev-post">&larr; {{.data.PrevPost.Title}}</a>
+					{{end}}
+					{{if .NextPost}}
+					<a href="{{.data.NextPost.Permalink}}" class="next-post">{{.data.NextPost.Title}} &rarr;</a>
+					{{end}}
+				</div> -->
+				<div class="post-navigation">				
+						<nav class="navigation" role="navigation">
+		<h2 class="screen-reader-text">Post navigation</h2>
+		<div class="nav-links">
+			<div class="row">
+			<!-- Get Next Post -->
+			
+						<div class="col-md-6 next-post">
+			<a class="" href="{{$.sitePage.SiteUrl}}/articles/22341.html"><span class="next-prev-text"><i class="fa fa-angle-left"></i>
+  上一篇</span><br>感染新冠的经历</a>
+			</div>
+						
+			<!-- Get Previous Post -->
+			
+							<div class="col-md-6 prev-post">
+				<a class="" href="{{$.sitePage.SiteUrl}}/articles/22298.html"><span class="next-prev-text">下一篇 <i class="fa fa-angle-right"></i>
+</span><br>聊聊团队协同和协同工具</a>
+				</div>
+						
+			</div>
+		</div><!-- .nav-links -->
+	</nav><!-- .navigation-->
+					</div>
+				<div class="post-comments">
+<!--					template "nisarg/blog/comments.html" .-->
+					{{if not .CommentsOpen}}
+					<p>Comments are closed.</p>
+					{{end}}
+				</div>
+			</div><!-- #primary -->
+		{{template "nisarg/blog/sidebar.html" .}}
+		</div> <!--.row-->
+	</div><!--.container-->
+{{end}}

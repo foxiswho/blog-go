@@ -1,6 +1,6 @@
 package configModelPg
 
-import "github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 
 // ParameterSource 参数源
 type ParameterSource string

@@ -1,11 +1,11 @@
 package multiTenantPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/consts/constContextPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/interfaces"
 	"github.com/gin-gonic/gin"
-	"github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constContextPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
+	"go-spring.org/log"
 	"gorm.io/gorm"
 )
 

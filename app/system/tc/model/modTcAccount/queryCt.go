@@ -1,8 +1,8 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type QueryCt struct {
 	TenantNo          string             `json:"tenantNo" label:"租户" `
 	Name              string             `json:"name" label:"名称" `    // 名称
 	Account           string             `json:"account" label:"账户" ` // 账户
-	Code              string             `json:"code" label:"标志" `
+	Code              string             `json:"code" label:"码值" `
 	Wd                string             `json:"wd" label:"关键词" `         // 关键词
 	Description       string             `json:"description" label:"描述" ` // 描述
 	Sex               string             `json:"sex" label:"性别" `

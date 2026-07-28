@@ -4,26 +4,26 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogTopicRelation"
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopicRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BlogTopicRelationService)).Init(func(s *BlogTopicRelationService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -49,7 +49,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if nil == ct.Nos || 0 == len(ct.Nos) {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	topic, result := c.topic.FindByNo(ct.TopicNo, repositoryPg.GetOption(ctx))
+	topic, result := c.topic.FindByNo(ctx, ct.TopicNo, optionsPg.WithCtx(ctx))
 	if !result {
 		return rt.ErrorMessage("话题 不存在")
 	}
@@ -65,7 +65,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	if len(ids) < 1 {
 		return rt.ErrorMessage("文章编号不能为空")
 	}
-	articles, result := c.article.FindAllByNoIn(ids)
+	articles, result := c.article.FindAllByNoIn(ctx, ids)
 	if !result {
 		return rt.ErrorMessage("文章 不存在")
 	}
@@ -75,11 +75,11 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 	//mapArticles := make(map[string]*entityBlog.BlogArticleEntity)
 	for _, article := range articles {
 		//判断是否存在，如果存在则跳过
-		_, r := c.relation.FindByTopicNoAndArticleNo(topic.No, article.No)
+		_, r := c.relation.FindByTopicNoAndArticleNo(ctx, topic.No, article.No)
 		if r {
 			continue
 		}
-		find, b := c.article.FindByNo(article.No, repositoryPg.GetOption(ctx))
+		find, b := c.article.FindByNo(ctx, article.No, optionsPg.WithCtx(ctx))
 		if !b {
 			continue
 		}
@@ -90,7 +90,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		obj.Ano = ano
 		obj.Name = find.Name
 		obj.Description = find.Description
-		err, _ := c.relation.Create(&obj)
+		err, _ := c.relation.Create(ctx, &obj)
 		if nil != err {
 			c.log.Errorf("save err=%+v", err)
 		}
@@ -109,7 +109,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.relation
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -121,7 +121,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 		idsNew = append(idsNew, numberPg.Int64ToString(info.ID))
 	}
 	if len(idsNew) > 0 {
-		err := cn.DeleteAllByTenantNoAndIdsString(tenantNo, idsNew)
+		err := cn.DeleteAllByTenantNoAndIdsString(ctx, tenantNo, idsNew)
 		if err != nil {
 			c.log.Errorf("操作 err=%+v", err)
 		}
@@ -134,39 +134,31 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelation.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogTopicRelation.Vo]]) {
+func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelation.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogTopicRelation.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBlog.BlogTopicRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogTopicRelation.Vo, 0)
 	rt.Data.Data = slice
 	r := c.relation
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogTopicRelationEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogTopicRelationEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("sort asc").Order("create_at desc")
+		arg.Db = arg.Db.Order("sort asc").Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogTopicRelation.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogTopicRelation.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBlogTopicRelation.Vo

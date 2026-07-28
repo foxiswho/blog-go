@@ -3,30 +3,31 @@ package data
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityApi"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryApi"
-	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheDiplPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	syslog "github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryApi"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheDiplPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
+	_ "go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
 
 // ZInitDiplCache
 // @Description: 初始化 dipl 缓存
 type ZInitDiplCache struct {
-	sv *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
+	log *log2.Logger                              `autowire:"?"`
+	sv  *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
 }
 
-func (b *ZInitDiplCache) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "初始化 => 接口密钥")
+func (b *ZInitDiplCache) Run(ctx context.Context) error {
+	b.log.Infof("初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
-	//过期时间 超过当前时间的数据
-	infos := b.sv.FindAll(query, repositoryPg.ConditionOption(func(db *gorm.DB) *gorm.DB {
+	infos := b.sv.FindAll(context.Background(), query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db = db.Order("create_at desc")
-		db.Where("expiry_date >= ?", datetimePg.Now())
+		db = db.Where("expiry_date >= ?", datetimePg.Now())
 		return db
 	}))
 	if infos != nil && len(infos) > 0 {

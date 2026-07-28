@@ -5,12 +5,13 @@ import (
 
 	"github.com/farseer-go/eventBus"
 	"github.com/farseer-go/fs/core"
-	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicTags"
-	"github.com/foxiswho/blog-go/app/event/basic/service/tagsBasicEvent"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicTags"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/service/tagsBasicEvent"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // TagsListener 标签处理
@@ -25,8 +26,8 @@ type TagsListener struct {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *TagsListener) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BlogArticle)
+func (c *TagsListener) Run(ctx context.Context) error {
+	log.Infof(context.Background(), log.TagAppDef, "eventBus.Register=%+v", constEventBusPg.BlogArticle)
 	//博客文章
 	eventBus.RegisterEvent(constEventBusPg.BlogArticle).RegisterSubscribe(constEventBusPg.BlogArticle, func(message any, _ core.EventArgs) {
 		c.log.Infof("SchedulerEvent.event=%+v", message)

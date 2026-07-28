@@ -3,15 +3,16 @@ package drive
 import (
 	"context"
 	"errors"
-	modAttachment2 "github.com/foxiswho/blog-go/middleware/components/attachmentPg/modAttachment"
-	_ "github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/minio/minio-go/v7"
-	"github.com/pangu-2/go-tools/tools/cryptPg"
-	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"io"
 	"path"
 	"strings"
+
+	modAttachment2 "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"
+	_ "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/minio/minio-go/v7"
+	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"github.com/pangu-2/go-tools/tools/datetimePg"
 )
 
 type Minio struct {
@@ -34,9 +35,9 @@ func (s *Minio) PutObject(r io.Reader, put modAttachment2.PutFileDto, ext modAtt
 	//md5
 	fileNewName := datetimePg.NowNotFormat() + "-" + cryptPg.Md5(filenameOnly)
 	attachment := modAttachment2.Attachment{
-		SourceName: put.Name,
-		Name:       fileNewName,
-		Size:       put.Size,
+		OriginalName: put.Name,
+		Name:         fileNewName,
+		Size:         put.Size,
 	}
 	out := path.Join(s.Dir, put.Name)
 	if s.ExistsObject(out) {

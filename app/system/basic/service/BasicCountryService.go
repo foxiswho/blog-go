@@ -4,32 +4,32 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/system/basic/model/modBasicCountry"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/excelPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicCountry"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/excelPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BasicCountryService)).Init(func(s *BasicCountryService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -46,7 +46,7 @@ type BasicCountryService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	err := copier.Copy(&info, &ct)
@@ -68,14 +68,14 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code)
+		_, result := r.FindByCode(ctx, info.Code)
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -86,7 +86,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 		info.Code = strPg.GenerateNumberId22()
 	}
 	c.log.Infof("info%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -102,7 +102,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 		info.ParentId = ""
 		info.ParentNo = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -115,7 +115,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	copier.Copy(&info, &ct)
@@ -132,12 +132,12 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -146,7 +146,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	var childData []*entityBasic.BasicCountryEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -156,7 +156,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -183,7 +183,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 	}
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -211,7 +211,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Update
 				if item.ID == find.ID {
 					continue
 				}
-				err = r.Update(entityBasic.BasicCountryEntity{IdLink: item.IdLink,
+				err = r.Update(ctx, entityBasic.BasicCountryEntity{IdLink: item.IdLink,
 					NoLink: item.NoLink}, item.ID)
 				if err != nil {
 					return rt.ErrorMessage(err.Error())
@@ -246,7 +246,7 @@ func (c *BasicCountryService) childParentIdLink(maps map[string][]*entityBasic.B
 //	@receiver c
 func (c *BasicCountryService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}
@@ -264,7 +264,7 @@ func (c *BasicCountryService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBasic.BasicCountryEntity{
+			r.Update(ctx, entityBasic.BasicCountryEntity{
 				IdLink: item.IdLink,
 				NoLink: item.NoLink},
 				item.ID)
@@ -282,7 +282,7 @@ func (c *BasicCountryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBa
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -319,13 +319,13 @@ func (c *BasicCountryService) State(ctx *gin.Context, ids []string, state enumSt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicCountryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicCountryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -354,7 +354,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -362,13 +362,13 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -387,7 +387,7 @@ func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -395,7 +395,7 @@ func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicCountryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -412,7 +412,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -422,7 +422,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -432,36 +432,31 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicCountry.Vo]]) {
+func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicCountry.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicCountryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicCountryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").Or("name_fl like ?", "%"+ct.Wd+"%").Or("iso3 like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicCountry.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicCountry.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicCountry.Vo
@@ -486,26 +481,18 @@ func (c *BasicCountryService) SelectNodePublic(ctx *gin.Context, ct modBasicCoun
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -523,26 +510,18 @@ func (c *BasicCountryService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicC
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -561,7 +540,7 @@ func (c *BasicCountryService) SelectPublic(ctx *gin.Context, ct modBasicCountry.
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicCountry.Vo
@@ -587,7 +566,7 @@ func (c *BasicCountryService) SelectPublicCountryCode(ctx *gin.Context, ct modBa
 	//
 	slice := make([]model.BaseSelectVo[string], 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			vo := model.BaseSelectVo[string]{
@@ -618,13 +597,11 @@ func (c *BasicCountryService) SelectNodePublicCountryCode(ctx *gin.Context, ct m
 	//
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			code := model.BaseNodeNo{
-				Key:   item.CountryCode,
-				Id:    item.CountryCode,
-				No:    item.CountryCode,
+				Value: item.CountryCode,
 				Label: "+" + item.CountryCode + "  " + item.Name,
 			}
 			slice = append(slice, code)
@@ -643,7 +620,7 @@ func (c *BasicCountryService) ExportExcel(ctx *gin.Context, ct modBasicCountry.Q
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {
@@ -687,7 +664,7 @@ func (c *BasicCountryService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -707,7 +684,7 @@ func (c *BasicCountryService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -727,7 +704,7 @@ func (c *BasicCountryService) ExistCountryCode(ctx *gin.Context, ct model.BaseEx
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCountryCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCountryCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

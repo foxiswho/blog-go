@@ -3,17 +3,17 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modPublic"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAccount"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/passwordTypePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modPublic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/numberPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -25,7 +25,7 @@ import (
 
 func init() {
 	gs.Provide(NewRamAccountPublicService).Init(func(s *RamAccountPublicService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -42,9 +42,33 @@ func NewRamAccountPublicService() *RamAccountPublicService {
 }
 
 // Public 登陆用户信息
-func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[modRamAccount.AccountPub]) {
+func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[modPublic.InfoPublicVo]) {
 	c.log.Infof("holder=%+v", holder)
-	c.log.Infof("HolderData=%+v", holder.HolderData)
+	//c.log.Infof("HolderData=%+v", holder.HolderData)
+	if nil == holder.HolderData {
+		return rt.ErrorMessage("账号登陆失败")
+	}
+	data := rt.Data
+	account := holder.GetAccount()
+	copier.Copy(&data.Info, &account)
+	data.Info.RealName = account.Name
+	data.Info.Avatar = ""
+	data.Info.Username = account.Account
+	data.Info.UserId = numberPg.Int64ToString(account.ID)
+	data.Info.Departments = make([]string, 0)
+	if len(account.Os.Departments) > 0 {
+		data.Info.Departments = account.Os.Departments
+	}
+	data.Info.Roles = make([]string, 0)
+	data.Info.Roles = append(data.Info.Roles, "administrator")
+	rt.Data = data
+	return rt.Ok()
+}
+
+// InfoPublic 登陆用户信息
+func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs[modRamAccount.AccountPub]) {
+	c.log.Infof("holder=%+v", holder)
+	//c.log.Infof("HolderData=%+v", holder.HolderData)
 	if nil == holder.HolderData {
 		return rt.ErrorMessage("账号登陆失败")
 	}
@@ -56,6 +80,8 @@ func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[mod
 	data.Username = account.Account
 	data.UserId = numberPg.Int64ToString(account.ID)
 	data.Departments = make([]string, 0)
+	data.Roles = make([]string, 0)
+	data.Roles = append(data.Roles, "administrator")
 	if len(account.Os.Departments) > 0 {
 		data.Departments = account.Os.Departments
 	}
@@ -75,12 +101,12 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 	holder := holderPg.GetContextAccount(ctx)
 	account := holder.GetAccount()
 	r := c.sv
-	info, b := r.FindById(account.ID)
+	info, b := r.FindById(ctx, account.ID)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	r2 := c.aAuth
-	passwd, result := r2.FindByTypePasswordANo(info.No)
+	passwd, result := r2.FindByTypePasswordANo(ctx, info.No)
 	if !result {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -91,9 +117,9 @@ func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.
 		entity.Ano = info.No
 		entity.TenantNo = info.TenantNo
 		entity.Type = passwordTypePg.Password.String()
-		r2.Create(&entity)
+		r2.Create(ctx, &entity)
 	} else {
-		r2.Update(entity, passwd.ID)
+		r2.Update(ctx, entity, passwd.ID)
 	}
 
 	return rt.Ok()

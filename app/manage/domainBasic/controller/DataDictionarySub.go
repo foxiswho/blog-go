@@ -1,26 +1,50 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicDataDictionary"
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicDataDictionary"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/r"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(DataDictionarySubController)).Name("ManageDataDictionarySubController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // DataDictionarySubController 数据字典
 // @Description:
 type DataDictionarySubController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupManageMiddlewareSp        `autowire:""`
 	sv *service.BasicDataDictionarySubService `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *DataDictionarySubController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/basic/dataDictionarySub", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/createUpdate", c.CreateUpdate)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
 }
 
 // CreateUpdate 创建

@@ -1,6 +1,6 @@
 package modEventBasicTags
 
-import "github.com/foxiswho/blog-go/pkg/holderPg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 
 type TagsRelation struct {
 	Category string            `json:"category"`

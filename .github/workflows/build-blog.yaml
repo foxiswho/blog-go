@@ -49,9 +49,9 @@ jobs:
           WORK_DIR=$(pwd)
           # ldflags
           ldflags='-s -w -extldflags "-static" -X "main.UserName=" '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
-          ldflags=${ldflags}'-X "github.com/foxiswho/blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildVersion=${{ github.event.inputs.release_tag }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildGitCommit=${{ github.sha }}"  '
+          ldflags=${ldflags}'-X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildTime=${{ steps.container_shell.outputs.compact }}"  '
           #
           build_flags='-a -gcflags="all=-trimpath='${WORK_DIR}'" '
           build_flags=${build_flags}' -asmflags="all=-trimpath='${WORK_DIR}'" -trimpath'

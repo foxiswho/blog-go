@@ -1,0 +1,12 @@
+{{ define "nisarg/blog/index.html" }}
+{{template "nisarg/blog/header.html" .}}
+	<div class="container">
+		<div class="row">
+			<div id="primary" class="col-md-9 content-area">
+				{{template "nisarg/blog/block_page_list.html" .}}
+			</div><!-- #primary -->
+		{{template "nisarg/blog/sidebar.html" .}}
+		</div><!--row-->
+	</div><!--.container-->
+{{template "nisarg/blog/footer.html" .}}
+{{end}}

@@ -14,7 +14,32 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea
+.trae
+.claude
+.opencode
+.codex
+.cursor
+.qoder
 data/logs/
 data/attachment/
+data/data/attachment/
 data/account*md
 blogGo
+skill
+.trae-cn
+# Added by code-review-graph
+.code-review-graph/
+.codebuddy
+.gemini
+.github
+.kiro
+.mcp.json
+.windsurfrules
+.cursorrules
+CLAUDE.md
+CODEBUDDY.md
+GEMINI.md
+QODER.md
+opencode.jsonc
+graphify-out
+.graphify*

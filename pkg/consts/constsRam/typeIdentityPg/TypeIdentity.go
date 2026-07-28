@@ -1,7 +1,7 @@
 package typeIdentityPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeIdentity 身份类型;普通;经理;副经理

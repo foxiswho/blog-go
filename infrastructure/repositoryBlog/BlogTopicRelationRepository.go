@@ -4,20 +4,20 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BlogTopicRelationRepository)).Init(func(s *BlogTopicRelationRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[BlogTopicRelationRepository])).Init(func(s *support.BaseService[BlogTopicRelationRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -25,8 +25,8 @@ type BlogTopicRelationRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogTopicRelationEntity, int64]
 }
 
-func (c *BlogTopicRelationRepository) FindAllByTopicNo(no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", no).Find(&info)
+func (c *BlogTopicRelationRepository) FindAllByTopicNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogTopicRelationRepository) FindAllByTopicNo(no string) (info []*entit
 	return info, true
 }
 
-func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(topicNo, no string) (info *entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", topicNo).Where("article_no=?", no).First(&info)
+func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(ctx context.Context, topicNo, no string) (info *entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", topicNo).Where("article_no=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -48,8 +48,8 @@ func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(topicNo, no stri
 	}
 	return info, true
 }
-func (c *BlogTopicRelationRepository) FindAllByArticleNo(no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
-	tx := c.Db().Where("article_no=?", no).Find(&info)
+func (c *BlogTopicRelationRepository) FindAllByArticleNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("article_no=?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

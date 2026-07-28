@@ -3,22 +3,25 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/system/ram/model/modRamResourceGroup"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceGroup"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsPg/terminalCodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
+	"gorm.io/gorm"
+
+	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -26,12 +29,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"reflect"
 )
 
 func init() {
 	gs.Provide(new(RamResourceGroupService)).Init(func(s *RamResourceGroupService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -49,7 +51,7 @@ type RamResourceGroupService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup.CreateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err2 := copier.Copy(&info, &ct)
@@ -73,7 +75,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -88,7 +90,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 	}
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -113,7 +115,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 	info.ID = 0
 	info.State = enumStatePg.ENABLE.Index()
 	c.log.Infof("info=%+v", info)
-	err, _ := r.Create(&info)
+	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -129,7 +131,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 		info.ParentNo = ""
 		info.ParentId = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -143,7 +145,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err := copier.Copy(&info, &ct)
@@ -160,7 +162,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 		return rt.ErrorMessage("属性不能为空")
 	}
 	r := c.sv
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -169,7 +171,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 	var childData []*entityRam.RamResourceGroupEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -179,7 +181,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -214,7 +216,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 	}
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -239,7 +241,192 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 				if item.ID == find.ID {
 					continue
 				}
-				err = r.Update(entityRam.RamResourceGroupEntity{IdLink: item.IdLink}, item.ID)
+				err = r.Update(ctx, entityRam.RamResourceGroupEntity{IdLink: item.IdLink}, item.ID)
+				if err != nil {
+					return rt.ErrorMessage(err.Error())
+				}
+			}
+		}
+		maps = nil
+	}
+	return rt.Ok()
+}
+
+// CreateCategory 新增
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+//	@return rt
+func (c *RamResourceGroupService) CreateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ct)
+	var info entityRam.RamResourceGroupEntity
+	err2 := copier.Copy(&info, &ct)
+	if err2 != nil {
+		c.log.Error("copier.Copy=%+v", err2)
+		return rt.ErrorMessage(err2.Error())
+	}
+	if "" == ct.Name {
+		return rt.ErrorMessage("名称不能为空")
+	}
+	if strPg.IsBlank(ct.Code) {
+		info.Code = automatedPg.CREATE_CODE
+	}
+	//holder := holderPg.GetContextAccount(ctx)
+	parent := &entityRam.RamResourceGroupEntity{}
+	r := c.sv
+	//判断是否是自动,不是自动
+	if !automatedPg.IsCreateCode(info.Code) {
+		//判断格式是否满足要求
+		if !automatedPg.FormatVerify(info.Code) {
+			return rt.ErrorMessage("标志格式不能为空")
+		}
+		//不是自动
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
+		if result {
+			return rt.ErrorMessage("标志已存在")
+		}
+	}
+	//默认资源组
+	if strPg.IsBlank(ct.TypeCategory) {
+		ct.TypeCategory = resourceTypeCategoryPg.Group.String()
+	}
+	//默认 资源
+
+	if strPg.IsNotBlank(ct.ParentNo) {
+		result := false
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
+		if !result {
+			return rt.ErrorMessage("上级不存在")
+		}
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+		info.ParentNo = parent.No
+	}
+	//
+	ct.TypeAttr = typeAttrPg.CategoryLast.String()
+	info.No = noPg.No()
+	info.ID = 0
+	info.State = enumStatePg.ENABLE.Index()
+	c.log.Infof("info=%+v", info)
+	err, _ := r.Create(ctx, &info)
+	if err != nil {
+		return rt.ErrorMessage("保存失败 " + err.Error())
+	}
+	//设置上级 link
+	if strPg.IsNotBlank(ct.ParentNo) {
+		info.IdLink = constNodePg.NoLinkAssemble(parent.IdLink, numberPg.Int64ToString(info.ID))
+		info.NoLink = constNodePg.NoLinkAssemble(parent.NoLink, info.No)
+		info.ParentNo = parent.No
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+	} else {
+		info.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(info.ID))
+		info.NoLink = constNodePg.NoLinkDefault(info.No)
+		info.ParentNo = ""
+		info.ParentId = ""
+	}
+	err = r.Update(ctx, info, info.ID)
+	if err != nil {
+		return rt.ErrorMessage(err.Error())
+	}
+	c.log.Infof("save=%+v", info)
+	return rg.OkData(numberPg.Int64ToString(info.ID))
+}
+
+// UpdateCategory 更新
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+//	@return rt
+func (c *RamResourceGroupService) UpdateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+	c.log.Infof("ct=%+v", ct)
+	var info entityRam.RamResourceGroupEntity
+	err := copier.Copy(&info, &ct)
+	if err != nil {
+		return rt.ErrorMessage(err.Error())
+	}
+	if ct.ID < 1 {
+		return rt.ErrorMessage("id错误")
+	}
+	if "" == ct.Name {
+		return rt.ErrorMessage("名称不能为空")
+	}
+	if strPg.IsBlank(ct.TypeAttr) {
+		return rt.ErrorMessage("属性不能为空")
+	}
+	r := c.sv
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
+	if !b {
+		return rt.ErrorMessage("数据不存在")
+	}
+	//上级
+	parent := &entityRam.RamResourceGroupEntity{}
+	var childData []*entityRam.RamResourceGroupEntity
+	if strPg.IsNotBlank(ct.ParentNo) {
+		result := false
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
+		if !result {
+			return rt.ErrorMessage("上级不存在")
+		}
+		if parent.ID == ct.ID.ToInt64() {
+			return rt.ErrorMessage("上级不能等于自己")
+		}
+		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
+		if parent.No != find.ParentNo {
+			result2 := false
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
+			if result2 {
+				//c.log.Infof("data=%+v \n", childData)
+				for _, item := range childData {
+					if item.ID == parent.ID {
+						return rt.ErrorMessage("无法保存，不能设置为自己的子集")
+					}
+				}
+			}
+		}
+	}
+	info.TypeAttr = typeAttrPg.CategoryLast.Index()
+	//
+	//设置上级 link
+	if strPg.IsNotBlank(ct.ParentNo) {
+		info.IdLink = constNodePg.NoLinkAssemble(parent.IdLink, numberPg.Int64ToString(find.ID))
+		info.NoLink = constNodePg.NoLinkAssemble(parent.NoLink, find.No)
+		info.ParentNo = parent.No
+		info.ParentId = numberPg.Int64ToString(parent.ID)
+	} else {
+		info.IdLink = constNodePg.NoLinkDefault(numberPg.Int64ToString(find.ID))
+		info.NoLink = constNodePg.NoLinkDefault(find.No)
+		info.ParentNo = ""
+		info.ParentId = ""
+	}
+	info.No = ""
+	c.log.Infof("info.IdLink=%+v", info.IdLink)
+	err = r.Update(ctx, info, info.ID)
+	if err != nil {
+		c.log.Errorf("update error=%+v", err)
+		return rt.ErrorMessage(err.Error())
+	}
+	c.log.Infof("save.info=%+v", info)
+	//更改上级后，相关子集修改
+	if strPg.IsNotBlank(ct.ParentNo) && nil != childData {
+		maps := slicePg.ToMapArray(childData, func(t *entityRam.RamResourceGroupEntity) (string, *entityRam.RamResourceGroupEntity) {
+			if len(t.ParentId) == 0 {
+				return constNodePg.ROOT, t
+			}
+			return t.ParentId, t
+		})
+		for _, item := range maps[numberPg.Int64ToString(find.ID)] {
+			item.IdLink = constNodePg.NoLinkAssemble(info.IdLink, numberPg.Int64ToString(find.ID))
+			item.NoLink = constNodePg.NoLinkAssemble(info.NoLink, item.No)
+			c.childParentIdLink(maps, item)
+		}
+		c.log.Infof("maps=%+v", maps)
+		for _, val := range maps {
+			for _, item := range val {
+				if item.ID == find.ID {
+					continue
+				}
+				err = r.Update(ctx, entityRam.RamResourceGroupEntity{IdLink: item.IdLink}, item.ID)
 				if err != nil {
 					return rt.ErrorMessage(err.Error())
 				}
@@ -269,7 +456,7 @@ func (c *RamResourceGroupService) childParentIdLink(maps map[string][]*entityRam
 //	@receiver c
 func (c *RamResourceGroupService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}
@@ -287,7 +474,7 @@ func (c *RamResourceGroupService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityRam.RamResourceGroupEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
+			r.Update(ctx, entityRam.RamResourceGroupEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
 		}
 	}
 	maps = nil
@@ -305,7 +492,7 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 	}
 	r := c.sv
 	authDb := c.authDb
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -315,13 +502,13 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		c.log.Infof("id=%v,TenantId=%v,TypeAttr=%+v", info.ID, 0, info.TypeAttr)
 		//判断 是否是 分类
 		if typeAttrPg.CategoryLast.IsEqual(info.TypeAttr) || typeAttrPg.Category.IsEqual(info.TypeAttr) {
-			link, b := r.FindAllByIdLink(numberPg.Int64ToString(info.ID))
+			link, b := r.FindAllByIdLink(ctx, numberPg.Int64ToString(info.ID))
 			if b {
 				for _, entity := range link {
 					idsCategory = append(idsCategory, numberPg.Int64ToString(entity.ID))
 				}
 				if len(idsCategory) > 0 {
-					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(resourceTypeCategoryPg.Group.String(), idsCategory)
+					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(ctx, resourceTypeCategoryPg.Group.String(), idsCategory)
 					if result {
 						return rt.ErrorMessage("该分类下存在子数据，请先删除子数据")
 					}
@@ -332,7 +519,7 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		r.DeleteByIds(idsNew)
+		r.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -346,7 +533,7 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -360,39 +547,31 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamResourceGroup.Vo]]) {
+func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceGroup.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamResourceGroupEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamResourceGroupEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at asc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamResourceGroup.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamResourceGroup.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamResourceGroup.Vo
@@ -407,37 +586,29 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectNodePublic(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -456,25 +627,49 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
+
+			slice = append(slice, code)
+		}
+		rt.Data = slice
+	}
+	return rt.Ok()
+}
+
+// SelectCategory 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+	c.log.Infof("ct=%+v", ct)
+	var query entityRam.RamResourceGroupEntity
+	copier.Copy(&query, &ct)
+	slice := make([]model.BaseNodeNo, 0)
+	rt.Data = slice
+	//
+	query.TypeAttr = typeAttrPg.CategoryLast.String()
+	//
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modRamResourceGroup.Vo
+			copier.Copy(&vo, &item)
+			code := model.BaseNodeNo{
+				Value:    item.No,
+				Label:    item.Name,
+				ParentNo: item.ParentNo,
+				Extend:   vo,
 			}
 			slice = append(slice, code)
 		}
@@ -483,22 +678,35 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	return rt.Ok()
 }
 
-// SelectPublic 查询
+// QueryAllCategory 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectPublic(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]modRamResourceGroup.Vo]) {
+func (c *RamResourceGroupService) QueryAllCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]modRamResourceGroup.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceGroup.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	//
+	query.TypeAttr = typeAttrPg.CategoryLast.String()
+	//
+	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("terminal_code asc,sort asc,id asc")
+		return db
+	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceGroup.Vo
 			copier.Copy(&vo, &item)
+			//
+			if strPg.IsNotBlank(item.TerminalCode) {
+				if t, ok := terminalCodePg.IsExistTerminalCode(item.TerminalCode); ok {
+					vo.TerminalCodeName = t.Name()
+				}
+			}
+			//
 			slice = append(slice, vo)
 		}
 		rt.Data = slice
@@ -516,7 +724,11 @@ func (c *RamResourceGroupService) ExistName(ctx *gin.Context, ct model.BaseExist
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, numberPg.StrToInt64(ct.Id))
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -537,7 +749,7 @@ func (c *RamResourceGroupService) ExistCode(ctx *gin.Context, ct model.BaseExist
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

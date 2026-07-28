@@ -24,10 +24,6 @@ type BasicConfigModelRulesEntity struct {
 	//
 	SharedScope  datatypes.JSONType[[]string] `gorm:"column:shared_scope;type:jsonb;index;default:'[]';comment:共享范围|全局|租户|商户" json:"shared_scope" comment:"共享范围" `
 	ModelNo      string                       `gorm:"column:model_no;type:varchar(80);index;default:;comment:模型编号" json:"model_no" comment:"模型编号" `
-	Model        string                       `gorm:"column:model;type:varchar(80);comment:模型" json:"model" comment:"模型" `
-	Module       string                       `gorm:"column:module;type:varchar(80);index;comment:模块" json:"module" comment:"模块" `
-	ModuleSub    string                       `gorm:"column:module_sub;type:varchar(80);index;comment:子模块" json:"module_sub" comment:"子模块" `
-	Field        string                       `gorm:"column:field;type:varchar(80);comment:字段名称" json:"field" comment:"字段名称" `
 	Description  string                       `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
 	ValueType    string                       `gorm:"column:value_type;type:varchar(80);comment:字段值类型" json:"value_type" comment:"字段值类型" `
 	Show         int8                         `gorm:"column:show;type:int2;not null;index;default:1;comment:1显示2隐藏" json:"show" comment:"1显示2隐藏" `
@@ -40,6 +36,7 @@ type BasicConfigModelRulesEntity struct {
 	RuleTarget   datatypes.JSONType[[]string] `gorm:"column:rule_target;type:jsonb;index;comment:目标前端后端" json:"rule_target" comment:"目标" `
 	SharedRuleNo string                       `gorm:"column:shared_rule_no;type:varchar(80);index;comment:共享规则编号" json:"shared_rule_no" comment:"共享规则编号" `
 	TypeSys      string                       `gorm:"column:type_sys;type:varchar(80);index;default:'general';comment:类型|普通|系统;" json:"type_sys" comment:"类型;普通;系统;" `
+	TypeCategory string                       `gorm:"column:type_category;type:varchar(80);index;default:'general';comment:模型|事件;" json:"type_category" comment:"模型|事件;" `
 }
 
 func (*BasicConfigModelRulesEntity) TableName() string {

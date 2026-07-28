@@ -3,22 +3,22 @@ package repositoryRam
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 )
 
 func init() {
 	gs.Provide(new(RamAppAccessKeyRepository)).Init(func(s *RamAppAccessKeyRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[RamAppAccessKeyRepository])).Init(func(s *support.BaseService[RamAppAccessKeyRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -26,8 +26,8 @@ type RamAppAccessKeyRepository struct {
 	repositoryPg.BaseRepository[entityRam.RamAppAccessKeyEntity, int64]
 }
 
-func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(no, appNo string) (info *entityRam.RamAppAccessKeyEntity, result bool) {
-	tx := c.Db().Where("tenant_no=?", no).Where("app_no=?", appNo).First(&info)
+func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(ctx context.Context, no, appNo string) (info *entityRam.RamAppAccessKeyEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", no).Where("app_no=?", appNo).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -38,8 +38,8 @@ func (c *RamAppAccessKeyRepository) FindByTenantNoAndAppNo(no, appNo string) (in
 	return info, true
 }
 
-func (c *RamAppAccessKeyRepository) UpdateAllByAppNoAndNoSetState(appNo, id string, state int8) (sum int64, result bool) {
-	tx := c.Db().Where("app_no=?", appNo).Where("id=?", id).Updates(entityRam.RamAppAccessKeyEntity{State: state})
+func (c *RamAppAccessKeyRepository) UpdateAllByAppNoAndNoSetState(ctx context.Context, appNo, id string, state int8) (sum int64, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("app_no=?", appNo).Where("id=?", id).Updates(entityRam.RamAppAccessKeyEntity{State: state})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return 0, false

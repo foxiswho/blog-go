@@ -4,49 +4,53 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/farseer-go/eventBus"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamLogin"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/middleware/components/authTokenPg"
-	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeDomainPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modPublic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
-	"github.com/pangu-2/go-tools/tools/jsonPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(NewAccountLoginService).Init(func(s *AccountLoginService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
 // AccountLoginService 登录
 // @Description:
 type AccountLoginService struct {
-	dao       *repositoryRam.RamAccountRepository                 `autowire:"?"`
-	daoAuth   *repositoryRam.RamAccountAuthorizationRepository    `autowire:"?"`
-	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
-	pg        configPg.Pg                                         `value:"${pg}"`
-	log       *log2.Logger                                        `autowire:"?"`
+	dao                  *repositoryRam.RamAccountRepository                 `autowire:"?"`
+	daoAuth              *repositoryRam.RamAccountAuthorizationRepository    `autowire:"?"`
+	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?" `
+	pg                   configPg.Pg                                         `value:"${pg}"`
+	log                  *log2.Logger                                        `autowire:"?"`
+	authLogin            pg.Auth                                             `value:"${pg.auth}"`
 }
 
 func NewAccountLoginService() *AccountLoginService {
@@ -59,8 +63,11 @@ func NewAccountLoginService() *AccountLoginService {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp appModulePg.AppModule) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain) (rt rg.Rs[modRamLogin.LoginSuccess]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
+	//
+	client := clientPg.Browser
+	//
 	if strPg.IsBlank(ct.Account) {
 		return rt.ErrorMessage("账号不能为空")
 	}
@@ -70,9 +77,20 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	if strPg.IsBlank(ct.OrgCode) {
 		return rt.ErrorMessage("租户编号不能为空")
 	}
+	pwd := ct.Password
+	log.Infof(context.Background(), log.TagAppDef, "authLogin=%+v", c.authLogin)
+	//解密密码
+	if logingEn, ok := c.authLogin.LoginEncrypt["default"]; ok && logingEn {
+		login := c.cacheSessionPubPrive.DecodeByLoginManage(ctx, pwd, clientPg.Browser, ct.OrgCode)
+		if login.ErrorIs() {
+			return rt.ErrorMessage(login.Message)
+		}
+		pwd = login.Data
+	}
+	log.Infof(context.Background(), log.TagAppDef, "pwd=%+v", pwd)
 
 	md5 := cryptPg.Md5(ct.Account)
-	info, b, err := c.dao.FindByTenantNoAccountMd5AndTypeDomain(ct.OrgCode, md5, tp.ToTypeDomain().String())
+	info, b, err := c.dao.FindByTenantNoAccountMd5AndTypeDomain(ctx, ct.OrgCode, md5, tp.Code())
 	if nil != err {
 		return rt.Error()
 	}
@@ -82,12 +100,12 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	if !enumStatePg.ENABLE.IsExistInt8(info.State) {
 		return rt.ErrorMessage("账户已被禁用，不能登陆")
 	}
-	pwdInfo, result := c.daoAuth.FindByTypePasswordANo(info.No)
+	pwdInfo, result := c.daoAuth.FindByTypePasswordANo(ctx, info.No)
 	if !result {
 		return rt.ErrorMessage("用户密码未设置")
 	}
-	if !userPg.PasswordVerify(pwdInfo.Value, ct.Password, pwdInfo.ExtraData) {
-		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", ct.Password, userPg.PasswordSalt(ct.Password, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
+	if !userPg.PasswordVerify(pwdInfo.Value, pwd, pwdInfo.ExtraData) {
+		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", pwd, userPg.PasswordSalt(pwd, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//
@@ -96,108 +114,117 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 		TenantNo: make([]string, 0),
 	}
 	mult.TenantNo = append(mult.TenantNo, info.TenantNo)
-	//是否新生成密钥
-	isMakeNewKey := false
+	//生成 token
+	token := c.MakeToken(ctx, mult, info, tp, client, true)
+	if token.ErrorIs() {
+		return rt.ErrorMessage(token.Message)
+	}
+	dataToken := token.Data
+	//记录登录日志
+	c.loginLogSave(ctx, info)
+	//
+	successInfo := modRamLogin.LoginSuccessInfo{
+		Account: info.Account,
+		Name:    info.Name,
+	}
+	successInfo.Roles = make([]string, 0)
+	successInfo.Roles = append(successInfo.Roles, "administrator")
+	success := modRamLogin.LoginSuccess{
+		Info:         successInfo,
+		AccessToken:  dataToken.Access,
+		RefreshToken: dataToken.Refresh,
+		AuthCode:     []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
+	rt.Data = success
+	return rt.Ok()
+}
+
+func (c *AccountLoginService) loginLogSave(ctx *gin.Context, account *entityRam.RamAccountEntity) {
+	now := time.Now()
+	var tmp entityRam.RamAccountEntity
+	copier.Copy(&tmp, account)
+	tmp.LoginTime = &now
+	tmp.TenantNo = typeDomainPg.System.Code()
+	obj := modRamAccount.LoginLogDto{
+		Account:     tmp,
+		Ano:         tmp.No,
+		AppNo:       "",
+		Client:      "",
+		LoginSource: "",
+		Ip:          ctx.ClientIP(),
+		ExtraData:   make(map[string]any),
+	}
+	ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
+	obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
+	//保存到数据库
+	eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
+}
+
+// MakeToken 生成 token
+func (c *AccountLoginService) MakeToken(ctx *gin.Context,
+	mult multiTenantPg.MultiTenantPg,
+	account *entityRam.RamAccountEntity,
+	tp typeDomainPg.TypeDomain,
+	client clientPg.Client,
+	makeRefresh bool,
+) (rt rg.Rs[authTokenPg.ResultAccessRefresh]) {
+	token := authTokenPg.ResultAccessRefresh{}
+	//
 	privatePubKey := authTokenPg.Result{}
 	// 获取 密钥对
-	{
-		no, r := c.sessionAk.FindByTenantNoAndNoAndState(info.TenantNo, typeDomainPg.General.Index())
-		if !r {
-			privatePubKey = authTokenPg.MakePublicPrivateKey()
-			isMakeNewKey = true
-		} else {
-			if strPg.IsBlank(no.Data) {
-				privatePubKey = authTokenPg.MakePublicPrivateKey()
-				isMakeNewKey = true
-			} else {
-				var privatePubKeyEnt entityRam.RamAsaJsonPrivatePublicKey
-				err := json.Unmarshal([]byte(no.Data), &privatePubKeyEnt)
-				if err != nil {
-					privatePubKey = authTokenPg.MakePublicPrivateKey()
-					isMakeNewKey = true
-				} else {
-					privatePubKey.PrivateKey = privatePubKeyEnt.Private
-					privatePubKey.PublicKey = privatePubKeyEnt.Public
-				}
-			}
-		}
+	key := c.cacheSessionPubPrive.PaseKeyAccessToken(ctx, tp, client, account.TenantNo, nil)
+	if strPg.IsNotBlank(key.Public) {
+		privatePubKey.PrivateKey = key.Private
+		privatePubKey.PublicKey = key.Public
 	}
 	//生成 令牌
 	param := authTokenPg.Param{
 		UniqueId:    strPg.GenerateNumberId22(),
 		MultiTenant: mult,
-		LoginNo:     info.No,
-		No:          info.No,
-		Name:        info.Name,
+		LoginNo:     account.No,
+		No:          account.No,
+		Name:        account.Name,
 		Type:        string(tp),
 		Result:      privatePubKey,
-		TenantNo:    info.TenantNo,
+		TenantNo:    account.TenantNo,
 	}
 	ret := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
 	if ret.ErrorIs() {
 		return rt.ErrorMessage(ret.Message)
 	}
 	tokenResult := ret.Data
-	//判断密钥，是否需要保存
-	{
-		key := cacheAuthPubPrivPg.KeyManage(info.TenantNo)
-		dataKey := entityRam.RamAsaJsonPrivatePublicKey{
-			Private: tokenResult.PrivateKey,
-			Public:  tokenResult.PublicKey,
-		}
-		if isMakeNewKey {
-			toJson, _ := jsonPg.ObjToJson(dataKey)
-			save := entityRam.RamAccountSessionAccessKeyEntity{
-				Ano:        info.No,
-				Data:       toJson,
-				No:         typeDomainPg.General.Index(),
-				TenantNo:   info.TenantNo,
-				Key:        tokenResult.PublicKey,
-				Type:       typeDomainPg.Manage.Index(),
-				TypeDomain: typeDomainPg.Manage.Index(),
+	token.Access = tokenResult.Token
+	//刷新 token
+	if makeRefresh {
+		{
+			//
+			privatePubKey2 := authTokenPg.Result{}
+			// 获取 密钥对
+			key2 := c.cacheSessionPubPrive.PaseKeyRefreshToken(ctx, tp, client, account.TenantNo, nil)
+			if strPg.IsNotBlank(key2.Public) {
+				privatePubKey2.PrivateKey = key2.Private
+				privatePubKey2.PublicKey = key2.Public
 			}
-			save.KindUnique = userPg.SaltMake(tokenResult.PublicKey, toJson+save.No+save.TenantNo+save.TypeDomain)
-			c.sessionAk.Create(&save)
-			//缓存
-			cacheAuthPubPrivPg.Set(key, dataKey)
-		}
-		//缓存
-		_, b2 := cacheAuthPubPrivPg.Get(key)
-		if !b2 {
-			c.log.Errorf("密钥不存在，重新加载")
-			cacheAuthPubPrivPg.Set(key, dataKey)
+			//生成 令牌
+			param = authTokenPg.Param{
+				UniqueId:    strPg.GenerateNumberId22(),
+				MultiTenant: mult,
+				LoginNo:     account.No,
+				No:          account.No,
+				Name:        account.Name,
+				Type:        string(tp),
+				Result:      privatePubKey2,
+				TenantNo:    account.TenantNo,
+			}
+			ret2 := authTokenPg.MakePaseToken(param, c.pg.Jwt.System)
+			if ret2.ErrorIs() {
+				return rt.ErrorMessage(ret.Message)
+			}
+			tokenResult2 := ret2.Data
+			token.Refresh = tokenResult2.Token
 		}
 	}
 	//
-	now := time.Now()
-	//记录登录日志
-	{
-		var tmp entityRam.RamAccountEntity
-		copier.Copy(&tmp, info)
-		tmp.LoginTime = &now
-		tmp.TenantNo = info.TenantNo
-		obj := modRamAccount.LoginLogDto{
-			Account:     tmp,
-			Ano:         tmp.No,
-			AppNo:       "",
-			Client:      "",
-			LoginSource: "",
-			Ip:          ctx.ClientIP(),
-			ExtraData:   make(map[string]any),
-		}
-		ua := ctx.GetHeader(constHeaderPg.HeaderUserAgent)
-		obj.ExtraData[constHeaderPg.HeaderUserAgent] = ua
-		//保存到数据库
-		eventBus.PublishEventAsync(constEventBusPg.RamAccountLoginLog, obj)
-	}
-
-	successInfo := modRamLogin.LoginSuccessInfo{
-		Account: info.Account,
-		Name:    info.Name,
-	}
-	success := modRamLogin.LoginSuccess{Info: successInfo, Token: tokenResult.Token, AccessToken: tokenResult.Token, AuthCode: []string{"AC_100100", "AC_100110", "AC_100120", "AC_100010"}}
-	rt.Data = success
-	return rt.Ok()
+	return rt.OkData(token)
 }
 
 func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]) {
@@ -208,8 +235,79 @@ func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]
 //
 //	@Description:  刷新
 //	@receiver c
-func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin.TokenRefreshCt) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin.TokenRefreshCt, tp typeDomainPg.TypeDomain, client clientPg.Client) (rt rg.Rs[modPublic.LoginToken]) {
 	token := ctx.GetHeader("Authorization")
-	rt.Data = modRamLogin.LoginSuccess{Token: token, AccessToken: token}
-	return rt.Ok()
+	if strPg.IsNotBlank(token) {
+		tokenRefresh := ctx.GetHeader("Authorization-Refresh")
+		token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
+		if strPg.IsNotBlank(token) {
+			var accessPayload map[string]interface{}
+			var refreshPayload map[string]interface{}
+			{
+				unverified, b := authTokenPg.ParseUnverified(token)
+				if b {
+					// 解析为map便于查看
+					if err := json.Unmarshal(unverified, &accessPayload); err != nil {
+						return rt.ErrorMessage("解析载荷JSON失败")
+					}
+				}
+			}
+			{
+				if strPg.IsNotBlank(tokenRefresh) {
+					unverified2, b := authTokenPg.ParseUnverified(tokenRefresh)
+					if b {
+						// 解析为map便于查看
+						if err := json.Unmarshal(unverified2, &refreshPayload); err != nil {
+							return rt.ErrorMessage("解析载荷JSON失败")
+						}
+					}
+				}
+			}
+			tenantNoAcc := ""
+			tenantNoRef := ""
+			loginNoAcc := ""
+			loginNoRef := ""
+			{
+				if get, ok := accessPayload[authTokenPg.TenantNo]; ok {
+					tenantNoAcc = get.(string)
+				}
+				if get, ok := accessPayload[authTokenPg.Subject]; ok {
+					loginNoAcc = get.(string)
+				}
+			}
+			{
+				if get, ok := refreshPayload[authTokenPg.TenantNo]; ok {
+					tenantNoRef = get.(string)
+				}
+				if get, ok := refreshPayload[authTokenPg.Subject]; ok {
+					loginNoRef = get.(string)
+				}
+			}
+			if strPg.IsNotBlank(loginNoAcc) && strPg.IsNotBlank(loginNoRef) &&
+				strPg.IsNotBlank(tenantNoAcc) && strPg.IsNotBlank(tenantNoRef) &&
+				loginNoAcc == loginNoRef && tenantNoAcc == tenantNoRef {
+				info, result := c.dao.FindByNo(ctx, loginNoAcc)
+				if result {
+					//租户默认
+					mult := multiTenantPg.MultiTenantPg{
+						TenantNo: make([]string, 0),
+					}
+					mult.TenantNo = append(mult.TenantNo, info.TenantNo)
+					//生成 token
+					tokenRet := c.MakeToken(ctx, mult, info, tp, client, true)
+					if tokenRet.ErrorIs() {
+						return rt.ErrorMessage(tokenRet.Message)
+					}
+					dataToken := tokenRet.Data
+					ret := modPublic.LoginToken{
+						AccessToken:  dataToken.Access,
+						RefreshToken: dataToken.Refresh,
+					}
+					return rt.OkData(ret)
+				}
+			}
+		}
+	}
+
+	return rt.ErrorMessage("刷新token失败")
 }

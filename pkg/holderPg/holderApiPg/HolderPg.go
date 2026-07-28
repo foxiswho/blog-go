@@ -1,8 +1,8 @@
 package holderApiPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/holderPg/jwtHolder"
-	"github.com/foxiswho/blog-go/pkg/interfaces"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/jwtHolder"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/interfaces"
 )
 
 type HolderPg struct {

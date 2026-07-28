@@ -6,7 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/foxiswho/blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 )

@@ -1,17 +1,35 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/web/api/model/modBlogCollect"
-	"github.com/foxiswho/blog-go/app/web/api/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogCollect"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
+func init() {
+	gs.Provide(new(CollectController)).Export(gs.As[routerPg.RouteRegistrar]())
+}
+
 type CollectController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupApiMiddlewareSp `autowire:""`
 	sv *service.CollectService      `autowire:""`
+}
+
+// RegisterRoutes
+//
+//	@Description: 注册路由
+//	@receiver c
+//	@param e
+func (c *CollectController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/api/collect", authPg.GroupApiMiddleware(c.Sp))
+	group.POST("/push", c.Push)
+	group.POST("/pushAll", c.PushAll)
 }
 
 // Push 推送

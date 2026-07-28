@@ -4,23 +4,23 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/service/blogArticle"
-	"github.com/foxiswho/blog-go/app/web/api/model/modBlogArticle"
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(ArticleService)).Init(func(s *ArticleService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -47,7 +47,7 @@ func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg
 	if strPg.IsBlank(ct.Url) {
 		return rt.ErrorMessage("url地址不能为空")
 	}
-	info, result := c.catDb.FindByNo(ct.CategoryNo)
+	info, result := c.catDb.FindByNo(ctx, ct.CategoryNo)
 	if !result {
 		return rt.ErrorMessage("分类不存在")
 	}
@@ -62,12 +62,12 @@ func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg
 	save.Code = save.No
 	save.TenantNo = holder.GetTenantNo()
 	save.Ano = holder.GetAccountNo()
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
 	}
-	err, _ = c.sata.Create(&entityBlog.BlogArticleStatisticsEntity{ID: save.ID, ArticleNo: save.No})
+	err, _ = c.sata.Create(ctx, &entityBlog.BlogArticleStatisticsEntity{ID: save.ID, ArticleNo: save.No})
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 	}

@@ -1,30 +1,88 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/web/blog/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/pkg/templatePg"
+	"context"
+
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"github.com/hongmengzhu/xianfu-blog-go/app/core/blog/serviceCore"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/model/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/utils/webPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
+func init() {
+	gs.Provide(new(ArticleController)).Export(gs.As[routerPg.RouteRegistrar]())
+}
+
 type ArticleController struct {
-	Sp *authPg.GroupWebMiddlewareSp `autowire:""`
-	sv *service.ArticleService      `autowire:"?"`
+	routerPg.RouteRegistrar
+	Sp       *authPg.GroupWebMiddlewareSp     `autowire:"?"`
+	sv       *service.ArticleService          `autowire:"?"`
+	catCache *serviceCore.CoreArticleCategory `autowire:"?"`
+}
+
+// RegisterRoutes
+//
+//	@Description: 注册路由
+//	@receiver c
+//	@param e
+func (c *ArticleController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("", authPg.GroupWebMiddleware(c.Sp))
+	group.GET("/article/search", c.List)
+	group.GET("/article/:id", c.Detail)
 }
 
 func (c *ArticleController) Detail(ctx *gin.Context) {
+	dataIs := false
+	var data any
 	param := ctx.Param("id")
-	hMap := gin.H{
-		"title":  "详情",
-		"ctxPg":  templatePg.NewHttpPg(ctx),
-		"dataIs": false,
-	}
 	rt := c.sv.Detail(ctx, param)
 	if rt.SuccessIs() {
-		hMap["dataIs"] = true
-		hMap["info"] = rt.Data
+		dataIs = true
+		data = rt.Data
 	}
-	//syslog.Infof("Data=%+v", rt.Data)
-	ctx.HTML(http.StatusOK, "blog/blog/get.tpl", hMap)
+	//
+	tenantNo := webPg.GetTenantNo(ctx)
+	tree, _ := c.catCache.FormatTree(ctx, tenantNo)
+	//fmt.Printf("Data: %+v\n", data)
+	// 模版
+	templatePg.HTML(ctx, "blog/detail",
+		templatePg.WithDataByResult(dataIs, data),
+		templatePg.WithHtmlObjSet("categorys", tree),
+		templatePg.WithHtmlObjSet("pageUrl", "article"),
+		templatePg.WithSitePage(templatePg.SitePage{
+			Title:       "详情",
+			Description: "博客",
+			Keywords:    "博客",
+			SiteName:    "博客",
+		}))
+}
+
+func (c *ArticleController) List(ctx *gin.Context) {
+	var ct modBlogArticle.QueryCt
+	ctx.Bind(&ct)
+	//
+	rt := c.sv.Query(ctx, ct)
+	log.Infof(context.Background(), log.TagBizDef, "Data=%+v", rt.Data.Pageable)
+	//
+	tenantNo := webPg.GetTenantNo(ctx)
+	tree, _ := c.catCache.FormatTree(ctx, tenantNo)
+
+	//fmt.Printf("Data: %+v\n", tree)
+	// 模版
+	templatePg.HTML(ctx, "blog/article_list",
+		templatePg.WithDataByResult(rt.SuccessIs(), rt.Data),
+		templatePg.WithHtmlObjSet("categorys", tree),
+		templatePg.WithHtmlObjSet("pageUrl", "/article/search"),
+		templatePg.WithSitePage(templatePg.SitePage{
+			Title:       "博客",
+			Description: "博客",
+			Keywords:    "博客",
+			SiteName:    "博客",
+		}))
 }

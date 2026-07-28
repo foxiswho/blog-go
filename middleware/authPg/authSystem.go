@@ -4,26 +4,26 @@ import (
 	"context"
 	"strings"
 
-	"github.com/foxiswho/blog-go/app/system/ram/service"
-	"github.com/foxiswho/blog-go/middleware/components/authTokenPg"
-	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constContextPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constContextPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 // 验证 ownerCode 必填
 var systemUrlPaths = make([]string, 0)
 
 func init() {
-	gs.Object(&GroupSystemMiddlewareSp{})
+	gs.Provide(&GroupSystemMiddlewareSp{})
 	//商品模块
 	systemUrlPaths = append(systemUrlPaths, "manage/gc")
 }
@@ -38,7 +38,7 @@ type GroupSystemMiddlewareSp struct {
 // 权限验证 中间件
 func GroupSystemMiddleware(m *GroupSystemMiddlewareSp) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader(constHeaderPg.HeaderAuthorization)
+		token := c.GetHeader(constHeaderPg.HeaderAuthorization_system)
 		if strPg.IsNotBlank(token) {
 			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.KeySystem())
 			if !b {
@@ -49,7 +49,7 @@ func GroupSystemMiddleware(m *GroupSystemMiddlewareSp) gin.HandlerFunc {
 			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			t, r := authTokenPg.VerifyByPublicKey(get.Public, token)
 			if r.ErrorIs() {
-				syslog.Debugf(context.Background(), syslog.TagAppDef, "JWT= %+v", r)
+				log.Debugf(context.Background(), log.TagAppDef, "JWT= %+v", r)
 				c.JSON(200, r)
 				c.Abort()
 				return

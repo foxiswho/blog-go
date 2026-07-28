@@ -1,0 +1,23 @@
+{{ define "nisarg/blog/404.html" }}
+{{template "nisarg/blog/header.html" .}}
+	<div class="container">
+		<div class="row">
+			<div id="primary" class="col-md-9 content-area">
+				<main id="main" class="site-main" role="main">
+					<section class="error-404 not-found">
+						<header class="page-header">
+							<h1 class="page-title">Oops! That page can&rsquo;t be found.</h1>
+						</header><!-- .page-header -->
+
+						<div class="page-content">
+							<p>It looks like nothing was found at this location. Maybe try one of the links below or a search?</p>
+							{{template "nisarg/blog/searchform.html" .}}
+						</div><!-- .page-content -->
+					</section><!-- .error-404 -->
+				</main><!-- #main -->
+			</div><!-- #primary -->
+		{{template "nisarg/blog/sidebar.html" .}}
+		</div> <!--.row-->
+	</div><!--.container-->
+{{template "nisarg/blog/footer.html" .}}
+{{end}}

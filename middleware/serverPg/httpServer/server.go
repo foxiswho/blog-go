@@ -5,13 +5,9 @@ import (
 	"net"
 	"net/http"
 
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
-
-func init() {
-	gs.Object(NewServer()).AsServer()
-}
 
 type MyServer struct {
 	svr *http.Server
@@ -29,7 +25,7 @@ func (s *MyServer) ListenAndServe(sig gs.ReadySignal) error {
 		return err
 	}
 	<-sig.TriggerAndWait() // 等待启动信号
-	syslog.Infof(context.Background(), syslog.TagBizDef, "starting successfully... Port: %+v", s.svr.Addr)
+	log.Infof(context.Background(), log.TagBizDef, "starting successfully... Port: %+v", s.svr.Addr)
 	return s.svr.Serve(ln)
 }
 

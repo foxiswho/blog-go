@@ -7,7 +7,7 @@
 > redis: 7
 
 
-管理后台的前端代码：[https://github.com/foxiswho/blog-go-frontend](https://github.com/foxiswho/blog-go-frontend "管理后台前端代码")
+管理后台的前端代码：[https://github.com/hongmengzhu/xianfu-blog-go-frontend](https://github.com/hongmengzhu/xianfu-blog-go-frontend "管理后台前端代码")
 
 ## 功能说明
 - [x] 文章 增删该查
@@ -40,7 +40,7 @@ export PATH=.:$PATH:$GOBIN
 ```
 ### 拉取代码
 ```bash
-git clone https://github.com/foxiswho/blog-go
+git clone https://github.com/hongmengzhu/xianfu-blog-go
 ```
 ### 进入目录
 ```go
@@ -108,6 +108,15 @@ CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -a -ldflags '-extldflags "-stati
 # 在服务器上 含有 blogGo 目录下运行
 ./blogGo
 ```
+
+## 升级依赖
+```bash
+
+go get -u ./
+
+go mod tidy
+```
+
 
 # 账号
 ## manage 账号

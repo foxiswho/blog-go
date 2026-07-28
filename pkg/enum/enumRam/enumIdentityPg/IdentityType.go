@@ -1,7 +1,7 @@
 package enumIdentityPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // IdentityType 身份类型

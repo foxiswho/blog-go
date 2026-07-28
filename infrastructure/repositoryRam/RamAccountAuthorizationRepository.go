@@ -3,11 +3,11 @@ package repositoryRam
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 )
@@ -15,11 +15,11 @@ import (
 func init() {
 
 	gs.Provide(new(RamAccountAuthorizationRepository)).Init(func(s *RamAccountAuthorizationRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[RamAccountAuthorizationRepository])).Init(func(s *support.BaseService[RamAccountAuthorizationRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -28,8 +28,8 @@ type RamAccountAuthorizationRepository struct {
 	//
 }
 
-func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(code string) (info *entityRam.RamAccountAuthorizationEntity, result bool) {
-	tx := c.Db().Where("type=?", "password").Where("ano=?", code).Find(&info)
+func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(ctx context.Context, code string) (info *entityRam.RamAccountAuthorizationEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("type=?", "password").Where("ano=?", code).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -40,8 +40,8 @@ func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(code string) (
 	return info, true
 }
 
-func (c *RamAccountAuthorizationRepository) DeleteByAno(code string) (result bool) {
-	tx := c.Db().Where("ano=?", code).Delete(&entityRam.RamAccountAuthorizationEntity{})
+func (c *RamAccountAuthorizationRepository) DeleteByAno(ctx context.Context, code string) (result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("ano=?", code).Delete(&entityRam.RamAccountAuthorizationEntity{})
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return false

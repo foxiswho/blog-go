@@ -2,32 +2,35 @@ package service
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"reflect"
 
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/duke-git/lancet/v2/strutil"
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicDataDictionary"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicDataDictionary"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
-	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
+	"gorm.io/gorm"
 )
 
 func init() {
 	gs.Provide(new(BasicDataDictionarySubService)).Init(func(s *BasicDataDictionarySubService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -57,32 +60,48 @@ func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBas
 	}
 	r := c.sv
 	//
+	parent, b := r.FindByCode(ctx, ct.TypeCode)
+	if !b {
+		return rt.ErrorMessage("父级码值不存在")
+	}
 	//
 	var info entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&info, &ct)
 	//
 	info.Code = strings.Trim(info.Code, "")
 	info.Value = info.Code
-	info.TypeUniqueMd5 = cryptPg.Md5(info.TypeCode + ":" + info.Code)
+	info.TypeUniqueMd5 = parent.TypeUniqueMd5
+	info.TypeCode = parent.Code
 	if nil != ct.Range && len(ct.Range) > 0 {
 		info.Range = slice.Join(ct.Range, ",")
 	}
-	info.OwnerNo = "0"
+	info.OwnerNo = parent.OwnerNo
 	if ct.ID < 1 {
-		_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, "0", info.OwnerNo)
-		if result {
-			return rt.ErrorMessage("码值已存在")
+		{
+			_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(ctx, info.Code, info.TypeCode, "0", info.OwnerNo)
+			if result {
+				return rt.ErrorMessage("码值已存在")
+			}
 		}
+		info.No = noPg.No()
 		c.log.Infof("info%+v", info)
-		r.Create(&info)
+		err, _ := r.Create(ctx, &info)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
+		}
 		c.log.Infof("save=%+v", info)
 	} else {
-		_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(info.Code, info.TypeCode, ct.ID.ToString(), info.OwnerNo)
-		if result {
-			return rt.ErrorMessage("码值已存在")
+		{
+			_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(ctx, info.Code, info.TypeCode, ct.ID.ToString(), info.OwnerNo)
+			if result {
+				return rt.ErrorMessage("码值已存在")
+			}
 		}
 		c.log.Infof("save=%+v", info)
-		r.Update(info, info.ID)
+		err := r.Update(ctx, info, info.ID)
+		if err != nil {
+			return rt.ErrorMessage("保存失败")
+		}
 	}
 
 	return rg.OkData(numberPg.Int64ToString(info.ID))
@@ -98,7 +117,7 @@ func (c *BasicDataDictionarySubService) Detail(ctx *gin.Context, id string) (rt 
 		return rt.ErrorMessage("id 错误")
 	}
 	r := c.sv
-	find, b := r.FindByIdString(id)
+	find, b := r.FindByIdString(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -136,13 +155,13 @@ func (c *BasicDataDictionarySubService) State(ctx *gin.Context, ids []string, st
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicDataDictionaryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -170,7 +189,7 @@ func (c *BasicDataDictionarySubService) LogicalDeletion(ctx *gin.Context, ids []
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -178,13 +197,13 @@ func (c *BasicDataDictionarySubService) LogicalDeletion(ctx *gin.Context, ids []
 		for _, info := range finds {
 			c.log.Infof("id=%v", info.ID)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -202,7 +221,7 @@ func (c *BasicDataDictionarySubService) LogicalRecovery(ctx *gin.Context, ids []
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -210,7 +229,7 @@ func (c *BasicDataDictionarySubService) LogicalRecovery(ctx *gin.Context, ids []
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicDataDictionaryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -226,14 +245,14 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		c.log.Infof("id=%v", info.ID)
 	}
-	cn.DeleteByIdsString(ids)
+	cn.DeleteByIdsString(ctx, ids)
 	return rt.Ok()
 }
 
@@ -242,59 +261,57 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicDataDictionary.Vo]]) {
+func (c *BasicDataDictionarySubService) Query(ctx *gin.Context, ct modBasicDataDictionary.QueryDictCt) (rt rg.Rs[pagePg.Paginator[modBasicDataDictionary.VoData]]) {
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	r := c.sv
-	slice := make([]modBasicDataDictionary.Vo, 0)
+	slice := make([]modBasicDataDictionary.VoData, 0)
 	rt.Data.Data = slice
 	if strPg.IsBlank(ct.TypeCode) {
 		return rt.Ok()
 	}
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicDataDictionaryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicDataDictionaryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = 999
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("sort,create_at asc")
-		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db = arg.Db.Order("sort,create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%").
+				Or("code like ?", "%"+ct.Wd+"%").
+				Or("name_fl like ?", "%"+ct.Wd+"%").
+				Or("name_full like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicDataDictionary.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicDataDictionary.VoData](page.Pageable)
 		ids := make([]string, 0)
 		for _, item := range page.Data {
-			ids = append(ids, item.Code)
+			if strPg.IsNotBlank(item.TypeCode) && !slices.Contains(ids, item.TypeCode) {
+				ids = append(ids, item.TypeCode)
+			}
 		}
 		mapBasic := make(map[string]*entityBasic.BasicDataDictionaryEntity)
 		if len(ids) > 0 {
-			infos, b := r.FindAllByCodeIn(ids)
+			infos, b := r.FindAllByCodeIn(ctx, ids)
 			if !b {
 				for _, item := range infos {
-					mapBasic[item.Code] = item
+					mapBasic[item.TypeCode] = item
 				}
 			}
 		}
 
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modBasicDataDictionary.Vo
+			var vo modBasicDataDictionary.VoData
 			copier.Copy(&vo, &item)
 			//
-			if obj, ok := mapBasic[item.Code]; ok {
+			if obj, ok := mapBasic[item.TypeCode]; ok {
 				vo.TypeCodeName = obj.Name
 			}
 			slice = append(slice, vo)
@@ -320,7 +337,7 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	//
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBasicDataDictionary.SelectNodeVo
@@ -343,6 +360,87 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	return rt.Ok()
 }
 
+// CodeValueAllPublic 码值
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[any]) {
+	if strPg.IsBlank(ct.TypeCode) {
+		if nil == ct.TypeCodeArr || len(ct.TypeCodeArr) <= 0 {
+			return rt.ErrorMessage("上级码值[typeCode]不能为空")
+		}
+	}
+	var query entityBasic.BasicDataDictionaryEntity
+	copier.Copy(&query, &ct)
+	query.State = enumStatePg.ENABLE.Index()
+	//
+	if nil != ct.TypeCodeArr && len(ct.TypeCodeArr) > 0 {
+		query.TypeCode = ""
+		ids := make([]string, 0)
+		for _, item := range ct.TypeCodeArr {
+			if strPg.IsNotBlank(item) {
+				ids = append(ids, strings.TrimSpace(item))
+			}
+		}
+		//
+		rt.Data = struct{}{}
+		if len(ids) <= 0 {
+			return rt.Ok()
+		}
+		values := make(map[string][]model.BaseNodeKeyValue)
+		infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+			db.Where("type_code in ?", ids)
+			return db
+		}))
+		if len(infos) > 0 {
+			for _, item := range infos {
+				var vo modBasicDataDictionary.SelectNodeVo
+				copier.Copy(&vo, &item)
+				//
+				if len(item.Range) > 0 {
+					vo.Range = strutil.SplitAndTrim(item.Range, ",")
+				}
+				//
+				code := model.BaseNodeKeyValue{
+					Value:  item.Code,
+					Label:  item.Name,
+					Extend: vo,
+				}
+				if _, ok := values[item.TypeCode]; !ok {
+					values[item.TypeCode] = make([]model.BaseNodeKeyValue, 0)
+				}
+				values[item.TypeCode] = append(values[item.TypeCode], code)
+			}
+			rt.Data = values
+		}
+	} else {
+		//
+		values := make([]model.BaseNodeKeyValue, 0)
+		rt.Data = values
+		infos := c.sv.FindAll(ctx, query)
+		if len(infos) > 0 {
+			for _, item := range infos {
+				var vo modBasicDataDictionary.SelectNodeVo
+				copier.Copy(&vo, &item)
+				//
+				if len(item.Range) > 0 {
+					vo.Range = strutil.SplitAndTrim(item.Range, ",")
+				}
+				//
+				code := model.BaseNodeKeyValue{
+					Value:  item.Code,
+					Label:  item.Name,
+					Extend: vo,
+				}
+				values = append(values, code)
+			}
+			rt.Data = values
+		}
+	}
+	return rt.Ok()
+}
+
 // ExistName 查重
 //
 //	@Description:
@@ -352,7 +450,7 @@ func (c *BasicDataDictionarySubService) ExistName(ctx *gin.Context, ct model.Bas
 	if "" == ct.Wd {
 		return rt.ErrorMessage("关键词不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, numberPg.StrToInt64(ct.Id))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, numberPg.StrToInt64(ct.Id))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -373,7 +471,7 @@ func (c *BasicDataDictionarySubService) ExistCode(ctx *gin.Context, ct model.Bas
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -397,7 +495,7 @@ func (c *BasicDataDictionarySubService) ExistValue(ctx *gin.Context, ct modBasic
 	if strPg.IsNotBlank(ct.OwnerNo) {
 		owner = ct.OwnerNo
 	}
-	_, result := c.sv.FindByValueAndIdNotAndOwnerNo(ct.Wd, id, owner)
+	_, result := c.sv.FindByValueAndIdNotAndOwnerNo(ctx, ct.Wd, id, owner)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

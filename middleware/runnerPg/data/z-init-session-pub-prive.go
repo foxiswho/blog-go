@@ -3,20 +3,25 @@ package data
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/event/ram/service/accountSessionRamEvent"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/ram/service/accountSessionRamEvent"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
+	_ "go-spring.org/spring/gs"
 )
 
 // 加载 密钥缓存
 type InitSessionPubPrive struct {
-	log       *log2.Logger                                        `autowire:"?"`
-	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	log                  *log2.Logger                                        `autowire:"?"`
+	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
+	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?"`
+	tenant               *repositoryTc.TcTenantRepository                    `autowire:"?"`
 }
 
-func (b *InitSessionPubPrive) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[密钥缓存初始化]===================")
-	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk).Processor(context.Background())
+func (b *InitSessionPubPrive) Run(ctx context.Context) error {
+	log.Infof(context.Background(), log.TagAppDef, "[init].[密钥缓存初始化]===================")
+	accountSessionRamEvent.NewInitSessionPubPrive(b.log, b.sessionAk, b.cacheSessionPubPrive, b.tenant).Processor(context.Background())
 	return nil
 }

@@ -2,10 +2,10 @@ package authCasbinPg
 
 import (
 	"errors"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"strings"
 )
 

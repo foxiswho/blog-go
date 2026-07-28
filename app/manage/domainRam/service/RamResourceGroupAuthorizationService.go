@@ -3,17 +3,17 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -23,7 +23,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamResourceGroupAuthorizationService)).Init(func(s *RamResourceGroupAuthorizationService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -64,13 +64,13 @@ func (c *RamResourceGroupAuthorizationService) State(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamResourceGroupEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamResourceGroupEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	//有效
@@ -110,7 +110,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -122,14 +122,14 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 			//删除授权及权限规则
 			//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 
 			//设置无效
@@ -151,7 +151,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -159,7 +159,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamResourceGroupEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 
 		//设置有效
@@ -180,7 +180,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 	}
 	r := c.sv
 	authDb := c.authDb
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -190,13 +190,13 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		//判断 是否是 分类
 		if typeAttrPg.CategoryLast.IsEqual(info.TypeAttr) || typeAttrPg.Category.IsEqual(info.TypeAttr) {
-			link, b := r.FindAllByIdLink(numberPg.Int64ToString(info.ID))
+			link, b := r.FindAllByIdLink(ctx, numberPg.Int64ToString(info.ID))
 			if b {
 				for _, entity := range link {
 					idsCategory = append(idsCategory, numberPg.Int64ToString(entity.ID))
 				}
 				if len(idsCategory) > 0 {
-					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(resourceTypeCategoryPg.Group.String(), idsCategory)
+					_, result := authDb.FindAllByTypeCategoryAndGroupIdStringIn(ctx, resourceTypeCategoryPg.Group.String(), idsCategory)
 					if result {
 						return rt.ErrorMessage("该分类下存在子数据，请先删除子数据")
 					}
@@ -208,7 +208,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 		//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
 	}
 	if len(idsNew) > 0 {
-		r.DeleteByIds(idsNew)
+		r.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }

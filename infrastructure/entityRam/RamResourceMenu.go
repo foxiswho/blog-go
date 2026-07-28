@@ -18,11 +18,11 @@ type RamResourceMenuEntity struct {
 	TypeDomain   string     `gorm:"column:type_domain;type:varchar(80);index;default:'default';comment:域|平台platform|店铺shop|其他other" json:"type_domain" comment:"域;平台platform;店铺shop;其他other" `
 	TypeAttr     string     `gorm:"column:type_attr;type:varchar(100);index;default:;comment:属性|菜单分类|资源" json:"type_attr" comment:"属性;菜单menu;按钮button;资源:resource;其他other" `
 	Mark         string     `gorm:"column:mark;type:varchar(80);index;default:;comment:标记" json:"mark" comment:"标记" `
-	ParentId     string     `gorm:"column:parent_id;type:varchar(80);index;default:;comment:上级" json:"parent_id" comment:"上级" `
-	IdLink       string     `gorm:"column:id_link;type:text;comment:上级" json:"parent_id_link" comment:"上级" `
-	ResourceId   int64      `gorm:"column:resource_id;type:bigint;not null;index;default:0;comment:资源id" json:"resource_id" comment:"资源id" `
-	GroupId      int64      `gorm:"column:group_id;type:bigint;not null;index;default:0;comment:资源组id" json:"group_id" comment:"资源组id" `
-	MenuId       int64      `gorm:"column:menu_id;type:bigint;not null;index;default:0;comment:菜单id" json:"menu_id" comment:"菜单id" `
+	ParentNo     string     `gorm:"column:parent_no;type:varchar(80);index;default:;comment:上级编号" json:"parent_no" comment:"上级编号" `
+	NoLink       string     `gorm:"column:no_link;type:text;comment:上级编号" json:"no_link" comment:"上级编号" `
+	ResourceNo   string     `gorm:"column:resource_no;type:varchar(80);index;default:;comment:资源" json:"resource_no" comment:"资源"`
+	GroupNo      string     `gorm:"column:group_no;type:varchar(80);index;default:;comment:资源组" json:"group_no" comment:"资源组"`
+	MenuNo       string     `gorm:"column:menu_no;type:varchar(80);index;default:0;comment:菜单" json:"menu_no" comment:"菜单"`
 }
 
 func (*RamResourceMenuEntity) TableName() string {

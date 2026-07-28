@@ -1,7 +1,7 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type Vo struct {
@@ -30,20 +30,22 @@ type Vo struct {
 	TypeDomain    string              `json:"typeDomain" label:"域类型" `              // 域类型
 	TypeIdentity  string              `json:"typeIdentity" label:"身份类型;普通;经理;副经理" ` // 身份类型;普通;经理;副经理
 	Description   string              `json:"description" label:"描述" `              // 描述
-	Position      string              `json:"position" label:"岗位" `
-	Job           string              `json:"job" label:"职位" `
+	JobFunction   string              `json:"jobFunction" label:"职务" `
+	Post          string              `json:"post" label:"岗位" `
+	Position      string              `json:"position" label:"职位" `
 	JobTitle      string              `json:"jobTitle" label:"职衔" `
 	JobRank       string              `json:"jobRank" label:"职级" `
 	Avatar        string              `json:"avatar" label:"头像" `
 	Birthday      *typePg.DateOnly    `json:"birthday" label:"生日" `
 	Sex           string              `json:"sex" label:"性别" `
-	IdentityNo    string              `json:"identityCode" label:"身份编号 "`
+	IdentityCode  string              `json:"identityCode" label:"身份编号 "`
 	Os            OsVo                `json:"os"`
 	LoginTime     *typePg.Time        `json:"loginTime" comment:"登陆时间" `
 	//
 	DepartmentNoName string `json:"departmentNoName" label:"主部门"`
 	LevelNoName      string `json:"levelNoName" label:"级别"`
 	GroupNoName      string `json:"groupNoName" label:"组"`
-	PositionName     string `json:"positionName" label:"岗位"`
-	JobName          string `json:"jobName" label:"职位"`
+	PositionName     string `json:"positionName" label:"职位"`
+	PostName         string `json:"postName" label:"岗位"`
+	JobFunctionName  string `json:"jobFunctionName" label:"职务"`
 }

@@ -1,6 +1,9 @@
-[server]
+[spring.gin.server]
 # 端口
-port = 9981
+addr = ":9981"
+
+# 业务域名（非 server 配置）
+[server]
 # 不带 / 后缀
 domain = "http://localhost:9981"
 
@@ -50,8 +53,8 @@ required = false
 unique = false
 
 [pg.profiles]
-active = "develop"
-include = "develop"
+active = "dev"
+include = []
 
 [pg.multiTenant]
 contain = []
@@ -97,7 +100,7 @@ port = 6379
 addrs = ["127.0.0.1:6379"]
 database = 0
 username = ""
-password = ""
+password = "a12345678"
 
 [mail]
 host = "127.0.0.1"
@@ -113,3 +116,14 @@ nameServers = ["127.0.0.1:9876"]
 [pg.directory]
 # 数据文件目录，静态文件
 data = "data"
+
+# 模版 主题
+[pg.template]
+# 主题名称
+theme = "nisarg"
+# 后缀 例如 .html
+suffix = ".html"
+
+[pg.auth.loginEncrypt]
+# 默认加密
+default = true

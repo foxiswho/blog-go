@@ -2,26 +2,46 @@ package controller
 
 import (
 	"fmt"
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicArea"
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicArea"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(AreaController)).Name("ManageAreaController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // AreaController 省市区
 // @Description:
 type AreaController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
 	sv *service.BasicAreaService       `autowire:"?"`
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AreaController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/basic/area", authPg.GroupManageMiddleware(c.Sp))
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/exportExcel", c.ExportExcel)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
 }
 
 // Create 创建

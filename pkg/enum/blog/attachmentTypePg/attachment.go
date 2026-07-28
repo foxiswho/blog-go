@@ -1,6 +1,6 @@
 package attachmentTypePg
 
-import "github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 
 // 附件集  类型
 type Type string

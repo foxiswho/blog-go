@@ -3,33 +3,31 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/system/ram/model/modRamChannel"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamChannel"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
-	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
 	gs.Provide(new(RamChannelService)).Init(func(s *RamChannelService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -40,23 +38,48 @@ type RamChannelService struct {
 	log *log2.Logger                        `autowire:"?"`
 }
 
-// Create 新增
+// CreateUpdate 新增更新
 //
 //	@Description:
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamChannelService) Create(ctx *gin.Context, ct modRamChannel.CreateCt) (rt rg.Rs[string]) {
+func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
+	//
+	holder := holderPg.GetContextAccount(ctx)
+	//
 	var info entityRam.RamChannelEntity
 	copier.Copy(&info, &ct)
+	//
+	r := c.sv
+	//是否是更新
+	isUpdate := false
+	b := false
+	id := "0"
+	//
+	find := &entityRam.RamChannelEntity{}
+	//
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
-	if strPg.IsBlank(info.Code) {
-		info.Code = automatedPg.CREATE_CODE
+	if ct.ID.ToInt64() > 0 {
+		id = ct.ID.ToString()
+		isUpdate = true
+		///
+		find, b = r.FindById(ctx, ct.ID.ToInt64())
+		if !b {
+			return rt.ErrorMessage("数据不存在")
+		}
 	}
-	r := c.sv
+	if strPg.IsBlank(ct.Code) {
+		info.Code = automatedPg.CREATE_CODE
+	} else {
+		_, result := r.FindByCodeAndIdNot(ctx, info.Code, id, optionsPg.WithCtx(ctx))
+		if result {
+			return rt.ErrorMessage("标志已存在")
+		}
+	}
 	//判断是否是自动,不是自动
 	if !automatedPg.IsCreateCode(info.Code) {
 		//判断格式是否满足要求
@@ -64,63 +87,37 @@ func (c *RamChannelService) Create(ctx *gin.Context, ct modRamChannel.CreateCt) 
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code, repositoryPg.GetOption(ctx))
+		_, result := r.FindByCode(ctx, info.Code, optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
-	}
-	holder := holderPg.GetContextAccount(ctx)
-	info.TenantNo = holder.GetTenantNo()
-	info.No = noPg.No()
-	if automatedPg.IsCreateCode(info.Code) {
-		info.Code = info.No
-	}
-	c.log.Infof("info%+v", info)
-	err, _ := r.Create(&info)
-	if err != nil {
-		return rt.ErrorMessage("保存失败 " + err.Error())
-	}
-	c.log.Infof("save=%+v", info)
-	return rg.OkData(numberPg.Int64ToString(info.ID))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-//	@return rt
-func (c *RamChannelService) Update(ctx *gin.Context, ct modRamChannel.UpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
-	var info entityRam.RamChannelEntity
-	copier.Copy(&info, &ct)
-	r := c.sv
-	if ct.ID < 1 {
-		return rt.ErrorMessage("id错误")
-	}
-	if "" == ct.Name {
-		return rt.ErrorMessage("名称不能为空")
-	}
-	if strPg.IsBlank(ct.Code) {
-		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(info.Code, ct.ID.ToString(), repositoryPg.GetOption(ctx))
-		if result {
-			return rt.ErrorMessage("标志已存在")
-		}
+		info.Code = noPg.No()
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
-	if !b {
-		return rt.ErrorMessage("数据不存在")
+	if isUpdate {
+		info.ID = 0
+		info.No = ""
+	} else {
+		info.TenantNo = holder.GetTenantNo()
+		info.No = noPg.No()
+		info.State = enumStatePg.ENABLE.Index()
 	}
-	info.ID = 0
-	info.No = ""
+
 	c.log.Infof("info.save=%+v", info)
-	err := r.Update(info, find.ID)
-	if err != nil {
-		c.log.Errorf("update error=%+v", err)
-		return rt.ErrorMessage(err.Error())
+	if isUpdate {
+		err := r.Update(ctx, info, find.ID)
+		if err != nil {
+			c.log.Errorf("update error=%+v", err)
+			return rt.ErrorMessage(err.Error())
+		}
+	} else {
+		err, _ := r.Create(ctx, &info)
+		if err != nil {
+			return rt.ErrorMessage("保存失败 " + err.Error())
+		}
+		c.log.Infof("save=%+v", info)
 	}
+
 	return rt.Ok()
 }
 
@@ -133,7 +130,7 @@ func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamC
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -172,13 +169,13 @@ func (c *RamChannelService) State(ctx *gin.Context, ids []string, state enumStat
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamChannelEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamChannelEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -207,7 +204,7 @@ func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -215,13 +212,13 @@ func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt 
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamChannelEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamChannelEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -239,7 +236,7 @@ func (c *RamChannelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt 
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -247,7 +244,7 @@ func (c *RamChannelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt 
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamChannelEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamChannelEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -264,7 +261,7 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -274,7 +271,7 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -284,39 +281,31 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamChannel.Vo]]) {
+func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamChannel.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamChannel.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamChannelEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamChannelEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamChannel.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamChannel.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamChannel.Vo
@@ -331,33 +320,26 @@ func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (r
 	return rt.Ok()
 }
 
-// SelectNodePublic 查询
+// SelectNodeAll 查询
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamChannelService) SelectNodePublic(ctx *gin.Context, ct modRamChannel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamChannel.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
-			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
 			}
 			slice = append(slice, code)
 		}
@@ -377,47 +359,17 @@ func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChann
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamChannel.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:    item.No,
-				Id:     item.No,
-				No:     item.No,
+				Value:  item.No,
 				Label:  item.Name,
 				Extend: vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-			}
 			slice = append(slice, code)
-		}
-		rt.Data = slice
-	}
-	return rt.Ok()
-}
-
-// SelectPublic 查询
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamChannelService) SelectPublic(ctx *gin.Context, ct modRamChannel.QueryCt) (rt rg.Rs[[]modRamChannel.Vo]) {
-	c.log.Infof("ct=%+v", ct)
-	var query entityRam.RamChannelEntity
-	copier.Copy(&query, &ct)
-	rt.Data = []modRamChannel.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
-	if len(infos) > 0 {
-		slice := make([]modRamChannel.Vo, 0)
-		for _, item := range infos {
-			var vo modRamChannel.Vo
-			copier.Copy(&vo, &item)
-			slice = append(slice, vo)
 		}
 		rt.Data = slice
 	}
@@ -438,7 +390,7 @@ func (c *RamChannelService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[s
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -459,7 +411,7 @@ func (c *RamChannelService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[s
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

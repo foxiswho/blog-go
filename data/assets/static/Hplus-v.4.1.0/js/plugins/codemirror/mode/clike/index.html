@@ -90,7 +90,7 @@ void* zmq_thread_init(void* zmq_context, int signal_fd) {
   context->context = zmq_context;
   context->signal_fd = signal_fd;
   sem_init(&amp;context->sem, 1, 0);
-  pthread_create(&amp;thread, 0, &amp;zmq_thread, context);
+  pthread_Create(ctx, &amp;thread, 0, &amp;zmq_thread, context);
   pthread_detach(thread);
   return context;
 }

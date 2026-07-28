@@ -1,18 +1,19 @@
 package tcAccount
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumRam/enumAuthorizationTypePg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumRam/enumIdentityPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumRam/enumSexPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
-	"github.com/gin-gonic/gin"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumAuthorizationTypePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumIdentityPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumSexPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/pangu-2/go-tools/tools/noPg"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -58,7 +59,7 @@ func NewCreate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if strPg.IsBlank(ct.TenantNo) {
 		return rt.ErrorMessage("租户不能为空")
@@ -76,31 +77,31 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 		ct.Code = strPg.GetNanoid(10)
 	}
 	r := c.sp.accDb
-	_, ok := r.FindByTenantNoAccountAndTypeDomainAndIdNot(ct.TenantNo, ct.Account, tp.ToTypeDomain().String(), "0")
+	_, ok := r.FindByTenantNoAccountAndTypeDomainAndIdNot(ctx, ct.TenantNo, ct.Account, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("账户已存在")
 	}
-	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ct.Phone, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByPhoneAndTypeDomainAndIdNot(ctx, ct.Phone, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("手机号已存在")
 	}
-	_, ok = r.FindByMailAndTypeDomainAndIdNot(ct.Mail, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByMailAndTypeDomainAndIdNot(ctx, ct.Mail, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("邮箱已存在")
 	}
-	_, ok = r.FindByNoAndTypeDomainAndIdNot(ct.Code, tp.ToTypeDomain().String(), "0")
+	_, ok = r.FindByNoAndTypeDomainAndIdNot(ctx, ct.Code, tp.ToTypeDomain().String(), "0")
 	if ok {
 		return rt.ErrorMessage("编号已存在")
 	}
 	//
 	{
-		tenant, result := c.sp.tenDb.FindByNo(ct.TenantNo)
+		tenant, result := c.sp.tenDb.FindByNo(c.ctx, ct.TenantNo)
 		if !result {
 			return rt.ErrorMessage("租户不存在")
 		}
 		//查询创始人是否存在
 		if strPg.IsNotBlank(tenant.Founder) {
-			_, b := r.FindByNo(tenant.Founder)
+			_, b := r.FindByNo(c.ctx, tenant.Founder)
 			if b {
 				return rt.ErrorMessage("该租户已绑定创始人，不能重复设置")
 			}
@@ -147,7 +148,7 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 	c.entity.No = noPg.No()
 	c.entity.TenantNo = holder.GetTenantNo()
 	c.log.Infof("save=%#v", c.entity)
-	err, _ := r.Create(c.entity)
+	err, _ := r.Create(c.ctx, c.entity)
 	if err != nil {
 		return rt.ErrorMessage("创建用户失败")
 	}
@@ -158,7 +159,7 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 	}
 	//设置唯一值
 	authorizationEntity.KindUnique = utilsRam.AuthorizationKindUniquePasswordByEntity(authorizationEntity)
-	c.sp.authDb.Create(&authorizationEntity)
+	c.sp.authDb.Create(c.ctx, &authorizationEntity)
 	return rt.Ok()
 }
 
@@ -167,8 +168,8 @@ func (c *Create) accountCreate(ct modRamAccount.CreateAccountCt, tp appModulePg.
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) CreateAccount(ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	account := c.accountCreate(ct, tp)
+func (c *Create) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	account := c.accountCreate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -183,11 +184,11 @@ func (c *Create) CreateAccount(ct modRamAccount.CreateAccountCt, tp appModulePg.
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var ctAccount modRamAccount.CreateAccountCt
 	copier.Copy(&ctAccount, &ct)
-	account := c.accountCreate(ctAccount, tp)
+	account := c.accountCreate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -231,7 +232,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.depDb.FindAllByNoIn(ids)
+			infos, b := c.sp.depDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Departments = append(os.Departments, item.No)
@@ -253,7 +254,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.roleDb.FindAllByNoIn(ids)
+			infos, b := c.sp.roleDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Roles = append(os.Roles, item.No)
@@ -274,7 +275,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.levelDb.FindAllByNoIn(ids)
+			infos, b := c.sp.levelDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Levels = append(os.Levels, item.No)
@@ -295,7 +296,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.groupDb.FindAllByNoIn(ids)
+			infos, b := c.sp.groupDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Groups = append(os.Groups, item.No)
@@ -316,7 +317,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 			}
 		}
 		if len(ids) > 0 {
-			infos, b := c.sp.teamDb.FindAllByNoIn(ids)
+			infos, b := c.sp.teamDb.FindAllByNoIn(c.ctx, ids)
 			if b {
 				for _, item := range infos {
 					os.Teams = append(os.Teams, item.No)
@@ -332,7 +333,7 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 	entity.Os = datatypes.NewJSONType(os)
 	//
 	c.log.Infof("save=%#v", entity)
-	err := c.sp.accDb.Update(entity, c.entity.ID)
+	err := c.sp.accDb.Update(c.ctx, entity, c.entity.ID)
 	if err != nil {
 		return rt.ErrorMessage("创建用户失败")
 	}
@@ -348,5 +349,5 @@ func (c *Create) createAll(ct modRamAccount.CreateCt, tp appModulePg.AppModule) 
 //	@param tp
 //	@return rt
 func (c *Create) Process(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return c.createAll(ct, tp)
+	return c.createAll(ctx, ct, tp)
 }

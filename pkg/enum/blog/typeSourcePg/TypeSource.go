@@ -1,7 +1,7 @@
 package typeSourcePg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeSource 类型源|采集|手写

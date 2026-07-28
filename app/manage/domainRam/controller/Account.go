@@ -1,22 +1,29 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAccount"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
+
+func init() {
+	gs.Provide(new(AccountController).SetAppModule(appModulePg.Manage)).Name("ManageAccountController").Export(gs.As[routerPg.RouteRegistrar]())
+}
 
 // AccountController 账户
 // @Description:
 type AccountController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp        *authPg.GroupManageMiddlewareSp    `autowire:""`
 	sv        *service.RamAccountService         `autowire:"?"`
 	ap        *service.RamAccountPasswordService `autowire:"?"`
 	appModule appModulePg.AppModule
@@ -26,6 +33,33 @@ type AccountController struct {
 func (c *AccountController) SetAppModule(appModule appModulePg.AppModule) *AccountController {
 	c.appModule = appModule
 	return c
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *AccountController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/ram/account", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/updatePassword", c.UpdatePassword)
+	group.POST("/create", c.Create)
+	group.POST("/createAccount", c.CreateAccount)
+	group.POST("/update", c.Update)
+	group.POST("/updateAccount", c.UpdateAccount)
+	group.POST("/existAccount", c.ExistAccount)
+	group.POST("/existPhone", c.ExistPhone)
+	group.POST("/existMail", c.ExistMail)
+	group.POST("/existIdentityCode", c.ExistIdentityCode)
+	group.POST("/existRealName", c.ExistRealName)
 }
 
 // Detail 详情

@@ -4,28 +4,29 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBasic/model/modBasicTags"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTags"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BasicTagsService)).Init(func(s *BasicTagsService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -60,7 +61,7 @@ func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateCt) (r
 		return rt.ErrorMessage("分类不能为空")
 	}
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := c.categoryRep.FindByNo(ct.CategoryNo)
+		_, result := c.categoryRep.FindByNo(ctx, ct.CategoryNo)
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
@@ -76,7 +77,7 @@ func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateCt) (r
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sv.FindByCode(info.Code)
+		_, result := c.sv.FindByCode(ctx, info.Code)
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -88,7 +89,7 @@ func (c *BasicTagsService) Create(ctx *gin.Context, ct modBasicTags.CreateCt) (r
 		info.Code = info.No
 	}
 	c.log.Infof("info%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -119,7 +120,7 @@ func (c *BasicTagsService) Update(ctx *gin.Context, ct modBasicTags.UpdateCt) (r
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(info.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, info.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -128,19 +129,19 @@ func (c *BasicTagsService) Update(ctx *gin.Context, ct modBasicTags.UpdateCt) (r
 		return rt.ErrorMessage("分类不能为空")
 	}
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := c.categoryRep.FindByNo(ct.CategoryNo)
+		_, result := c.categoryRep.FindByNo(ctx, ct.CategoryNo)
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	info.ID = 0
 	info.No = ""
 	c.log.Infof("info.save=%+v", info)
-	err := r.Update(info, find.ID)
+	err := r.Update(ctx, info, find.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -157,7 +158,7 @@ func (c *BasicTagsService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBasic
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -194,13 +195,13 @@ func (c *BasicTagsService) State(ctx *gin.Context, ids []string, state enumState
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBasic.BasicTagsEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBasic.BasicTagsEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -229,7 +230,7 @@ func (c *BasicTagsService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -237,13 +238,13 @@ func (c *BasicTagsService) LogicalDeletion(ctx *gin.Context, ids []string) (rt r
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBasic.BasicTagsEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBasic.BasicTagsEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -262,7 +263,7 @@ func (c *BasicTagsService) LogicalRecovery(ctx *gin.Context, ids []string) (rt r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -270,7 +271,7 @@ func (c *BasicTagsService) LogicalRecovery(ctx *gin.Context, ids []string) (rt r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBasic.BasicTagsEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBasic.BasicTagsEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -287,7 +288,7 @@ func (c *BasicTagsService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -297,7 +298,7 @@ func (c *BasicTagsService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -307,36 +308,31 @@ func (c *BasicTagsService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicTagsService) Query(ctx *gin.Context, ct modBasicTags.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBasicTags.Vo]]) {
+func (c *BasicTagsService) Query(ctx *gin.Context, ct modBasicTags.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicTags.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityBasic.BasicTagsEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTags.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBasic.BasicTagsEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBasic.BasicTagsEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db = arg.Db.Order("create_at desc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBasicTags.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBasicTags.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBasicTags.Vo
@@ -361,7 +357,7 @@ func (c *BasicTagsService) SelectNodePublic(ctx *gin.Context, ct modBasicTags.Qu
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -382,7 +378,7 @@ func (c *BasicTagsService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicTags
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -404,7 +400,7 @@ func (c *BasicTagsService) SelectPublic(ctx *gin.Context, ct modBasicTags.QueryC
 	var query entityBasic.BasicTagsEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modBasicTags.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modBasicTags.Vo, 0)
 		for _, item := range infos {
@@ -430,7 +426,7 @@ func (c *BasicTagsService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[st
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -450,7 +446,7 @@ func (c *BasicTagsService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[st
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

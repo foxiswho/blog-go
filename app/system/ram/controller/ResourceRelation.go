@@ -1,38 +1,36 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/system/ram/model/modRamResourceRelation"
-	"github.com/foxiswho/blog-go/app/system/ram/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(ResourceRelationController)).Name("SystemResourceRelationController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// ResourceRelationController 资源关系
-// @Description:
 type ResourceRelationController struct {
+	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
 	sv  *service.RamResourceRelationService `autowire:"?"`
 	log *log2.Logger                        `autowire:"?"`
 }
 
+func (c *ResourceRelationController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/sys/ram/resource-relation", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/selected", c.Selected)
+}
+
 func (c *ResourceRelationController) Query(ctx *gin.Context) {
 	var ct modRamResourceRelation.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
@@ -53,17 +51,9 @@ func (c *ResourceRelationController) SelectPublic(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 
-// Selected 已选中的权限
 func (c *ResourceRelationController) Selected(ctx *gin.Context) {
 	var ct modRamResourceRelation.QuerySelectedCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Selected(ctx, ct.Code))

@@ -1,8 +1,10 @@
 package attachment
 
 import (
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
+	"context"
+
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 )
 
 // Create 附件创建
@@ -28,8 +30,8 @@ func NewCreate(dao *repositoryBasic.BasicAttachmentRepository, entity entityBasi
 //	@receiver c
 //	@param ctx
 //	@return error
-func (c *Create) Processor() error {
+func (c *Create) Processor(ctx context.Context) error {
 	c.entity.ID = 0
-	c.dao.Create(&c.entity)
+	c.dao.Create(ctx, &c.entity)
 	return nil
 }

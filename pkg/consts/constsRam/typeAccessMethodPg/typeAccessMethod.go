@@ -1,7 +1,7 @@
 package typeAccessMethodPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeAccessMethod 类型;控制台;api

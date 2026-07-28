@@ -8,7 +8,7 @@ import (
 type BasicAttachmentEntity struct {
 	ID            int64      `gorm:"column:id;type:bigserial;primaryKey;autoIncrement:true" json:"id" comment:"" `
 	Name          string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `
-	SourceName    string     `gorm:"column:source_name;type:varchar(255);comment:原始名称" json:"source_name" comment:"原始名称" `
+	OriginalName  string     `gorm:"column:original_name;type:varchar(255);comment:原始名称" json:"original_name" comment:"原始名称" `
 	State         int8       `gorm:"column:state;type:int2;not null;index;default:1;comment:1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" json:"state" comment:"1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" ` // 1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)
 	Description   string     `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
 	CreateAt      *time.Time `gorm:"column:create_at;type:timestamptz;index;autoCreateTime;default:current_timestamp;comment:创建时间" json:"create_at" comment:"创建时间" `
@@ -36,7 +36,10 @@ type BasicAttachmentEntity struct {
 	Client        string     `gorm:"column:client;type:varchar(80);index;comment:客户端" json:"client" comment:"客户端" `
 	ProtocolSpace string     `gorm:"column:protocol_space;type:varchar(80);index;comment:协议空间" json:"protocol_space" comment:"协议空间" `
 	FileOwner     string     `gorm:"column:file_owner;type:varchar(80);index;comment:拥有者" json:"file_owner" comment:"拥有者/文件属于谁" `
-	TypeData      string     `gorm:"column:type_data;type:jsonb;comment:类型数据" json:"type_data" comment:"类型数据/源/复制" `
+	FileOwnerSub  string     `gorm:"column:file_owner_sub;type:varchar(80);index;comment:子类型" json:"file_owner_sub" comment:"子类型" `
+	FileOwnerCopy string     `gorm:"column:file_owner_copy;type:varchar(80);index;comment:拥有者源" json:"file_owner_copy" comment:"拥有者源" `
+	TypeData      string     `gorm:"column:type_data;type:varchar(80);comment:类型数据" json:"type_data" comment:"类型数据/源/复制" `
+	RefNo         string     `gorm:"column:ref_no;type:varchar(80);comment:关联业务号" json:"ref_no" comment:"关联业务号" `
 }
 
 func (*BasicAttachmentEntity) TableName() string {

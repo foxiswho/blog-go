@@ -1,7 +1,7 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 // UpdateDataCt
@@ -19,13 +19,14 @@ type UpdateDataCt struct {
 	TypeDomain   string           `json:"typeDomain" label:"域类型" `              // 域类型
 	TypeIdentity string           `json:"typeIdentity" label:"身份类型;普通;经理;副经理" ` // 身份类型;普通;经理;副经理
 	Description  string           `json:"description" label:"描述" `              // 描述
-	Position     string           `json:"position" label:"岗位" `
-	Job          string           `json:"job" label:"职位" `
+	JobFunction  string           `json:"jobFunction" label:"职务" `
+	Post         string           `json:"post" label:"岗位" `
+	Position     string           `json:"position" label:"职位" `
 	JobTitle     string           `json:"jobTitle" label:"职衔" `
 	JobRank      string           `json:"jobRank" label:"职级" `
 	Avatar       string           `json:"avatar" label:"头像" `
 	Birthday     *typePg.DateOnly `json:"birthday" label:"生日" `
-	Sex          string           `json:"sex" label:"性别1男2女3未知" `
+	Sex          string           `json:"sex" label:"性别:男;女;未知" `
 	IdentityCode string           `json:"identityCode" label:"身份编号 "`
 
 	//MailVerify       jsonPg.Int8        `json:"mailVerify" label:"邮箱验证1是2否" `                           // 邮箱验证1是2否

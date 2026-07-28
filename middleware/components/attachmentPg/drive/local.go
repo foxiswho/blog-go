@@ -9,14 +9,14 @@ import (
 	"strings"
 
 	"github.com/farseer-go/eventBus"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/modAttachment"
-	"github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
-	_ "github.com/foxiswho/blog-go/middleware/components/attachmentPg/types"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/h2non/filetype"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
+	_ "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -27,8 +27,9 @@ var _ types.FileProvider = (*Local)(nil)
 // Local 本地文件上传
 // @Description:
 type Local struct {
-	pg  configPg.Pg  `value:"${pg}"`
-	log *log2.Logger `autowire:"?"`
+	pg     configPg.Pg     `value:"${pg}"`
+	server configPg.Server `value:"${server}"`
+	log    *log2.Logger    `autowire:"?"`
 }
 
 func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAttachment.Ext) (modAttachment.Attachment, error) {
@@ -41,7 +42,10 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		fileSuffix = strPg.Replace(fileSuffix, "?", "")
 	}
 	attachmentCfg := s.pg.Attachment
-
+	domain := attachmentCfg.Domain
+	if strPg.IsBlank(domain) {
+		domain = s.server.Domain
+	}
 	//修改为正确后缀
 	if strings.Contains(fileSuffix, "awebp") {
 		fileSuffix = strPg.Replace(fileSuffix, "awebp", "webp")
@@ -51,16 +55,16 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 	//md5
 	fileNewName := datetimePg.NowNotFormat() + "-" + cryptPg.Md5(filenameOnly) + fileSuffix
 	attachment := modAttachment.Attachment{
-		SourceName: put.Name,
-		Name:       fileNewName,
-		Size:       put.Size,
-		Ext:        fileSuffix,
-		Domain:     attachmentCfg.Domain,
+		OriginalName: put.Name,
+		Name:         fileNewName,
+		Size:         put.Size,
+		Ext:          fileSuffix,
+		Domain:       domain,
 	}
 	out := path.Join(attachmentCfg.Dir, datetimePg.YearMonth(), fileNewName)
 	out_root := out
 	//是否存在跟目录
-	if strPg.IsNotBlank(attachmentCfg.Domain) {
+	if strPg.IsNotBlank(attachmentCfg.DirRoot) {
 		out_root = path.Join(attachmentCfg.DirRoot, out)
 		if s.ExistsObject(out_root) {
 			return attachment, errors.New("文件已存在，请勿重复上传")
@@ -90,7 +94,7 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 		out = "/" + out
 	}
 	attachment.File = out
-	attachment.Url = out
+	attachment.Url = domain + out
 	_, err = io.Copy(dst, r)
 	if err != nil {
 		s.log.Errorf("err=%+v\n", err)
@@ -111,17 +115,18 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 
 	//保存到数据库
 	eventBus.PublishEventAsync(constEventBusPg.BasicAttachmentCreate, entityBasic.BasicAttachmentEntity{
-		Name:        attachment.Name,
-		SourceName:  attachment.SourceName,
-		Description: attachment.Description,
-		Sort:        attachment.Sort,
-		Size:        attachment.Size,
-		Module:      attachment.Module,
+		Name:         attachment.Name,
+		OriginalName: attachment.OriginalName,
+		Description:  attachment.Description,
+		Sort:         attachment.Sort,
+		Size:         attachment.Size,
+		Module:       attachment.Module,
 		//Value:         attachment.Value,
 		Tag:           attachment.Tag,
 		Label:         attachment.Label,
 		File:          attachment.File,
 		Domain:        attachment.Domain,
+		Url:           attachment.Url,
 		No:            attachment.No,
 		Method:        attachment.Method,
 		Ext:           attachment.Ext,

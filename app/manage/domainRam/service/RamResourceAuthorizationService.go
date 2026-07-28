@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamResourceRelation"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 	"time"
@@ -24,7 +24,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamResourceAuthorizationService)).Init(func(s *RamResourceAuthorizationService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -50,7 +50,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 	if ct.SourceId <= 0 {
 		return rt.ErrorMessage("资源组id不能为空")
 	}
-	source, b := c.resourceGroup.FindByIdString(ct.SourceId.ToString())
+	source, b := c.resourceGroup.FindByIdString(ctx, ct.SourceId.ToString())
 	if !b {
 		return rt.ErrorMessage("资源组 不存在")
 	}
@@ -60,12 +60,12 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 	}
 	c.log.Infof("authPg=%+v", auth)
 	holder := holderPg.GetContextAccount(ctx)
-	c.resourceRel.DeleteByAuthorityId(auth.ID)
+	c.resourceRel.DeleteByAuthorityId(ctx, auth.ID)
 	if len(ct.Ids) > 0 {
-		c.resourceRel.DeleteByAuthorityId(auth.ID)
+		c.resourceRel.DeleteByAuthorityId(ctx, auth.ID)
 		now := time.Now()
 		//增加权限
-		infos, b := c.resource.FindAllByIdStringIn(ct.Ids)
+		infos, b := c.resource.FindAllByIdStringIn(ctx, ct.Ids)
 		if !b {
 			slice := make([]*entityRam.RamResourceRelationEntity, 0)
 			//保存数据库
@@ -90,7 +90,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 				info.ResourceId = item.ID
 				c.log.Infof("info%+v", info)
 				info.TenantNo = holder.GetTenantNo()
-				c.resourceRel.Create(&info)
+				c.resourceRel.Create(ctx, &info)
 				c.log.Infof("save=%+v", info)
 
 				slice = append(slice, &info)
@@ -108,11 +108,11 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 // Delete 删除
 func (c *RamResourceAuthorizationService) Delete(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
-		c.resourceAuth.DeleteByMark(code)
+		c.resourceAuth.DeleteByMark(ctx, code)
 		//删除 资源与授权id关系
-		c.resourceRel.DeleteByAuthorityId(info.ID)
+		c.resourceRel.DeleteByAuthorityId(ctx, info.ID)
 		//删除 casbin 内权限规则
 		c.casbin.ClearCasbin(int(info.ID))
 	}
@@ -123,12 +123,12 @@ func (c *RamResourceAuthorizationService) Delete(ctx *gin.Context, code string) 
 // AuthorityValid 设置授权id 有效
 func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
 		//设置有效
-		c.resourceAuth.Update(entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
+		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.ENABLE.Index()}, info.ID)
 		//删除 资源与授权id关系
-		infos := c.resourceRel.FindAll(entityRam.RamResourceRelationEntity{Mark: code})
+		infos := c.resourceRel.FindAll(ctx, entityRam.RamResourceRelationEntity{Mark: code})
 		//保存到 casbin
 		c.casbin.UpdateCasbin(numberPg.Int64ToString(info.ID), infos)
 	}
@@ -139,10 +139,10 @@ func (c *RamResourceAuthorizationService) AuthorityValid(ctx *gin.Context, code 
 // AuthorityInValid 设置授权id 无效
 func (c *RamResourceAuthorizationService) AuthorityInValid(ctx *gin.Context, code string) {
 	//删除授权id
-	info, result := c.resourceAuth.FindByMark(code)
+	info, result := c.resourceAuth.FindByMark(ctx, code)
 	if result {
 		//设置无效
-		c.resourceAuth.Update(entityRam.RamResourceAuthorityEntity{State: enumStatePg.DISABLE.Index()}, info.ID)
+		c.resourceAuth.Update(ctx, entityRam.RamResourceAuthorityEntity{State: enumStatePg.DISABLE.Index()}, info.ID)
 		//保存到 casbin ，直接清空规则
 		c.casbin.ClearCasbin(int(info.ID))
 	}

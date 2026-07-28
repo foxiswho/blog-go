@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/passwordTypePg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -23,7 +23,7 @@ import (
 
 func init() {
 	gs.Provide(NewTcTenantAccountPasswordService).Init(func(s *TcTenantAccountPasswordService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -53,7 +53,7 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 		return rt.ErrorMessage("密码不能为空")
 	}
 	r := c.sv
-	info, b := r.FindByIdAndTypeDomain(ct.ID.ToInt64(), tp.ToTypeDomain().String())
+	info, b := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -63,7 +63,7 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 	entity.ExtraData = strPg.GetNanoid(8)
 	entity.Value = userPg.PasswordSalt(ct.PasswordNew, entity.ExtraData)
 	//
-	passwd, b := r2.FindByTypePasswordANo(info.No)
+	passwd, b := r2.FindByTypePasswordANo(ctx, info.No)
 	if !b {
 		//密码不存在，则创建
 		entity.Ano = info.No
@@ -71,9 +71,9 @@ func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct mod
 		entity.Type = passwordTypePg.Password.String()
 		//设置唯一值
 		entity.KindUnique = utilsRam.AuthorizationKindUniquePasswordByEntity(entity)
-		r2.Create(&entity)
+		r2.Create(ctx, &entity)
 	} else {
-		r2.Update(entity, passwd.ID)
+		r2.Update(ctx, entity, passwd.ID)
 	}
 	return rt.Ok()
 }

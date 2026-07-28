@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/duke-git/lancet/v2/datetime"
-	"github.com/go-spring/log"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"gorm.io/gorm"
 )
 

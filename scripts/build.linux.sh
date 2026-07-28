@@ -10,9 +10,9 @@ version="v0.0.1"
 GitCommit=hhhhhh
 COMPACT_TS=$(date +"%Y%m%d%H%M%S")
 
-ldflags='-s -w -extldflags "-static" -X "main.UserName=" -X "github.com/foxiswho/blog-go/cmd.BuildVersion='${version}'" '
-ldflags=${ldflags}' -X "github.com/foxiswho/blog-go/cmd.BuildGitCommit='${GitCommit}'" '
-ldflags=${ldflags}' -X "github.com/foxiswho/blog-go/cmd.BuildTime='${COMPACT_TS}'" '
+ldflags='-s -w -extldflags "-static" -X "main.UserName=" -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildVersion='${version}'" '
+ldflags=${ldflags}' -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildGitCommit='${GitCommit}'" '
+ldflags=${ldflags}' -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildTime='${COMPACT_TS}'" '
 
 #echo ${ldflags}
 

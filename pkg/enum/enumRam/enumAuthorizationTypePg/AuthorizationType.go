@@ -1,7 +1,7 @@
 package enumAuthorizationTypePg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // AuthorizationType 密码/pin码/双因子码/openid

@@ -39,7 +39,7 @@ type RamPersonEntity struct {
 	Avatar           string     `gorm:"column:avatar;type:varchar(255);comment:头像" json:"avatar" comment:"头像" `
 	Roles            string     `gorm:"column:roles;type:text;comment:岗位" json:"roles" comment:"岗位" `
 	Birthday         *time.Time `gorm:"column:birthday;type:date;comment:生日" json:"birthday" comment:"生日" `
-	Sex              int64      `gorm:"column:sex;type:int2;index;default:1;comment:性别1男2女3未知" json:"sex" comment:"性别1男2女3未知" `
+	Sex              int64      `gorm:"column:sex;type:int2;index;default:1;comment:性别:男;女;未知" json:"sex" comment:"性别:男;女;未知" `
 }
 
 // TableName RamPersonEntity's table name

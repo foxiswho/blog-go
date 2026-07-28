@@ -3,9 +3,9 @@ package data
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/event/ram/service/accountDomainInit"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	syslog "github.com/go-spring/log"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/ram/service/accountDomainInit"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	_ "go-spring.org/spring/gs"
 )
 
 // ZInitAccountAdmin
@@ -15,8 +15,8 @@ type ZInitAccountAdmin struct {
 	sp  *accountDomainInit.Sp `autowire:"?"`
 }
 
-func (b *ZInitAccountAdmin) Run() error {
-	syslog.Infof(context.Background(), syslog.TagAppDef, "[init].[超管账号初始化]===================")
+func (b *ZInitAccountAdmin) Run(ctx context.Context) error {
+	b.log.Infof("[init].[超管账号初始化]===================")
 	accountDomainInit.NewInitAccount(b.log, b.sp).Processor(context.Background())
 	return nil
 }

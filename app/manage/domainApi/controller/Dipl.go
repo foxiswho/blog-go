@@ -2,30 +2,51 @@ package controller
 
 import (
 	"fmt"
-	"github.com/foxiswho/blog-go/app/manage/domainApi/model/modApiDipl"
-	"github.com/foxiswho/blog-go/app/manage/domainApi/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
-	"github.com/foxiswho/blog-go/pkg/model"
-
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/model/modApiDipl"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(DiplController)).Name("ManageDiplController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // DiplController 外交官
 // @Description:
 type DiplController struct {
+	routerPg.RouteRegistrar
 	controllerPg.SpManageAuth
 	sv  *service.ApiDiplService `autowire:"?"`
 	log *log2.Logger            `autowire:"?"`
+}
+
+func (c *DiplController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/api/dipl", authPg.GroupManageMiddleware(c.Sp))
+	group.POST("/create", c.Create)
+	group.POST("/update", c.Update)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/state", c.State)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectPublic", c.SelectPublic)
+	group.POST("/selectNodePublic", c.SelectNodePublic)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
 }
 
 // Create 创建

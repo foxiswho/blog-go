@@ -3,22 +3,22 @@ package repositoryRam
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 )
 
 func init() {
 	gs.Provide(new(RamResourceRepository)).Init(func(s *RamResourceRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[RamResourceRepository])).Init(func(s *support.BaseService[RamResourceRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -27,8 +27,8 @@ type RamResourceRepository struct {
 	//
 }
 
-func (c *RamResourceRepository) FindByParentId(code int64) (info *entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("parent_id=?", code).First(&info)
+func (c *RamResourceRepository) FindByParentNoRoot(ctx context.Context) (info []*entityRam.RamResourceEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("parent_no='' or parent_no is null ").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -39,32 +39,8 @@ func (c *RamResourceRepository) FindByParentId(code int64) (info *entityRam.RamR
 	return info, true
 }
 
-func (c *RamResourceRepository) FindAllByIdLink(code string) (info []entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("id_link like ?", "%"+code+"%").Find(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamResourceRepository) FindByNameAndIdNot(name string, id int64) (info *entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("name=?", name).Where("id <> ?", id).First(&info)
-	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
-		return nil, false
-	}
-	if 0 == tx.RowsAffected {
-		return nil, false
-	}
-	return info, true
-}
-
-func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResourceEntity, result bool) {
-	tx := c.Db().Where("parent_id='' ").Find(&info)
+func (c *RamResourceRepository) FindByParentIdRoot(ctx context.Context) (info []*entityRam.RamResourceEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("parent_id='' ").Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -82,8 +58,8 @@ func (c *RamResourceRepository) FindByParentIdRoot() (info []*entityRam.RamResou
 //	@param pid
 //	@return info
 //	@return result
-func (c *RamResourceRepository) CountByParentIdString(pid string) (total int64, result bool) {
-	tx := c.Db().Where("parent_id= ? ", pid).Count(&total)
+func (c *RamResourceRepository) CountByParentIdString(ctx context.Context, pid string) (total int64, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("parent_id= ? ", pid).Count(&total)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return 0, false

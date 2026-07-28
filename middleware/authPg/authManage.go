@@ -5,27 +5,27 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/components/authTokenPg"
-	"github.com/foxiswho/blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constContextPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
-	"github.com/foxiswho/blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constContextPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/convPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 // 验证 ownerCode 必填
 var managerUrlPaths = make([]string, 0)
 
 func init() {
-	gs.Object(&GroupManageMiddlewareSp{})
+	gs.Provide(&GroupManageMiddlewareSp{})
 	//商品模块
 	managerUrlPaths = append(managerUrlPaths, "manage/gc")
 }
@@ -42,6 +42,7 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader(constHeaderPg.HeaderAuthorization)
 		if !strPg.IsBlank(token) {
+			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			var payload map[string]interface{}
 			unverified, b := authTokenPg.ParseUnverified(token)
 			if b {
@@ -62,16 +63,16 @@ func GroupManageMiddleware(m *GroupManageMiddlewareSp) gin.HandlerFunc {
 				m.log.Debugf("[中间件].payload= %+v", payload)
 			}
 			m.log.Debugf("[中间件].tenantNo= %+v", tenantNo)
-			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.KeyManage(tenantNo))
+			//密钥
+			get, b := cacheAuthPubPrivPg.Get(cacheAuthPubPrivPg.AccessTokenKeyManage(tenantNo))
 			if !b {
 				c.JSON(200, rg.Error[string]("密钥不存在"))
 				c.Abort()
 				return
 			}
-			token = strings.Replace(token, authTokenPg.AuthScheme+" ", "", -1)
 			t, r := authTokenPg.VerifyByPublicKey(get.Public, token)
 			if r.ErrorIs() {
-				syslog.Debugf(context.Background(), syslog.TagAppDef, "JWT= %+v", r)
+				log.Debugf(context.Background(), log.TagAppDef, "JWT= %+v", r)
 				c.JSON(200, r)
 				c.Abort()
 				return

@@ -6,30 +6,30 @@ import (
 	"strings"
 	"time"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamAppAccessKey"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppAccessKey"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
 
 func init() {
 	gs.Provide(new(RamAppAccessKeyService)).Init(func(s *RamAppAccessKeyService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -65,7 +65,7 @@ func (c *RamAppAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseId
 	save.Secret = strPg.GetNanoid(20)
 	save.ExpiryDate = &add
 	save.KindUnique = userPg.SaltMake(save.Key, save.Secret+save.ExpiryDate.String())
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Error("", err)
 		return rt.ErrorMessage("保存失败")
@@ -120,7 +120,7 @@ func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt
 		return rt.ErrorMessage("状态错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -141,7 +141,7 @@ func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.UpdateAllByAppNoAndNoSetState(no, numberPg.Int64ToString(info.ID), state.IndexInt8())
+			r.UpdateAllByAppNoAndNoSetState(ctx, no, numberPg.Int64ToString(info.ID), state.IndexInt8())
 		}
 	}
 	return rt.Ok()
@@ -167,7 +167,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -175,13 +175,13 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamAppAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamAppAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -199,7 +199,7 @@ func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string)
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -207,7 +207,7 @@ func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string)
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamAppAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamAppAccessKeyEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -224,7 +224,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -234,7 +234,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -244,39 +244,31 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamAppAccessKey.Vo]]) {
+func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppAccessKey.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAppAccessKeyEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAppAccessKeyEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAppAccessKeyEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAppAccessKey.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAppAccessKey.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamAppAccessKey.Vo
@@ -303,13 +295,12 @@ func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAcce
 	if strPg.IsBlank(ct.AppNo) {
 		query.AppNo = "-1"
 	}
-	var con repositoryPg.Condition = func(db *gorm.DB) *gorm.DB {
-		db = db.Order("create_at desc")
-		return db
-	}
 	slice := make([]modRamAppAccessKey.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, con, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		db = db.Order("create_at desc")
+		return db
+	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamAppAccessKey.Vo

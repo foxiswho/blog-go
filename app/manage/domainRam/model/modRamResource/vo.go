@@ -1,15 +1,16 @@
 package modRamResource
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
 	"time"
+
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type Vo struct {
 	ID          typePg.Uint64String `json:"id" label:"id" `
 	Name        string              `json:"name" label:"名称" `     // 名称
 	NameFl      string              `json:"nameFl" label:"名称外文" ` // 名称外文
-	Code        string              `json:"code" label:"标志" `
+	Code        string              `json:"code" label:"码值" `
 	NameFull    string              `json:"nameFull" label:"全称" `                                 // 全称
 	State       typePg.Int8         `json:"state" label:"1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" ` // 1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)
 	Description string              `json:"description" label:"描述" `                              // 描述

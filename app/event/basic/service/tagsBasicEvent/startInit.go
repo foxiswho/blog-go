@@ -2,10 +2,10 @@ package tagsBasicEvent
 
 import (
 	"context"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"strings"
 )
@@ -30,7 +30,7 @@ func (c *StartInit) Processor(ctx context.Context) error {
 	t := entityBasic.BasicTagsRelationEntity{
 		State: enumStatePg.ENABLE.Index(),
 	}
-	infos := c.sp.TagRela.FindAll(t)
+	infos := c.sp.TagRela.FindAll(ctx, t)
 	if nil != infos && len(infos) > 0 {
 		data := make(map[string]interface{})
 		for _, item := range infos {

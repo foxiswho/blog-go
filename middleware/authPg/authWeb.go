@@ -3,17 +3,17 @@ package authPg
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainTc/model/cacheTc"
-	"github.com/foxiswho/blog-go/pkg/configPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constHeaderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/cacheTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Object(&GroupWebMiddlewareSp{})
+	gs.Provide(&GroupWebMiddlewareSp{})
 }
 
 // 中间件 服务
@@ -35,14 +35,16 @@ func GroupWebMiddleware(m *GroupWebMiddlewareSp) gin.HandlerFunc {
 		}
 		//本地域名
 		if m.domain.IsLocalHostExist(c.Request.Host) {
-			val = ""
+			val = "1000"
 		}
 		// 指定域名
 		if m.domain.IsServerHostExist(c.Request.Host, m.server) {
-			val = ""
+			val = "1000"
 		}
-		syslog.Infof(context.Background(), syslog.TagAppDef, "租户.no => %+v", val)
+		log.Infof(context.Background(), log.TagAppDef, "租户.no => %+v", val)
 		c.Set(constHeaderPg.WebTenantNo, val)
+		c.Set(constHeaderPg.WebTemplatePg, m.pg)
+		c.Set(constHeaderPg.WebTemplatePgServer, m.server)
 		c.Next()
 	}
 }

@@ -1,21 +1,31 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
-	"github.com/foxiswho/blog-go/app/system/tc/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
+
+func init() {
+	gs.Provide(new(TenantAccountController).SetAppModule(appModulePg.Manage)).
+		Name("SystemTenantAccountController").
+		Export(gs.As[routerPg.RouteRegistrar]())
+}
 
 // TenantAccountController 账户
 // @Description:
 type TenantAccountController struct {
+	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
 	sv        *service.TcTenantAccountService         `autowire:"?"`
 	ap        *service.TcTenantAccountPasswordService `autowire:"?"`
@@ -23,9 +33,41 @@ type TenantAccountController struct {
 	log       *log2.Logger `autowire:"?"`
 }
 
+// SetAppModule 设置应用模块
+//
+//	@Description:
+//	@receiver c
+//	@param appModule
+//	@return *TenantAccountController
 func (c *TenantAccountController) SetAppModule(appModule appModulePg.AppModule) *TenantAccountController {
 	c.appModule = appModule
 	return c
+}
+
+// RegisterRoutes 注册路由
+//
+//	@Description:
+//	@receiver c
+//	@param e
+func (c *TenantAccountController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/sys/tc/tenant-account", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/updatePassword", c.UpdatePassword)
+	group.POST("/create", c.Create)
+	group.POST("/createAccount", c.CreateAccount)
+	group.POST("/update", c.Update)
+	group.POST("/updateAccount", c.UpdateAccount)
+	group.POST("/existAccount", c.ExistAccount)
+	group.POST("/existPhone", c.ExistPhone)
+	group.POST("/existMail", c.ExistMail)
+	group.POST("/existIdentityCode", c.ExistIdentityCode)
+	group.POST("/existRealName", c.ExistRealName)
 }
 
 // Detail 详情

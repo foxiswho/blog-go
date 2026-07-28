@@ -3,21 +3,21 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamMenu"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMenu"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -31,7 +31,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamMenuService)).Init(func(s *RamMenuService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -70,7 +70,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByCode(info.Code)
+		_, result := r.FindByCode(ctx, info.Code)
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -78,7 +78,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 	parent := &entityRam.RamMenuEntity{}
 	result := false
 	if strPg.IsNotBlank(ct.ParentNo) {
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -100,7 +100,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 		info.Code = strPg.GenerateNumberId22()
 	}
 	c.log.Infof("info=%+v", info)
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -116,7 +116,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 		info.ParentId = ""
 		info.ParentNo = ""
 	}
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
@@ -150,12 +150,12 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 	if strPg.IsBlank(ct.Code) {
 		info.Code = ""
 	} else {
-		_, result := r.FindByCodeAndIdNot(ct.Code, ct.ID.ToString())
+		_, result := r.FindByCodeAndIdNot(ctx, ct.Code, ct.ID.ToString())
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
 	}
-	find, b := r.FindById(ct.ID.ToInt64())
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -164,7 +164,7 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 	var childData []*entityRam.RamMenuEntity
 	if strPg.IsNotBlank(ct.ParentNo) {
 		result := false
-		parent, result = r.FindByNo(ct.ParentNo)
+		parent, result = r.FindByNo(ctx, ct.ParentNo)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -174,7 +174,7 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if parent.No != find.ParentNo {
 			result2 := false
-			childData, result2 = r.FindAllByNoLink(find.IdLink)
+			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -210,7 +210,7 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 	info.No = ""
 	c.log.Infof("info.IdLink=%+v", info.IdLink)
 	//
-	err = r.Update(info, info.ID)
+	err = r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
@@ -235,7 +235,7 @@ func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg
 				if item.ID == find.ID {
 					continue
 				}
-				r.Update(entityRam.RamMenuEntity{IdLink: item.IdLink}, item.ID)
+				r.Update(ctx, entityRam.RamMenuEntity{IdLink: item.IdLink}, item.ID)
 			}
 		}
 		maps = nil
@@ -262,7 +262,7 @@ func (c *RamMenuService) childParentIdLink(maps map[string][]*entityRam.RamMenuE
 //	@receiver c
 func (c *RamMenuService) CacheOverride(ctx *gin.Context) {
 	r := c.sv
-	infos, b := r.FindAllData()
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}
@@ -280,7 +280,7 @@ func (c *RamMenuService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityRam.RamMenuEntity{IdLink: item.IdLink}, item.ID)
+			r.Update(ctx, entityRam.RamMenuEntity{IdLink: item.IdLink}, item.ID)
 		}
 	}
 	maps = nil
@@ -295,7 +295,7 @@ func (c *RamMenuService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamMenu
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -314,13 +314,13 @@ func (c *RamMenuService) Delete(ctx *gin.Context, ct model.BaseIdsCt[string]) (r
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ct.Ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ct.Ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		c.log.Infof("id=%v,TenantId=%v", info.ID, "")
-		r.DeleteById(info.ID)
+		r.DeleteById(ctx, info.ID)
 	}
 	return rt.Ok()
 }
@@ -353,13 +353,13 @@ func (c *RamMenuService) State(ctx *gin.Context, ids []string, state enumStatePg
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamMenuEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamMenuEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -388,7 +388,7 @@ func (c *RamMenuService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -396,13 +396,13 @@ func (c *RamMenuService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, "")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamMenuEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamMenuEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -421,7 +421,7 @@ func (c *RamMenuService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -429,7 +429,7 @@ func (c *RamMenuService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamMenuEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamMenuEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -446,7 +446,7 @@ func (c *RamMenuService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -456,7 +456,7 @@ func (c *RamMenuService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -466,43 +466,35 @@ func (c *RamMenuService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamMenuService) Query(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamMenu.Vo]]) {
+func (c *RamMenuService) Query(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamMenu.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamMenuEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamMenuEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("name,create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("name,create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			p.Condition.Where("parent_id !='' ")
+			arg.Db = arg.Db.Where("parent_id !='' ")
 		}
-	})
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamMenu.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamMenu.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamMenu.Vo
@@ -522,43 +514,35 @@ func (c *RamMenuService) Query(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.R
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamMenu.Vo]]) {
+func (c *RamMenuService) QueryPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamMenu.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamMenuEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamMenuEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamMenuEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
-			if c.PageSize < 1 {
-				c.PageSize = 20
-			}
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("name,create_at desc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("name,create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
 		//是否读取全部
 		if !ct.ALL {
-			p.Condition.Where("parent_id !='' ")
+			arg.Db = arg.Db.Where("parent_id !='' ")
 		}
-	})
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamMenu.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamMenu.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamMenu.Vo
@@ -584,26 +568,18 @@ func (c *RamMenuService) SelectNodePublic(ctx *gin.Context, ct modRamMenu.QueryP
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -622,26 +598,18 @@ func (c *RamMenuService) SelectNodeAllPublic(ctx *gin.Context, ct modRamMenu.Que
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
-				Key:      item.No,
-				Id:       item.No,
-				No:       item.No,
+				Value:    item.No,
 				Label:    item.Name,
 				ParentNo: item.ParentNo,
-				ParentId: item.ParentNo,
 				Extend:   vo,
 			}
-			//编码
-			if !enumParameterPg.NodeQueryByNo.IsEqual(ct.By) {
-				code.Key = numberPg.Int64ToString(item.ID)
-				code.Id = code.Key
-				code.ParentId = item.ParentId
-			}
+
 			slice = append(slice, code)
 		}
 		rt.Data = slice
@@ -660,7 +628,7 @@ func (c *RamMenuService) SelectPublic(ctx *gin.Context, ct modRamMenu.QueryCt) (
 	copier.Copy(&query, &ct)
 	slice := make([]modRamMenu.Vo, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamMenu.Vo
@@ -682,7 +650,11 @@ func (c *RamMenuService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByNameAndIdNot(ct.Wd, numberPg.StrToInt64(ct.Id))
+	id := "0"
+	if strPg.IsNotBlank(ct.Id) {
+		id = ct.Id
+	}
+	_, result := c.sv.FindByNameAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -703,7 +675,7 @@ func (c *RamMenuService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[stri
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.sv.FindByCodeAndIdNot(ct.Wd, id)
+	_, result := c.sv.FindByCodeAndIdNot(ctx, ct.Wd, id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

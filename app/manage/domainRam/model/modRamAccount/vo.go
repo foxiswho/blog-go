@@ -1,7 +1,7 @@
 package modRamAccount
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type Vo struct {
@@ -45,5 +45,5 @@ type Vo struct {
 	LevelNoName      string `json:"levelNoName" label:"级别"`
 	GroupNoName      string `json:"groupNoName" label:"组"`
 	PositionName     string `json:"positionName" label:"岗位"`
-	JobName          string `json:"jobName" label:"职位"`
+	PostName         string `json:"postName" label:"职位"`
 }

@@ -1,7 +1,7 @@
 package menuTypePg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // MenuType 菜单资源关系类型

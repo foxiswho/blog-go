@@ -1,8 +1,11 @@
 package data
 
 import (
+	"context"
 	"fmt"
-	"github.com/foxiswho/blog-go/pkg/configPg"
+
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
+	_ "go-spring.org/spring/gs"
 )
 
 // ZzBootstrap
@@ -11,7 +14,7 @@ type ZzBootstrap struct {
 	ser configPg.Server `value:"${server}"`
 }
 
-func (b *ZzBootstrap) Run() error {
+func (b *ZzBootstrap) Run(ctx context.Context) error {
 	fmt.Println()
 	fmt.Printf("host: %+v\n", "localhost")
 	fmt.Printf("port: %+v\n", b.ser.Port)

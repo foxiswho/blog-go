@@ -1,6 +1,6 @@
 package controllerPg
 
-import "github.com/foxiswho/blog-go/middleware/authPg"
+import "github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 
 type SpSystemAuth struct {
 	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`

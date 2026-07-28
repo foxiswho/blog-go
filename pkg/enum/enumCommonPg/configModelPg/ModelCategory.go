@@ -1,6 +1,6 @@
 package configModelPg
 
-import "github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 
 // ModelCategory 模型分类
 type ModelCategory string

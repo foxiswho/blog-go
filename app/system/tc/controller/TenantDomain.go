@@ -1,55 +1,63 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcTenantDomain"
-	"github.com/foxiswho/blog-go/app/system/tc/service"
-	"github.com/foxiswho/blog-go/middleware/authPg"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(TenantDomainController)).
+		Name("SystemTenantDomainController").
+		Export(gs.As[routerPg.RouteRegistrar]())
 }
 
 // TenantDomainController 租户
 // @Description:
 type TenantDomainController struct {
+	routerPg.RouteRegistrar
 	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`
 	sv *service.TcTenantDomainService  `autowire:"?"`
 }
 
-// Create 创建
+// RegisterRoutes 注册路由
 //
 //	@Description:
 //	@receiver c
-//	@param ctx
-func (c *TenantDomainController) Create(ctx *gin.Context) {
-	var ct modTcTenantDomain.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Create(ctx, ct))
+//	@param e
+func (c *TenantDomainController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/sys/tc/tenant-domain", authPg.GroupSystemMiddleware(c.Sp))
+	group.POST("/createUpdate", c.CreateUpdate)
+	group.GET("/detail/:id", c.Detail)
+	group.POST("/enable", c.Enable)
+	group.POST("/disable", c.Disable)
+	group.POST("/delete", c.Delete)
+	group.POST("/recovery", c.Recovery)
+	group.POST("/physicalDeletion", c.PhysicalDeletion)
+	group.POST("/query", c.Query)
+	group.POST("/selectNodeAll", c.SelectNodeAll)
+	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/existName", c.ExistName)
+	group.POST("/existCode", c.ExistCode)
+	group.POST("/existNo", c.ExistNo)
+	group.POST("/setDefaulted", c.SetDefaulted)
 }
 
-// Update 更新
+// CreateUpdate 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *TenantDomainController) Update(ctx *gin.Context) {
-	var ct modTcTenantDomain.UpdateCt
+func (c *TenantDomainController) CreateUpdate(ctx *gin.Context) {
+	var ct modTcTenantDomain.CreateUpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
 		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
@@ -60,7 +68,11 @@ func (c *TenantDomainController) Update(ctx *gin.Context) {
 		ctx.JSON(200, rg.ErrorDefault[string]())
 		return
 	}
-	ctx.JSON(200, c.sv.Update(ctx, ct))
+	if ct.ID.ToInt64() > 0 {
+		ctx.JSON(200, c.sv.Update(ctx, ct))
+	} else {
+		ctx.JSON(200, c.sv.Create(ctx, ct))
+	}
 }
 
 // Delete 逻辑删除
@@ -220,6 +232,11 @@ func (c *TenantDomainController) Query(ctx *gin.Context) {
 func (c *TenantDomainController) SelectNodePublic(ctx *gin.Context) {
 	ct := modTcTenantDomain.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
+}
+
+func (c *TenantDomainController) SelectNodeAll(ctx *gin.Context) {
+	ct := modTcTenantDomain.QueryCt{}
+	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *TenantDomainController) SelectNodeAllPublic(ctx *gin.Context) {

@@ -1,6 +1,6 @@
 package basicModulePg
 
-import "github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 
 // Module 模块
 type Module string

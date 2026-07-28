@@ -1,7 +1,7 @@
 package typeExprPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeExpr 表达式类型;普通;正则

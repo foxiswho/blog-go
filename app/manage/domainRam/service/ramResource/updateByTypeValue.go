@@ -1,16 +1,16 @@
 package ramResource
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamResourceAuthority"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/common/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	iamConstant2 "github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceAuthority"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
+	iamConstant2 "github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -115,7 +115,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 	}
 	if len(ids) > 0 {
 		result := false
-		c.groupData, result = c.groupDb.FindAllByIdStringIn(ids)
+		c.groupData, result = c.groupDb.FindAllByIdStringIn(c.ctx, ids)
 		if !result {
 			return rt.ErrorMessage("部分资源组匹配失败")
 		}
@@ -124,7 +124,7 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 			ids = append(ids, numberPg.Int64ToString(item.ID))
 		}
 		//查询所有资源组 权限
-		c.groupAuthData, result = c.authDb.FindAllByTypeCategoryAndGroupIdStringIn(resourceTypeCategoryPg.Group.String(), ids)
+		c.groupAuthData, result = c.authDb.FindAllByTypeCategoryAndGroupIdStringIn(c.ctx, resourceTypeCategoryPg.Group.String(), ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
 		}
@@ -140,13 +140,13 @@ func (c *UpdateByTypeValue) getIds() (rt rg.Rs[string]) {
 //	@return rt
 func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 	result := false
-	c.role, result = c.roleDb.FindByIdString(c.ct.TypeValue)
+	c.role, result = c.roleDb.FindByIdString(c.ctx, c.ct.TypeValue)
 	if !result {
 		return rt.ErrorMessage("角色不存在")
 	}
 
 	//删除 角色 对应的资源组
-	c.groupRelationDb.DeleteByTypeCategoryAndTypeValue(c.typeCategory.Index(), numberPg.Int64ToString(c.role.ID))
+	c.groupRelationDb.DeleteByTypeCategoryAndTypeValue(c.ctx, c.typeCategory.Index(), numberPg.Int64ToString(c.role.ID))
 	//
 	c.log.Infof("c.groupData=%+v", len(c.groupData))
 	//插入数据
@@ -165,17 +165,17 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 		info.TypeCategory = c.typeCategory.String()
 		info.TypeSys = typeSysPg.General.String()
 		info.TypeDomain = item.TypeDomain
-		info.GroupId = item.ID
+		info.GroupNo = item.No
 		info.TypeValue = numberPg.Int64ToString(c.role.ID)
 		info.Mark = utilsRam.ResourceAuthorityMark(c.typeCategory, info.TypeValue, numberPg.Int64ToString(item.ID))
 		//已存在 则跳过
-		_, b := c.groupRelationDb.FindByMark(info.Mark)
+		_, b := c.groupRelationDb.FindByMark(c.ctx, info.Mark)
 		if b {
 			continue
 		}
 		//
 		c.log.Infof("info%+v", info)
-		err, _ := c.groupRelationDb.Create(&info)
+		err, _ := c.groupRelationDb.Create(c.ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
@@ -192,13 +192,13 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 	c.log.Infof("c.groupAuthData=%+v", len(c.groupAuthData))
 	if len(c.groupAuthData) > 0 {
-		ids := make([]int64, 0)
+		ids := make([]string, 0)
 		for _, item := range c.groupAuthData {
-			ids = append(ids, item.ResourceId)
+			ids = append(ids, item.ResourceNo)
 		}
 		result := false
 		data := make([]*entityRam.RamResourceEntity, 0)
-		data, result = c.resDb.FindAllByIdIn(ids)
+		data, result = c.resDb.FindAllByNoIn(c.ctx, ids)
 		if !result {
 			return rt.ErrorMessage("没有获取到任何资源组权限")
 		}
@@ -220,13 +220,13 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 			info.Method = item.Method
 			info.Mark = utilsRam.ResourceRelationMark(c.typeCategory, info.TypeValue, numberPg.Int64ToString(info.ResourceId))
 			//已存在 则跳过
-			_, b := c.relationDb.FindByMark(info.Mark)
+			_, b := c.relationDb.FindByMark(c.ctx, info.Mark)
 			if b {
 				continue
 			}
 			//
 			c.log.Debugf("info%+v", info)
-			err, _ := c.relationDb.Create(&info)
+			err, _ := c.relationDb.Create(c.ctx, &info)
 			if err != nil {
 				return rt.ErrorMessage("保存失败")
 			}

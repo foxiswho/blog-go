@@ -1,61 +1,33 @@
 package controller
 
 import (
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamResourceGroupRelation"
-	"github.com/foxiswho/blog-go/app/manage/domainRam/service"
-	"github.com/foxiswho/blog-go/middleware/validatorPg"
-	"github.com/foxiswho/blog-go/pkg/common/controllerPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
 	"github.com/gin-gonic/gin"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
-
+	gs.Provide(new(ResourceGroupRelationController)).Name("ManageResourceGroupRelationController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// ResourceGroupRelationController 资源关系
+// ResourceGroupRelationController 资源组关联
 // @Description:
 type ResourceGroupRelationController struct {
-	controllerPg.SpManageAuth
+	routerPg.RouteRegistrar
+	Sp  *authPg.GroupManageMiddlewareSp          `autowire:""`
 	sv  *service.RamResourceGroupRelationService `autowire:"?"`
 	log *log2.Logger                             `autowire:"?"`
 }
 
-// Selected 已选中的权限
-func (c *ResourceGroupRelationController) Selected(ctx *gin.Context) {
-	var ct modRamResourceGroupRelation.QueryByTypeValueCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.Selected(ctx, ct))
-}
-
-// SelectedByRole
+// RegisterRoutes 注册路由
 //
-//	@Description: 角色
+//	@Description:
 //	@receiver c
-//	@param ctx
-func (c *ResourceGroupRelationController) SelectedByRole(ctx *gin.Context) {
-	var ct modRamResourceGroupRelation.QueryByTypeValueCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ct.TypeCategory = resourceTypeCategoryPg.Role.Index()
-	ctx.JSON(200, c.sv.Selected(ctx, ct))
+//	@param e
+func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
+	//group := e.Group("/xianfu/manage/ram/resource-group-relation", authPg.GroupManageMiddleware(c.Sp))
+	//group.POST("/selectedByRole", c.Query)
 }

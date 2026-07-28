@@ -4,20 +4,20 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BlogCollectRepository)).Init(func(s *BlogCollectRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[BlogCollectRepository])).Init(func(s *support.BaseService[BlogCollectRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -25,8 +25,8 @@ type BlogCollectRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogCollectEntity, int64]
 }
 
-func (c *BlogCollectRepository) FindAllByUrlSourceMd5(code string) (infos []*entityBlog.BlogCollectEntity, result bool) {
-	tx := c.Db().Where("url_source_md5 = ?", code).Find(&infos)
+func (c *BlogCollectRepository) FindAllByUrlSourceMd5(ctx context.Context, code string) (infos []*entityBlog.BlogCollectEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 = ?", code).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogCollectRepository) FindAllByUrlSourceMd5(code string) (infos []*ent
 	return infos, true
 }
 
-func (c *BlogCollectRepository) FindAllByUrlSourceMd5In(code []string) (infos []*entityBlog.BlogCollectEntity, result bool) {
-	tx := c.Db().Where("url_source_md5 in ?", code).Find(&infos)
+func (c *BlogCollectRepository) FindAllByUrlSourceMd5In(ctx context.Context, code []string) (infos []*entityBlog.BlogCollectEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 in ?", code).Find(&infos)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

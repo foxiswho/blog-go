@@ -31,6 +31,7 @@ type BlogArticleEntity struct {
 	Content          string                       `gorm:"column:content;type:text;comment:内容" json:"content" comment:"内容" `
 	Editor           string                       `gorm:"column:editor;type:varchar(80);index;default:markdown;comment:编辑器类型" json:"editor" comment:"编辑器类型" `
 	CategoryNo       string                       `gorm:"column:category_no;type:varchar(80);index;comment:上级" json:"category_no" comment:"上级" `
+	Categorys        datatypes.JSONType[[]string] `gorm:"column:categorys;type:jsonb;index;default:'[]';comment:分类" json:"categorys" comment:"分类" `
 	Tags             datatypes.JSONType[[]string] `gorm:"column:tags;type:jsonb;index;default:'[]';comment:标签" json:"tags" comment:"标签" `
 	Author           string                       `gorm:"column:author;type:varchar(80);index;default:'';comment:作者" json:"author" comment:"作者" `
 	TypeContent      string                       `gorm:"column:type_content;type:varchar(80);index;default:original;comment:内容类型|原创|翻译|转载;" json:"type_content" comment:"类型|原创|翻译|转载" `

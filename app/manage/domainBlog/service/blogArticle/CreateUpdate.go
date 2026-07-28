@@ -5,35 +5,36 @@ import (
 	"strings"
 
 	"github.com/farseer-go/eventBus"
-	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicTags"
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogArticle"
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constEventBusPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constTags"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeContentPg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeDataSourcePg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeSourcePg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/wherePg"
-	"github.com/foxiswho/blog-go/pkg/enum/content/enumEditorPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoString"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
-	"github.com/foxiswho/blog-go/pkg/tools/versionPg"
 	"github.com/gin-gonic/gin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicTags"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constTags"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeContentPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeDataSourcePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeSourcePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/wherePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/content/enumEditorPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoString"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/versionPg"
 	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/spring/gs"
 	"gorm.io/datatypes"
 )
 
 func init() {
-
+	gs.Provide(new(Sp))
 }
 
 type Sp struct {
@@ -153,7 +154,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("标志格式不能为空")
 		}
 		//不是自动
-		_, result := c.sp.sv.FindByCode(c.entitySave.Code, repositoryPg.GetOption(ctx))
+		_, result := c.sp.sv.FindByCode(ctx, c.entitySave.Code, optionsPg.WithCtx(ctx))
 		if result {
 			return rt.ErrorMessage("标志已存在")
 		}
@@ -165,12 +166,12 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			return rt.ErrorMessage("ID不能为空")
 		}
 		result := false
-		c.record, result = c.sp.sv.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+		c.record, result = c.sp.sv.FindById(ctx, ct.ID.ToInt64())
 		if !result {
 			return rt.ErrorMessage("数据不存在")
 		}
 		if strPg.IsNotBlank(c.ct.CategoryNo) {
-			c.recordCategory, result = c.sp.catDb.FindByNo(c.ct.CategoryNo, repositoryPg.GetOption(ctx))
+			c.recordCategory, result = c.sp.catDb.FindByNo(ctx, c.ct.CategoryNo, optionsPg.WithCtx(ctx))
 			if !result {
 				return rt.ErrorMessage("数据不存在")
 			}
@@ -184,7 +185,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		//		return rt.ErrorMessage("编号格式不能为空")
 		//	}
 		//	//不是自动
-		//	_, result := r.FindByNo(ct.No)
+		//	_, result := r.FindByNo(ctx, ct.No)
 		//	if result {
 		//		return rt.ErrorMessage("编号已存在")
 		//	}
@@ -232,7 +233,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	c.entitySave.Tags = datatypes.NewJSONType(tags)
 	catDb := c.sp.catDb
 	if strPg.IsNotBlank(ct.CategoryNo) {
-		_, result := catDb.FindByNo(ct.CategoryNo, repositoryPg.GetOption(ctx))
+		_, result := catDb.FindByNo(ctx, ct.CategoryNo, optionsPg.WithCtx(ctx))
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
@@ -249,13 +250,13 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		copier.Copy(&info, c.entitySave)
 		info.ID = 0
 		c.log.Infof("info=%+v", info)
-		err := r.Update(info, c.ct.ID.ToInt64())
+		err := r.Update(ctx, info, c.ct.ID.ToInt64())
 		if err != nil {
 			c.log.Debugf("save err=%+v", err.Error())
 			return rt.ErrorMessage("保存失败：" + err.Error())
 		}
 		//
-		err = c.sp.statisticsDb.Update(statistics, c.ct.ID.ToInt64())
+		err = c.sp.statisticsDb.Update(ctx, statistics, c.ct.ID.ToInt64())
 		if err != nil {
 			c.log.Errorf("save statistics err=%+v", err)
 		}
@@ -266,7 +267,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		if automatedPg.IsCreateCode(c.entitySave.Code) {
 			c.entitySave.Code = c.entitySave.No
 		}
-		err, _ := r.Create(c.entitySave)
+		err, _ := r.Create(ctx, c.entitySave)
 		if err != nil {
 			c.log.Debugf("save err=%+v", err)
 			return rt.ErrorMessage("保存失败：" + err.Error())
@@ -276,7 +277,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		//
 		statistics.ID = c.entitySave.ID
 		statistics.ArticleNo = c.entitySave.No
-		err, _ = c.sp.statisticsDb.Create(&statistics)
+		err, _ = c.sp.statisticsDb.Create(ctx, &statistics)
 		if err != nil {
 			c.log.Errorf("save statistics err=%+v", err)
 		}
@@ -295,7 +296,7 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 	} else {
 		imageEnt.Attachments = "{}"
 	}
-	c.sp.sv.Update(imageEnt, c.record.ID)
+	c.sp.sv.Update(ctx, imageEnt, c.record.ID)
 	//更新标签
 	c.tagsListener(ctx)
 
@@ -317,7 +318,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 		}
 		if len(ids) > 0 {
 			mapTopic := make(map[string]int64)
-			info, result := c.sp.topicRel.FindAllByArticleNo(c.record.No)
+			info, result := c.sp.topicRel.FindAllByArticleNo(ctx, c.record.No)
 			if result {
 				for _, item := range info {
 					mapTopic[item.TopicNo] = item.ID
@@ -328,7 +329,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 				id, b := mapTopic[item]
 				if b {
 					//更新 name
-					c.sp.topicRel.Update(entityBlog.BlogTopicRelationEntity{Name: c.record.Name, Description: c.record.Description}, id)
+					c.sp.topicRel.Update(ctx, entityBlog.BlogTopicRelationEntity{Name: c.record.Name, Description: c.record.Description}, id)
 					continue
 				}
 				obj := entityBlog.BlogTopicRelationEntity{}
@@ -338,7 +339,7 @@ func (c *CreateUpdate) topic(ctx *gin.Context) {
 				obj.Ano = c.record.Ano
 				obj.Name = c.record.Name
 				obj.Description = c.record.Description
-				c.sp.topicRel.Create(&obj)
+				c.sp.topicRel.Create(ctx, &obj)
 			}
 		}
 	}

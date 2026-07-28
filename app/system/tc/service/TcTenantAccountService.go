@@ -2,32 +2,34 @@ package service
 
 import (
 	"context"
-	"github.com/foxiswho/blog-go/app/system/tc/model/modTcAccount"
-	"github.com/foxiswho/blog-go/app/system/tc/service/tcAccount"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/entityTc"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryTc"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/strPg2"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/service/tcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
+	"github.com/pangu-2/go-tools/tools/dbPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"reflect"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(NewTcTenantAccountService).Init(func(s *TcTenantAccountService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -90,7 +92,7 @@ func (c *TcTenantAccountService) State(ctx *gin.Context, ids []string, state enu
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -100,7 +102,7 @@ func (c *TcTenantAccountService) State(ctx *gin.Context, ids []string, state enu
 			continue
 		}
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamAccountEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamAccountEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -128,7 +130,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -144,7 +146,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
-			r.DeleteByIds(idsNow)
+			r.DeleteByIds(ctx, idsNow)
 		}
 
 	} else {
@@ -156,7 +158,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				r.Update(entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
+				r.Update(ctx, entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -174,7 +176,7 @@ func (c *TcTenantAccountService) LogicalRecovery(ctx *gin.Context, ids []string,
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -186,7 +188,7 @@ func (c *TcTenantAccountService) LogicalRecovery(ctx *gin.Context, ids []string,
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			r.Update(entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamAccountEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -202,7 +204,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringInAndTypeDomain(ids, tp.ToTypeDomain().String())
+	finds, b := r.FindAllByIdStringInAndTypeDomain(ctx, ids, tp.ToTypeDomain().String())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -215,7 +217,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
-		r.DeleteByIds(idsNow)
+		r.DeleteByIds(ctx, idsNow)
 	}
 	return rt.Ok()
 }
@@ -225,7 +227,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.PaginatorPg[modRamAccount.Vo]]) {
+func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.Paginator[modRamAccount.Vo]]) {
 	var query entityRam.RamAccountEntity
 	copier.Copy(&query, &ct)
 	// 创始人
@@ -239,101 +241,101 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	groupDb := c.groupDb
 	levelDb := c.levelDb
 	teamDb := c.team
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamAccountEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamAccountEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at desc")
-		p.Condition.Where("type_domain= ?", tp.ToTypeDomain().String())
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
+		arg.Db = arg.Db.Where("type_domain= ?", tp.ToTypeDomain().String())
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("account like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("account like ?", "%"+ct.Wd+"%")
 		}
 		//部门
 		if nil != ct.Departments && len(ct.Departments) > 0 {
-			depInfo, result := depDb.FindAllByNoLinkArr(ct.Departments)
+			depInfo, result := depDb.FindAllByNoLinkArr(ctx, ct.Departments)
 			if result {
 				sqlDb := r.Db()
 				for i, obj := range depInfo {
 					if 0 == i {
-						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					} else {
-						sqlDb = sqlDb.Or("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				p.Condition.Where(sqlDb)
+				arg.Db = arg.Db.Where(sqlDb)
 			} else {
-				p.Condition.Where("os->'departments' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db = arg.Db.Where("os->'departments' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//角色
 		if nil != ct.Roles && len(ct.Roles) > 0 {
-			depInfo, result := roleDb.FindAllByNoIn(ct.Roles)
+			depInfo, result := roleDb.FindAllByNoIn(ctx, ct.Roles)
 			if result {
 				sqlDb := r.Db()
 				for i, obj := range depInfo {
 					if 0 == i {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					} else {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 				}
-				p.Condition.Where(sqlDb)
+				arg.Db = arg.Db.Where(sqlDb)
 			} else {
-				p.Condition.Where("os->'roles' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+				arg.Db = arg.Db.Where("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 			}
 		}
 		//级别
 		{
 			if nil != ct.Levels && len(ct.Levels) > 0 {
-				depInfo, result := levelDb.FindAllByNoIn(ct.Levels)
+				depInfo, result := levelDb.FindAllByNoIn(ctx, ct.Levels)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				} else {
-					p.Condition.Where("os->'levels' @> ? ", strPg2.StrToArrayJsonExpr("0"))
+					arg.Db = arg.Db.Where("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr("0"))
 				}
 			}
 		}
 		//组
 		{
 			if nil != ct.Groups && len(ct.Groups) > 0 {
-				depInfo, result := groupDb.FindAllByNoIn(ct.Groups)
+				depInfo, result := groupDb.FindAllByNoIn(ctx, ct.Groups)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				}
 			}
 		}
 		//团队
 		{
 			if nil != ct.Teams && len(ct.Teams) > 0 {
-				depInfo, result := teamDb.FindAllByNoIn(ct.Teams)
+				depInfo, result := teamDb.FindAllByNoIn(ctx, ct.Teams)
 				if result {
 					sqlDb := r.Db()
 					for i, obj := range depInfo {
 						if 0 == i {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						} else {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", strPg2.StrToArrayJsonExpr(obj.No))
+							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 						}
 					}
-					p.Condition.Where(sqlDb)
+					arg.Db = arg.Db.Where(sqlDb)
 				}
 			}
 		}
@@ -342,9 +344,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.RegisterTimeRange {
 				count := len(ct.RegisterTimeRange)
 				if count == 2 && nil != ct.RegisterTimeRange[0] && nil != ct.RegisterTimeRange[1] {
-					p.Condition.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
+					arg.Db = arg.Db.Where("register_time between ? and ?", ct.RegisterTimeRange[0], ct.RegisterTimeRange[1])
 				} else if count == 1 && nil != ct.RegisterTimeRange[0] {
-					p.Condition.Where("register_time >= ?", ct.RegisterTimeRange[0])
+					arg.Db = arg.Db.Where("register_time >= ?", ct.RegisterTimeRange[0])
 				}
 			}
 		}
@@ -353,9 +355,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.LoginTimeRange {
 				count := len(ct.LoginTimeRange)
 				if count == 2 && nil != ct.LoginTimeRange[0] && nil != ct.LoginTimeRange[1] {
-					p.Condition.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
+					arg.Db = arg.Db.Where("login_time between ? and ?", ct.LoginTimeRange[0], ct.LoginTimeRange[1])
 				} else if count == 1 && nil != ct.LoginTimeRange[0] {
-					p.Condition.Where("login_time >= ?", ct.LoginTimeRange[0])
+					arg.Db = arg.Db.Where("login_time >= ?", ct.LoginTimeRange[0])
 				}
 			}
 		}
@@ -364,24 +366,19 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 			if nil != ct.BirthdayRange {
 				count := len(ct.BirthdayRange)
 				if count == 2 && nil != ct.BirthdayRange[0] && nil != ct.BirthdayRange[1] {
-					p.Condition.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
+					arg.Db = arg.Db.Where("birthday between ? and ?", ct.BirthdayRange[0], ct.BirthdayRange[1])
 				} else if count == 1 && nil != ct.BirthdayRange[0] {
-					p.Condition.Where("birthday >= ?", ct.BirthdayRange[0])
+					arg.Db = arg.Db.Where("birthday >= ?", ct.BirthdayRange[0])
 				}
 			}
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamAccount.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamAccount.Vo](page.Pageable)
 		//
 		mapDep := make(map[string]*entityRam.RamDepartmentEntity)
 		mapRole := make(map[string]*entityRam.RamRoleEntity)
@@ -447,8 +444,8 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 				idsPosition = append(idsPosition, item.Position)
 			}
 			//
-			if strPg.IsNotBlank(item.Job) {
-				idsPost = append(idsPost, item.Job)
+			if strPg.IsNotBlank(item.Post) {
+				idsPost = append(idsPost, item.Post)
 			}
 			//租户
 			if nil != item.Os.Data().Tenants && len(item.Os.Data().Tenants) > 0 {
@@ -464,7 +461,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//部门
 		{
 			if len(idsDep) > 0 {
-				infos, result := depDb.FindAllByNoIn(idsDep)
+				infos, result := depDb.FindAllByNoIn(ctx, idsDep)
 				if result {
 					mapDep = slicePg.ToMap(infos, func(t *entityRam.RamDepartmentEntity) (string, *entityRam.RamDepartmentEntity) {
 						return t.No, t
@@ -475,7 +472,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//角色
 		{
 			if len(idsRole) > 0 {
-				infos, result := roleDb.FindAllByNoIn(idsRole)
+				infos, result := roleDb.FindAllByNoIn(ctx, idsRole)
 				if result {
 					mapRole = slicePg.ToMap(infos, func(t *entityRam.RamRoleEntity) (string, *entityRam.RamRoleEntity) {
 						return t.No, t
@@ -486,7 +483,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//级别
 		{
 			if len(idsLevel) > 0 {
-				infos, result := levelDb.FindAllByNoIn(idsLevel)
+				infos, result := levelDb.FindAllByNoIn(ctx, idsLevel)
 				if result {
 					mapLevel = slicePg.ToMap(infos, func(t *entityRam.RamLevelEntity) (string, *entityRam.RamLevelEntity) {
 						return t.No, t
@@ -497,7 +494,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//分组
 		{
 			if len(idsGroup) > 0 {
-				infos, result := groupDb.FindAllByNoIn(idsGroup)
+				infos, result := groupDb.FindAllByNoIn(ctx, idsGroup)
 				if result {
 					mapGroup = slicePg.ToMap(infos, func(t *entityRam.RamGroupEntity) (string, *entityRam.RamGroupEntity) {
 						return t.No, t
@@ -508,7 +505,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//分组
 		{
 			if len(idsTeam) > 0 {
-				infos, result := teamDb.FindAllByNoIn(idsTeam)
+				infos, result := teamDb.FindAllByNoIn(ctx, idsTeam)
 				if result {
 					mapTeam = slicePg.ToMap(infos, func(t *entityRam.RamTeamEntity) (string, *entityRam.RamTeamEntity) {
 						return t.No, t
@@ -519,7 +516,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//职位
 		{
 			if len(idsPosition) > 0 {
-				infos, result := c.positionDb.FindAllByNoIn(idsPosition)
+				infos, result := c.positionDb.FindAllByNoIn(ctx, idsPosition)
 				if result {
 					mapPosition = slicePg.ToMap(infos, func(t *entityRam.RamPositionEntity) (string, *entityRam.RamPositionEntity) {
 						return t.No, t
@@ -530,7 +527,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//职位
 		{
 			if len(idsPost) > 0 {
-				infos, result := c.postDb.FindAllByNoIn(idsPost)
+				infos, result := c.postDb.FindAllByNoIn(ctx, idsPost)
 				if result {
 					mapPost = slicePg.ToMap(infos, func(t *entityRam.RamPostEntity) (string, *entityRam.RamPostEntity) {
 						return t.No, t
@@ -541,7 +538,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		//租户
 		{
 			if len(idsTenant) > 0 {
-				infos, result := c.tenDb.FindAllByNoIn(idsTenant)
+				infos, result := c.tenDb.FindAllByNoIn(ctx, idsTenant)
 				if result {
 					mapTenant = slicePg.ToMap(infos, func(t *entityTc.TcTenantEntity) (string, *entityTc.TcTenantEntity) {
 						return t.No, t
@@ -629,9 +626,9 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 				}
 			}
 			//职位
-			if strPg.IsNotBlank(item.Job) {
-				if get, ok := mapPost[item.Job]; ok {
-					vo.JobName = get.Name
+			if strPg.IsNotBlank(item.Post) {
+				if get, ok := mapPost[item.Post]; ok {
+					vo.PostName = get.Name
 				}
 			}
 			//租户
@@ -677,7 +674,7 @@ func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modRamAccount.Creat
 //	@param ct
 func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccount(ct, tp)
+		c.sp, ctx).CreateAccount(ctx, ct, tp)
 }
 
 // Update 更新
@@ -697,7 +694,7 @@ func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modRamAccount.Updat
 //	@param ct
 func (c *TcTenantAccountService) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewUpdate(c.log,
-		c.sp, ctx).UpdateAccount(ct, tp)
+		c.sp, ctx).UpdateAccount(ctx, ct, tp)
 }
 
 // ExistAccount 查重
@@ -709,7 +706,7 @@ func (c *TcTenantAccountService) ExistAccount(ctx *gin.Context, ct model.BaseExi
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByAccountAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -725,7 +722,7 @@ func (c *TcTenantAccountService) ExistPhone(ctx *gin.Context, ct model.BaseExist
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByPhoneAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByPhoneAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -741,7 +738,7 @@ func (c *TcTenantAccountService) ExistMail(ctx *gin.Context, ct model.BaseExistW
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByMailAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByMailAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -757,7 +754,7 @@ func (c *TcTenantAccountService) ExistIdentityCode(ctx *gin.Context, ct model.Ba
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByIdentityCodeAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -773,7 +770,7 @@ func (c *TcTenantAccountService) ExistRealName(ctx *gin.Context, ct model.BaseEx
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
-	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ct.Wd, tp.ToTypeDomain().String(), ct.Id)
+	_, result := c.sv.FindByRealNameAndTypeDomainAndIdNot(ctx, ct.Wd, tp.ToTypeDomain().String(), ct.Id)
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

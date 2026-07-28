@@ -4,32 +4,32 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/model/modBlogCategory"
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
-	"github.com/foxiswho/blog-go/pkg/consts/automatedPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constNodePg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/request/enumParameterPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/request/enumParameterPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BlogCategoryService)).Init(func(s *BlogCategoryService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -61,7 +61,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 			return rt.ErrorMessage("编号格式不能为空")
 		}
 		//不是自动
-		_, result := r.FindByNo(ct.No)
+		_, result := r.FindByNo(ctx, ct.No)
 		if result {
 			return rt.ErrorMessage("编号已存在")
 		}
@@ -77,12 +77,12 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 	//
 	if len(ct.ParentId) > 0 {
 		result := false
-		parent, result = r.FindByIdString(ct.ParentId)
+		parent, result = r.FindByIdString(ctx, ct.ParentId)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
 	}
-	_, result := r.FindByNoAndIdNot(ct.No, "0", repositoryPg.GetOption(ctx))
+	_, result := r.FindByNoAndIdNot(ctx, ct.No, "0", optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("字段已存在")
 	}
@@ -92,7 +92,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 	if automatedPg.IsCreateCode(ct.No) {
 		info.No = strPg.GenerateNumberId22()
 	}
-	err, _ = r.Create(&info)
+	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
@@ -105,7 +105,7 @@ func (c *BlogCategoryService) Create(ctx *gin.Context, ct modBlogCategory.Create
 		info.IdLink = numberPg.Int64ToString(info.ID) + "|"
 		info.NoLink = info.No + "|"
 	}
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
@@ -128,11 +128,11 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 		return rt.ErrorMessage("编号不能为空")
 	}
 	r := c.rep
-	_, result := r.FindByNoAndIdNot(ct.No, ct.ID.ToString(), repositoryPg.GetOption(ctx))
+	_, result := r.FindByNoAndIdNot(ctx, ct.No, ct.ID.ToString(), optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("编号已存在")
 	}
-	find, b := r.FindById(ct.ID.ToInt64(), repositoryPg.GetOption(ctx))
+	find, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -141,7 +141,7 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 	var childData []*entityBlog.BlogCategoryEntity
 	if len(ct.ParentId) > 0 {
 		result := false
-		parent, result = r.FindByIdString(ct.ParentId)
+		parent, result = r.FindByIdString(ctx, ct.ParentId)
 		if !result {
 			return rt.ErrorMessage("上级不存在")
 		}
@@ -151,7 +151,7 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 		//新的ID 不等于 旧的上级时,检测是否已经 在新的子集已存在
 		if numberPg.Int64ToString(parent.ID) != find.ParentId {
 			result2 := false
-			childData, result2 = r.FindAllByParentIdLink(numberPg.Int64ToString(find.ID))
+			childData, result2 = r.FindAllByParentIdLink(ctx, numberPg.Int64ToString(find.ID))
 			if result2 {
 				//c.log.Infof("data=%+v \n", childData)
 				for _, item := range childData {
@@ -178,13 +178,13 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 		info.ParentId = ""
 	}
 
-	err := r.Update(info, info.ID)
+	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		c.log.Errorf("update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
 	c.log.Infof("save.info=%+v", info)
-	r.UpdateMap(map[string]interface{}{
+	r.UpdateMap(ctx, map[string]interface{}{
 		"parent_id": info.ParentId,
 		"parent_no": info.ParentNo,
 	}, info.ID)
@@ -207,7 +207,7 @@ func (c *BlogCategoryService) Update(ctx *gin.Context, ct modBlogCategory.Update
 				if item.ID == info.ID {
 					continue
 				}
-				r.Update(entityBlog.BlogCategoryEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
+				r.Update(ctx, entityBlog.BlogCategoryEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
 			}
 		}
 		maps = nil
@@ -233,7 +233,7 @@ func (c *BlogCategoryService) childParentIdLink(maps map[string][]*entityBlog.Bl
 //	@receiver c
 func (c *BlogCategoryService) CacheOverride(ctx *gin.Context) {
 	r := c.rep
-	infos, b := r.FindAllData(repositoryPg.GetOption(ctx))
+	infos, b := r.FindAllData(ctx)
 	if !b {
 		return
 	}
@@ -250,7 +250,7 @@ func (c *BlogCategoryService) CacheOverride(ctx *gin.Context) {
 	c.log.Infof("maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
-			r.Update(entityBlog.BlogCategoryEntity{IdLink: item.IdLink}, item.ID)
+			r.Update(ctx, entityBlog.BlogCategoryEntity{IdLink: item.IdLink}, item.ID)
 		}
 	}
 	maps = nil
@@ -265,7 +265,7 @@ func (c *BlogCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBl
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.rep.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.rep.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -302,13 +302,13 @@ func (c *BlogCategoryService) State(ctx *gin.Context, ids []string, state enumSt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.rep
-	finds, b := r.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := r.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityBlog.BlogCategoryEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityBlog.BlogCategoryEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -336,7 +336,7 @@ func (c *BlogCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.rep
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -344,13 +344,13 @@ func (c *BlogCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -368,7 +368,7 @@ func (c *BlogCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.rep
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -376,7 +376,7 @@ func (c *BlogCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityBlog.BlogCategoryEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -392,7 +392,7 @@ func (c *BlogCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.rep
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -402,7 +402,7 @@ func (c *BlogCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -412,35 +412,30 @@ func (c *BlogCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogCategoryService) Query(ctx *gin.Context, ct modBlogCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogCategory.Vo]]) {
+func (c *BlogCategoryService) Query(ctx *gin.Context, ct modBlogCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogCategory.Vo]]) {
 	var query entityBlog.BlogCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.rep
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogCategoryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db = arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBlogCategory.Vo
@@ -460,35 +455,30 @@ func (c *BlogCategoryService) Query(ctx *gin.Context, ct modBlogCategory.QueryCt
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BlogCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCategory.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modBlogCategory.Vo]]) {
+func (c *BlogCategoryService) QueryPublic(ctx *gin.Context, ct modBlogCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogCategory.Vo]]) {
 	var query entityBlog.BlogCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogCategory.Vo, 0)
 	rt.Data.Data = slice
 	r := c.rep
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityBlog.BlogCategoryEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityBlog.BlogCategoryEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
 		//自定义查询
-		p.Condition = r.DbModel().Order("create_at asc")
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		arg.Db = arg.Db.Order("create_at asc")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	}, repositoryPg.GetOption(ctx))
+	}), optionsPg.WithCtx(ctx))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modBlogCategory.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modBlogCategory.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modBlogCategory.Vo
@@ -513,7 +503,7 @@ func (c *BlogCategoryService) SelectNodePublic(ctx *gin.Context, ct modBlogCateg
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeCode, 0)
 	rt.Data = slice
-	infos := c.rep.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.rep.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -541,7 +531,7 @@ func (c *BlogCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modBlogCa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeCode, 0)
 	rt.Data = slice
-	infos := c.rep.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.rep.FindAll(ctx, query)
 	if len(infos) > 0 {
 
 		for _, item := range infos {
@@ -571,7 +561,7 @@ func (c *BlogCategoryService) SelectPublic(ctx *gin.Context, ct modBlogCategory.
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogCategory.Vo, 0)
 	rt.Data = slice
-	infos := c.rep.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.rep.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modBlogCategory.Vo
@@ -596,7 +586,7 @@ func (c *BlogCategoryService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.rep.FindByNameAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.rep.FindByNameAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}
@@ -619,7 +609,7 @@ func (c *BlogCategoryService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt
 	if strPg.IsNotBlank(ct.Id) {
 		id = ct.Id
 	}
-	_, result := c.rep.FindByNoAndIdNot(ct.Wd, id, repositoryPg.GetOption(ctx))
+	_, result := c.rep.FindByNoAndIdNot(ctx, ct.Wd, id, optionsPg.WithCtx(ctx))
 	if result {
 		return rt.ErrorMessage("重复，已存在")
 	}

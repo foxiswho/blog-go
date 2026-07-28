@@ -1,6 +1,6 @@
 package modBlogArticleCategory
 
-import "github.com/foxiswho/blog-go/pkg/tools/typePg"
+import "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 
 type Vo struct {
 	ID          typePg.Uint64String `json:"id" label:"id" `

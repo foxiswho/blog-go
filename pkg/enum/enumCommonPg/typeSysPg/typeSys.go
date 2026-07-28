@@ -1,7 +1,7 @@
 package typeSysPg
 
 import (
-	"github.com/foxiswho/blog-go/pkg/enum/enumBasePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"
 )
 
 // TypeSys 类型;普通;系统;api
@@ -10,7 +10,7 @@ type TypeSys string
 const (
 	General TypeSys = "general" //普通
 	System  TypeSys = "system"  //系统
-	Api     TypeSys = "api"     //系统
+	Api     TypeSys = "api"     //api
 )
 
 // Name 名称

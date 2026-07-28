@@ -2,26 +2,16 @@ package tagsBasicEvent
 
 import (
 	"context"
-	"github.com/foxiswho/blog-go/app/event/basic/model/modEventBasicTags"
-	"github.com/foxiswho/blog-go/infrastructure/entityBasic"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBasic"
-	"github.com/foxiswho/blog-go/pkg/cachePg/rdsPg"
-	"github.com/foxiswho/blog-go/pkg/enum/enumCommonPg/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
-	"github.com/pangu-2/go-tools/tools/strPg"
 	"strings"
-)
 
-type Sp struct {
-	log     *log2.Logger                                 `autowire:"?"`
-	dao     *repositoryBasic.BasicAttachmentRepository   `autowire:"?"`
-	TagRela *repositoryBasic.BasicTagsRelationRepository `autowire:"?"`
-	TagCate *repositoryBasic.BasicTagsCategoryRepository `autowire:"?"`
-	TagsDb  *repositoryBasic.BasicTagsRepository         `autowire:"?"`
-	rdt     *rdsPg.BatchString                           `autowire:"?"`
-}
+	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicTags"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/pangu-2/go-tools/tools/noPg"
+	"github.com/pangu-2/go-tools/tools/strPg"
+)
 
 // SaveByCategory
 // @Description: 标签处理
@@ -56,7 +46,7 @@ func (c *SaveByCategory) Processor() error {
 		return nil
 	}
 	//类别是否存在
-	info, result := c.sp.TagCate.FindByNo(c.dto.Category)
+	info, result := c.sp.TagCate.FindByNo(context.Background(), c.dto.Category)
 	if !result {
 		return nil
 	}
@@ -66,7 +56,7 @@ func (c *SaveByCategory) Processor() error {
 	tagsEntity := make(map[string]*entityBasic.BasicTagsEntity)
 	tagsRelation := make(map[string]*entityBasic.BasicTagsRelationEntity)
 	tagsNo := make([]string, 0)
-	in, r := c.sp.TagsDb.FindAllByNameIn(c.dto.Tags)
+	in, r := c.sp.TagsDb.FindAllByNameIn(context.Background(), c.dto.Tags)
 	if r {
 		for _, item := range in {
 			mapTagsOnly[item.Name] = item.No
@@ -81,7 +71,7 @@ func (c *SaveByCategory) Processor() error {
 		}
 	}
 	//获取标签关系
-	infos, b := c.sp.TagRela.FindAllByTagNoInAndCategoryRoot(tagsNo, c.dto.Category)
+	infos, b := c.sp.TagRela.FindAllByTagNoInAndCategoryRoot(context.Background(), tagsNo, c.dto.Category)
 	if b {
 		for _, item := range infos {
 			tagsRelation[item.TagNo] = item
@@ -108,7 +98,7 @@ func (c *SaveByCategory) Processor() error {
 				save.CategoryNo = info.No
 				save.TenantNo = c.dto.Holder.GetTenantNo()
 				save.CreateBy = c.dto.Holder.GetAccountNo()
-				c.sp.TagsDb.Create(save)
+				c.sp.TagsDb.Create(context.Background(), save)
 				//
 				mapTagsOnly[v] = save.No
 				tagsEntity[save.No] = save
@@ -131,7 +121,7 @@ func (c *SaveByCategory) Processor() error {
 				rel.Module = save.Module
 				//rel.Attribute = save.Attribute
 				rel.CategoryRoot = c.dto.Category
-				c.sp.TagRela.Create(&rel)
+				c.sp.TagRela.Create(context.Background(), &rel)
 				//
 				tagsRelation[rel.TagNo] = &rel
 			}
@@ -144,6 +134,7 @@ func (c *SaveByCategory) Processor() error {
 // 缓存更新
 func (t *SaveByCategory) cache(categoryRoot []string) {
 	dto := modEventBasicTags.TagsCacheDto{CategoryRoot: categoryRoot}
+	//缓存更新
 	err := NewCachePush(t.sp, dto).Processor(context.Background())
 	if err != nil {
 		t.log.Error("tags.push.error:=", err)

@@ -3,20 +3,22 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/utilsRam"
-	"github.com/foxiswho/blog-go/app/system/ram/model/modRamResourceAuthority"
-	"github.com/foxiswho/blog-go/app/system/ram/service/ramResource"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/consts/common/typeSysPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	"github.com/foxiswho/blog-go/pkg/consts/constsRam/typeAttrPg"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceAuthority"
+	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service/ramResource"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 	"strings"
@@ -30,7 +32,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamResourceAuthorityService)).Init(func(s *RamResourceAuthorityService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -60,7 +62,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 	var info entityRam.RamResourceAuthorityEntity
 	copier.Copy(&info, &ct)
 	c.log.Infof("info%+v", info)
-	c.sv.Create(&info)
+	c.sv.Create(ctx, &info)
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
@@ -74,7 +76,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 //	@return rt
 func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority.CreatByGroupCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	if ct.GroupId.ToInt64() < 1 {
+	if strPg.IsBlank(ct.GroupNo) {
 		return rt.ErrorMessage("请选择资源组")
 	}
 	if ct.Ids == nil || len(ct.Ids) < 1 {
@@ -83,16 +85,18 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 	ids := make([]string, 0)
 	for _, id := range ct.Ids {
 		id = strings.TrimSpace(id)
-		ids = append(ids, id)
+		if strPg.IsNotBlank(id) {
+			ids = append(ids, id)
+		}
 	}
 	if len(ids) < 1 {
 		return rt.ErrorMessage("请选择数据")
 	}
-	group, result := c.groupDb.FindById(ct.GroupId.ToInt64())
+	group, result := c.groupDb.FindByNo(ctx, ct.GroupNo)
 	if !result {
 		return rt.ErrorMessage("资源组不存在")
 	}
-	resourceData, r := c.resDb.FindAllByIdStringIn(ids)
+	resourceData, r := c.resDb.FindAllByNoIn(ctx, ids)
 	if !r {
 		return rt.ErrorMessage("资源数据不存在")
 	}
@@ -113,21 +117,21 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 		info.TypeSys = typeSysPg.General.String()
 		info.TypeAttr = typeAttrPg.Resource.String()
 		info.TypeDomain = group.TypeDomain
-		info.GroupId = group.ID
-		info.TypeValue = numberPg.Int64ToString(group.ID)
-		info.ResourceId = item.ID
+		info.GroupNo = group.No
+		info.TypeValue = group.No
+		info.ResourceNo = item.No
 		info.Path = item.Path
 		info.Method = item.Method
 		info.TypeValueSource = numberPg.Int64ToString(item.ID)
 		info.Mark = utilsRam.ResourceAuthorityMarkByUint64(resourceTypeCategoryPg.Group, group.ID, item.ID)
 		//已存在 则跳过
-		_, b := auth.FindByMark(info.Mark)
+		_, b := auth.FindByMark(ctx, info.Mark)
 		if b {
 			continue
 		}
 		//
 		c.log.Infof("info%+v", info)
-		err, _ := auth.Create(&info)
+		err, _ := auth.Create(ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
@@ -150,13 +154,13 @@ func (c *RamResourceAuthorityService) Update(ctx *gin.Context, ct modRamResource
 		return rt.ErrorMessage("名称不能为空")
 	}
 	r := c.sv
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	var info entityRam.RamResourceAuthorityEntity
 	copier.Copy(&info, &ct)
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -169,7 +173,7 @@ func (c *RamResourceAuthorityService) Detail(ctx *gin.Context, id int64) (rt rg.
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id)
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -206,13 +210,13 @@ func (c *RamResourceAuthorityService) State(ctx *gin.Context, ids []string, stat
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		if info.State != state.IndexInt8() {
-			r.Update(entityRam.RamResourceAuthorityEntity{State: state.IndexInt8()}, info.ID)
+			r.Update(ctx, entityRam.RamResourceAuthorityEntity{State: state.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -241,7 +245,7 @@ func (c *RamResourceAuthorityService) LogicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -249,13 +253,13 @@ func (c *RamResourceAuthorityService) LogicalDeletion(ctx *gin.Context, ids []st
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, " info.TenantNo")
 		}
-		repository.DeleteByIdsString(ids)
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
 			// 有效 停用，反转 为对应的 取消 弃置
 			if ok, reverse := enum.ReverseEnableDisable(); ok {
-				repository.Update(entityRam.RamResourceAuthorityEntity{State: reverse.IndexInt8()}, info.ID)
+				repository.Update(ctx, entityRam.RamResourceAuthorityEntity{State: reverse.IndexInt8()}, info.ID)
 			}
 		}
 	}
@@ -274,7 +278,7 @@ func (c *RamResourceAuthorityService) LogicalRecovery(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids)
+	finds, b := repository.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -282,7 +286,7 @@ func (c *RamResourceAuthorityService) LogicalRecovery(ctx *gin.Context, ids []st
 		enum := enumStatePg.State(info.State)
 		//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 		if ok, reverse := enum.ReverseCancelLayAside(); ok {
-			repository.Update(entityRam.RamResourceAuthorityEntity{State: reverse.IndexInt8()}, info.ID)
+			repository.Update(ctx, entityRam.RamResourceAuthorityEntity{State: reverse.IndexInt8()}, info.ID)
 		}
 	}
 	return rt.Ok()
@@ -299,7 +303,7 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids)
+	finds, b := cn.FindAllByIdStringIn(ctx, ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -309,7 +313,7 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew)
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -319,36 +323,31 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamResourceAuthority.Vo]]) {
+func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceAuthority.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceAuthority.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
-	page, err := r.FindAllPageQuery(query, func(p *pagePg.PageCondition[*entityRam.RamResourceAuthorityEntity]) {
-		p.PageOption = func(c *pagePg.PaginatorPg[*entityRam.RamResourceAuthorityEntity]) {
-			c.PageNum = ct.PageNum
-			c.PageSize = ct.PageSize
+	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		if ct.PageSize < 1 {
+			ct.PageSize = 20
 		}
-		p.Condition = r.DbModel().Order("create_at asc")
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+		arg.Db = arg.Db.Order("create_at desc")
 		//自定义查询
-		if "" != ct.Wd {
-			p.Condition.Where("name like ?", "%"+ct.Wd+"%")
+		if strPg.IsNotBlank(ct.Wd) {
+			arg.Db = arg.Db.Where("name like ?", "%"+ct.Wd+"%")
 		}
-	})
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamResourceAuthority.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamResourceAuthority.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamResourceAuthority.Vo
@@ -374,7 +373,7 @@ func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modR
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
@@ -399,7 +398,7 @@ func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct m
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceAuthority.Vo
@@ -426,7 +425,7 @@ func (c *RamResourceAuthorityService) SelectPublic(ctx *gin.Context, ct modRamRe
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceAuthority.Vo{}
-	infos := c.sv.FindAll(query)
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamResourceAuthority.Vo, 0)
 		for _, item := range infos {
@@ -458,11 +457,11 @@ func (c *RamResourceAuthorityService) CreateByResourceGroup(ctx *gin.Context, va
 	info.TypeValue = numberPg.Int64ToString(value.ID)
 	info.Mark = info.TypeCategory + ":" + info.TypeValue
 	r := c.sv
-	mark, b := r.FindByMark(info.Mark)
+	mark, b := r.FindByMark(ctx, info.Mark)
 	if b {
 		return mark, true
 	}
-	r.Create(&info)
+	r.Create(ctx, &info)
 	return &info, true
 }
 

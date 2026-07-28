@@ -4,20 +4,20 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/support"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 )
 
 func init() {
 	gs.Provide(new(BlogTopicStatisticsRepository)).Init(func(s *BlogTopicStatisticsRepository) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 
 	gs.Provide(new(support.BaseService[BlogTopicStatisticsRepository])).Init(func(s *support.BaseService[BlogTopicStatisticsRepository]) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -25,8 +25,8 @@ type BlogTopicStatisticsRepository struct {
 	repositoryPg.BaseRepository[entityBlog.BlogTopicStatisticsEntity, int64]
 }
 
-func (c *BlogTopicStatisticsRepository) FindByTopicNo(no string) (info *entityBlog.BlogTopicStatisticsEntity, result bool) {
-	tx := c.Db().Where("topic_no=?", no).First(&info)
+func (c *BlogTopicStatisticsRepository) FindByTopicNo(ctx context.Context, no string) (info *entityBlog.BlogTopicStatisticsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", no).First(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false
@@ -37,8 +37,8 @@ func (c *BlogTopicStatisticsRepository) FindByTopicNo(no string) (info *entityBl
 	return info, true
 }
 
-func (c *BlogTopicStatisticsRepository) FindAllByTopicNoIn(no []string) (info []*entityBlog.BlogTopicStatisticsEntity, result bool) {
-	tx := c.Db().Where("topic_no in ?", no).Find(&info)
+func (c *BlogTopicStatisticsRepository) FindAllByTopicNoIn(ctx context.Context, no []string) (info []*entityBlog.BlogTopicStatisticsEntity, result bool) {
+	tx := c.DbModel().WithContext(ctx).Where("topic_no in ?", no).Find(&info)
 	if tx.Error != nil {
 		c.Log().Error("", tx.Error)
 		return nil, false

@@ -23,7 +23,10 @@ type RamResourceGroupRelationEntity struct {
 	TypeValue    string     `gorm:"column:type_value;type:varchar(100);index;default:;comment:对应类型id" json:"type_value" comment:"对应类型id" `
 	TypeDomain   string     `gorm:"column:type_domain;type:varchar(80);index;default:'default';comment:域|平台platform|店铺shop|其他other" json:"type_domain" comment:"域;平台platform;店铺shop;其他other" `
 	Mark         string     `gorm:"column:mark;type:varchar(80);index;default:;comment:标记" json:"mark" comment:"标记" `
-	GroupId      int64      `gorm:"column:group_id;type:bigint;not null;index;default:0;comment:资源组id" json:"group_id" comment:"资源组id" `
+	GroupNo      string     `gorm:"column:group_no;type:varchar(80);index;default:;comment:资源组编号" json:"group_no" comment:"资源组编号" `
+	TenantNo     string     `gorm:"column:tenant_no;type:varchar(80);index;default:;comment:租户编号" json:"tenant_no" comment:"租户编号" ` // 租户
+	TerminalCode string     `gorm:"column:terminal_code;type:varchar(80);index;default:;comment:终端类型" json:"terminal_code" comment:"终端类型" `
+	SystemNo     string     `gorm:"column:system_no;type:varchar(80);index;default:'default';comment:系统编号" json:"systemNo" comment:"系统编号"`
 }
 
 func (*RamResourceGroupRelationEntity) TableName() string {

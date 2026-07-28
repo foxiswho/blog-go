@@ -3,17 +3,17 @@ package service
 import (
 	"context"
 
-	"github.com/foxiswho/blog-go/app/manage/domainRam/model/modRamResourceRelation"
-	"github.com/foxiswho/blog-go/infrastructure/entityRam"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryRam"
-	"github.com/foxiswho/blog-go/pkg/enum/state/enumStatePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model"
-	"github.com/foxiswho/blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 
 	"reflect"
 
@@ -25,7 +25,7 @@ import (
 
 func init() {
 	gs.Provide(new(RamResourceRelationService)).Init(func(s *RamResourceRelationService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -52,7 +52,7 @@ func (c *RamResourceRelationService) Create(ctx *gin.Context, ct modRamResourceR
 	copier.Copy(&info, &ct)
 	c.log.Infof("info%+v", info)
 	info.TenantNo = holder.GetTenantNo()
-	c.sv.Create(&info)
+	c.sv.Create(ctx, &info)
 	c.log.Infof("save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
@@ -71,13 +71,13 @@ func (c *RamResourceRelationService) Update(ctx *gin.Context, ct modRamResourceR
 		return rt.ErrorMessage("名称不能为空")
 	}
 	r := c.sv
-	_, b := r.FindById(ct.ID.ToInt64())
+	_, b := r.FindById(ctx, ct.ID.ToInt64())
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	var info entityRam.RamResourceRelationEntity
 	copier.Copy(&info, &ct)
-	r.Update(info, info.ID)
+	r.Update(ctx, info, info.ID)
 	return rt.Ok()
 }
 
@@ -90,7 +90,7 @@ func (c *RamResourceRelationService) Detail(ctx *gin.Context, id int64) (rt rg.R
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
-	find, b := c.sv.FindById(id, repositoryPg.GetOption(ctx))
+	find, b := c.sv.FindById(ctx, id)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -109,13 +109,13 @@ func (c *RamResourceRelationService) Delete(ctx *gin.Context, ct model.BaseIdsCt
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	finds, b := r.FindAllByIdStringIn(ct.Ids)
+	finds, b := r.FindAllByIdStringIn(ctx, ct.Ids)
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
 		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
-		r.DeleteById(info.ID)
+		r.DeleteById(ctx, info.ID)
 	}
 	return rt.Ok()
 }
@@ -148,13 +148,13 @@ func (c *RamResourceRelationService) State(ctx *gin.Context, ids []string, state
 		return rt.ErrorMessage("id错误")
 	}
 	r := c.sv
-	_, b := r.FindAllByIdStringIn(ids)
+	_, b := r.FindAllByIdStringIn(ctx, ids)
 	if b {
 		return rt.ErrorMessage("数据不存在")
 	}
 	//for _, info := range finds {
 	//	if info.StateOrder != state.IndexInt8() {
-	//		r.Update(entityRam.RamResourceRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
+	//		r.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: state.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -183,7 +183,7 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	finds, b := repository.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := repository.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -191,13 +191,13 @@ func (c *RamResourceRelationService) LogicalDeletion(ctx *gin.Context, ids []str
 		for _, info := range finds {
 			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
-		repository.DeleteByIdsString(ids, repositoryPg.GetOption(ctx))
+		repository.DeleteByIdsString(ctx, ids)
 	} else {
 		//for _, info := range finds {
 		//	enum := enumStatePg.State(info.StateOrder)
 		//	// 有效 停用，反转 为对应的 取消 弃置
 		//	if ok, reverse := enum.ReverseEnableDisable(); ok {
-		//		repository.Update(entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+		//		repository.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 		//	}
 		//}
 	}
@@ -216,7 +216,7 @@ func (c *RamResourceRelationService) LogicalRecovery(ctx *gin.Context, ids []str
 		return rt.ErrorMessage("id错误")
 	}
 	repository := c.sv
-	_, b := repository.FindAllByIdStringIn(ids)
+	_, b := repository.FindAllByIdStringIn(ctx, ids)
 	if b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -224,7 +224,7 @@ func (c *RamResourceRelationService) LogicalRecovery(ctx *gin.Context, ids []str
 	//	enum := enumStatePg.State(info.StateOrder)
 	//	//  取消 弃置 批量删除，反转 为对应的 有效 停用 停用
 	//	if ok, reverse := enum.ReverseCancelLayAside(); ok {
-	//		repository.Update(entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
+	//		repository.Update(ctx, entityRam.RamResourceRelationEntity{StateOrder: reverse.IndexInt8()}, info.ID)
 	//	}
 	//}
 	return rt.Ok()
@@ -241,7 +241,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("id错误")
 	}
 	cn := c.sv
-	finds, b := cn.FindAllByIdStringIn(ids, repositoryPg.GetOption(ctx))
+	finds, b := cn.FindAllByIdStringIn(ctx, ids, optionsPg.WithCtx(ctx))
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
@@ -251,7 +251,7 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
-		cn.DeleteByIds(idsNew, repositoryPg.GetOption(ctx))
+		cn.DeleteByIds(ctx, idsNew)
 	}
 	return rt.Ok()
 }
@@ -261,32 +261,29 @@ func (c *RamResourceRelationService) PhysicalDeletion(ctx *gin.Context, ids []st
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRelation.QueryCt) (rt rg.Rs[pagePg.PaginatorPg[modRamResourceRelation.Vo]]) {
+func (c *RamResourceRelationService) Query(ctx *gin.Context, ct modRamResourceRelation.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceRelation.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceRelationEntity
 	copier.Copy(&query, &ct)
+	//
 	slice := make([]modRamResourceRelation.Vo, 0)
-	rt.Data.Data = slice
-	page, err := c.sv.FindAllPage(query, func(c *pagePg.PaginatorPg[*entityRam.RamResourceRelationEntity]) {
-		c.PageNum = ct.PageNum
-		c.PageSize = ct.PageSize
-	})
+	//
+	page, err := c.sv.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		arg.Pageable = new(pagePg.PageablePageSize(0, ct.PageNum, ct.PageSize))
+	}), optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
+		arg.Db = arg.Db.Order("create_at desc")
+	}))
 	if nil != err {
 		return rt.Ok()
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-
-		pg := pagePg.NewPaginatorPg(func(c *pagePg.PaginatorPg[modRamResourceRelation.Vo]) {
-			c.TotalPage = page.TotalPage
-			c.Total = page.Total
-			c.PageSize = page.PageSize
-			c.PageNum = page.PageNum
-		})
+		pg := pagePg.NewPaginatorByPageable[modRamResourceRelation.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
 			var vo modRamResourceRelation.Vo
 			copier.Copy(&vo, &item)
+			//
 			slice = append(slice, vo)
 		}
 		pg.Data = slice
@@ -308,7 +305,7 @@ func (c *RamResourceRelationService) SelectNodePublic(ctx *gin.Context, ct modRa
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		//for _, item := range infos {
 		//	slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
@@ -331,7 +328,7 @@ func (c *RamResourceRelationService) SelectNodeAllPublic(ctx *gin.Context, ct mo
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			var vo modRamResourceRelation.Vo
@@ -356,7 +353,7 @@ func (c *RamResourceRelationService) SelectPublic(ctx *gin.Context, ct modRamRes
 	var query entityRam.RamResourceRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceRelation.Vo{}
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		slice := make([]modRamResourceRelation.Vo, 0)
 		for _, item := range infos {
@@ -379,7 +376,7 @@ func (c *RamResourceRelationService) Selected(ctx *gin.Context, code string) (rt
 	query.Mark = code
 	slice := make([]string, 0)
 	rt.Data = slice
-	infos := c.sv.FindAll(query, repositoryPg.GetOption(ctx))
+	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
 			slice = append(slice, numberPg.Int64ToString(item.ResourceId))

@@ -7,30 +7,30 @@ import (
 	"time"
 
 	"github.com/duke-git/lancet/v2/strutil"
-	"github.com/foxiswho/blog-go/app/manage/domainBlog/service/blogCollect"
-	"github.com/foxiswho/blog-go/app/web/api/model/modBlogCollect"
-	"github.com/foxiswho/blog-go/infrastructure/entityBlog"
-	"github.com/foxiswho/blog-go/infrastructure/repositoryBlog"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeContentPg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeDataSourcePg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeReadingPg"
-	"github.com/foxiswho/blog-go/pkg/enum/blog/typeSourcePg"
-	"github.com/foxiswho/blog-go/pkg/holderPg/holderApiPg"
-	"github.com/foxiswho/blog-go/pkg/log2"
-	"github.com/foxiswho/blog-go/pkg/model/modelBasePg"
-	"github.com/foxiswho/blog-go/pkg/tools/noPg"
 	"github.com/gin-gonic/gin"
-	syslog "github.com/go-spring/log"
-	"github.com/go-spring/spring-core/gs"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogCollect"
+	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogCollect"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeContentPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeDataSourcePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeReadingPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeSourcePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/holderApiPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model/modelBasePg"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
+	"go-spring.org/spring/gs"
 	"gorm.io/datatypes"
 )
 
 func init() {
 	gs.Provide(new(CollectService)).Init(func(s *CollectService) {
-		syslog.Debugf(context.Background(), syslog.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
+		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
 	})
 }
 
@@ -73,7 +73,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	}
 	//重复
 	if duplicate {
-		info, result := c.sv.FindAllByUrlSourceMd5(urlSourceMd5)
+		info, result := c.sv.FindAllByUrlSourceMd5(ctx, urlSourceMd5)
 		if result && nil != info && len(info) > 0 {
 			return rt.ErrorMessage("该链接已存在")
 		}
@@ -89,7 +89,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	if strPg.IsBlank(ct.CategoryNo) {
 		save.CategoryNo = "default"
 	} else {
-		info, result := c.catDb.FindByNo(ct.CategoryNo)
+		info, result := c.catDb.FindByNo(ctx, ct.CategoryNo)
 		if !result {
 			return rt.ErrorMessage("分类不存在")
 		}
@@ -127,7 +127,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	}
 	//
 	//
-	err, _ := c.sv.Create(&save)
+	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
 		c.log.Debugf("save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
@@ -238,7 +238,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 	// 连接
 	//重复
 	if duplicate && len(urlMd5) > 0 {
-		info, result := c.sv.FindAllByUrlSourceMd5In(urlMd5)
+		info, result := c.sv.FindAllByUrlSourceMd5In(ctx, urlMd5)
 		if result && nil != info && len(info) > 0 {
 			for _, entity := range info {
 				duplicateCount++
@@ -248,7 +248,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 	}
 	if len(catNo) > 0 {
 		{
-			info, result := c.catDb.FindAllByNoIn(catNo)
+			info, result := c.catDb.FindAllByNoIn(ctx, catNo)
 			if result {
 				for _, item := range info {
 					mapCat[item.No] = item

@@ -1,7 +1,7 @@
 package modBasicCountry
 
 import (
-	"github.com/foxiswho/blog-go/pkg/tools/typePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 
 type CreateCt struct {
