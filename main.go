@@ -86,7 +86,7 @@ func main() {
 
 	log.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
 	//服务，传入配置 端口
-	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server}")).Export(gs.As[gs.Server]())
+	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server}"), gs.TagArg("?")).Export(gs.As[gs.Server]())
 	//事件监听
 	fsE.Initialize[eventBus.Module]("panGu")
 	gs.Configure(func(app gs.App) {
