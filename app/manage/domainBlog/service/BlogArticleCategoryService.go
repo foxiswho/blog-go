@@ -18,6 +18,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheBlogArticleCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -41,6 +42,7 @@ func init() {
 type BlogArticleCategoryService struct {
 	log *log2.Logger                                  `autowire:"?"`
 	sv  *repositoryBlog.BlogArticleCategoryRepository `autowire:"?"`
+	chd *cacheBlogArticleCategoryPg.Cache             `autowire:"?"`
 }
 
 // Create 新增
@@ -402,6 +404,8 @@ func (c *BlogArticleCategoryService) LogicalDeletion(ctx *gin.Context, ids []str
 			c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		}
 		repository.DeleteByIdsString(ctx, ids)
+		//
+		c.chd.DeleteNos(ctx, ids)
 	} else {
 		for _, info := range finds {
 			enum := enumStatePg.State(info.State)
@@ -456,12 +460,17 @@ func (c *BlogArticleCategoryService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("数据不存在")
 	}
 	idsNew := make([]int64, 0)
+	keys := make([]string, 0)
 	for _, info := range finds {
 		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
 		idsNew = append(idsNew, info.ID)
+		//
+		keys = append(keys, info.No)
 	}
 	if len(idsNew) > 0 {
 		cn.DeleteByIds(ctx, idsNew)
+		//
+		c.chd.DeleteNos(ctx, keys)
 	}
 	return rt.Ok()
 }

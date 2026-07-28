@@ -1,0 +1,7 @@
+node_modules
+target
+build
+dist
+.git
+*.log
+*.tmp

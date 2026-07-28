@@ -18,12 +18,18 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamDepartmentPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamGroupPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamLevelPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamPositionPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamPostPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamRolePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamTeamPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/filePg"
-	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -49,8 +55,16 @@ type RamAccountService struct {
 	groupDb    *repositoryRam.RamGroupRepository                `autowire:"?"`
 	positionDb *repositoryRam.RamPositionRepository             `autowire:"?"`
 	postDb     *repositoryRam.RamPostRepository                 `autowire:"?"`
-	sp         *ramAccount.Sp                                   `autowire:"?"`
-	log        *log2.Logger                                     `autowire:"?"`
+	// 缓存
+	depCache      *cacheRamDepartmentPg.Cache `autowire:"?"`
+	roleCache     *cacheRamRolePg.Cache       `autowire:"?"`
+	levelCache    *cacheRamLevelPg.Cache      `autowire:"?"`
+	groupCache    *cacheRamGroupPg.Cache      `autowire:"?"`
+	teamCache     *cacheRamTeamPg.Cache       `autowire:"?"`
+	positionCache *cacheRamPositionPg.Cache   `autowire:"?"`
+	postCache     *cacheRamPostPg.Cache       `autowire:"?"`
+	sp            *ramAccount.Sp              `autowire:"?"`
+	log           *log2.Logger                `autowire:"?"`
 }
 
 func NewRamAccountService() *RamAccountService {
@@ -237,10 +251,6 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 	rt.Data.Data = slice
 	r := c.sv
 	depDb := c.dep
-	roleDb := c.role
-	groupDb := c.groupDb
-	levelDb := c.levelDb
-	teamDb := c.team
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
 		if ct.PageSize < 1 {
 			ct.PageSize = 20
@@ -271,15 +281,11 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		}
 		//角色
 		if nil != ct.Roles && len(ct.Roles) > 0 {
-			depInfo, result := roleDb.FindAllByNoIn(ctx, ct.Roles)
-			if result {
+			mapRoleCt := c.roleCache.GetMapByNo(ctx, ct.Roles)
+			if len(mapRoleCt) > 0 {
 				sqlDb := r.DbModel()
-				for i, obj := range depInfo {
-					if 0 == i {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-					} else {
-						sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-					}
+				for _, obj := range mapRoleCt {
+					sqlDb = sqlDb.Or("os->'roles' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 				}
 				arg.Db = arg.Db.Where(sqlDb)
 			} else {
@@ -289,15 +295,11 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		//级别
 		{
 			if nil != ct.Levels && len(ct.Levels) > 0 {
-				depInfo, result := levelDb.FindAllByNoIn(ctx, ct.Levels)
-				if result {
+				mapLevelCt := c.levelCache.GetMapByNo(ctx, ct.Levels)
+				if len(mapLevelCt) > 0 {
 					sqlDb := r.DbModel()
-					for i, obj := range depInfo {
-						if 0 == i {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						} else {
-							sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						}
+					for _, obj := range mapLevelCt {
+						sqlDb = sqlDb.Or("os->'levels' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 					arg.Db = arg.Db.Where(sqlDb)
 				} else {
@@ -308,15 +310,11 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		//组
 		{
 			if nil != ct.Groups && len(ct.Groups) > 0 {
-				depInfo, result := groupDb.FindAllByNoIn(ctx, ct.Groups)
-				if result {
+				mapGroupCt := c.groupCache.GetMapByNo(ctx, ct.Groups)
+				if len(mapGroupCt) > 0 {
 					sqlDb := r.DbModel()
-					for i, obj := range depInfo {
-						if 0 == i {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						} else {
-							sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						}
+					for _, obj := range mapGroupCt {
+						sqlDb = sqlDb.Or("os->'groups' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 					arg.Db = arg.Db.Where(sqlDb)
 				}
@@ -325,15 +323,11 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		//团队
 		{
 			if nil != ct.Teams && len(ct.Teams) > 0 {
-				depInfo, result := teamDb.FindAllByNoIn(ctx, ct.Teams)
-				if result {
+				mapTeamCt := c.teamCache.GetMapByNo(ctx, ct.Teams)
+				if len(mapTeamCt) > 0 {
 					sqlDb := r.DbModel()
-					for i, obj := range depInfo {
-						if 0 == i {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						} else {
-							sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
-						}
+					for _, obj := range mapTeamCt {
+						sqlDb = sqlDb.Or("os->'teams' @> ? ", dbPg.StrToArrayJsonExpr(obj.No))
 					}
 					arg.Db = arg.Db.Where(sqlDb)
 				}
@@ -450,78 +444,43 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 		//部门
 		{
 			if len(idsDep) > 0 {
-				infos, result := depDb.FindAllByNoIn(ctx, idsDep)
-				if result {
-					mapDep = slicePg.ToMap(infos, func(t *entityRam.RamDepartmentEntity) (string, *entityRam.RamDepartmentEntity) {
-						return t.No, t
-					})
-				}
+				mapDep = c.depCache.GetMapByNo(ctx, idsDep)
 			}
 		}
 		//角色
 		{
 			if len(idsRole) > 0 {
-				infos, result := roleDb.FindAllByNoIn(ctx, idsRole)
-				if result {
-					mapRole = slicePg.ToMap(infos, func(t *entityRam.RamRoleEntity) (string, *entityRam.RamRoleEntity) {
-						return t.No, t
-					})
-				}
+				mapRole = c.roleCache.GetMapByNo(ctx, idsRole)
 			}
 		}
 		//级别
 		{
 			if len(idsLevel) > 0 {
-				infos, result := levelDb.FindAllByNoIn(ctx, idsLevel)
-				if result {
-					mapLevel = slicePg.ToMap(infos, func(t *entityRam.RamLevelEntity) (string, *entityRam.RamLevelEntity) {
-						return t.No, t
-					})
-				}
+				mapLevel = c.levelCache.GetMapByNo(ctx, idsLevel)
 			}
 		}
 		//分组
 		{
 			if len(idsGroup) > 0 {
-				infos, result := groupDb.FindAllByNoIn(ctx, idsGroup)
-				if result {
-					mapGroup = slicePg.ToMap(infos, func(t *entityRam.RamGroupEntity) (string, *entityRam.RamGroupEntity) {
-						return t.No, t
-					})
-				}
+				mapGroup = c.groupCache.GetMapByNo(ctx, idsGroup)
 			}
 		}
 		//分组
 		{
 			if len(idsTeam) > 0 {
-				infos, result := teamDb.FindAllByNoIn(ctx, idsTeam)
-				if result {
-					mapTeam = slicePg.ToMap(infos, func(t *entityRam.RamTeamEntity) (string, *entityRam.RamTeamEntity) {
-						return t.No, t
-					})
-				}
+				mapTeam = c.teamCache.GetMapByNo(ctx, idsTeam)
 			}
 		}
 		//职位
 		{
 			if len(idsPosition) > 0 {
-				infos, result := c.positionDb.FindAllByNoIn(ctx, idsPosition)
-				if result {
-					mapPosition = slicePg.ToMap(infos, func(t *entityRam.RamPositionEntity) (string, *entityRam.RamPositionEntity) {
-						return t.No, t
-					})
-				}
+				mapPosition = c.positionCache.GetMapByNo(ctx, idsPosition)
 			}
 		}
 		//职位
 		{
 			if len(idsPost) > 0 {
-				infos, result := c.postDb.FindAllByNoIn(ctx, idsPost)
-				if result {
-					mapPost = slicePg.ToMap(infos, func(t *entityRam.RamPostEntity) (string, *entityRam.RamPostEntity) {
-						return t.No, t
-					})
-				}
+				mapPost = c.postCache.GetMapByNo(ctx, idsPost)
 			}
 		}
 		//字段赋值

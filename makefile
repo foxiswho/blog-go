@@ -1,5 +1,5 @@
 # ================== 可配置参数 ==================
-SCAN_DIR       ?= ./app,./infrastructure
+SCAN_DIR       ?= ./infrastructure,./pkg/sdk,./app
 OUTPUT_FILE    ?= auto_import.go
 MODULE_NAME    ?=
 CONCURRENCY    ?= 8
@@ -16,14 +16,33 @@ GO_BUILD_CMD   = CGO_ENABLED=0 go build -v -a \
                  -trimpath
 
 # 自动检测当前系统环境
-CURRENT_OS     := $(shell go env GOOS)
-CURRENT_ARCH   := $(shell go env GOARCH)
+# ================== 自动检测系统（使用 uname，无需 go） ==================
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+ifeq ($(UNAME_S),Linux)
+    CURRENT_OS := linux
+else ifeq ($(UNAME_S),Darwin)
+    CURRENT_OS := darwin
+else
+    CURRENT_OS := unknown
+endif
+
+ifeq ($(UNAME_M),x86_64)
+    CURRENT_ARCH := amd64
+else ifeq ($(UNAME_M),arm64)
+    CURRENT_ARCH := arm64
+else ifeq ($(UNAME_M),aarch64)
+    CURRENT_ARCH := arm64
+else
+    CURRENT_ARCH := unknown
+endif
 
 # ================== 设置默认目标 ==================
 .DEFAULT_GOAL := run
 
 # ================== 目标定义 ==================
-.PHONY: all generate run build build-all clean
+.PHONY: all generate run build build-all clean index-coding
 
 # 完整流程（生成 + 运行），不设为默认
 all: generate run
@@ -41,7 +60,7 @@ generate:
 # 直接运行（默认目标）
 run: generate
 	@echo "===== 启动项目 ====="
-	go run .
+	go run main.go
 
 # 智能编译当前平台
 build:
@@ -72,3 +91,30 @@ clean:
 	@echo "===== 清理构建产物 ====="
 	rm -f $(BINARY_NAME)
 	rm -rf $(BUILD_DIR)
+
+# ================== 索引初始化 ==================
+
+# 索引初始化
+index-coding:
+	@echo "===== 初始化：CodeGraph ====="
+	# 初始化项目配置，生成 .codegraph/ 存储目录
+	codegraph init
+	# 全项目索引（解析AST、构建符号图）
+	codegraph index full
+    # 增量索引（开发常用，只扫描变更文件）
+    #codegraph index incremental
+    # 验证索引
+    #codegraph stats
+    #codegraph validate
+	@echo "===== 初始化：Graphify ====="
+    # 扫描整个仓库构建代码图索引
+	graphify extract .
+    # 启动图服务供智能体调用
+    #graphify serve
+    # 加载已构建代码图，开启上下文检索服务
+    #codegraph-context start --index-path .codegraph/index
+    # 绑定已有代码图，分析变更影响范围
+    #code-review-graph bind --graph-path .codegraph/index
+    # 针对当前Git变更做影响分析
+    #code-review-graph analyze diff
+	@echo "===== 索引初始化完成 ====="

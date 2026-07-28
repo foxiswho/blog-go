@@ -1,4 +1,4 @@
-package cacheRamRolePg
+package cacheBlogArticleCategoryPg
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
-	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constRedisPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -21,19 +21,19 @@ func init() {
 	gs.Provide(new(Cache))
 }
 
-// Cache  角色缓存
+// Cache  文章分类缓存
 type Cache struct {
-	sv  *repositoryRam.RamRoleRepository `autowire:"?"`
-	rdb *rdsPg.BatchString               `autowire:"?"`
+	sv  *repositoryBlog.BlogArticleCategoryRepository `autowire:"?"`
+	rdb *rdsPg.BatchString                            `autowire:"?"`
 }
 
 func (n *Cache) KeyNo(no string) string {
-	return "cac:" + no
+	return "cac_blog_article_category:" + no
 }
 
 // GetMapByNo 多个
-func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]*entityRam.RamRoleEntity) {
-	maps = make(map[string]*entityRam.RamRoleEntity)
+func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]*entityBlog.BlogArticleCategoryEntity) {
+	maps = make(map[string]*entityBlog.BlogArticleCategoryEntity)
 	//
 	if nil == list || len(list) == 0 {
 		return maps
@@ -49,7 +49,7 @@ func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]
 			idsKey = append(idsKey, n.KeyNo(str))
 		}
 	}
-	if len(idsKey) < 0 {
+	if len(idsKey) == 0 {
 		return maps
 	}
 	keys := make([]string, 0)
@@ -87,7 +87,7 @@ func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]
 				if "false" == item {
 					continue
 				}
-				var vo entityRam.RamRoleEntity
+				var vo entityBlog.BlogArticleCategoryEntity
 				err3 := json.Unmarshal([]byte(item), &vo)
 				if err3 != nil {
 					log.Warnf(ctx, log.TagAppDef, "解析json失败:%+v,err:%+v", item, err3)
@@ -115,7 +115,7 @@ func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]
 				for _, item := range info {
 					str1, err4 := json.Marshal(item)
 					if err4 == nil {
-						mapTmp[item.No] = string(str1)
+						mapTmp[n.KeyNo(item.No)] = string(str1)
 						maps[item.No] = item
 					}
 				}
@@ -132,7 +132,7 @@ func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]
 			for _, item := range info {
 				str1, err4 := json.Marshal(item)
 				if err4 == nil {
-					mapTmp[item.No] = string(str1)
+					mapTmp[n.KeyNo(item.No)] = string(str1)
 					maps[item.No] = item
 				}
 			}
@@ -145,7 +145,7 @@ func (n *Cache) GetMapByNo(ctx context.Context, list []string) (maps map[string]
 }
 
 // GetNo 单个
-func (n *Cache) GetNo(ctx context.Context, no string) (*entityRam.RamRoleEntity, bool) {
+func (n *Cache) GetNo(ctx context.Context, no string) (*entityBlog.BlogArticleCategoryEntity, bool) {
 	key := n.KeyNo(no)
 	result, err := n.rdb.GetRdb().Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
@@ -163,7 +163,7 @@ func (n *Cache) GetNo(ctx context.Context, no string) (*entityRam.RamRoleEntity,
 		return nil, false
 	}
 	if strPg.IsNotBlank(result) {
-		var vo entityRam.RamRoleEntity
+		var vo entityBlog.BlogArticleCategoryEntity
 		err4 := json.Unmarshal([]byte(result), &vo)
 		if err4 == nil {
 			return &vo, true
