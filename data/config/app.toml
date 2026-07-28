@@ -1,6 +1,9 @@
-[server]
+[spring.gin.server]
 # 端口
 addr = ":9981"
+
+# 业务域名（非 server 配置）
+[server]
 # 不带 / 后缀
 domain = "http://localhost:9981"
 

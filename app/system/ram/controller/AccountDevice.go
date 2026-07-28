@@ -5,7 +5,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccountDevice"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
@@ -25,8 +24,7 @@ type AccountDeviceController struct {
 }
 
 func (c *AccountDeviceController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/sys/ram/account-device", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/ram/account-device", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 }

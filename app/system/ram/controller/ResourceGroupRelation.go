@@ -5,7 +5,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceGroupRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
@@ -27,8 +26,7 @@ type ResourceGroupRelationController struct {
 }
 
 func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/sys/ram/resource-group-relation", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/ram/resource-group-relation", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/selectedByRole", c.SelectedByRole)
 }
 

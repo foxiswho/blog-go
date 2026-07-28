@@ -7,7 +7,6 @@ import (
 	modRamResourceAuthority2 "github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -31,8 +30,7 @@ type ResourceAuthorityController struct {
 }
 
 func (c *ResourceAuthorityController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/sys/ram/resource-authority", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/ram/resource-authority", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/createByGroup", c.CreatByGroup)
 	group.POST("/updateByRole", c.UpdateByRole)
 	group.GET("/detail/:id", c.Detail)

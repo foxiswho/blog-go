@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
@@ -22,8 +21,7 @@ type LoginController struct {
 }
 
 func (c *LoginController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/auth/sys")
+	group := e.Group("/xianfu/auth/sys")
 	group.POST("/login", c.Login)
 	group.POST("/refresh", c.RefreshToken)
 }

@@ -1,100 +1,40 @@
 package ginServer
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net"
-	"net/http"
-	"strings"
+	"html/template"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"go-spring.org/log"
-	"go-spring.org/spring/gs"
-	"go-spring.org/stdlib/errutil"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
+	"github.com/pangu-2/go-tools/tools/datetimePg"
 )
 
-// GinServerDefault 初始化默认服务
-var GinServerDefault = gin.New()
-
-func init() {
-}
-
-// GetInstance
+// NewGinEngine 创建 gin.Engine 实例，完成静态文件、模板、路由注册后返回。
 //
-//	@Description: 获取 gin 实例
-//	@return *gin.Engine
-func GetInstance() *gin.Engine {
-	return GinServerDefault
-}
+// 由 go-spring DI 容器装配：registrars 通过集合注入接收所有实现了
+// routerPg.RouteRegistrar 接口的 Bean。返回的 *gin.Engine Bean 会被
+// 官方 starter-gin 自动发现（OnBean[*gin.Engine]），进而创建
+// SimpleGinServer 并导出为 gs.Server，接管 HTTP 生命周期。
+func NewGinEngine(registrars []routerPg.RouteRegistrar) *gin.Engine {
+	engine := gin.New()
 
-// gin 框架 整合
-type GinServer struct {
-	svr       *http.Server
-	svrEngine *gin.Engine
-	Port      string
-}
+	// 静态文件目录
+	engine.Static("/assets", "./data/assets")
+	engine.Static("/attachment", "./data/attachment")
 
-// NewGinServer
-//
-//	@Description: 创建 GinServer 实例，并注册所有路由
-//	@param port: 服务监听端口
-//	@param registrars: 路由注册器集合，由 DI 容器自动注入
-//	@return *GinServer
-func NewGinServer(cfg gs.SimpleHttpServerConfig, registrars []routerPg.RouteRegistrar) *GinServer {
-	//log.Infof(context.Background(), log.TagAppDef, "NewGinServer.port:%+v ", port)
-	engine := GetInstance()
+	// 模板函数，需在 LoadHTMLGlob 之前设置
+	engine.SetFuncMap(template.FuncMap{
+		"unescaped":  templatePg.Unescaped,
+		"dateformat": datetimePg.Format,
+	})
+
+	// 加载模板文件，需在路由注册之前
+	engine.LoadHTMLGlob("data/templates/**/**/*")
+
+	// 注册所有路由
 	for _, r := range registrars {
 		r.RegisterRoutes(engine)
 	}
-	port := "8080"
-	idx := strings.LastIndex(cfg.Address, ":")
-	if idx != -1 && idx < len(cfg.Address)-1 {
-		port = cfg.Address[idx+1:]
-	} else {
-		cfg.Address = ":" + port
-	}
-	svr := &GinServer{}
-	svr.Port = port
-	svr.svrEngine = engine
-	svr.svr = &http.Server{
-		Handler:           svr.svrEngine,
-		Addr:              cfg.Address,
-		ReadTimeout:       cfg.ReadTimeout,
-		ReadHeaderTimeout: cfg.HeaderTimeout,
-		WriteTimeout:      cfg.WriteTimeout,
-		IdleTimeout:       cfg.IdleTimeout,
-	}
-	return svr
-}
 
-// 启动 端口
-func (s *GinServer) Run(ctx context.Context, sig gs.ReadySignal) error {
-	addr := s.svr.Addr
-	if addr == "" {
-		addr = ":8080"
-	}
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-	<-sig.TriggerAndWait() // 等待启动信号
-	//
-	log.Infof(context.Background(), log.TagAppDef, "starting successfully...")
-	fmt.Println()
-	fmt.Printf("host: %+v\n", "localhost")
-	fmt.Printf("port: %+v\n", s.Port)
-	fmt.Printf("url: http://localhost:%+v\n", s.Port)
-	fmt.Println()
-	err = s.svr.Serve(ln)
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
-	}
-	return errutil.Explain(err, "failed to serve on %s", s.svr.Addr)
-}
-
-// 关闭
-func (s *GinServer) Stop() error {
-	return s.svr.Shutdown(context.Background())
+	return engine
 }

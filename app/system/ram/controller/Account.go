@@ -5,7 +5,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -43,8 +42,7 @@ func (c *AccountController) SetAppModule(appModule appModulePg.AppModule) *Accou
 //	@receiver c
 //	@param e
 func (c *AccountController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/sys/ram/account", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/ram/account", authPg.GroupSystemMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
 	group.GET("/detail/:id", c.Detail)

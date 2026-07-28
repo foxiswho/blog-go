@@ -32,7 +32,7 @@ require (
 	github.com/yuin/goldmark-meta v1.1.0
 	go-spring.org/log v0.1.4
 	go-spring.org/spring v1.3.4
-	go-spring.org/stdlib v0.1.7
+	go-spring.org/starter-gin v1.3.4
 	go.abhg.dev/goldmark/anchor v0.2.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.abhg.dev/goldmark/toc v0.12.0
@@ -119,7 +119,7 @@ require (
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go-spring.org/gs-mock v0.0.9 // indirect
-	go-spring.org/starter-gin v1.3.4 // indirect
+	go-spring.org/stdlib v0.1.7 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.8.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect

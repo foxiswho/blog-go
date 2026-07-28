@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/cmd"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -26,8 +25,7 @@ type AuthPublicController struct {
 }
 
 func (c *AuthPublicController) RegisterRoutes(e *gin.Engine) {
-	r := ginServer.GinServerDefault
-	group := r.Group("/xianfu/sys/public", authPg.GroupSystemMiddleware(c.Sp))
+	group := e.Group("/xianfu/sys/public", authPg.GroupSystemMiddleware(c.Sp))
 	group.GET("/info", c.Public)
 	group.GET("/infoPublic", c.InfoPublic)
 	group.POST("/password", c.UpdatePassword)

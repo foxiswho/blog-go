@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"runtime"
@@ -18,11 +17,10 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/logsPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
-	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/ioPg"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
+	_ "go-spring.org/starter-gin"
 )
 
 func init() {
@@ -71,22 +69,10 @@ func main() {
 
 	// 指定配置文件目录, 如果不设置，默认 conf 目录
 	_ = os.Setenv("GS_SPRING_APP_CONFIG_DIR", "./data/config")
-	// gin 静态文件路径
-	ginServer.GetInstance().Static("/assets", "./data/assets")
-	ginServer.GetInstance().Static("/attachment", "./data/attachment")
-	funcMap := template.FuncMap{
-		"unescaped":  templatePg.Unescaped,
-		"dateformat": datetimePg.Format,
-	}
-	ginServer.GetInstance().SetFuncMap(funcMap)
-	//加载templates中所有模板文件, 使用不同目录下名称相同的模板,注意:一定要放在配置路由之前才得行
-	ginServer.GetInstance().LoadHTMLGlob("data/templates/**/**/*")
-	//html := template.Must(template.ParseFiles("file1", "file2"))
-	//ginServer.GetInstance().SetHTMLTemplate(html)
 
 	log.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
-	//服务，传入配置 端口
-	gs.Provide(ginServer.NewGinServer, gs.TagArg("${server}"), gs.TagArg("?")).Export(gs.As[gs.Server]())
+	// 提供 *gin.Engine Bean，官方 starter-gin 自动发现并创建 SimpleGinServer (gs.Server)
+	gs.Provide(ginServer.NewGinEngine, gs.TagArg("?"))
 	//事件监听
 	fsE.Initialize[eventBus.Module]("panGu")
 	gs.Configure(func(app gs.App) {
