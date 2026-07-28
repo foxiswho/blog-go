@@ -1,11 +1,9 @@
-//go:generate go run ./auto_tool/main.go -dir=./app,./infrastructure -output=auto_import.go -concurrency=8 -ignore=**/vendor/**,**/.git/**,**/*_test.go,**/testdata/**,**/node_modules/**
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"net/http"
+	"html/template"
 	"os"
 	"runtime"
 
@@ -14,18 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/cmd"
 	_ "github.com/hongmengzhu/xianfu-blog-go/middleware"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/ginServer"
+	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/StarterGin"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/logsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
+	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/ioPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-	_ "go-spring.org/starter-gin"
 )
 
 func init() {
-	//
-	gin.SetMode(gin.DebugMode)
 	//
 	dirPath := make([]string, 0)
 	// 日志目录路径
@@ -49,12 +45,6 @@ func init() {
 	//gs.SetActiveProfiles("dev")
 }
 
-type Controller struct{}
-
-func (c *Controller) Echo(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "Hello, gin!")
-}
-
 func main() {
 
 	// 构建信息，golang版本 commit id 时间
@@ -70,12 +60,37 @@ func main() {
 	// 指定配置文件目录, 如果不设置，默认 conf 目录
 	_ = os.Setenv("GS_SPRING_APP_CONFIG_DIR", "./data/config")
 
-	log.Debugf(context.Background(), logsPg.TagAppDef, "111111111111111111111111111111111111111")
-	// 提供 *gin.Engine Bean，官方 starter-gin 自动发现并创建 SimpleGinServer (gs.Server)
-	gs.Provide(ginServer.NewGinEngine, gs.TagArg("?"))
+	// 提供 RouterRegister Bean，官方 starter-gin 自动发现并创建 SimpleGinServer (gs.Server)
+	gs.Provide(NewRouterRegister, gs.TagArg("?"))
 	//事件监听
 	fsE.Initialize[eventBus.Module]("panGu")
-	gs.Configure(func(app gs.App) {
-		app.Property("spring.http.server.enabled", "false")
-	}).Run()
+	gs.Run()
+}
+
+// NewRouterRegister 收集所有 RouteRegistrar，返回官方 starter-gin 要求的
+// RouterRegister Bean。
+//
+// 官方 starter-gin 自己创建 *gin.Engine 和 http.Server，并通过
+// NewSimpleGinServer(register RouterRegister, cfg Config) 注入此 Bean。
+// 本函数仅负责在 starter 创建的 engine 上注册静态文件、模板和业务路由。
+func NewRouterRegister(registrars []routerPg.RouteRegistrar) StarterGin.RouterRegister {
+	return func(e *gin.Engine) {
+		// 静态文件目录
+		e.Static("/assets", "./data/assets")
+		e.Static("/attachment", "./data/attachment")
+
+		// 模板函数，需在 LoadHTMLGlob 之前设置
+		e.SetFuncMap(template.FuncMap{
+			"unescaped":  templatePg.Unescaped,
+			"dateformat": datetimePg.Format,
+		})
+
+		// 加载模板文件，需在路由注册之前
+		e.LoadHTMLGlob("data/templates/**/**/*")
+
+		// 注册所有路由
+		for _, r := range registrars {
+			r.RegisterRoutes(e)
+		}
+	}
 }
