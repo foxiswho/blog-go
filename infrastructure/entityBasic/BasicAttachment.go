@@ -8,7 +8,7 @@ import (
 type BasicAttachmentEntity struct {
 	ID            int64      `gorm:"column:id;type:bigserial;primaryKey;autoIncrement:true" json:"id" comment:"" `
 	Name          string     `gorm:"column:name;type:varchar(255);comment:名称" json:"name" comment:"名称" `
-	SourceName    string     `gorm:"column:source_name;type:varchar(255);comment:原始名称" json:"source_name" comment:"原始名称" `
+	OriginalName  string     `gorm:"column:original_name;type:varchar(255);comment:原始名称" json:"original_name" comment:"原始名称" `
 	State         int8       `gorm:"column:state;type:int2;not null;index;default:1;comment:1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" json:"state" comment:"1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)" ` // 1有效2停用11取消(对应有效)12弃置(对应停用)13批量删除(无状态)
 	Description   string     `gorm:"column:description;type:varchar(255);comment:描述" json:"description" comment:"描述" `
 	CreateAt      *time.Time `gorm:"column:create_at;type:timestamptz;index;autoCreateTime;default:current_timestamp;comment:创建时间" json:"create_at" comment:"创建时间" `

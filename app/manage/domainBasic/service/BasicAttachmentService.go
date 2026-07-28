@@ -65,16 +65,17 @@ func (c *BasicAttachmentService) Upload(ctx *gin.Context) (rt rg.Rs[modBasicAtta
 
 	c.log.Infof("file.Filename=%+v, file.Size = %+v", file.Filename, file.Size)
 	atta, err := c.FileService.PutObject(f, modAttachment.PutFile(file.Filename, file.Size), nil)
-	c.log.Infof("atta=%#v", atta)
+	log.Infof(ctx, log.TagAppDef, "atta=%#v", atta)
 	if err == nil {
 		var vo modBasicAttachment.OkVo
 		copier.Copy(&vo, &atta)
 		vo.Domain = c.server.Domain
-		vo.Url = vo.Domain + vo.Url
+		if strings.Index(vo.Url, "ttp:") == 0 && strings.Index(vo.Url, "ttps:") == 0 {
+			vo.Url = vo.Domain + vo.Url
+		}
 		return rg.OkData(vo)
-	} else {
-		return rt.ErrorMessage(err.Error())
 	}
+	return rt.ErrorMessage(err.Error())
 }
 
 // UploadMore 多文件上传
@@ -104,7 +105,9 @@ func (c *BasicAttachmentService) UploadMore(ctx *gin.Context) (rt rg.Rs[map[int]
 			var vo modBasicAttachment.OkVo
 			copier.Copy(&vo, &atta)
 			vo.Domain = c.server.Domain
-			vo.Url = vo.Domain + vo.Url
+			if strings.Index(vo.Url, "ttp:") == 0 && strings.Index(vo.Url, "ttps:") == 0 {
+				vo.Url = vo.Domain + vo.Url
+			}
 			data[i+1] = vo
 		} else {
 			data[i+1] = modBasicAttachment.OkVo{Error: file.Filename + " 上传文件错误: " + err.Error()}
@@ -219,6 +222,55 @@ func (c *BasicAttachmentService) ListByOwner(ctx *gin.Context, ct modBasicAttach
 
 	rt.Data = data
 	return rt.Ok()
+}
+
+// DetailListByOwner 查询
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicAttachmentService) DetailListByOwner(ctx *gin.Context, ct modBasicAttachment.ListFileOwnerCt) (rt rg.Rs[[]modBasicAttachment.Vo]) {
+	sliceData := make([]modBasicAttachment.Vo, 0)
+	//
+	fileOwner := make([]string, 0)
+	key := ""
+	if nil != ct.GroupData {
+		for _, item := range ct.GroupData {
+			key = strings.TrimSpace(item.FileOwner)
+			fileOwner = append(fileOwner, key)
+		}
+	} else if nil != ct.FileOwner {
+		for _, item := range ct.FileOwner {
+			key = strings.TrimSpace(item)
+			if strPg.IsNotBlank(key) {
+				fileOwner = append(fileOwner, key)
+			}
+		}
+	}
+	if len(fileOwner) > 0 {
+		r := c.sv
+		var query entityBasic.BasicAttachmentEntity
+		//
+		query.State = enumStatePg.ENABLE.Index()
+		//
+		infos := r.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+			db = db.Order("create_at desc")
+			db = db.Where("file_owner in ?", fileOwner)
+			return db
+		}))
+		if nil != infos {
+			//字段赋值
+			for _, item := range infos {
+				var vo modBasicAttachment.Vo
+				copier.Copy(&vo, &item)
+				vo.Url = item.Domain + item.File
+				//分组
+				sliceData = append(sliceData, vo)
+			}
+		}
+	}
+
+	return rt.OkData(sliceData)
 }
 
 // DelByOwner 查询
@@ -489,7 +541,7 @@ func (c *BasicAttachmentService) AddByFileOwner(ctx *gin.Context, ct modBasicAtt
 			if strPg.IsNotBlank(ct.FileOwnerSub) {
 				save.FileOwnerSub = ct.FileOwnerSub
 			}
-			c.sv.DbModel().Create(save)
+			c.sv.Create(ctx, &save)
 		}
 	}
 	data := make([]modBasicAttachment.MakeFileOwner, 0)

@@ -3,20 +3,17 @@ package rdsPg
 import (
 	"context"
 	"errors"
-	"reflect"
+	"time"
 
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constBlogPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/redis/go-redis/v9"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BatchString)).Init(func(s *BatchString) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BatchString))
 }
 
 type BatchString struct {
@@ -37,10 +34,22 @@ func (t *BatchString) GetRdb() *redis.Client {
 	return t.rdb
 }
 
-func (t *BatchString) SetPipeline(ctx context.Context, keysValues map[string]interface{}) {
+func (t *BatchString) SetPipeline(ctx context.Context, keysValues map[string]any) {
 	pipeline := t.rdb.Pipeline()
 	for key, value := range keysValues {
 		pipeline.Set(ctx, key, value, 0) // 0 表示无过期时间
+	}
+	// 执行批量操作
+	_, err := pipeline.Exec(ctx)
+	if err != nil {
+		t.log.Error("批量操作失败:", err)
+		return
+	}
+}
+func (t *BatchString) SetPipelineTimeDuration(ctx context.Context, keysValues map[string]any, expire time.Duration) {
+	pipeline := t.rdb.Pipeline()
+	for key, value := range keysValues {
+		pipeline.Set(ctx, key, value, expire) // 0 表示无过期时间
 	}
 	// 执行批量操作
 	_, err := pipeline.Exec(ctx)
@@ -62,7 +71,7 @@ func (t *BatchString) Get(ctx context.Context, key string) (string, bool) {
 	return result, true
 }
 
-func (t *BatchString) GetAllByKeys(ctx context.Context, key []string) ([]interface{}, bool) {
+func (t *BatchString) GetAllByKeys(ctx context.Context, key []string) ([]any, bool) {
 	result, err := t.rdb.MGet(ctx, key...).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -74,7 +83,7 @@ func (t *BatchString) GetAllByKeys(ctx context.Context, key []string) ([]interfa
 	return result, true
 }
 
-func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]interface{}, bool) {
+func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]any, bool) {
 	resp, err := t.rdb.Eval(ctx, constBlogPg.ArticleCategoryLua, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -84,7 +93,7 @@ func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]inte
 		return nil, false
 	}
 	// 解析返回结果
-	result, ok := resp.([]interface{})
+	result, ok := resp.([]any)
 	if !ok {
 		t.log.Error("获取缓存失败:返回结果格式错误，预期为数组类型:", err)
 		return nil, false
@@ -93,7 +102,7 @@ func (t *BatchString) GetAllEvalByLua(ctx context.Context, key []string) ([]inte
 }
 
 // HSetPipeline 批量设置哈希表字段和值
-func (t *BatchString) HSetPipeline(ctx context.Context, hashKey string, keysValues map[string]interface{}) {
+func (t *BatchString) HSetPipeline(ctx context.Context, hashKey string, keysValues map[string]any) {
 	// 创建 Pipeline 并添加
 	cmders, err := t.rdb.Pipelined(ctx, func(pipeliner redis.Pipeliner) error {
 		for key, value := range keysValues {
@@ -109,7 +118,7 @@ func (t *BatchString) HSetPipeline(ctx context.Context, hashKey string, keysValu
 }
 
 // HSetPipelineMapAll 批量设置哈希表字段和值
-func (t *BatchString) HSetPipelineMapAll(ctx context.Context, keysValues map[string]map[string]interface{}) {
+func (t *BatchString) HSetPipelineMapAll(ctx context.Context, keysValues map[string]map[string]any) {
 	// 创建 Pipeline 并添加
 	cmders, err := t.rdb.Pipelined(ctx, func(pipeliner redis.Pipeliner) error {
 		for hashKey, v := range keysValues {

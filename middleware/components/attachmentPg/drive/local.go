@@ -115,12 +115,12 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 
 	//保存到数据库
 	eventBus.PublishEventAsync(constEventBusPg.BasicAttachmentCreate, entityBasic.BasicAttachmentEntity{
-		Name:        attachment.Name,
-		SourceName:  attachment.OriginalName,
-		Description: attachment.Description,
-		Sort:        attachment.Sort,
-		Size:        attachment.Size,
-		Module:      attachment.Module,
+		Name:         attachment.Name,
+		OriginalName: attachment.OriginalName,
+		Description:  attachment.Description,
+		Sort:         attachment.Sort,
+		Size:         attachment.Size,
+		Module:       attachment.Module,
 		//Value:         attachment.Value,
 		Tag:           attachment.Tag,
 		Label:         attachment.Label,

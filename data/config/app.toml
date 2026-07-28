@@ -74,7 +74,7 @@ not = []
 
 [pg.attachment]
 # file system
-dir = "data/attachment"
+dir = "attachment"
 # 创建目录权限代号
 mkdirPermission = 777
 # 附件存储域名 不带 / 后缀
