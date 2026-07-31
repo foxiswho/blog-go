@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	modRamCas "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamCas"
 	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
 	modRamMfa "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMfa"
 	modRamSaml "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamSaml"
@@ -27,6 +28,8 @@ type AuthLoginIdpController struct {
 	sv           *service.AccountLoginIdpService `autowire:"?"`
 	samlService  *service.SamlLoginService       `autowire:"?"`
 	mfaService   *service.AccountMfaService      `autowire:"?"`
+	faceIdService *service.FaceIdService         `autowire:"?"`
+	casService   *service.CasService             `autowire:"?"`
 	log          *log2.Logger                    `autowire:"?"`
 }
 
@@ -45,6 +48,13 @@ func (c *AuthLoginIdpController) RegisterRoutes(e *gin.Engine) {
 	// SAML 端点
 	group.GET("/saml/login/:sourceNo", c.SamlLogin)
 	group.POST("/saml/callback", c.SamlCallback)
+
+	// Face ID 端点
+	group.POST("/faceid/begin", c.FaceIdBegin)
+	group.POST("/faceid/verify", c.FaceIdVerify)
+
+	// CAS 登录端点
+	group.POST("/cas/login", c.CasLogin)
 }
 
 // Login IDP OAuth 登陆
@@ -167,4 +177,34 @@ func (c *AuthLoginIdpController) SamlCallback(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, rg.OkData(result.Data))
+}
+
+// FaceIdBegin Face ID 开始验证
+func (c *AuthLoginIdpController) FaceIdBegin(ctx *gin.Context) {
+	var ct service.FaceIdBeginCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.faceIdService.Begin(ctx, ct))
+}
+
+// FaceIdVerify Face ID 验证
+func (c *AuthLoginIdpController) FaceIdVerify(ctx *gin.Context) {
+	var ct service.FaceIdVerifyCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.faceIdService.Verify(ctx, ct))
+}
+
+// CasLogin CAS 登录（生成 Service Ticket）
+func (c *AuthLoginIdpController) CasLogin(ctx *gin.Context) {
+	var ct modRamCas.CasLoginCt
+	if err := ctx.ShouldBind(&ct); err != nil {
+		ctx.JSON(200, rg.ErrorDefault[string]())
+		return
+	}
+	ctx.JSON(200, c.casService.Login(ctx, ct))
 }

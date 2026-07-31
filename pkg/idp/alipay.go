@@ -1,0 +1,325 @@
+package idp
+
+import (
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"sort"
+	"strings"
+	"time"
+
+	"github.com/go-pay/gopay/alipay"
+	"golang.org/x/oauth2"
+)
+
+type AlipayIdProvider struct {
+	Client     *http.Client
+	Config     *oauth2.Config
+	AppCertSN  string
+	RootCertSN string
+}
+
+// NewAlipayIdProvider ...
+func NewAlipayIdProvider(clientId string, clientSecret string, redirectUrl string, appCert string, rootCert string) (*AlipayIdProvider, error) {
+	idp := &AlipayIdProvider{}
+
+	config := idp.getConfig(clientId, clientSecret, redirectUrl)
+	idp.Config = config
+
+	if appCert != "" {
+		sn, err := alipay.GetCertSN([]byte(appCert))
+		if err != nil {
+			return nil, fmt.Errorf("failed to compute app_cert_sn: %w", err)
+		}
+		idp.AppCertSN = sn
+	}
+	if rootCert != "" {
+		sn, err := alipay.GetRootCertSN([]byte(rootCert))
+		if err != nil {
+			return nil, fmt.Errorf("failed to compute alipay_root_cert_sn: %w", err)
+		}
+		idp.RootCertSN = sn
+	}
+
+	return idp, nil
+}
+
+// SetHttpClient ...
+func (idp *AlipayIdProvider) SetHttpClient(client *http.Client) {
+	idp.Client = client
+}
+
+// getConfig return a point of Config, which describes a typical 3-legged OAuth2 flow
+func (idp *AlipayIdProvider) getConfig(clientId string, clientSecret string, redirectUrl string) *oauth2.Config {
+	endpoint := oauth2.Endpoint{
+		AuthURL:  "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm",
+		TokenURL: "https://openapi.alipay.com/gateway.do",
+	}
+
+	config := &oauth2.Config{
+		Scopes:       []string{"", ""},
+		Endpoint:     endpoint,
+		ClientID:     clientId,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectUrl,
+	}
+
+	return config
+}
+
+type AlipayErrorResponse struct {
+	Code    string `json:"code"`
+	Msg     string `json:"msg"`
+	SubCode string `json:"sub_code"`
+	SubMsg  string `json:"sub_msg"`
+}
+
+type AlipayAccessToken struct {
+	Response      AlipaySystemOauthTokenResponse `json:"alipay_system_oauth_token_response"`
+	ErrorResponse AlipayErrorResponse            `json:"error_response"`
+	Sign          string                         `json:"sign"`
+}
+
+type AlipaySystemOauthTokenResponse struct {
+	Code         string `json:"code"`
+	Msg          string `json:"msg"`
+	SubCode      string `json:"sub_code"`
+	SubMsg       string `json:"sub_msg"`
+	AccessToken  string `json:"access_token"`
+	AlipayUserId string `json:"alipay_user_id"`
+	ExpiresIn    int    `json:"expires_in"`
+	ReExpiresIn  int    `json:"re_expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	UserId       string `json:"user_id"`
+}
+
+// GetToken use code to get access_token
+func (idp *AlipayIdProvider) GetToken(code string) (*oauth2.Token, error) {
+	pTokenParams := &struct {
+		ClientId  string `json:"app_id"`
+		CharSet   string `json:"charset"`
+		Code      string `json:"code"`
+		GrantType string `json:"grant_type"`
+		Method    string `json:"method"`
+		SignType  string `json:"sign_type"`
+		TimeStamp string `json:"timestamp"`
+		Version   string `json:"version"`
+	}{idp.Config.ClientID, "utf-8", code, "authorization_code", "alipay.system.oauth.token", "RSA2", time.Now().Format("2006-01-02 15:04:05"), "1.0"}
+
+	data, err := idp.postWithBody(pTokenParams, idp.Config.Endpoint.TokenURL)
+	if err != nil {
+		return nil, err
+	}
+
+	pToken := &AlipayAccessToken{}
+	err = json.Unmarshal(data, pToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if pToken.Response.AccessToken == "" {
+		errResp := pToken.ErrorResponse
+		if errResp.Code == "" {
+			errResp.Code = pToken.Response.Code
+			errResp.SubCode = pToken.Response.SubCode
+			errResp.Msg = pToken.Response.Msg
+			errResp.SubMsg = pToken.Response.SubMsg
+		}
+		errMsg := errResp.Msg
+		if errResp.SubMsg != "" {
+			errMsg = errResp.SubMsg
+		}
+		return nil, fmt.Errorf("alipay GetToken error: code=%s, sub_code=%s, msg=%s", errResp.Code, errResp.SubCode, errMsg)
+	}
+
+	token := &oauth2.Token{
+		AccessToken: pToken.Response.AccessToken,
+		Expiry:      time.Unix(time.Now().Unix()+int64(pToken.Response.ExpiresIn), 0),
+	}
+	return token, nil
+}
+
+type AlipayUserResponse struct {
+	AlipayUserInfoShareResponse AlipayUserInfoShareResponse `json:"alipay_user_info_share_response"`
+	Sign                        string                      `json:"sign"`
+}
+
+type AlipayUserInfoShareResponse struct {
+	Code     string `json:"code"`
+	Msg      string `json:"msg"`
+	Avatar   string `json:"avatar"`
+	NickName string `json:"nick_name"`
+	UserId   string `json:"user_id"`
+}
+
+// GetUserInfo Use access_token to get UserInfo
+func (idp *AlipayIdProvider) GetUserInfo(token *oauth2.Token) (*UserInfo, error) {
+	atUserInfo := &AlipayUserResponse{}
+	accessToken := token.AccessToken
+
+	pTokenParams := &struct {
+		ClientId  string `json:"app_id"`
+		CharSet   string `json:"charset"`
+		AuthToken string `json:"auth_token"`
+		Method    string `json:"method"`
+		SignType  string `json:"sign_type"`
+		TimeStamp string `json:"timestamp"`
+		Version   string `json:"version"`
+	}{idp.Config.ClientID, "utf-8", accessToken, "alipay.user.info.share", "RSA2", time.Now().Format("2006-01-02 15:04:05"), "1.0"}
+	data, err := idp.postWithBody(pTokenParams, idp.Config.Endpoint.TokenURL)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(data, atUserInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := atUserInfo.AlipayUserInfoShareResponse
+	if resp.Code != "10000" {
+		return nil, fmt.Errorf("alipay GetUserInfo error: code=%s, msg=%s", resp.Code, resp.Msg)
+	}
+
+	userInfo := UserInfo{
+		Id:          resp.UserId,
+		Username:    resp.NickName,
+		DisplayName: resp.NickName,
+		AvatarUrl:   resp.Avatar,
+	}
+
+	return &userInfo, nil
+}
+
+func (idp *AlipayIdProvider) postWithBody(body interface{}, targetUrl string) ([]byte, error) {
+	bs, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyJson := make(map[string]interface{})
+	err = json.Unmarshal(bs, &bodyJson)
+	if err != nil {
+		return nil, err
+	}
+
+	formData := url.Values{}
+	for k := range bodyJson {
+		formData.Set(k, bodyJson[k].(string))
+	}
+
+	if idp.AppCertSN != "" {
+		formData.Set("app_cert_sn", idp.AppCertSN)
+	}
+	if idp.RootCertSN != "" {
+		formData.Set("alipay_root_cert_sn", idp.RootCertSN)
+	}
+
+	sign, err := rsaSignWithRSA256(getStringToSign(formData), idp.Config.ClientSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	formData.Set("sign", sign)
+
+	resp, err := idp.Client.Post(targetUrl, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+
+	return data, nil
+}
+
+// get the string to sign, see https://opendocs.alipay.com/common/02kf5q
+func getStringToSign(formData url.Values) string {
+	keys := make([]string, 0, len(formData))
+	for k := range formData {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	str := ""
+	for _, k := range keys {
+		if k == "sign" || formData[k][0] == "" {
+			continue
+		} else {
+			str += "&" + k + "=" + formData[k][0]
+		}
+	}
+	str = strings.Trim(str, "&")
+	return str
+}
+
+// use privateKey to sign the content
+func rsaSignWithRSA256(signContent string, privateKey string) (string, error) {
+	privateKey = formatPrivateKey(privateKey)
+	block, _ := pem.Decode([]byte(privateKey))
+	if block == nil {
+		panic("fail to parse privateKey")
+	}
+
+	h := sha256.New()
+	h.Write([]byte(signContent))
+	hashed := h.Sum(nil)
+
+	privateKeyRSA, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKeyRSA.(*rsa.PrivateKey), crypto.SHA256, hashed)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(signature), nil
+}
+
+// privateKey in database is a string, format it to PEM style
+func formatPrivateKey(privateKey string) string {
+	// Check if the key is already in PEM format
+	if strings.HasPrefix(privateKey, "-----BEGIN PRIVATE KEY-----") ||
+		strings.HasPrefix(privateKey, "-----BEGIN RSA PRIVATE KEY-----") {
+		// Key is already in PEM format, return as is
+		return privateKey
+	}
+
+	// Remove any whitespace from the key
+	privateKey = strings.ReplaceAll(privateKey, "\n", "")
+	privateKey = strings.ReplaceAll(privateKey, "\r", "")
+	privateKey = strings.ReplaceAll(privateKey, " ", "")
+
+	// Format the key with line breaks every 64 characters using strings.Builder
+	var builder strings.Builder
+	for i := 0; i < len(privateKey); i += 64 {
+		end := i + 64
+		if end > len(privateKey) {
+			end = len(privateKey)
+		}
+		builder.WriteString(privateKey[i:end])
+		if end < len(privateKey) {
+			builder.WriteString("\n")
+		}
+	}
+
+	// add pkcs#8 BEGIN and END
+	return "-----BEGIN PRIVATE KEY-----\n" + builder.String() + "\n-----END PRIVATE KEY-----"
+}

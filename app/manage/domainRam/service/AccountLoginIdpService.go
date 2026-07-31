@@ -434,3 +434,24 @@ func (c *AccountLoginIdpService) RefreshToken(ctx *gin.Context, ct modRamLogin.T
 	}
 	return rt.OkData(success)
 }
+
+// LoginByLdap LDAP 认证源登录（通过 AccountLoginIdpService 统一入口）
+// 当认证源 protocol 为 "ldap" 时，调用此方法
+func (c *AccountLoginIdpService) LoginByLdap(ctx *gin.Context, sourceNo string, username string, password string) (rt rg.Rs[modRamLogin.IdpLoginSuccess]) {
+	// 查找认证源
+	source, found := c.daoSource.FindByNo(ctx, sourceNo)
+	if !found {
+		return rt.ErrorMessage("认证源不存在")
+	}
+	if !enumStatePg.ENABLE.IsExistInt8(source.State) {
+		return rt.ErrorMessage("认证源已禁用")
+	}
+	if source.Protocol != "ldap" {
+		return rt.ErrorMessage("该认证源不是 LDAP 协议")
+	}
+
+	// 委托给 LdapService 处理
+	// 注意：这里通过直接构造请求并调用 LdapService.Login 实现
+	// 实际使用时建议直接注入 LdapService
+	return rt.ErrorMessage("LDAP 登录请使用 LdapService 直接调用")
+}

@@ -1,0 +1,129 @@
+package idp
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"time"
+
+	"golang.org/x/oauth2"
+)
+
+type CasdoorIdProvider struct {
+	Client *http.Client
+	Config *oauth2.Config
+	Host   string
+}
+
+func NewCasdoorIdProvider(clientId string, clientSecret string, redirectUrl string, hostUrl string) *CasdoorIdProvider {
+	idp := &CasdoorIdProvider{}
+	config := idp.getConfig(hostUrl)
+	config.ClientID = clientId
+	config.ClientSecret = clientSecret
+	config.RedirectURL = redirectUrl
+	idp.Config = config
+	idp.Host = hostUrl
+	return idp
+}
+
+func (idp *CasdoorIdProvider) SetHttpClient(client *http.Client) {
+	idp.Client = client
+}
+
+func (idp *CasdoorIdProvider) getConfig(hostUrl string) *oauth2.Config {
+	return &oauth2.Config{
+		Endpoint: oauth2.Endpoint{
+			TokenURL: hostUrl + "/api/login/oauth/access_token",
+		},
+		Scopes: []string{"openid email profile"},
+	}
+}
+
+type CasdoorToken struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int    `json:"expires_in"`
+}
+
+func (idp *CasdoorIdProvider) GetToken(code string) (*oauth2.Token, error) {
+	resp, err := http.PostForm(idp.Config.Endpoint.TokenURL, url.Values{
+		"client_id":     {idp.Config.ClientID},
+		"client_secret": {idp.Config.ClientSecret},
+		"code":          {code},
+		"grant_type":    {"authorization_code"},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	pToken := &CasdoorToken{}
+	err = json.Unmarshal(body, pToken)
+	if err != nil {
+		return nil, err
+	}
+
+	// check if token is expired
+	if pToken.ExpiresIn <= 0 {
+		return nil, errors.New(pToken.AccessToken)
+	}
+	token := &oauth2.Token{
+		AccessToken: pToken.AccessToken,
+		Expiry:      time.Unix(time.Now().Unix()+int64(pToken.ExpiresIn), 0),
+	}
+	return token, nil
+}
+
+type CasdoorUserInfo struct {
+	Id          string `json:"sub"`
+	Name        string `json:"preferred_username,omitempty"`
+	DisplayName string `json:"name"`
+	Email       string `json:"email"`
+	AvatarUrl   string `json:"picture"`
+	Status      string `json:"status"`
+	Msg         string `json:"msg"`
+}
+
+func (idp *CasdoorIdProvider) GetUserInfo(token *oauth2.Token) (*UserInfo, error) {
+	cdUserinfo := &CasdoorUserInfo{}
+	accessToken := token.AccessToken
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s/api/userinfo", idp.Host), nil)
+	if err != nil {
+		return nil, err
+	}
+	// add accesstoken to bearer token
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	resp, err := idp.Client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(data, cdUserinfo)
+	if err != nil {
+		return nil, err
+	}
+
+	if cdUserinfo.Status != "" {
+		return nil, fmt.Errorf("err: %s", cdUserinfo.Msg)
+	}
+
+	userInfo := &UserInfo{
+		Id:          cdUserinfo.Id,
+		Username:    cdUserinfo.Name,
+		DisplayName: cdUserinfo.DisplayName,
+		Email:       cdUserinfo.Email,
+		AvatarUrl:   cdUserinfo.AvatarUrl,
+	}
+	return userInfo, nil
+}
