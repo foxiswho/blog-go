@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/model/modApiDiplCategory"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdentitySourceCallback"
+	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -16,20 +18,21 @@ import (
 )
 
 func init() {
-	gs.Provide(new(DiplCategoryController)).Name("ManageDiplCategoryController").Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(IdentitySourceCallbackController)).Name("ManageIdentitySourceCallbackController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// DiplCategoryController 分类
+// IdentitySourceCallbackController 认证源回调白名单
 // @Description:
-type DiplCategoryController struct {
+type IdentitySourceCallbackController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
-	sv  *service.ApiDiplCategoryService `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	Sp  *authPg.GroupManageMiddlewareSp                  `autowire:""`
+	sv  *service.RamIdentitySourceCallbackService        `autowire:"?"`
+	log *log2.Logger                                     `autowire:"?"`
 }
 
-func (c *DiplCategoryController) RegisterRoutes(e *gin.Engine) {
-	group := e.Group("/xianfu/manage/api/dipl-category", authPg.GroupManageMiddleware(c.Sp))
+// RegisterRoutes 注册路由
+func (c *IdentitySourceCallbackController) RegisterRoutes(e *gin.Engine) {
+	group := e.Group("/xianfu/manage/ram/identity-source-callback", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/create", c.Create)
 	group.POST("/update", c.Update)
 	group.GET("/detail/:id", c.Detail)
@@ -40,21 +43,14 @@ func (c *DiplCategoryController) RegisterRoutes(e *gin.Engine) {
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
-	group.POST("/queryAll", c.QueryAll)
-	group.POST("/selectNodePublic", c.SelectNodePublic)
-	group.POST("/selectNodeAllPublic", c.SelectNodeAllPublic)
+	group.POST("/selectPublic", c.SelectPublic)
 	group.POST("/existName", c.ExistName)
 }
 
 // Create 创建
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Create(ctx *gin.Context) {
-	var ct modApiDiplCategory.CreateCt
+func (c *IdentitySourceCallbackController) Create(ctx *gin.Context) {
+	var ct modRamIdentitySourceCallback.CreateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -67,14 +63,9 @@ func (c *DiplCategoryController) Create(ctx *gin.Context) {
 }
 
 // Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Update(ctx *gin.Context) {
-	var ct modApiDiplCategory.UpdateCt
+func (c *IdentitySourceCallbackController) Update(ctx *gin.Context) {
+	var ct modRamIdentitySourceCallback.UpdateCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -87,14 +78,9 @@ func (c *DiplCategoryController) Update(ctx *gin.Context) {
 }
 
 // Delete 逻辑删除
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Delete(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -107,14 +93,9 @@ func (c *DiplCategoryController) Delete(ctx *gin.Context) {
 }
 
 // Recovery 逻辑删除恢复
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Recovery(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -127,14 +108,9 @@ func (c *DiplCategoryController) Recovery(ctx *gin.Context) {
 }
 
 // PhysicalDeletion 物理删除
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) PhysicalDeletion(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -147,12 +123,9 @@ func (c *DiplCategoryController) PhysicalDeletion(ctx *gin.Context) {
 }
 
 // Detail 详情
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Detail(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) Detail(ctx *gin.Context) {
 	param := ctx.Param("id")
+	fmt.Println(param)
 	if "" == param {
 		ctx.JSON(200, rg.Error[string]("id不能为空"))
 		return
@@ -161,14 +134,9 @@ func (c *DiplCategoryController) Detail(ctx *gin.Context) {
 }
 
 // Enable 启用
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Enable(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -181,14 +149,9 @@ func (c *DiplCategoryController) Enable(ctx *gin.Context) {
 }
 
 // Disable 禁用
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Disable(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -201,14 +164,9 @@ func (c *DiplCategoryController) Disable(ctx *gin.Context) {
 }
 
 // State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) State(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -226,14 +184,9 @@ func (c *DiplCategoryController) State(ctx *gin.Context) {
 }
 
 // Query 查询列表
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) Query(ctx *gin.Context) {
-	var ct modApiDiplCategory.QueryCt
+func (c *IdentitySourceCallbackController) Query(ctx *gin.Context) {
+	var ct modRamIdentitySourceCallback.QueryCt
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -245,63 +198,15 @@ func (c *DiplCategoryController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct))
 }
 
-func (c *DiplCategoryController) SelectNodePublic(ctx *gin.Context) {
-	var ct modApiDiplCategory.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
-}
-
-func (c *DiplCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modApiDiplCategory.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
-	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
-}
-
-func (c *DiplCategoryController) QueryAll(ctx *gin.Context) {
-	var ct modApiDiplCategory.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ct.State = enumStatePg.ENABLE.IndexPg()
+func (c *IdentitySourceCallbackController) SelectPublic(ctx *gin.Context) {
+	ct := modRamIdentitySourceCallback.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 
 // ExistName 查重
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) ExistName(ctx *gin.Context) {
+func (c *IdentitySourceCallbackController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
 	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
 		translate := validatorPg.Translate(err, &ct)
 		if len(translate) > 0 {
 			ctx.JSON(200, rg.ErrorMessageData[string](translate))
@@ -311,24 +216,4 @@ func (c *DiplCategoryController) ExistName(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistName(ctx, ct))
-}
-
-// ExistNo 查重
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *DiplCategoryController) ExistNo(ctx *gin.Context) {
-	var ct model.BaseExistWdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
-		return
-	}
-	ctx.JSON(200, c.sv.ExistNo(ctx, ct))
 }
