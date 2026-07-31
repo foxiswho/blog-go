@@ -6,11 +6,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # ======================== 配置区域 (请根据你的项目修改) ========================
 # 项目名称 (用于标识进程)
-APP_NAME="blogGo"
+APP_NAME="xianFuBlogGo"
 # 编译后的可执行文件路径 (绝对路径)
 APP_BIN=$SCRIPT_DIR
 # 日志文件路径
-LOG_FILE="${SCRIPT_DIR}/blogGo.log"
+LOG_FILE="${SCRIPT_DIR}/xianFuBlogGo.log"
 # PID 文件路径 (记录进程ID)
 PID_FILE="${SCRIPT_DIR}/${APP_NAME}.pid"
 # 启动参数 (如有需要)

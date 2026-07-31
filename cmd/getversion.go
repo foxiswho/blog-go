@@ -22,7 +22,7 @@ var (
 func GetVersion(ctx *gin.Context) {
 	ctx.Writer.Header().Set("Content-Type", "application/json")
 	ctx.Writer.WriteHeader(http.StatusOK)
-	mapStr := make(map[string]interface{})
+	mapStr := make(map[string]any)
 	mapStr["BuildVersion"] = BuildVersion
 	mapStr["BuildGitCommit"] = BuildGitCommit
 	mapStr["BuildTime"] = BuildTime
@@ -34,6 +34,7 @@ func GetVersion(ctx *gin.Context) {
 		mapStr["BuildVersion"] = "未编译"
 		mapStr["BuildGitCommit"] = "未编译"
 		mapStr["BuildTime"] = "未编译"
+		mapStr["BuildUser"] = "未编译"
 	}
 	ctx.JSON(200, rg.OkData[map[string]interface{}](mapStr))
 }

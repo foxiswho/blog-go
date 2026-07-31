@@ -6,9 +6,15 @@ CONCURRENCY    ?= 8
 IGNORE_PATTERNS ?= **/vendor/**,**/.git/**,**/*_test.go,**/testdata/**,**/node_modules/**
 
 # 构建相关
+version        ?= v0.0.1
+GitCommit      ?= hhhhhh
+COMPACT_TS     ?= $(shell date +"%Y%m%d%H%M%S")
 BINARY_NAME    ?= xianFuBlogGo
 BUILD_DIR      ?= bin
-LDFLAGS        ?= -s -w -extldflags "-static" -X "main.UserName="
+LDFLAGS        ?= -s -w -extldflags "-static" -X "main.UserName=" \
+                  -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildVersion=${version}" \
+                  -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildGitCommit=${GitCommit}" \
+                  -X "github.com/hongmengzhu/xianfu-blog-go/cmd.BuildTime=${COMPACT_TS}"
 GO_BUILD_CMD   = CGO_ENABLED=0 go build -v -a \
                  -ldflags '$(LDFLAGS)' \
                  -gcflags="all=-trimpath=$(CURDIR)" \
