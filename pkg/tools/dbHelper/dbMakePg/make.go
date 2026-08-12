@@ -90,15 +90,10 @@ func MakeTable(db *gorm.DB, tmp interface{}, tableName, tableComment string) {
 //	@param seq
 //	@return string
 func MakeSequenceSql(table string, seq int64) string {
-	str := `
-DO $$
-DECLARE
-    current_value bigint;
-BEGIN
-    SELECT last_value INTO current_value FROM %s;
-    IF current_value < %d THEN
-        ALTER SEQUENCE %s RESTART WITH %d;
-    END IF;
-END $$;`
-	return fmt.Sprintf(str, table+"_id_seq", seq, table+"_id_seq", seq)
+	// 仅当序列当前值小于目标值时才 setval，避免回退已用序列；
+	// is_called=true 表示 nextval 返回 seq+1，保留 seq 作为起始号段
+	return fmt.Sprintf(
+		"SELECT setval('%s_id_seq', GREATEST((SELECT last_value FROM %s_id_seq), %d), true);",
+		table, table, seq,
+	)
 }

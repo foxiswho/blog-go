@@ -5,9 +5,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogCollect"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -39,14 +37,7 @@ func (c *CollectController) RegisterRoutes(e *gin.Engine) {
 //	@param ctx
 func (c *CollectController) Push(ctx *gin.Context) {
 	var ct modBlogCollect.PushCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Push(ctx, ct))
@@ -59,14 +50,7 @@ func (c *CollectController) Push(ctx *gin.Context) {
 //	@param ctx
 func (c *CollectController) PushAll(ctx *gin.Context) {
 	var ct modBlogCollect.PushAll
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PushAll(ctx, ct))

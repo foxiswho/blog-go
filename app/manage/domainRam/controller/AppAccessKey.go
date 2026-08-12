@@ -5,11 +5,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -51,14 +49,7 @@ func (c *AppAccessKeyController) RegisterRoutes(e *gin.Engine) {
 //	@param ctx
 func (c *AppAccessKeyController) MakeNewRecord(ctx *gin.Context) {
 	var ct model.BaseIdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.MakeNewRecord(ctx, ct))
@@ -71,14 +62,7 @@ func (c *AppAccessKeyController) MakeNewRecord(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
@@ -91,14 +75,7 @@ func (c *AppAccessKeyController) Delete(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalRecovery(ctx, ct.Ids))
@@ -111,14 +88,7 @@ func (c *AppAccessKeyController) Recovery(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
@@ -131,14 +101,7 @@ func (c *AppAccessKeyController) PhysicalDeletion(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
@@ -151,14 +114,7 @@ func (c *AppAccessKeyController) Enable(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
@@ -171,14 +127,7 @@ func (c *AppAccessKeyController) Disable(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct))
@@ -191,14 +140,7 @@ func (c *AppAccessKeyController) State(ctx *gin.Context) {
 //	@param ctx
 func (c *AppAccessKeyController) Query(ctx *gin.Context) {
 	var ct modRamAppAccessKey.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
@@ -206,14 +148,7 @@ func (c *AppAccessKeyController) Query(ctx *gin.Context) {
 
 func (c *AppAccessKeyController) SelectPublic(ctx *gin.Context) {
 	var ct modRamAppAccessKey.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	//ct.State = enumStatePg.ENABLE.IndexPg()

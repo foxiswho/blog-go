@@ -7,7 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicConfigEventFields"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
@@ -56,14 +55,7 @@ func (c *ConfigEventFieldsController) RegisterRoutes(e *gin.Engine) {
 //	@param ctx
 func (c *ConfigEventFieldsController) CreateUpdate(ctx *gin.Context) {
 	var ct modBasicConfigEventFields.CreateUpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct))
@@ -76,14 +68,7 @@ func (c *ConfigEventFieldsController) CreateUpdate(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
@@ -96,14 +81,7 @@ func (c *ConfigEventFieldsController) Delete(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalRecovery(ctx, ct.Ids))
@@ -116,14 +94,7 @@ func (c *ConfigEventFieldsController) Recovery(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
@@ -152,14 +123,7 @@ func (c *ConfigEventFieldsController) Detail(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
@@ -172,14 +136,7 @@ func (c *ConfigEventFieldsController) Enable(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
@@ -192,14 +149,7 @@ func (c *ConfigEventFieldsController) Disable(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	state, ok := enumStatePg.IsExistInt64(ct.State)
@@ -217,14 +167,7 @@ func (c *ConfigEventFieldsController) State(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) Query(ctx *gin.Context) {
 	var ct modBasicConfigEventFields.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
@@ -232,14 +175,7 @@ func (c *ConfigEventFieldsController) Query(ctx *gin.Context) {
 
 func (c *ConfigEventFieldsController) AllByEventNo(ctx *gin.Context) {
 	var ct modBasicConfigEventFields.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
@@ -248,14 +184,7 @@ func (c *ConfigEventFieldsController) AllByEventNo(ctx *gin.Context) {
 
 func (c *ConfigEventFieldsController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modBasicConfigEventFields.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ct.State = enumStatePg.ENABLE.IndexPg()
@@ -269,14 +198,7 @@ func (c *ConfigEventFieldsController) SelectNodeAllPublic(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistName(ctx, ct))
@@ -289,14 +211,7 @@ func (c *ConfigEventFieldsController) ExistName(ctx *gin.Context) {
 //	@param ctx
 func (c *ConfigEventFieldsController) ExistCode(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistCode(ctx, ct))

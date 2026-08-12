@@ -5,8 +5,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/model/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/api/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 )
 
 type ArticleCategoryController struct {
@@ -16,14 +15,7 @@ type ArticleCategoryController struct {
 
 func (c *ArticleCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
 	var ct modBlogArticleCategory.QueryPublicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))

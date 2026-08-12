@@ -7,7 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdpMetadataCache"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
@@ -25,9 +24,9 @@ func init() {
 // @Description:
 type IdpMetadataCacheController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp            `autowire:""`
-	sv  *service.RamIdpMetadataCacheService        `autowire:"?"`
-	log *log2.Logger                               `autowire:"?"`
+	Sp  *authPg.GroupManageMiddlewareSp     `autowire:""`
+	sv  *service.RamIdpMetadataCacheService `autowire:"?"`
+	log *log2.Logger                        `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -49,13 +48,7 @@ func (c *IdpMetadataCacheController) RegisterRoutes(e *gin.Engine) {
 // Create 创建
 func (c *IdpMetadataCacheController) Create(ctx *gin.Context) {
 	var ct modRamIdpMetadataCache.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Create(ctx, ct))
@@ -64,13 +57,7 @@ func (c *IdpMetadataCacheController) Create(ctx *gin.Context) {
 // Update 更新
 func (c *IdpMetadataCacheController) Update(ctx *gin.Context) {
 	var ct modRamIdpMetadataCache.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Update(ctx, ct))
@@ -79,13 +66,7 @@ func (c *IdpMetadataCacheController) Update(ctx *gin.Context) {
 // Delete 逻辑删除
 func (c *IdpMetadataCacheController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
@@ -94,13 +75,7 @@ func (c *IdpMetadataCacheController) Delete(ctx *gin.Context) {
 // Recovery 逻辑删除恢复
 func (c *IdpMetadataCacheController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalRecovery(ctx, ct.Ids))
@@ -109,13 +84,7 @@ func (c *IdpMetadataCacheController) Recovery(ctx *gin.Context) {
 // PhysicalDeletion 物理删除
 func (c *IdpMetadataCacheController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
@@ -135,13 +104,7 @@ func (c *IdpMetadataCacheController) Detail(ctx *gin.Context) {
 // Enable 启用
 func (c *IdpMetadataCacheController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
@@ -150,13 +113,7 @@ func (c *IdpMetadataCacheController) Enable(ctx *gin.Context) {
 // Disable 禁用
 func (c *IdpMetadataCacheController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
@@ -165,13 +122,7 @@ func (c *IdpMetadataCacheController) Disable(ctx *gin.Context) {
 // State 状态
 func (c *IdpMetadataCacheController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	state, ok := enumStatePg.IsExistInt64(ct.State)
@@ -185,13 +136,7 @@ func (c *IdpMetadataCacheController) State(ctx *gin.Context) {
 // Query 查询列表
 func (c *IdpMetadataCacheController) Query(ctx *gin.Context) {
 	var ct modRamIdpMetadataCache.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))

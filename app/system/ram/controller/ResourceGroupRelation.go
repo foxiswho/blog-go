@@ -5,12 +5,10 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceGroupRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -45,14 +43,7 @@ func (c *ResourceGroupRelationController) Selected(ctx *gin.Context) {
 //	@param ctx
 func (c *ResourceGroupRelationController) SelectedByRole(ctx *gin.Context) {
 	var ct modRamResourceGroupRelation.QueryByTypeValueCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ct.TypeCategory = resourceTypeCategoryPg.Role.Index()

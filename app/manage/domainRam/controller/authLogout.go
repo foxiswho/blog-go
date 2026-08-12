@@ -10,12 +10,12 @@ import (
 )
 
 func init() {
-	gs.Provide(new(LogoutController)).Name("ManageLogoutController").Export(gs.As[routerPg.RouteRegistrar]())
+	gs.Provide(new(AuthLogoutController)).Name("ManageAuthLogoutController").Export(gs.As[routerPg.RouteRegistrar]())
 }
 
-// LogoutController 退出
+// AuthLogoutController 退出
 // @Description:
-type LogoutController struct {
+type AuthLogoutController struct {
 	routerPg.RouteRegistrar
 	sv  *service.AccountLogoutService `autowire:"?"`
 	log *log2.Logger                  `autowire:"?"`
@@ -26,7 +26,7 @@ type LogoutController struct {
 //	@Description:
 //	@receiver c
 //	@param e
-func (c *LogoutController) RegisterRoutes(e *gin.Engine) {
+func (c *AuthLogoutController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/xianfu/auth/manage")
 	group.Any("/logout", c.Logout)
 }
@@ -36,6 +36,6 @@ func (c *LogoutController) RegisterRoutes(e *gin.Engine) {
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *LogoutController) Logout(ctx *gin.Context) {
+func (c *AuthLogoutController) Logout(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Logout(holderPg.GetContextAccount(ctx)))
 }

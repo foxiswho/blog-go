@@ -101,6 +101,10 @@ func (b *BaseRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...optionsPg.O
 	for _, opt := range opts {
 		opt(&arg)
 	}
+	//FIXME 待优化
+	if arg.Condition != nil {
+		arg.Db = arg.Condition(arg.Db)
+	}
 	if nil != arg.Ctx {
 		_, exists := arg.Ctx.Get(constContextPg.CTX_MULITI_TENANT)
 		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
@@ -276,6 +280,22 @@ func (b *BaseRepository[T, ID]) DeleteAllByTenantNoAndIdsString(ctx context.Cont
 
 func (b *BaseRepository[T, ID]) DeleteByNo(ctx context.Context, no string, opts ...optionsPg.Option) error {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no = ?", no).Delete(&b.Entity)
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+func (b *BaseRepository[T, ID]) DeleteByCondition(ctx context.Context, t *T, opts ...optionsPg.Condition) error {
+	where := b.Db().WithContext(ctx)
+	if nil != t {
+		where = where.Where(t)
+	}
+	if nil != opts {
+		for _, item := range opts {
+			where = item(where)
+		}
+	}
+	tx := where.Delete(&b.Entity)
 	if tx.Error != nil {
 		return tx.Error
 	}

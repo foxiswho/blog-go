@@ -1,6 +1,7 @@
 package authTokenPg
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -9,8 +10,8 @@ import (
 
 	"aidanwoods.dev/go-paseto"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
-	"go-spring.org/log"
 	"github.com/pangu-2/go-tools/tools/noPg"
+	"go-spring.org/log"
 )
 
 func TestToken(t *testing.T) {
@@ -47,10 +48,9 @@ func TestToken(t *testing.T) {
 		parser.AddRule(paseto.ValidAt(time.Now()))
 		token, err := parser.ParseV4Public(publicKey, signed, nil)
 		if nil != err {
-			log.Errorf("验证失败= %+v", err)
+			log.Errorf(context.Background(), log.TagAppDef, "验证失败= %+v", err)
 		} else {
-			log.Infof
-			"验证成功= %+v", token)
+			log.Infof(context.Background(), log.TagAppDef, "验证成功= %+v", token)
 		}
 	} else {
 		t.Error(rt.Message)
@@ -91,9 +91,8 @@ func TestTokenVerify(t *testing.T) {
 	//parser.AddRule(paseto.ValidAt(time.Now()))
 	token, err := parser.ParseV4Public(publicKey, signed, nil)
 	if nil != err {
-		log.Errorf("验证失败= %+v", err)
+		log.Errorf(context.Background(), log.TagAppDef, "验证失败= %+v", err)
 	} else {
-		log.Infof
-		"验证成功= %+v", token)
+		log.Infof(context.Background(), log.TagAppDef, "验证成功= %+v", token)
 	}
 }

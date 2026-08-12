@@ -4,10 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLdap"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -34,13 +32,7 @@ func (c *LdapController) RegisterRoutes(e *gin.Engine) {
 // TestConnection 测试 LDAP 连接
 func (c *LdapController) TestConnection(ctx *gin.Context) {
 	var ct modRamLdap.LdapTestCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.TestConnection(ctx, ct))
@@ -49,13 +41,7 @@ func (c *LdapController) TestConnection(ctx *gin.Context) {
 // SearchUsers 搜索 LDAP 用户
 func (c *LdapController) SearchUsers(ctx *gin.Context) {
 	var ct modRamLdap.LdapSearchCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.SearchUsers(ctx, ct))
@@ -64,13 +50,7 @@ func (c *LdapController) SearchUsers(ctx *gin.Context) {
 // SyncUsers 同步 LDAP 用户
 func (c *LdapController) SyncUsers(ctx *gin.Context) {
 	var ct modRamLdap.LdapSyncCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.SyncUsers(ctx, ct))
@@ -79,13 +59,7 @@ func (c *LdapController) SyncUsers(ctx *gin.Context) {
 // Login LDAP 登录
 func (c *LdapController) Login(ctx *gin.Context) {
 	var ct modRamLdap.LdapLoginCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Login(ctx, ct))

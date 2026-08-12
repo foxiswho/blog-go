@@ -7,7 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdentitySourceCallback"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
@@ -25,9 +24,9 @@ func init() {
 // @Description:
 type IdentitySourceCallbackController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp                  `autowire:""`
-	sv  *service.RamIdentitySourceCallbackService        `autowire:"?"`
-	log *log2.Logger                                     `autowire:"?"`
+	Sp  *authPg.GroupManageMiddlewareSp           `autowire:""`
+	sv  *service.RamIdentitySourceCallbackService `autowire:"?"`
+	log *log2.Logger                              `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -50,13 +49,7 @@ func (c *IdentitySourceCallbackController) RegisterRoutes(e *gin.Engine) {
 // Create 创建
 func (c *IdentitySourceCallbackController) Create(ctx *gin.Context) {
 	var ct modRamIdentitySourceCallback.CreateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Create(ctx, ct))
@@ -65,13 +58,7 @@ func (c *IdentitySourceCallbackController) Create(ctx *gin.Context) {
 // Update 更新
 func (c *IdentitySourceCallbackController) Update(ctx *gin.Context) {
 	var ct modRamIdentitySourceCallback.UpdateCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Update(ctx, ct))
@@ -80,13 +67,7 @@ func (c *IdentitySourceCallbackController) Update(ctx *gin.Context) {
 // Delete 逻辑删除
 func (c *IdentitySourceCallbackController) Delete(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids))
@@ -95,13 +76,7 @@ func (c *IdentitySourceCallbackController) Delete(ctx *gin.Context) {
 // Recovery 逻辑删除恢复
 func (c *IdentitySourceCallbackController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.LogicalRecovery(ctx, ct.Ids))
@@ -110,13 +85,7 @@ func (c *IdentitySourceCallbackController) Recovery(ctx *gin.Context) {
 // PhysicalDeletion 物理删除
 func (c *IdentitySourceCallbackController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
@@ -136,13 +105,7 @@ func (c *IdentitySourceCallbackController) Detail(ctx *gin.Context) {
 // Enable 启用
 func (c *IdentitySourceCallbackController) Enable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
@@ -151,13 +114,7 @@ func (c *IdentitySourceCallbackController) Enable(ctx *gin.Context) {
 // Disable 禁用
 func (c *IdentitySourceCallbackController) Disable(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
@@ -166,13 +123,7 @@ func (c *IdentitySourceCallbackController) Disable(ctx *gin.Context) {
 // State 状态
 func (c *IdentitySourceCallbackController) State(ctx *gin.Context) {
 	var ct model.BaseStateIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	state, ok := enumStatePg.IsExistInt64(ct.State)
@@ -186,13 +137,7 @@ func (c *IdentitySourceCallbackController) State(ctx *gin.Context) {
 // Query 查询列表
 func (c *IdentitySourceCallbackController) Query(ctx *gin.Context) {
 	var ct modRamIdentitySourceCallback.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
@@ -206,13 +151,7 @@ func (c *IdentitySourceCallbackController) SelectPublic(ctx *gin.Context) {
 // ExistName 查重
 func (c *IdentitySourceCallbackController) ExistName(ctx *gin.Context) {
 	var ct model.BaseExistWdCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistName(ctx, ct))

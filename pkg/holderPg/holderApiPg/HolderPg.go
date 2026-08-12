@@ -25,6 +25,10 @@ func (c HolderPg) GetDiplNo() string {
 	return c.HolderData.(DiplHolder).No
 }
 
+func (c HolderPg) GetAno() string {
+	return c.HolderData.(DiplHolder).Ano
+}
+
 // GetMerchantNo
 //
 //	@Description: 商户编号

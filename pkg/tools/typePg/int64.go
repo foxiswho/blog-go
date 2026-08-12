@@ -1,10 +1,12 @@
 package typePg
 
 import (
+	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
+
+	"go-spring.org/log"
 )
 
 type Int64String int64
@@ -31,7 +33,7 @@ func (i *Int64String) UnmarshalJSON(value []byte) error {
 	}
 	m, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
-		log.Infof("UnmarshalJSON.%+v", err)
+		log.Infof(context.Background(), log.TagAppDef, "UnmarshalJSON.%+v", err)
 		*i = Int64String(0)
 	} else {
 		*i = Int64String(m)

@@ -79,6 +79,7 @@ func (c *ApiDiplAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseI
 		TenantNo: save.TenantNo,
 		Key:      save.Key,
 		Secret:   save.Secret,
+		Ano:      save.Ano,
 	}
 	cacheDiplPg.Set(save.Key, obj)
 	return rt.Ok()

@@ -9,7 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheAuthPubPrivPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sessionKeyTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typePubPrivePg"
@@ -31,7 +30,6 @@ func init() {
 }
 
 type CacheSessionPubPrive struct {
-	rdt         *rdsPg.BatchString                                  `autowire:"?"`
 	sessionAk   *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
 	pubPriveKey typePubPrivePg.PubPrive
 }

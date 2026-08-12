@@ -10,7 +10,6 @@ import (
 	modRamMfa "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMfa"
 	modRamSaml "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamSaml"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -25,12 +24,12 @@ func init() {
 // @Description:
 type AuthLoginIdpController struct {
 	routerPg.RouteRegistrar
-	sv           *service.AccountLoginIdpService `autowire:"?"`
-	samlService  *service.SamlLoginService       `autowire:"?"`
-	mfaService   *service.AccountMfaService      `autowire:"?"`
-	faceIdService *service.FaceIdService         `autowire:"?"`
-	casService   *service.CasService             `autowire:"?"`
-	log          *log2.Logger                    `autowire:"?"`
+	sv            *service.AccountLoginIdpService `autowire:"?"`
+	samlService   *service.SamlLoginService       `autowire:"?"`
+	mfaService    *service.AccountMfaService      `autowire:"?"`
+	faceIdService *service.FaceIdService          `autowire:"?"`
+	casService    *service.CasService             `autowire:"?"`
+	log           *log2.Logger                    `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -64,13 +63,7 @@ func (c *AuthLoginIdpController) RegisterRoutes(e *gin.Engine) {
 //	@param ctx
 func (c *AuthLoginIdpController) Login(ctx *gin.Context) {
 	var ct modRamLogin2.IdpLoginCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Login(ctx, ct))
@@ -83,13 +76,7 @@ func (c *AuthLoginIdpController) Login(ctx *gin.Context) {
 //	@param ctx
 func (c *AuthLoginIdpController) RefreshToken(ctx *gin.Context) {
 	var ct modRamLogin2.TokenRefreshCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.RefreshToken(ctx, ct))
@@ -98,13 +85,7 @@ func (c *AuthLoginIdpController) RefreshToken(ctx *gin.Context) {
 // MfaVerify MFA 验证（验证通过后签发 Token）
 func (c *AuthLoginIdpController) MfaVerify(ctx *gin.Context) {
 	var ct modRamMfa.VerifyCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.mfaService.VerifyLogin(ctx, ct))
@@ -113,13 +94,7 @@ func (c *AuthLoginIdpController) MfaVerify(ctx *gin.Context) {
 // MfaRecover MFA 恢复码恢复
 func (c *AuthLoginIdpController) MfaRecover(ctx *gin.Context) {
 	var ct modRamMfa.RecoverCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.mfaService.Recover(ctx, ct))

@@ -65,6 +65,7 @@ func GroupApiMiddleware(m *GroupApiMiddlewareSp) gin.HandlerFunc {
 						Name:     get.Name,
 						No:       get.No,
 						TenantNo: get.TenantNo,
+						Ano:      get.Ano,
 					}
 					c.Set(constContextPg.AUTH_LOGIN_API, pg)
 				}

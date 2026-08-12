@@ -24,9 +24,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwk"
-	"github.com/lestrrat-go/jwx/jwt"
+	"github.com/lestrrat-go/jwx/v4/jwa"
+	"github.com/lestrrat-go/jwx/v4/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwt"
 	"golang.org/x/oauth2"
 )
 
@@ -138,17 +138,17 @@ func (idp *AdfsIdProvider) GetUserInfo(token *oauth2.Token) (*UserInfo, error) {
 		return nil, err
 	}
 
-	keyset, err := jwk.ParseKey(respKey)
+	privkey, err := jwk.ParseKey(respKey)
 	if err != nil {
 		return nil, err
 	}
 
 	tokenSrc := []byte(token.AccessToken)
-	publicKey, _ := keyset.PublicKey()
-	idToken, _ := jwt.Parse(tokenSrc, jwt.WithVerify(jwa.RS256, publicKey))
-	sid, _ := idToken.Get("sid")
-	upn, _ := idToken.Get("upn")
-	name, _ := idToken.Get("unique_name")
+	pubkey, _ := jwk.PublicKeyOf(privkey)
+	idToken, _ := jwt.Parse(tokenSrc, jwt.WithKey(jwa.RS256(), pubkey))
+	sid, _ := idToken.Field("sid")
+	upn, _ := idToken.Field("upn")
+	name, _ := idToken.Field("unique_name")
 	userinfo := &UserInfo{
 		Id:          sid.(string),
 		Username:    name.(string),

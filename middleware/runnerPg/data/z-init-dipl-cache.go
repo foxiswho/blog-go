@@ -41,6 +41,7 @@ func (b *ZInitDiplCache) Run(ctx context.Context) error {
 				TenantNo: info.TenantNo,
 				Key:      info.Key,
 				Secret:   info.Secret,
+				Ano:      info.Ano,
 			}
 			cacheDiplPg.Set(info.Key, obj)
 		}

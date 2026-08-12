@@ -9,4 +9,5 @@ type DiplHolder struct {
 	Code     string `json:"code" comment:"编码" `
 	Name     string `json:"name" label:"名称" `
 	TenantNo string `json:"tenantNo" comment:"租户编码"`
+	Ano      string `json:"ano" comment:"账号"`
 }

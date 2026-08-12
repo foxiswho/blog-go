@@ -5,10 +5,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMfa"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -38,13 +36,7 @@ func (c *AccountMfaController) RegisterRoutes(e *gin.Engine) {
 // Setup 初始化 MFA 设置
 func (c *AccountMfaController) Setup(ctx *gin.Context) {
 	var ct modRamMfa.SetupCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Setup(ctx, ct))
@@ -53,13 +45,7 @@ func (c *AccountMfaController) Setup(ctx *gin.Context) {
 // SetupVerify 验证 MFA 设置
 func (c *AccountMfaController) SetupVerify(ctx *gin.Context) {
 	var ct modRamMfa.SetupVerifyCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.SetupVerify(ctx, ct))
@@ -68,13 +54,7 @@ func (c *AccountMfaController) SetupVerify(ctx *gin.Context) {
 // Enable 启用 MFA
 func (c *AccountMfaController) Enable(ctx *gin.Context) {
 	var ct modRamMfa.EnableCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Enable(ctx, ct))
@@ -83,13 +63,7 @@ func (c *AccountMfaController) Enable(ctx *gin.Context) {
 // Disable 禁用 MFA
 func (c *AccountMfaController) Disable(ctx *gin.Context) {
 	var ct modRamMfa.DisableCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct))
@@ -103,13 +77,7 @@ func (c *AccountMfaController) Preferred(ctx *gin.Context) {
 // Recover 使用恢复码恢复
 func (c *AccountMfaController) Recover(ctx *gin.Context) {
 	var ct modRamMfa.RecoverCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Recover(ctx, ct))

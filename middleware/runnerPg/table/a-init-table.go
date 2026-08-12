@@ -27,7 +27,7 @@ type AInitTable struct {
 
 func (b *AInitTable) Run(ctx context.Context) error {
 	log.Infof(context.Background(), log.TagAppDef, "初始化表=>表不存在时,则进行初始化")
-	entityData := make([]interface{}, 0)
+	entityData := make([]any, 0)
 	{
 		entityData = append(entityData, &entityApi.ApiDiplEntity{})
 		entityData = append(entityData, &entityApi.ApiDiplAccessKeyEntity{})
@@ -56,6 +56,8 @@ func (b *AInitTable) Run(ctx context.Context) error {
 		entityData = append(entityData, &entityBlog.BlogArticleEntity{})
 		entityData = append(entityData, &entityBlog.BlogArticleCategoryEntity{})
 		entityData = append(entityData, &entityBlog.BlogArticleStatisticsEntity{})
+		entityData = append(entityData, &entityBlog.BlogBookmarkEntity{})
+		entityData = append(entityData, &entityBlog.BlogBookmarkCategoryEntity{})
 		entityData = append(entityData, &entityBlog.BlogCollectEntity{})
 		entityData = append(entityData, &entityBlog.BlogCollectCategoryEntity{})
 		entityData = append(entityData, &entityBlog.BlogTopicEntity{})
@@ -110,7 +112,7 @@ func (b *AInitTable) Run(ctx context.Context) error {
 	if rt.SuccessIs() {
 		sv.TableCreateAllByTransaction(entityData)
 		//插入 基础数据
-		// b.sqlBasicDictionary()
+		b.sqlBasicDictionary()
 		//
 		log.Infof(context.Background(), log.TagAppDef, "[init].[主键序号保留].")
 		b.seqEdit()
@@ -127,6 +129,12 @@ func (b *AInitTable) Run(ctx context.Context) error {
 //	@Description: 序号修改 初始值
 //	@receiver b
 func (b *AInitTable) seqEdit() {
+	// 判断是否已初始化过：以 api_dipl_id_seq 为标志序列，当前值已达初始值则跳过，避免重启重复执行
+	var currentVal int64
+	if err := b.db.Raw("SELECT last_value FROM api_dipl_id_seq").Scan(&currentVal).Error; err == nil && currentVal >= 100000 {
+		log.Infof(context.Background(), log.TagAppDef, "[init].[主键序号保留].已初始化,跳过执行")
+		return
+	}
 	sql := make([]string, 0)
 	sql = append(sql, dbMakePg.MakeSequenceSql("api_dipl", 100000))
 	sql = append(sql, dbMakePg.MakeSequenceSql("basic_account_apply_deny_list", 100000))
@@ -167,18 +175,51 @@ func (b *AInitTable) seqEdit() {
 }
 
 func (b *AInitTable) sqlBasicDictionary() {
-	sql := ""
-	sql = "INSERT INTO \"public\".\"basic_data_dictionary\" (\"id\", \"no\", \"name\", \"name_fl\", \"code\", \"name_full\", \"state\", \"description\", \"create_at\", \"update_at\", \"create_by\", \"update_by\", \"sort\", \"type_unique_md5\", \"value\", \"extend\", \"range\", \"type_code\", \"tenant_no\", \"store_no\", \"owner_no\") VALUES\n(1, '1', '身份类型', NULL, 'typeIdentity', NULL, 1, NULL, '2026-04-28T05:10:52+08:00', '2026-05-04T08:10:30+08:00', NULL, NULL, 0, '7e3a158550d82e66c9f016977dcbec61', 'typeIdentity', NULL, NULL, '', NULL, NULL, NULL),\n(2, '202605032139333761667562', '普通', NULL, 'general', NULL, 1, NULL, '2026-05-03T13:39:33+08:00', '2026-05-04T08:11:36+08:00', NULL, NULL, 0, '958153f1b8b96ec4c4eb2147429105d9', 'general', NULL, NULL, 'typeIdentity', NULL, NULL, NULL),\n(3, '202605032140382912169335', '经理', NULL, 'manager', NULL, 1, NULL, '2026-05-03T13:40:38+08:00', '2026-05-04T08:11:50+08:00', NULL, NULL, 0, '1d0258c2440a8d19e716292b231e3190', 'manager', NULL, NULL, 'typeIdentity', NULL, NULL, NULL),\n(4, '202605032141103290247912', '性别', NULL, 'sex', NULL, 1, NULL, '2026-05-03T13:41:10+08:00', '2026-05-04T08:14:24+08:00', NULL, NULL, 0, '3c3662bcb661d6de679c636744c66b62', 'sex', NULL, NULL, '', NULL, NULL, NULL),\n(5, '5', '副经理', NULL, 'assistant_manager', NULL, 1, NULL, '2026-05-04T08:13:48+08:00', NULL, NULL, NULL, 0, 'adb153a9579779a6837a8205e07fa31f', 'assistant_manager', NULL, NULL, 'typeIdentity', NULL, NULL, NULL),\n(6, '6', '男', NULL, 'male', NULL, 1, NULL, '2026-05-04T08:17:08+08:00', NULL, NULL, NULL, 0, '07cf4f8f5d8b76282917320715dda2ad', 'male', NULL, NULL, 'sex', NULL, NULL, NULL),\n(7, '7', '女', NULL, 'female', NULL, 1, NULL, '2026-05-04T08:17:20+08:00', NULL, NULL, NULL, 0, '273b9ae535de53399c86a9b83148a8ed', 'female', NULL, NULL, 'sex', NULL, NULL, NULL),\n(8, '8', '未知', NULL, 'unknown', NULL, 1, NULL, '2026-05-04T08:17:30+08:00', NULL, NULL, NULL, 0, 'ad921d60486366258809553a3db49a4a', 'unknown', NULL, NULL, 'sex', NULL, NULL, NULL),\n(9, '9', '菜单类型', NULL, 'typeMenu', NULL, 1, NULL, '2026-05-15T01:16:09+08:00', NULL, NULL, NULL, 0, '0e6b09acf0d718df71494094446eb4c0', 'typeMenu', NULL, NULL, '', NULL, NULL, NULL),\n(10, '10', '目录', NULL, 'catalog', NULL, 1, NULL, '2026-05-15T01:16:46+08:00', NULL, NULL, NULL, 0, '46f22f2a56ddd091f4b2b2c35c5ca989', 'catalog', NULL, NULL, 'typeMenu', NULL, NULL, NULL),\n(11, '11', '菜单', NULL, 'menu', NULL, 1, NULL, '2026-05-15T01:18:15+08:00', '2026-05-15T01:19:32+08:00', NULL, NULL, 0, '8d6ab84ca2af9fccd4e4048694176ebf', 'menu', NULL, NULL, 'typeMenu', NULL, NULL, NULL),\n(12, '12', '内嵌', NULL, 'embedded', NULL, 1, NULL, '2026-05-15T01:18:33+08:00', NULL, NULL, NULL, 0, '605abe26d014c72e3df9deb267e73756', 'embedded', NULL, NULL, 'typeMenu', NULL, NULL, NULL),\n(13, '13', '按钮', NULL, 'button', NULL, 1, NULL, '2026-05-15T01:19:50+08:00', NULL, NULL, NULL, 0, 'ce50a09343724eb82df11390e2c1de18', 'button', NULL, NULL, 'typeMenu', NULL, NULL, NULL),\n(14, '14', '外链', NULL, 'link', NULL, 1, NULL, '2026-05-15T01:20:08+08:00', NULL, NULL, NULL, 0, '2a304a1348456ccd2234cd71a81bd338', 'link', NULL, NULL, 'typeMenu', NULL, NULL, NULL),\n(15, '15', '短信服务商', NULL, 'spCodeSms', NULL, 1, NULL, '2026-05-28T07:35:20+08:00', NULL, NULL, NULL, 0, '5923f12d736703f67a352b8a20c14d61', 'spCodeSms', NULL, NULL, '', NULL, NULL, NULL),\n(16, '16', '邮件服务商', NULL, 'spCodeMail', NULL, 1, NULL, '2026-05-28T07:35:40+08:00', NULL, NULL, NULL, 0, '4ffa88124b350a0d4c731e2bdd04721c', 'spCodeMail', NULL, NULL, '', NULL, NULL, NULL),\n(17, '17', '阿里云', NULL, 'aliyun', NULL, 1, NULL, '2026-05-28T07:35:58+08:00', NULL, NULL, NULL, 0, 'd41b8265807ce33038df2b3f7aa9fb10', 'aliyun', NULL, NULL, 'spCodeSms', NULL, NULL, NULL),\n(35, '202606121526467480058808', '终端类型', NULL, 'terminalCode', NULL, 1, NULL, '2026-06-12T07:26:45+08:00', NULL, NULL, NULL, 0, '2345a28058000459ae6173b7c66286bb', 'terminalCode', NULL, NULL, '', NULL, NULL, NULL),\n(36, '202606121527015741949205', '系统', NULL, 'system', NULL, 1, NULL, '2026-06-12T07:27:00+08:00', NULL, NULL, NULL, 0, '54b53072540eeeb8f8e9343e71f28176', 'system', NULL, NULL, 'terminalCode', NULL, NULL, NULL),\n(37, '202606121527254824084333', '管理', NULL, 'manage', NULL, 1, NULL, '2026-06-12T07:27:24+08:00', NULL, NULL, NULL, 0, '70682896e24287b0476eff2a14c148f0', 'manage', NULL, NULL, 'terminalCode', NULL, NULL, NULL),\n(38, '202606121528031104440704', '驾驶舱', NULL, 'cockpit', NULL, 1, NULL, '2026-06-12T07:28:01+08:00', NULL, NULL, NULL, 0, '356834670f264c2f9f1cda27bdb35f3b', 'cockpit', NULL, NULL, 'terminalCode', NULL, NULL, NULL);"
+	data := []entityBasic.BasicDataDictionaryEntity{
+		{ID: 1, No: "1", Name: "身份类型", Code: "typeIdentity", State: 1, TypeUniqueMd5: "7e3a158550d82e66c9f016977dcbec61", Value: "typeIdentity"},
+		{ID: 2, No: "2", Name: "普通", Code: "general", State: 1, TypeUniqueMd5: "958153f1b8b96ec4c4eb2147429105d9", Value: "general", TypeCode: "typeIdentity"},
+		{ID: 3, No: "3", Name: "经理", Code: "manager", State: 1, TypeUniqueMd5: "1d0258c2440a8d19e716292b231e3190", Value: "manager", TypeCode: "typeIdentity"},
+		{ID: 4, No: "4", Name: "性别", Code: "sex", State: 1, TypeUniqueMd5: "3c3662bcb661d6de679c636744c66b62", Value: "sex"},
+		{ID: 5, No: "5", Name: "副经理", Code: "assistant_manager", State: 1, TypeUniqueMd5: "adb153a9579779a6837a8205e07fa31f", Value: "assistant_manager", TypeCode: "typeIdentity"},
+		{ID: 6, No: "6", Name: "男", Code: "male", State: 1, TypeUniqueMd5: "07cf4f8f5d8b76282917320715dda2ad", Value: "male", TypeCode: "sex"},
+		{ID: 7, No: "7", Name: "女", Code: "female", State: 1, TypeUniqueMd5: "273b9ae535de53399c86a9b83148a8ed", Value: "female", TypeCode: "sex"},
+		{ID: 8, No: "8", Name: "未知", Code: "unknown", State: 1, TypeUniqueMd5: "ad921d60486366258809553a3db49a4a", Value: "unknown", TypeCode: "sex"},
+		{ID: 9, No: "9", Name: "菜单类型", Code: "typeMenu", State: 1, TypeUniqueMd5: "0e6b09acf0d718df71494094446eb4c0", Value: "typeMenu"},
+		{ID: 10, No: "10", Name: "目录", Code: "catalog", State: 1, TypeUniqueMd5: "46f22f2a56ddd091f4b2b2c35c5ca989", Value: "catalog", TypeCode: "typeMenu"},
+		{ID: 11, No: "11", Name: "菜单", Code: "menu", State: 1, TypeUniqueMd5: "8d6ab84ca2af9fccd4e4048694176ebf", Value: "menu", TypeCode: "typeMenu"},
+		{ID: 12, No: "12", Name: "内嵌", Code: "embedded", State: 1, TypeUniqueMd5: "605abe26d014c72e3df9deb267e73756", Value: "embedded", TypeCode: "typeMenu"},
+		{ID: 13, No: "13", Name: "按钮", Code: "button", State: 1, TypeUniqueMd5: "ce50a09343724eb82df11390e2c1de18", Value: "button", TypeCode: "typeMenu"},
+		{ID: 14, No: "14", Name: "外链", Code: "link", State: 1, TypeUniqueMd5: "2a304a1348456ccd2234cd71a81bd338", Value: "link", TypeCode: "typeMenu"},
+		{ID: 15, No: "15", Name: "短信服务商", Code: "spCodeSms", State: 1, TypeUniqueMd5: "5923f12d736703f67a352b8a20c14d61", Value: "spCodeSms"},
+		{ID: 16, No: "16", Name: "邮件服务商", Code: "spCodeMail", State: 1, TypeUniqueMd5: "4ffa88124b350a0d4c731e2bdd04721c", Value: "spCodeMail"},
+		{ID: 17, No: "17", Name: "阿里云", Code: "aliyun", State: 1, TypeUniqueMd5: "d41b8265807ce33038df2b3f7aa9fb10", Value: "aliyun", TypeCode: "spCodeSms"},
+		{ID: 35, No: "35", Name: "终端类型", Code: "terminalCode", State: 1, TypeUniqueMd5: "2345a28058000459ae6173b7c66286bb", Value: "terminalCode"},
+		{ID: 36, No: "36", Name: "系统", Code: "system", State: 1, TypeUniqueMd5: "54b53072540eeeb8f8e9343e71f28176", Value: "system", TypeCode: "terminalCode"},
+		{ID: 37, No: "37", Name: "管理", Code: "manage", State: 1, TypeUniqueMd5: "70682896e24287b0476eff2a14c148f0", Value: "manage", TypeCode: "terminalCode"},
+	}
 	err := b.db.Transaction(func(tx *gorm.DB) error {
-		rs := tx.Exec(sql)
-		if rs.Error != nil {
-			log.Errorf(context.Background(), log.TagAppDef, "初始化序号异常:%+v", rs.Error)
-			return rs.Error
+		for i := range data {
+			item := data[i]
+			// 判断该主键数据是否已存在，存在则跳过，继续下一条
+			var count int64
+			if err := tx.Model(&entityBasic.BasicDataDictionaryEntity{}).Where("id = ?", item.ID).Count(&count).Error; err != nil {
+				log.Errorf(context.Background(), log.TagAppDef, "查询数据字典主键 %d 异常:%+v", item.ID, err)
+				return err
+			}
+			if count > 0 {
+				log.Debugf(context.Background(), log.TagAppDef, "数据字典主键 %d 已存在,跳过插入", item.ID)
+				continue
+			}
+			rs := tx.Create(&item)
+			if rs.Error != nil {
+				log.Errorf(context.Background(), log.TagAppDef, "初始化数据字典主键 %d 异常:%+v", item.ID, rs.Error)
+				return rs.Error
+			}
+			log.Debugf(context.Background(), log.TagAppDef, "数据字典主键 %d 执行结果: %+v 行受影响", item.ID, rs.RowsAffected)
 		}
-		log.Debugf(context.Background(), log.TagAppDef, "执行结果: %+v 行受影响", rs.RowsAffected)
 		return nil
 	})
 	if err != nil {
-		log.Errorf(context.Background(), log.TagAppDef, "创建表异常:%+v", err)
+		log.Errorf(context.Background(), log.TagAppDef, "创建数据字典数据异常:%+v", err)
 	}
 }

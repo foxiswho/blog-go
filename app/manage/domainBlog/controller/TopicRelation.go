@@ -5,11 +5,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopicRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
-	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
 
@@ -46,14 +44,7 @@ func (c *TopicRelationController) RegisterRoutes(e *gin.Engine) {
 //	@param ctx
 func (c *TopicRelationController) AddByTopic(ctx *gin.Context) {
 	var ct modBlogTopicRelation.AddByTopicCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.AddByTopic(ctx, ct))
@@ -66,14 +57,7 @@ func (c *TopicRelationController) AddByTopic(ctx *gin.Context) {
 //	@param ctx
 func (c *TopicRelationController) PhysicalDeletion(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.PhysicalDeletion(ctx, ct.Ids))
@@ -86,14 +70,7 @@ func (c *TopicRelationController) PhysicalDeletion(ctx *gin.Context) {
 //	@param ctx
 func (c *TopicRelationController) Query(ctx *gin.Context) {
 	var ct modBlogTopicRelation.QueryCt
-	if err := ctx.ShouldBind(&ct); err != nil {
-		//对 返回 错误进行转义 成中文
-		translate := validatorPg.Translate(err, &ct)
-		if len(translate) > 0 {
-			ctx.JSON(200, rg.ErrorMessageData[string](translate))
-			return
-		}
-		ctx.JSON(200, rg.ErrorDefault[string]())
+	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
 	ctx.JSON(200, c.sv.Query(ctx, ct))
