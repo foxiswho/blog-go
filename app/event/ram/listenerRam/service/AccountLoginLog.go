@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 
+	"time"
+
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
-	"time"
 )
 
 type AccountLoginLog struct {
@@ -48,10 +49,7 @@ func (c *AccountLoginLog) Processor(ctx context.Context, data modRamAccount.Logi
 	now := time.Now()
 	//登录时间
 	{
-		save := entityRam.RamAccountEntity{LoginTime: acc.LoginTime}
-		if nil == save.LoginTime {
-			save.LoginTime = &now
-		}
+		save := entityRam.RamAccountEntity{LoginTime: &now}
 		c.acc.Update(ctx, save, acc.ID)
 	}
 	//会话信息

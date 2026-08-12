@@ -1,4 +1,4 @@
-package enumSexPg
+package sexPg
 
 import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"

@@ -9,9 +9,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/dataFilePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/authorizationTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeIdentityPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumAuthorizationTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -124,7 +124,7 @@ func (t *InitAccount) systemAccount(ctx context.Context, domain string) {
 	salt := strPg.GetNanoid(8)
 	authorizationEntity := entityRam.RamAccountAuthorizationEntity{
 		Ano:       save.No,
-		Type:      enumAuthorizationTypePg.PASSWORD.String(),
+		Type:      authorizationTypePg.PASSWORD.String(),
 		TenantNo:  save.TenantNo,
 		ExtraData: salt,
 	}
@@ -198,7 +198,7 @@ func (t *InitAccount) manageAccount(ctx context.Context, domain string) {
 	salt := strPg.GetNanoid(8)
 	authorizationEntity := entityRam.RamAccountAuthorizationEntity{
 		Ano:       save.No,
-		Type:      enumAuthorizationTypePg.PASSWORD.String(),
+		Type:      authorizationTypePg.PASSWORD.String(),
 		TenantNo:  save.TenantNo,
 		ExtraData: salt,
 	}

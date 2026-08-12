@@ -1,4 +1,4 @@
-package enumIdentityPg
+package identityPg
 
 import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumBasePg"

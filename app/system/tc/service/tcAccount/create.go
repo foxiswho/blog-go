@@ -7,10 +7,10 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/authorizationTypePg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sexPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumAuthorizationTypePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumIdentityPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumRam/enumSexPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/noPg"
@@ -115,7 +115,7 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountC
 	c.entity.Name = c.entity.Account
 	c.entity.RealName = c.entity.Account
 	if strPg.IsBlank(c.entity.Sex) {
-		c.entity.Sex = enumSexPg.MALE.String()
+		c.entity.Sex = sexPg.MALE.String()
 	}
 	//
 	os := entityRam.RamAccountJsonOs{
@@ -154,7 +154,7 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountC
 	}
 	authorizationEntity := entityRam.RamAccountAuthorizationEntity{
 		Ano:      c.entity.No,
-		Type:     enumAuthorizationTypePg.PASSWORD.String(),
+		Type:     authorizationTypePg.PASSWORD.String(),
 		TenantNo: c.entity.TenantNo,
 	}
 	//设置唯一值
@@ -201,18 +201,18 @@ func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateCt, tp appMo
 	//身份
 	{
 		if strPg.IsBlank(entity.TypeIdentity) {
-			entity.TypeIdentity = enumIdentityPg.GENERAL.String()
+			entity.TypeIdentity = identityPg.GENERAL.String()
 		}
-		if !enumIdentityPg.IsExist(entity.TypeIdentity) {
+		if !identityPg.IsExist(entity.TypeIdentity) {
 			return rt.ErrorMessage("身份错误")
 		}
 	}
 	//性别
 	{
 		if strPg.IsBlank(entity.Sex) {
-			entity.Sex = enumSexPg.MALE.String()
+			entity.Sex = sexPg.MALE.String()
 		}
-		if !enumSexPg.IsExist(entity.Sex) {
+		if !sexPg.IsExist(entity.Sex) {
 			return rt.ErrorMessage("性别错误")
 		}
 	}
