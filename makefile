@@ -66,6 +66,7 @@ generate:
 # 直接运行（默认目标）
 run: generate
 	@echo "===== 启动项目 ====="
+	go env -w GOEXPERIMENT=jsonv2
 	go run main.go
 
 # 智能编译当前平台
