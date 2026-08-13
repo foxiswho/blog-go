@@ -2,7 +2,7 @@ package tcAccount
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
@@ -36,7 +36,7 @@ func NewDetail(log *log2.Logger, sp *Sp, tp appModulePg.AppModule) *Detail {
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.DetailVo]) {
+func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modTcAccount.DetailVo]) {
 	if strPg.IsBlank(id) {
 		return rt.ErrorMessage("id错误")
 	}
@@ -44,7 +44,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modRamAccount.De
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamAccount.DetailVo
+	var info modTcAccount.DetailVo
 	copier.Copy(&info, &find)
 	//
 	mapDep := make(map[string]*entityRam.RamDepartmentEntity)

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamRole"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamRole"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -46,7 +46,7 @@ type RamRoleService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamRoleService) Create(ctx *gin.Context, ct modRamRole.CreateCt) (rt rg.Rs[string]) {
+func (c *RamRoleService) Create(ctx *gin.Context, ct modRamRole.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamRoleEntity
 	copier.Copy(&info, &ct)
@@ -90,7 +90,7 @@ func (c *RamRoleService) Create(ctx *gin.Context, ct modRamRole.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamRoleService) Update(ctx *gin.Context, ct modRamRole.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamRoleService) Update(ctx *gin.Context, ct modRamRole.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamRoleEntity
 	copier.Copy(&info, &ct)

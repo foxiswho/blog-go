@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamTeam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamTeam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -45,7 +45,7 @@ type RamTeamService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamTeamService) Create(ctx *gin.Context, ct modRamTeam.CreateCt) (rt rg.Rs[string]) {
+func (c *RamTeamService) Create(ctx *gin.Context, ct modRamTeam.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamTeamEntity
 	copier.Copy(&info, &ct)
@@ -89,7 +89,7 @@ func (c *RamTeamService) Create(ctx *gin.Context, ct modRamTeam.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamTeamService) Update(ctx *gin.Context, ct modRamTeam.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamTeamService) Update(ctx *gin.Context, ct modRamTeam.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamTeamEntity
 	copier.Copy(&info, &ct)

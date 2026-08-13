@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/authorizationTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"

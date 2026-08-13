@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modPublic"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccount"
+	modPublic2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modPublic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
@@ -68,7 +68,7 @@ func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[mod
 }
 
 // InfoPublic 登陆用户信息
-func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs[modPublic.InfoPublicVo]) {
+func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs[modPublic2.InfoPublicVo]) {
 	c.log.Infof("holder=%+v", holder)
 	c.log.Infof("HolderData=%+v", holder.HolderData)
 	if nil == holder.HolderData {
@@ -96,7 +96,7 @@ func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic.PasswordCt) (rt rg.Rs[string]) {
+func (c *RamAccountPublicService) UpdatePassword(ctx *gin.Context, ct modPublic2.PasswordCt) (rt rg.Rs[string]) {
 	if "" == ct.PasswordNew {
 		return rt.ErrorMessage("密码不能为空")
 	}

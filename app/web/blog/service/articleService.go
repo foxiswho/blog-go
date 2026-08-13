@@ -8,9 +8,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/blog/serviceCore"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/utils/webPg"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"

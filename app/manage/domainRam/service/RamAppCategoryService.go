@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppCategory"
+	modRamAppCategory2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAppCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -46,7 +46,7 @@ type RamAppCategoryService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamAppCategoryService) Create(ctx *gin.Context, ct modRamAppCategory.CreateCt) (rt rg.Rs[string]) {
+func (c *RamAppCategoryService) Create(ctx *gin.Context, ct modRamAppCategory2.CreateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamAppCategoryEntity
 	err := copier.Copy(&info, &ct)
@@ -119,7 +119,7 @@ func (c *RamAppCategoryService) Create(ctx *gin.Context, ct modRamAppCategory.Cr
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamAppCategoryService) Update(ctx *gin.Context, ct modRamAppCategory.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamAppCategoryService) Update(ctx *gin.Context, ct modRamAppCategory2.UpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamAppCategoryEntity
 	copier.Copy(&info, &ct)
@@ -277,7 +277,7 @@ func (c *RamAppCategoryService) CacheOverride(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamAppCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamAppCategory.Vo]) {
+func (c *RamAppCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamAppCategory2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -285,7 +285,7 @@ func (c *RamAppCategoryService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamAppCategory.Vo
+	var info modRamAppCategory2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -431,11 +431,11 @@ func (c *RamAppCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string)
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory.Vo]]) {
+func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAppCategory.Vo, 0)
+	slice := make([]modRamAppCategory2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -454,10 +454,10 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorByPageable[modRamAppCategory.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamAppCategory2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAppCategory.Vo
+			var vo modRamAppCategory2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -474,10 +474,10 @@ func (c *RamAppCategoryService) Query(ctx *gin.Context, ct modRamAppCategory.Que
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory.Vo]]) {
+func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCategory2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppCategory2.Vo]]) {
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAppCategory.Vo, 0)
+	slice := make([]modRamAppCategory2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -497,10 +497,10 @@ func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCatego
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamAppCategory.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamAppCategory2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAppCategory.Vo
+			var vo modRamAppCategory2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -517,7 +517,7 @@ func (c *RamAppCategoryService) QueryPublic(ctx *gin.Context, ct modRamAppCatego
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) SelectNodePublic(ctx *gin.Context, ct modRamAppCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamAppCategoryService) SelectNodePublic(ctx *gin.Context, ct modRamAppCategory2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -525,7 +525,7 @@ func (c *RamAppCategoryService) SelectNodePublic(ctx *gin.Context, ct modRamAppC
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAppCategory.Vo
+			var vo modRamAppCategory2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -546,7 +546,7 @@ func (c *RamAppCategoryService) SelectNodePublic(ctx *gin.Context, ct modRamAppC
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modRamAppCategory.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamAppCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modRamAppCategory2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -554,7 +554,7 @@ func (c *RamAppCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modRamA
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAppCategory.Vo
+			var vo modRamAppCategory2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -575,15 +575,15 @@ func (c *RamAppCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modRamA
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppCategoryService) SelectPublic(ctx *gin.Context, ct modRamAppCategory.QueryPublicCt) (rt rg.Rs[[]modRamAppCategory.Vo]) {
+func (c *RamAppCategoryService) SelectPublic(ctx *gin.Context, ct modRamAppCategory2.QueryPublicCt) (rt rg.Rs[[]modRamAppCategory2.Vo]) {
 	var query entityRam.RamAppCategoryEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAppCategory.Vo, 0)
+	slice := make([]modRamAppCategory2.Vo, 0)
 	rt.Data = slice
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAppCategory.Vo
+			var vo modRamAppCategory2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

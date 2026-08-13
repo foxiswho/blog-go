@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdentityProvider"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdentityProvider"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -48,7 +48,7 @@ func (c *IdentityProviderController) RegisterRoutes(e *gin.Engine) {
 
 // Create 创建
 func (c *IdentityProviderController) Create(ctx *gin.Context) {
-	var ct modRamIdentityProvider.CreateCt
+	var ct modRamIdentityProvider.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -57,7 +57,7 @@ func (c *IdentityProviderController) Create(ctx *gin.Context) {
 
 // Update 更新
 func (c *IdentityProviderController) Update(ctx *gin.Context) {
-	var ct modRamIdentityProvider.UpdateCt
+	var ct modRamIdentityProvider.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

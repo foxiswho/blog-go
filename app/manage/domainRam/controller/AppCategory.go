@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	modRamAppCategory2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAppCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -56,7 +56,7 @@ func (c *AppCategoryController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AppCategoryController) Create(ctx *gin.Context) {
-	var ct modRamAppCategory.CreateCt
+	var ct modRamAppCategory2.CreateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -69,7 +69,7 @@ func (c *AppCategoryController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AppCategoryController) Update(ctx *gin.Context) {
-	var ct modRamAppCategory.UpdateCt
+	var ct modRamAppCategory2.UpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -179,7 +179,7 @@ func (c *AppCategoryController) State(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AppCategoryController) Query(ctx *gin.Context) {
-	var ct modRamAppCategory.QueryCt
+	var ct modRamAppCategory2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -187,7 +187,7 @@ func (c *AppCategoryController) Query(ctx *gin.Context) {
 }
 
 func (c *AppCategoryController) SelectNodePublic(ctx *gin.Context) {
-	var ct modRamAppCategory.QueryPublicCt
+	var ct modRamAppCategory2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -196,7 +196,7 @@ func (c *AppCategoryController) SelectNodePublic(ctx *gin.Context) {
 }
 
 func (c *AppCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamAppCategory.QueryPublicCt
+	var ct modRamAppCategory2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -205,7 +205,7 @@ func (c *AppCategoryController) SelectNodeAllPublic(ctx *gin.Context) {
 }
 
 func (c *AppCategoryController) SelectPublic(ctx *gin.Context) {
-	var ct modRamAppCategory.QueryPublicCt
+	var ct modRamAppCategory2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

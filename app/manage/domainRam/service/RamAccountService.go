@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service/ramAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
@@ -613,44 +613,32 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 	return rt.Ok()
 }
 
-// Create 创建
+// CreateUpdate 创建 更新
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountService) Create(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	if ct.ID.ToInt64() > 0 {
+		return ramAccount.NewUpdate(c.log,
+			c.sp, ctx).Process(ctx, ct, tp)
+	}
 	return ramAccount.NewCreate(c.log,
 		c.sp, ctx).Process(ctx, ct, tp)
 }
 
-// CreateAccount 创建
+// CreateUpdateAccountSimple 更新
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountService) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *RamAccountService) CreateUpdateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	if ct.ID.ToInt64() > 0 {
+		return ramAccount.NewUpdate(c.log,
+			c.sp, ctx).UpdateAccount(ctx, ct, tp)
+	}
 	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccount(ctx, ct, tp)
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamAccountService) Update(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return ramAccount.NewUpdate(c.log,
-		c.sp, ctx).Process(ctx, ct, tp)
-}
-
-// UpdateAccount 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ct
-func (c *RamAccountService) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return ramAccount.NewUpdate(c.log,
-		c.sp, ctx).UpdateAccount(ctx, ct, tp)
+		c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
 }
 
 // ExistAccount 查重

@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service/ramResource"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
@@ -76,7 +76,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 //	@return rt
 func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority.CreatByGroupCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	if ct.GroupId.ToInt64() < 1 {
+	if strPg.IsBlank(ct.GroupNo) {
 		return rt.ErrorMessage("请选择资源组")
 	}
 	if ct.Ids == nil || len(ct.Ids) < 1 {
@@ -90,7 +90,7 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 	if len(ids) < 1 {
 		return rt.ErrorMessage("请选择数据")
 	}
-	group, result := c.groupDb.FindById(ctx, ct.GroupId.ToInt64())
+	group, result := c.groupDb.FindByNo(ctx, ct.GroupNo)
 	if !result {
 		return rt.ErrorMessage("资源组不存在")
 	}

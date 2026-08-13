@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamIdpBinding"
+	modRamIdpBinding2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdpBinding"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -43,7 +43,7 @@ type RamIdpBindingService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamIdpBindingService) CreateUpdate(ctx *gin.Context, ct modRamIdpBinding.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamIdpBindingService) CreateUpdate(ctx *gin.Context, ct modRamIdpBinding2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	//
 	holder := holderPg.GetContextAccount(ctx)
@@ -99,7 +99,7 @@ func (c *RamIdpBindingService) CreateUpdate(ctx *gin.Context, ct modRamIdpBindin
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamIdpBindingService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamIdpBinding.Vo]) {
+func (c *RamIdpBindingService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamIdpBinding2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -107,7 +107,7 @@ func (c *RamIdpBindingService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modR
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamIdpBinding.Vo
+	var info modRamIdpBinding2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -242,11 +242,11 @@ func (c *RamIdpBindingService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamIdpBindingService) Query(ctx *gin.Context, ct modRamIdpBinding.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamIdpBinding.Vo]]) {
+func (c *RamIdpBindingService) Query(ctx *gin.Context, ct modRamIdpBinding2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamIdpBinding2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamIdpBindingEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamIdpBinding.Vo, 0)
+	slice := make([]modRamIdpBinding2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -266,10 +266,10 @@ func (c *RamIdpBindingService) Query(ctx *gin.Context, ct modRamIdpBinding.Query
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamIdpBinding.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamIdpBinding2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamIdpBinding.Vo
+			var vo modRamIdpBinding2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -286,7 +286,7 @@ func (c *RamIdpBindingService) Query(ctx *gin.Context, ct modRamIdpBinding.Query
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamIdpBindingService) SelectNodeAll(ctx *gin.Context, ct modRamIdpBinding.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamIdpBindingService) SelectNodeAll(ctx *gin.Context, ct modRamIdpBinding2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamIdpBindingEntity
 	copier.Copy(&query, &ct)
@@ -295,7 +295,7 @@ func (c *RamIdpBindingService) SelectNodeAll(ctx *gin.Context, ct modRamIdpBindi
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamIdpBinding.Vo
+			var vo modRamIdpBinding2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -314,7 +314,7 @@ func (c *RamIdpBindingService) SelectNodeAll(ctx *gin.Context, ct modRamIdpBindi
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamIdpBindingService) SelectNodeAllPublic(ctx *gin.Context, ct modRamIdpBinding.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamIdpBindingService) SelectNodeAllPublic(ctx *gin.Context, ct modRamIdpBinding2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamIdpBindingEntity
 	copier.Copy(&query, &ct)
@@ -323,7 +323,7 @@ func (c *RamIdpBindingService) SelectNodeAllPublic(ctx *gin.Context, ct modRamId
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamIdpBinding.Vo
+			var vo modRamIdpBinding2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,

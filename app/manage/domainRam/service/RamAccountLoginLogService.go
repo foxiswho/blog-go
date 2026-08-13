@@ -5,7 +5,7 @@ import (
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccountLoginLog"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccountLoginLog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"

@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamCas"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamCas"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"

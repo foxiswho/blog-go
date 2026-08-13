@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcLevel"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcLevel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

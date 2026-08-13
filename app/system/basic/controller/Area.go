@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicArea"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicArea"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

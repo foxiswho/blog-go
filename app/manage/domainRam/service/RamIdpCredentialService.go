@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdpCredential"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdpCredential"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -39,7 +39,7 @@ type RamIdpCredentialService struct {
 }
 
 // Create 新增
-func (c *RamIdpCredentialService) Create(ctx *gin.Context, ct modRamIdpCredential.CreateCt) (rt rg.Rs[string]) {
+func (c *RamIdpCredentialService) Create(ctx *gin.Context, ct modRamIdpCredential.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdpCredentialEntity
 	copier.Copy(&info, &ct)
@@ -57,7 +57,7 @@ func (c *RamIdpCredentialService) Create(ctx *gin.Context, ct modRamIdpCredentia
 }
 
 // Update 更新
-func (c *RamIdpCredentialService) Update(ctx *gin.Context, ct modRamIdpCredential.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamIdpCredentialService) Update(ctx *gin.Context, ct modRamIdpCredential.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdpCredentialEntity
 	copier.Copy(&info, &ct)

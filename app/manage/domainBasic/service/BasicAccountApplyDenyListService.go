@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicAccountApplyDenyList"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAccountApplyDenyList"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
@@ -47,7 +47,7 @@ type BasicAccountApplyDenyListService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicAccountApplyDenyList.CreateCt) (rt rg.Rs[string]) {
+func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicAccountApplyDenyList.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicAccountApplyDenyListEntity
 	err := copier.Copy(&info, &ct)
@@ -109,7 +109,7 @@ func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicA
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicAccountApplyDenyList.UpdateCt) (rt rg.Rs[string]) {
+func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicAccountApplyDenyList.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&info, &ct)

@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	modRamDeviceAuth "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamDeviceAuth"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDeviceAuth"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicModelRules"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicModelRules"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/validatorPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

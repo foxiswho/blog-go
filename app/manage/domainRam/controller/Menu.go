@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMenu"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMenu"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -58,7 +58,7 @@ func (c *MenuController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *MenuController) Create(ctx *gin.Context) {
-	var ct modRamMenu.CreateCt
+	var ct modRamMenu.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -71,7 +71,7 @@ func (c *MenuController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *MenuController) Update(ctx *gin.Context) {
-	var ct modRamMenu.UpdateCt
+	var ct modRamMenu.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

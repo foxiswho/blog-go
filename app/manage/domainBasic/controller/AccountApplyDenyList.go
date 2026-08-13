@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicAccountApplyDenyList"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAccountApplyDenyList"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
@@ -50,7 +50,7 @@ func (c *AccountApplyDenyListController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AccountApplyDenyListController) Create(ctx *gin.Context) {
-	var ct modBasicAccountApplyDenyList.CreateCt
+	var ct modBasicAccountApplyDenyList.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -63,7 +63,7 @@ func (c *AccountApplyDenyListController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AccountApplyDenyListController) Update(ctx *gin.Context) {
-	var ct modBasicAccountApplyDenyList.UpdateCt
+	var ct modBasicAccountApplyDenyList.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

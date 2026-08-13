@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccountSession"
+	modRamAccountSession2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccountSession"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -65,11 +65,11 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSession.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountSession.Vo]]) {
+func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSession2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountSession2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountSessionEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAccountSession.Vo, 0)
+	slice := make([]modRamAccountSession2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -88,7 +88,7 @@ func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSessi
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorByPageable[modRamAccountSession.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamAccountSession2.Vo](page.Pageable)
 		mapAcc := make(map[string]*entityRam.RamAccountEntity)
 		idsAcc := make([]string, 0)
 		for _, item := range page.Data {
@@ -109,7 +109,7 @@ func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSessi
 		}
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAccountSession.Vo
+			var vo modRamAccountSession2.Vo
 			copier.Copy(&vo, &item)
 			//
 			vo.ExtraData = make(map[string]any)

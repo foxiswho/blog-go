@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAppAccessKey"
+	modRamAppAccessKey2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAppAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -244,11 +244,11 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppAccessKey.Vo]]) {
+func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppAccessKey2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAppAccessKeyEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAppAccessKey.Vo, 0)
+	slice := make([]modRamAppAccessKey2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -268,10 +268,10 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamAppAccessKey.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamAppAccessKey2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAppAccessKey.Vo
+			var vo modRamAppAccessKey2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -288,14 +288,14 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey.Q
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAccessKey.QueryCt) (rt rg.Rs[[]modRamAppAccessKey.Vo]) {
+func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAccessKey2.QueryCt) (rt rg.Rs[[]modRamAppAccessKey2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAppAccessKeyEntity
 	copier.Copy(&query, &ct)
 	if strPg.IsBlank(ct.AppNo) {
 		query.AppNo = "-1"
 	}
-	slice := make([]modRamAppAccessKey.Vo, 0)
+	slice := make([]modRamAppAccessKey2.Vo, 0)
 	rt.Data = slice
 	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
 		db = db.Order("create_at desc")
@@ -303,7 +303,7 @@ func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAcce
 	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAppAccessKey.Vo
+			var vo modRamAppAccessKey2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

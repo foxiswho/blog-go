@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResource"
+	modRamResource2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResource"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -47,7 +47,7 @@ func (c *ResourceController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *ResourceController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamResource.CreateUpdateCt
+	var ct modRamResource2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -58,7 +58,7 @@ func (c *ResourceController) CreateUpdate(ctx *gin.Context) {
 	}
 }
 func (c *ResourceController) CreateUpdateByCategory(ctx *gin.Context) {
-	var ct modRamResource.CreateUpdateCt
+	var ct modRamResource2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -121,7 +121,7 @@ func (c *ResourceController) Disable(ctx *gin.Context) {
 }
 
 func (c *ResourceController) Query(ctx *gin.Context) {
-	var ct modRamResource.QueryCt
+	var ct modRamResource2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -129,7 +129,7 @@ func (c *ResourceController) Query(ctx *gin.Context) {
 }
 
 func (c *ResourceController) SelectNodeAll(ctx *gin.Context) {
-	var ct modRamResource.QueryPublicCt
+	var ct modRamResource2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -137,7 +137,7 @@ func (c *ResourceController) SelectNodeAll(ctx *gin.Context) {
 }
 
 func (c *ResourceController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamResource.QueryPublicCt
+	var ct modRamResource2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -146,16 +146,16 @@ func (c *ResourceController) SelectNodeAllPublic(ctx *gin.Context) {
 }
 
 func (c *ResourceController) SelectPublic(ctx *gin.Context) {
-	ct := modRamResource.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResource2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 
 func (c *ResourceController) SelectCategoryPublic(ctx *gin.Context) {
-	ct := modRamResource.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResource2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectCategoryPublic(ctx, ct))
 }
 func (c *ResourceController) SelectCategory(ctx *gin.Context) {
-	ct := modRamResource.QueryCt{}
+	ct := modRamResource2.QueryCt{}
 	ctx.JSON(200, c.sv.SelectCategoryPublic(ctx, ct))
 }
 

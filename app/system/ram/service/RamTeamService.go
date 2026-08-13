@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamTeam"
+	modRamTeam2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamTeam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -46,7 +46,7 @@ type RamTeamService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	//
 	holder := holderPg.GetContextAccount(ctx)
@@ -128,7 +128,7 @@ func (c *RamTeamService) CreateUpdate(ctx *gin.Context, ct modRamTeam.CreateUpda
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamTeamService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamTeam.Vo]) {
+func (c *RamTeamService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamTeam2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -136,7 +136,7 @@ func (c *RamTeamService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamTeam
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamTeam.Vo
+	var info modRamTeam2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -290,11 +290,11 @@ func (c *RamTeamService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamTeamService) Query(ctx *gin.Context, ct modRamTeam.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamTeam.Vo]]) {
+func (c *RamTeamService) Query(ctx *gin.Context, ct modRamTeam2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamTeam2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamTeamEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamTeam.Vo, 0)
+	slice := make([]modRamTeam2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -314,10 +314,10 @@ func (c *RamTeamService) Query(ctx *gin.Context, ct modRamTeam.QueryCt) (rt rg.R
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamTeam.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamTeam2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamTeam.Vo
+			var vo modRamTeam2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -334,7 +334,7 @@ func (c *RamTeamService) Query(ctx *gin.Context, ct modRamTeam.QueryCt) (rt rg.R
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamTeamService) SelectNodeAll(ctx *gin.Context, ct modRamTeam.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamTeamService) SelectNodeAll(ctx *gin.Context, ct modRamTeam2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamTeamEntity
 	copier.Copy(&query, &ct)
@@ -343,7 +343,7 @@ func (c *RamTeamService) SelectNodeAll(ctx *gin.Context, ct modRamTeam.QueryPubl
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamTeam.Vo
+			var vo modRamTeam2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -362,7 +362,7 @@ func (c *RamTeamService) SelectNodeAll(ctx *gin.Context, ct modRamTeam.QueryPubl
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamTeamService) SelectNodeAllPublic(ctx *gin.Context, ct modRamTeam.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamTeamService) SelectNodeAllPublic(ctx *gin.Context, ct modRamTeam2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamTeamEntity
 	copier.Copy(&query, &ct)
@@ -371,7 +371,7 @@ func (c *RamTeamService) SelectNodeAllPublic(ctx *gin.Context, ct modRamTeam.Que
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamTeam.Vo
+			var vo modRamTeam2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,

@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcTenantDomain"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"

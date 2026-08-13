@@ -2,12 +2,12 @@ package ramResource
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	iamConstant2 "github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -152,7 +152,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 	//插入数据
 	for _, item := range c.groupData {
 		//不是资源属性，跳过
-		if !iamConstant2.Resource.IsEqual(item.TypeAttr) {
+		if !typeAttrPg.Resource.IsEqual(item.TypeAttr) {
 			continue
 		}
 		var info entityRam.RamResourceGroupRelationEntity
@@ -205,7 +205,7 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 		//插入数据
 		for _, item := range data {
 			//不是资源属性，跳过
-			if !iamConstant2.Resource.IsEqual(item.TypeAttr) {
+			if !typeAttrPg.Resource.IsEqual(item.TypeAttr) {
 				continue
 			}
 			var info entityRam.RamResourceRelationEntity

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamApp"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	modRamApp2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamApp"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -59,7 +59,7 @@ func (c *AppController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AppController) Create(ctx *gin.Context) {
-	var ct modRamApp.CreateCt
+	var ct modRamApp2.CreateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -72,7 +72,7 @@ func (c *AppController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AppController) Update(ctx *gin.Context) {
-	var ct modRamApp.UpdateCt
+	var ct modRamApp2.UpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -184,7 +184,7 @@ func (c *AppController) State(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AppController) Query(ctx *gin.Context) {
-	var ct modRamApp.QueryCt
+	var ct modRamApp2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -192,7 +192,7 @@ func (c *AppController) Query(ctx *gin.Context) {
 }
 
 func (c *AppController) SelectNodePublic(ctx *gin.Context) {
-	var ct modRamApp.QueryPublicCt
+	var ct modRamApp2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -201,7 +201,7 @@ func (c *AppController) SelectNodePublic(ctx *gin.Context) {
 }
 
 func (c *AppController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamApp.QueryPublicCt
+	var ct modRamApp2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -210,7 +210,7 @@ func (c *AppController) SelectNodeAllPublic(ctx *gin.Context) {
 }
 
 func (c *AppController) SelectPublic(ctx *gin.Context) {
-	ct := modRamApp.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamApp2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 

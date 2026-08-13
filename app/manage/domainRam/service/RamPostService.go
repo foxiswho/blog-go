@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamPost"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamPost"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -89,7 +89,7 @@ func (c *RamPostService) Create(ctx *gin.Context, ct modRamPost.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamPostService) Update(ctx *gin.Context, ct modRamPost.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamPostService) Update(ctx *gin.Context, ct modRamPost.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamPostEntity
 	copier.Copy(&info, &ct)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamChannel"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamChannel"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -35,7 +35,7 @@ type ChannelController struct {
 //	@receiver c
 //	@param ctx
 func (c *ChannelController) Create(ctx *gin.Context) {
-	var ct modRamChannel.CreateCt
+	var ct modRamChannel.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -48,7 +48,7 @@ func (c *ChannelController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *ChannelController) Update(ctx *gin.Context) {
-	var ct modRamChannel.UpdateCt
+	var ct modRamChannel.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

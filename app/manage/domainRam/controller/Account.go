@@ -2,11 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
@@ -29,6 +28,8 @@ type AccountController struct {
 	log       *log2.Logger `autowire:"?"`
 }
 
+// SetAppModule 设置模块
+// @Description:
 func (c *AccountController) SetAppModule(appModule appModulePg.AppModule) *AccountController {
 	c.appModule = appModule
 	return c
@@ -43,20 +44,18 @@ func (c *AccountController) RegisterRoutes(e *gin.Engine) {
 	group := e.Group("/xianfu/manage/ram/account", authPg.GroupManageMiddleware(c.Sp))
 	group.POST("/enable", c.Enable)
 	group.POST("/disable", c.Disable)
-	group.POST("/state", c.State)
 	group.GET("/detail/:id", c.Detail)
 	group.POST("/delete", c.Delete)
 	group.POST("/recovery", c.Recovery)
 	group.POST("/physicalDeletion", c.PhysicalDeletion)
 	group.POST("/query", c.Query)
 	group.POST("/updatePassword", c.UpdatePassword)
-	group.POST("/create", c.Create)
-	group.POST("/createAccount", c.CreateAccount)
-	group.POST("/update", c.Update)
-	group.POST("/updateAccount", c.UpdateAccount)
+	group.POST("/createUpdateSimple", c.CreateUpdateSimple)
+	group.POST("/createUpdate", c.CreateUpdate)
 	group.POST("/existAccount", c.ExistAccount)
 	group.POST("/existPhone", c.ExistPhone)
 	group.POST("/existMail", c.ExistMail)
+	group.POST("/existCode", c.ExistCode)
 	group.POST("/existIdentityCode", c.ExistIdentityCode)
 	group.POST("/existRealName", c.ExistRealName)
 }
@@ -99,24 +98,6 @@ func (c *AccountController) Disable(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.Disable(ctx, ct, c.appModule))
-}
-
-// State 状态
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) State(ctx *gin.Context) {
-	var ct model.BaseStateIdsCt[string]
-	if !routerPg.BindJson(ctx, &ct) {
-		return
-	}
-	state, ok := enumStatePg.IsExistInt64(ct.State)
-	if !ok {
-		ctx.JSON(200, rg.Error[string]("类型不正确"))
-		return
-	}
-	ctx.JSON(200, c.sv.StateEnableDisable(ctx, ct.Ids, state, c.appModule))
 }
 
 // Delete 逻辑删除
@@ -184,56 +165,25 @@ func (c *AccountController) Query(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.Query(ctx, ct, c.appModule))
 }
 
-// Create 添加
+// CreateUpdate 添加
 //
 //	@Description:
 //	@receiver c
 //	@param ctx
-func (c *AccountController) Create(ctx *gin.Context) {
-	var ct modRamAccount.CreateCt
+func (c *AccountController) CreateUpdate(ctx *gin.Context) {
+	var ct modRamAccount.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
-	ctx.JSON(200, c.sv.Create(ctx, ct, c.appModule))
+	ctx.JSON(200, c.sv.CreateUpdate(ctx, ct, c.appModule))
 }
 
-// CreateAccount 添加账号
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) CreateAccount(ctx *gin.Context) {
-	var ct modRamAccount.CreateAccountCt
+func (c *AccountController) CreateUpdateSimple(ctx *gin.Context) {
+	var ct modRamAccount.CreateUpdateAccountCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
-	ctx.JSON(200, c.sv.CreateAccount(ctx, ct, c.appModule))
-}
-
-// Update 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) Update(ctx *gin.Context) {
-	var ct modRamAccount.UpdateCt
-	if !routerPg.BindJson(ctx, &ct) {
-		return
-	}
-	ctx.JSON(200, c.sv.Update(ctx, ct, c.appModule))
-}
-
-// UpdateAccount 更新
-//
-//	@Description:
-//	@receiver c
-//	@param ctx
-func (c *AccountController) UpdateAccount(ctx *gin.Context) {
-	var ct modRamAccount.UpdateAccountCt
-	if !routerPg.BindJson(ctx, &ct) {
-		return
-	}
-	ctx.JSON(200, c.sv.UpdateAccount(ctx, ct, c.appModule))
+	ctx.JSON(200, c.sv.CreateUpdateAccountSimple(ctx, ct, c.appModule))
 }
 
 // ExistAccount 查重
@@ -273,6 +223,14 @@ func (c *AccountController) ExistMail(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, c.sv.ExistMail(ctx, ct, c.appModule))
+}
+
+func (c *AccountController) ExistCode(ctx *gin.Context) {
+	var ct model.BaseExistWdCt[string]
+	if !routerPg.BindJson(ctx, &ct) {
+		return
+	}
+	ctx.JSON(200, c.sv.ExistCode(ctx, ct, c.appModule))
 }
 
 // ExistIdentityCode 查重

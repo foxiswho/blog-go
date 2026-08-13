@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceAuthority"
+	modRamResourceAuthority2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service/ramResource"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
@@ -55,7 +55,7 @@ type RamResourceAuthorityService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResourceAuthority.CreateCt) (rt rg.Rs[string]) {
+func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResourceAuthority2.CreateCt) (rt rg.Rs[string]) {
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -74,7 +74,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 //	@param ctx
 //	@param ct
 //	@return rt
-func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority.CreatByGroupCt) (rt rg.Rs[string]) {
+func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority2.CreatByGroupCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if strPg.IsBlank(ct.GroupNo) {
 		return rt.ErrorMessage("请选择资源组")
@@ -146,7 +146,7 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceAuthorityService) Update(ctx *gin.Context, ct modRamResourceAuthority.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceAuthorityService) Update(ctx *gin.Context, ct modRamResourceAuthority2.UpdateCt) (rt rg.Rs[string]) {
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -169,7 +169,7 @@ func (c *RamResourceAuthorityService) Update(ctx *gin.Context, ct modRamResource
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamResourceAuthorityService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamResourceAuthority.Vo]) {
+func (c *RamResourceAuthorityService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamResourceAuthority2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -177,7 +177,7 @@ func (c *RamResourceAuthorityService) Detail(ctx *gin.Context, id int64) (rt rg.
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamResourceAuthority.Vo
+	var info modRamResourceAuthority2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -323,11 +323,11 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceAuthority.Vo]]) {
+func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceAuthority2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceAuthority2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResourceAuthority.Vo, 0)
+	slice := make([]modRamResourceAuthority2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -347,10 +347,10 @@ func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceA
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamResourceAuthority.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamResourceAuthority2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamResourceAuthority.Vo
+			var vo modRamResourceAuthority2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -367,7 +367,7 @@ func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceA
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
+func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modRamResourceAuthority2.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
@@ -392,7 +392,7 @@ func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modR
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
+func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceAuthority2.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
@@ -401,7 +401,7 @@ func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct m
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamResourceAuthority.Vo
+			var vo modRamResourceAuthority2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, model.BaseNode{Key: numberPg.Int64ToString(item.ID),
 				Label:  item.Name,
@@ -420,16 +420,16 @@ func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct m
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceAuthorityService) SelectPublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]modRamResourceAuthority.Vo]) {
+func (c *RamResourceAuthorityService) SelectPublic(ctx *gin.Context, ct modRamResourceAuthority2.QueryCt) (rt rg.Rs[[]modRamResourceAuthority2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
-	rt.Data = []modRamResourceAuthority.Vo{}
+	rt.Data = []modRamResourceAuthority2.Vo{}
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
-		slice := make([]modRamResourceAuthority.Vo, 0)
+		slice := make([]modRamResourceAuthority2.Vo, 0)
 		for _, item := range infos {
-			var vo modRamResourceAuthority.Vo
+			var vo modRamResourceAuthority2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -472,7 +472,7 @@ func (c *RamResourceAuthorityService) CreateByResourceGroup(ctx *gin.Context, va
 //	@param ctx
 //	@param ct
 //	@return rt
-func (c *RamResourceAuthorityService) UpdateByRole(ctx *gin.Context, ct modRamResourceAuthority.UpdateByTypeValueCt) (rt rg.Rs[string]) {
+func (c *RamResourceAuthorityService) UpdateByRole(ctx *gin.Context, ct modRamResourceAuthority2.UpdateByTypeValueCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	return ramResource.NewUpdateByTypeValue(c.log, c.roleDb, c.sv, c.resDb, c.groupDb, c.grDb, c.relationDb, resourceTypeCategoryPg.Role, ct, ctx).Process()
 }

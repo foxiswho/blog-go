@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamChannel"
+	modRamChannel2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamChannel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -44,7 +44,7 @@ type RamChannelService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	//
 	holder := holderPg.GetContextAccount(ctx)
@@ -126,7 +126,7 @@ func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel.Crea
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamChannel.Vo]) {
+func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamChannel2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -134,7 +134,7 @@ func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamC
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamChannel.Vo
+	var info modRamChannel2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -281,11 +281,11 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamChannel.Vo]]) {
+func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamChannel2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamChannel.Vo, 0)
+	slice := make([]modRamChannel2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -305,10 +305,10 @@ func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (r
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamChannel.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamChannel2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamChannel.Vo
+			var vo modRamChannel2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -325,7 +325,7 @@ func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel.QueryCt) (r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
@@ -334,7 +334,7 @@ func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel.Que
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamChannel.Vo
+			var vo modRamChannel2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -353,7 +353,7 @@ func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel.Que
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChannel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChannel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
@@ -362,7 +362,7 @@ func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChann
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamChannel.Vo
+			var vo modRamChannel2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,

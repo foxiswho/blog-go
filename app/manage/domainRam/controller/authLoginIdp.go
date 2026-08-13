@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	modRamCas "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamCas"
-	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
-	modRamMfa "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMfa"
-	modRamSaml "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamSaml"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamCas"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMfa"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamSaml"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -62,7 +62,7 @@ func (c *AuthLoginIdpController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AuthLoginIdpController) Login(ctx *gin.Context) {
-	var ct modRamLogin2.IdpLoginCt
+	var ct modRamLogin.IdpLoginCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -75,7 +75,7 @@ func (c *AuthLoginIdpController) Login(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AuthLoginIdpController) RefreshToken(ctx *gin.Context) {
-	var ct modRamLogin2.TokenRefreshCt
+	var ct modRamLogin.TokenRefreshCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

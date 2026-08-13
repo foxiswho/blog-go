@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/authorizationTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"
@@ -54,12 +54,12 @@ func NewCreate(
 	}
 }
 
-// accountCreate 创建
+// accountCreateSimple 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) accountCreateSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if len(ct.Account) <= 0 {
 		return rt.ErrorMessage("账户不能为空")
@@ -91,6 +91,7 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountC
 		return rt.ErrorMessage("编号已存在")
 	}
 	copier.Copy(&c.entity, &ct)
+	c.entity.ID = 0
 	c.entity.ExtraData = datatypes.JSON([]byte(`{}`))
 	c.entity.TypeDomain = tp.ToTypeDomain().String() //域类型
 	//
@@ -145,13 +146,13 @@ func (c *Create) accountCreate(ctx *gin.Context, ct modRamAccount.CreateAccountC
 	return rt.Ok()
 }
 
-// CreateAccount 创建
+// CreateAccountSimple 创建
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Create) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	account := c.accountCreate(ctx, ct, tp)
+func (c *Create) CreateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+	account := c.accountCreateSimple(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
@@ -166,15 +167,16 @@ func (c *Create) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountC
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	var ctAccount modRamAccount.CreateAccountCt
+	var ctAccount modRamAccount.CreateUpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
-	account := c.accountCreate(ctx, ctAccount, tp)
+	ctAccount.ID = 0
+	account := c.accountCreateSimple(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
-	var dataCt modRamAccount.UpdateAccountCt
+	var dataCt modRamAccount.CreateUpdateCt
 	copier.Copy(&dataCt, &ct)
 	var entity entityRam.RamAccountEntity
 	//赋值 数据
@@ -330,6 +332,6 @@ func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateCt, tp appMo
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Create) Process(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Create) Process(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return c.createAll(ctx, ct, tp)
 }

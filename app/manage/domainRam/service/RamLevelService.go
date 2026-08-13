@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLevel"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLevel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -89,7 +89,7 @@ func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateCt) (rt 
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamLevelEntity
 	copier.Copy(&info, &ct)

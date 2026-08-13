@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	modRamResourceAuthority2 "github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceAuthority"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceAuthority"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -46,7 +46,7 @@ func (c *ResourceAuthorityController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *ResourceAuthorityController) Create(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.CreateCt
+	var ct modRamResourceAuthority.CreateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -54,7 +54,7 @@ func (c *ResourceAuthorityController) Create(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) CreatByGroup(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.CreatByGroupCt
+	var ct modRamResourceAuthority.CreatByGroupCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -62,7 +62,7 @@ func (c *ResourceAuthorityController) CreatByGroup(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) Update(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.UpdateCt
+	var ct modRamResourceAuthority.UpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -70,7 +70,7 @@ func (c *ResourceAuthorityController) Update(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) UpdateByRole(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.UpdateByTypeValueCt
+	var ct modRamResourceAuthority.UpdateByTypeValueCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -129,7 +129,7 @@ func (c *ResourceAuthorityController) Disable(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) Query(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.QueryCt
+	var ct modRamResourceAuthority.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -137,7 +137,7 @@ func (c *ResourceAuthorityController) Query(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) QueryByGroup(ctx *gin.Context) {
-	var ct modRamResourceAuthority2.QueryCt
+	var ct modRamResourceAuthority.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -149,16 +149,16 @@ func (c *ResourceAuthorityController) QueryByGroup(ctx *gin.Context) {
 }
 
 func (c *ResourceAuthorityController) SelectNodePublic(ctx *gin.Context) {
-	ct := modRamResourceAuthority2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceAuthority.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
 }
 
 func (c *ResourceAuthorityController) SelectNodeAllPublic(ctx *gin.Context) {
-	ct := modRamResourceAuthority2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceAuthority.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *ResourceAuthorityController) SelectPublic(ctx *gin.Context) {
-	ct := modRamResourceAuthority2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceAuthority.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamJobFunction"
+	modRamJobFunction2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamJobFunction"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -44,7 +44,7 @@ func (c *JobFunctionController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *JobFunctionController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamJobFunction.CreateUpdateCt
+	var ct modRamJobFunction2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -107,7 +107,7 @@ func (c *JobFunctionController) Disable(ctx *gin.Context) {
 }
 
 func (c *JobFunctionController) Query(ctx *gin.Context) {
-	var ct modRamJobFunction.QueryCt
+	var ct modRamJobFunction2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -115,7 +115,7 @@ func (c *JobFunctionController) Query(ctx *gin.Context) {
 }
 
 func (c *JobFunctionController) SelectNodeAll(ctx *gin.Context) {
-	var ct modRamJobFunction.QueryPublicCt
+	var ct modRamJobFunction2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -123,7 +123,7 @@ func (c *JobFunctionController) SelectNodeAll(ctx *gin.Context) {
 }
 
 func (c *JobFunctionController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamJobFunction.QueryPublicCt
+	var ct modRamJobFunction2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -132,7 +132,7 @@ func (c *JobFunctionController) SelectNodeAllPublic(ctx *gin.Context) {
 }
 
 func (c *JobFunctionController) SelectPublic(ctx *gin.Context) {
-	ct := modRamJobFunction.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamJobFunction2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 

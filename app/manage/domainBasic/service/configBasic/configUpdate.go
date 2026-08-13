@@ -9,7 +9,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/basic/model/modCacheBasicEvent"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/basic/model/modCacheBasicRules"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicConfigList"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicConfigList"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/configModelPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"

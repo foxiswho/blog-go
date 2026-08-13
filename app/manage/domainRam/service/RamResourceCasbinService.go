@@ -10,7 +10,7 @@ import (
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamCasbin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamCasbin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"

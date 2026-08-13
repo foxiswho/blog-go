@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -114,6 +114,11 @@ func (c *AccountController) Delete(ctx *gin.Context) {
 	ctx.JSON(200, c.sv.LogicalDeletion(ctx, ct.Ids, c.appModule))
 }
 
+// Recovery 删除 恢复
+//
+//	@Description:
+//	@receiver c
+//	@param ctx
 func (c *AccountController) Recovery(ctx *gin.Context) {
 	var ct model.BaseIdsCt[string]
 	if !routerPg.BindJson(ctx, &ct) {

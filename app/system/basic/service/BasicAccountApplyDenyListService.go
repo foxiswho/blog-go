@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicAccountApplyDenyList"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAccountApplyDenyList"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"

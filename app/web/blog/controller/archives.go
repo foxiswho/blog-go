@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/blog/serviceCore"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/cacheTc"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/cacheTc"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/service"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/utils/webPg"

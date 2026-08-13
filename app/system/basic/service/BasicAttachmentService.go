@@ -9,7 +9,7 @@ import (
 
 	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicAttachment"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAttachment"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"

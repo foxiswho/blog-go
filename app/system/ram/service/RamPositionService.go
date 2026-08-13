@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamPosition"
+	modRamPosition2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamPosition"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -47,7 +47,7 @@ type RamPositionService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamPositionService) Create(ctx *gin.Context, ct modRamPosition.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamPositionService) Create(ctx *gin.Context, ct modRamPosition2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamPositionEntity
 	copier.Copy(&info, &ct)
@@ -91,7 +91,7 @@ func (c *RamPositionService) Create(ctx *gin.Context, ct modRamPosition.CreateUp
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamPositionService) Update(ctx *gin.Context, ct modRamPosition.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamPositionService) Update(ctx *gin.Context, ct modRamPosition2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamPositionEntity
 	copier.Copy(&info, &ct)
@@ -130,7 +130,7 @@ func (c *RamPositionService) Update(ctx *gin.Context, ct modRamPosition.CreateUp
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamPositionService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamPosition.Vo]) {
+func (c *RamPositionService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamPosition2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -138,7 +138,7 @@ func (c *RamPositionService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRam
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamPosition.Vo
+	var info modRamPosition2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -292,11 +292,11 @@ func (c *RamPositionService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamPositionService) Query(ctx *gin.Context, ct modRamPosition.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamPosition.Vo]]) {
+func (c *RamPositionService) Query(ctx *gin.Context, ct modRamPosition2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamPosition2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamPositionEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamPosition.Vo, 0)
+	slice := make([]modRamPosition2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -316,10 +316,10 @@ func (c *RamPositionService) Query(ctx *gin.Context, ct modRamPosition.QueryCt) 
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamPosition.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamPosition2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamPosition.Vo
+			var vo modRamPosition2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -336,7 +336,7 @@ func (c *RamPositionService) Query(ctx *gin.Context, ct modRamPosition.QueryCt) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamPositionService) SelectNodeAll(ctx *gin.Context, ct modRamPosition.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamPositionService) SelectNodeAll(ctx *gin.Context, ct modRamPosition2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamPositionEntity
 	copier.Copy(&query, &ct)
@@ -345,7 +345,7 @@ func (c *RamPositionService) SelectNodeAll(ctx *gin.Context, ct modRamPosition.Q
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamPosition.Vo
+			var vo modRamPosition2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -365,7 +365,7 @@ func (c *RamPositionService) SelectNodeAll(ctx *gin.Context, ct modRamPosition.Q
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamPositionService) SelectNodeAllPublic(ctx *gin.Context, ct modRamPosition.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamPositionService) SelectNodeAllPublic(ctx *gin.Context, ct modRamPosition2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamPositionEntity
 	copier.Copy(&query, &ct)
@@ -374,7 +374,7 @@ func (c *RamPositionService) SelectNodeAllPublic(ctx *gin.Context, ct modRamPosi
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamPosition.Vo
+			var vo modRamPosition2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -394,16 +394,16 @@ func (c *RamPositionService) SelectNodeAllPublic(ctx *gin.Context, ct modRamPosi
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamPositionService) SelectPublic(ctx *gin.Context, ct modRamPosition.QueryCt) (rt rg.Rs[[]modRamPosition.Vo]) {
+func (c *RamPositionService) SelectPublic(ctx *gin.Context, ct modRamPosition2.QueryCt) (rt rg.Rs[[]modRamPosition2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamPositionEntity
 	copier.Copy(&query, &ct)
-	rt.Data = []modRamPosition.Vo{}
+	rt.Data = []modRamPosition2.Vo{}
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
-		slice := make([]modRamPosition.Vo, 0)
+		slice := make([]modRamPosition2.Vo, 0)
 		for _, item := range infos {
-			var vo modRamPosition.Vo
+			var vo modRamPosition2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

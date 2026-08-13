@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamChannel"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamChannel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -45,7 +45,7 @@ type RamChannelService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamChannelService) Create(ctx *gin.Context, ct modRamChannel.CreateCt) (rt rg.Rs[string]) {
+func (c *RamChannelService) Create(ctx *gin.Context, ct modRamChannel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamChannelEntity
 	copier.Copy(&info, &ct)
@@ -89,7 +89,7 @@ func (c *RamChannelService) Create(ctx *gin.Context, ct modRamChannel.CreateCt) 
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamChannelService) Update(ctx *gin.Context, ct modRamChannel.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamChannelService) Update(ctx *gin.Context, ct modRamChannel.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamChannelEntity
 	copier.Copy(&info, &ct)

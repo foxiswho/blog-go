@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicConfigList"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service/configBasic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicConfigList"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

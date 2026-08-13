@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamTeam"
+	modRamTeam2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamTeam"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -44,7 +44,7 @@ func (c *TeamController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *TeamController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamTeam.CreateUpdateCt
+	var ct modRamTeam2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -103,7 +103,7 @@ func (c *TeamController) Disable(ctx *gin.Context) {
 }
 
 func (c *TeamController) Query(ctx *gin.Context) {
-	var ct modRamTeam.QueryCt
+	var ct modRamTeam2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -111,7 +111,7 @@ func (c *TeamController) Query(ctx *gin.Context) {
 }
 
 func (c *TeamController) SelectNodeAll(ctx *gin.Context) {
-	var ct modRamTeam.QueryPublicCt
+	var ct modRamTeam2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -119,7 +119,7 @@ func (c *TeamController) SelectNodeAll(ctx *gin.Context) {
 }
 
 func (c *TeamController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamTeam.QueryPublicCt
+	var ct modRamTeam2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

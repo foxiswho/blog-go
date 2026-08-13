@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
@@ -21,9 +21,9 @@ import (
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"golang.org/x/oauth2"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
+	"golang.org/x/oauth2"
 )
 
 func init() {
@@ -34,17 +34,17 @@ func init() {
 
 // idpBaseConfig 认证源基础配置（从 BaseConfig JSON 解析）
 type idpBaseConfig struct {
-	ClientId     string `json:"clientId"`
-	ClientSecret string `json:"clientSecret"`
-	ClientId2    string `json:"clientId2"`
-	ClientSecret2 string `json:"clientSecret2"`
-	AppId        string `json:"appId"`
-	HostUrl      string `json:"hostUrl"`
-	RedirectUrl  string `json:"redirectUrl"`
-	DisableSsl   bool   `json:"disableSsl"`
-	TokenURL     string `json:"tokenURL"`
-	AuthURL      string `json:"authURL"`
-	UserInfoURL  string `json:"userInfoURL"`
+	ClientId        string `json:"clientId"`
+	ClientSecret    string `json:"clientSecret"`
+	ClientId2       string `json:"clientId2"`
+	ClientSecret2   string `json:"clientSecret2"`
+	AppId           string `json:"appId"`
+	HostUrl         string `json:"hostUrl"`
+	RedirectUrl     string `json:"redirectUrl"`
+	DisableSsl      bool   `json:"disableSsl"`
+	TokenURL        string `json:"tokenURL"`
+	AuthURL         string `json:"authURL"`
+	UserInfoURL     string `json:"userInfoURL"`
 	AppCertificate  string `json:"appCertificate"`
 	RootCertificate string `json:"rootCertificate"`
 }
@@ -52,14 +52,14 @@ type idpBaseConfig struct {
 // AccountLoginIdpService IDP OAuth 登录
 // @Description:
 type AccountLoginIdpService struct {
-	daoAccount      *repositoryRam.RamAccountRepository          `autowire:"?"`
-	daoSource       *repositoryRam.RamIdentitySourceRepository   `autowire:"?"`
-	daoProvider     *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
-	daoBinding      *repositoryRam.RamIdpBindingRepository       `autowire:"?"`
-	daoSessionLog   *repositoryRam.RamAccountSessionLogRepository `autowire:"?"`
-	loginService    *AccountLoginService                         `autowire:"?"`
-	mfaService      *AccountMfaService                           `autowire:"?"`
-	log             *log2.Logger                                 `autowire:"?"`
+	daoAccount    *repositoryRam.RamAccountRepository           `autowire:"?"`
+	daoSource     *repositoryRam.RamIdentitySourceRepository    `autowire:"?"`
+	daoProvider   *repositoryRam.RamIdentityProviderRepository  `autowire:"?"`
+	daoBinding    *repositoryRam.RamIdpBindingRepository        `autowire:"?"`
+	daoSessionLog *repositoryRam.RamAccountSessionLogRepository `autowire:"?"`
+	loginService  *AccountLoginService                          `autowire:"?"`
+	mfaService    *AccountMfaService                            `autowire:"?"`
+	log           *log2.Logger                                  `autowire:"?"`
 }
 
 func NewAccountLoginIdpService() *AccountLoginIdpService {
@@ -280,29 +280,29 @@ func (c *AccountLoginIdpService) createAccountAndBinding(
 	// 创建 RamIdpBinding
 	bindingNo := noPg.No()
 	binding := &entityRam.RamIdpBindingEntity{
-		No:          bindingNo,
-		TenantNo:    source.TenantNo,
-		OrgNo:       source.OrgNo,
-		StoreNo:     source.StoreNo,
-		TypeDomain:  typeDomainPg.Manage.String(),
-		Idp:         source.Idp,
-		ExternalSub: userInfo.Id,
-		OpenId:      userInfo.Extra["openid"],
-		UnionId:     userInfo.UnionId,
-		BindAno:     accountNo,
-		State:       int8(enumStatePg.ENABLE),
-		StateBind:   2, // 已绑定
-		BindTime:    &now,
+		No:            bindingNo,
+		TenantNo:      source.TenantNo,
+		OrgNo:         source.OrgNo,
+		StoreNo:       source.StoreNo,
+		TypeDomain:    typeDomainPg.Manage.String(),
+		Idp:           source.Idp,
+		ExternalSub:   userInfo.Id,
+		OpenId:        userInfo.Extra["openid"],
+		UnionId:       userInfo.UnionId,
+		BindAno:       accountNo,
+		State:         int8(enumStatePg.ENABLE),
+		StateBind:     2, // 已绑定
+		BindTime:      &now,
 		LastLoginTime: &now,
-		AccessToken:  oauthToken.AccessToken,
-		RefreshToken: oauthToken.RefreshToken,
-		Platform:     providerEntity.Platform,
-		Protocol:     source.Protocol,
-		Mail:         userInfo.Email,
-		Phone:        userInfo.Phone,
-		NickName:     userInfo.DisplayName,
-		Avatar:       userInfo.AvatarUrl,
-		CreateAt:     &now,
+		AccessToken:   oauthToken.AccessToken,
+		RefreshToken:  oauthToken.RefreshToken,
+		Platform:      providerEntity.Platform,
+		Protocol:      source.Protocol,
+		Mail:          userInfo.Email,
+		Phone:         userInfo.Phone,
+		NickName:      userInfo.DisplayName,
+		Avatar:        userInfo.AvatarUrl,
+		CreateAt:      &now,
 	}
 	errBind, _ := c.daoBinding.Create(ctx, binding)
 	if errBind != nil {

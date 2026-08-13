@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamTeam"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamTeam"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -58,7 +58,7 @@ func (c *TeamController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *TeamController) Create(ctx *gin.Context) {
-	var ct modRamTeam.CreateCt
+	var ct modRamTeam.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -71,7 +71,7 @@ func (c *TeamController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *TeamController) Update(ctx *gin.Context) {
-	var ct modRamTeam.UpdateCt
+	var ct modRamTeam.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

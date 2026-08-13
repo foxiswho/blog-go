@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamLevel"
+	modRamLevel2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLevel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -47,7 +47,7 @@ type RamLevelService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamLevelEntity
 	copier.Copy(&info, &ct)
@@ -91,7 +91,7 @@ func (c *RamLevelService) Create(ctx *gin.Context, ct modRamLevel.CreateUpdateCt
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamLevelEntity
 	copier.Copy(&info, &ct)
@@ -130,7 +130,7 @@ func (c *RamLevelService) Update(ctx *gin.Context, ct modRamLevel.CreateUpdateCt
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamLevelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamLevel.Vo]) {
+func (c *RamLevelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamLevel2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -138,7 +138,7 @@ func (c *RamLevelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamLev
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamLevel.Vo
+	var info modRamLevel2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -292,11 +292,11 @@ func (c *RamLevelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamLevelService) Query(ctx *gin.Context, ct modRamLevel.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamLevel.Vo]]) {
+func (c *RamLevelService) Query(ctx *gin.Context, ct modRamLevel2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamLevel2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamLevelEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamLevel.Vo, 0)
+	slice := make([]modRamLevel2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -316,10 +316,10 @@ func (c *RamLevelService) Query(ctx *gin.Context, ct modRamLevel.QueryCt) (rt rg
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamLevel.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamLevel2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamLevel.Vo
+			var vo modRamLevel2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -336,7 +336,7 @@ func (c *RamLevelService) Query(ctx *gin.Context, ct modRamLevel.QueryCt) (rt rg
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamLevelService) SelectNodeAll(ctx *gin.Context, ct modRamLevel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamLevelService) SelectNodeAll(ctx *gin.Context, ct modRamLevel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamLevelEntity
 	copier.Copy(&query, &ct)
@@ -345,7 +345,7 @@ func (c *RamLevelService) SelectNodeAll(ctx *gin.Context, ct modRamLevel.QueryPu
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamLevel.Vo
+			var vo modRamLevel2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -365,7 +365,7 @@ func (c *RamLevelService) SelectNodeAll(ctx *gin.Context, ct modRamLevel.QueryPu
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamLevelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamLevel.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamLevelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamLevel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamLevelEntity
 	copier.Copy(&query, &ct)
@@ -374,7 +374,7 @@ func (c *RamLevelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamLevel.Q
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamLevel.Vo
+			var vo modRamLevel2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -394,16 +394,16 @@ func (c *RamLevelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamLevel.Q
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamLevelService) SelectPublic(ctx *gin.Context, ct modRamLevel.QueryCt) (rt rg.Rs[[]modRamLevel.Vo]) {
+func (c *RamLevelService) SelectPublic(ctx *gin.Context, ct modRamLevel2.QueryCt) (rt rg.Rs[[]modRamLevel2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamLevelEntity
 	copier.Copy(&query, &ct)
-	rt.Data = []modRamLevel.Vo{}
+	rt.Data = []modRamLevel2.Vo{}
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
-		slice := make([]modRamLevel.Vo, 0)
+		slice := make([]modRamLevel2.Vo, 0)
 		for _, item := range infos {
-			var vo modRamLevel.Vo
+			var vo modRamLevel2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

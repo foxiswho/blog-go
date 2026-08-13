@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdpMetadataCache"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdpMetadataCache"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -47,7 +47,7 @@ func (c *IdpMetadataCacheController) RegisterRoutes(e *gin.Engine) {
 
 // Create 创建
 func (c *IdpMetadataCacheController) Create(ctx *gin.Context) {
-	var ct modRamIdpMetadataCache.CreateCt
+	var ct modRamIdpMetadataCache.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -56,7 +56,7 @@ func (c *IdpMetadataCacheController) Create(ctx *gin.Context) {
 
 // Update 更新
 func (c *IdpMetadataCacheController) Update(ctx *gin.Context) {
-	var ct modRamIdpMetadataCache.UpdateCt
+	var ct modRamIdpMetadataCache.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

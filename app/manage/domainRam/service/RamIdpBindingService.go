@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdpBinding"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdpBinding"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -39,7 +39,7 @@ type RamIdpBindingService struct {
 }
 
 // Create 新增
-func (c *RamIdpBindingService) Create(ctx *gin.Context, ct modRamIdpBinding.CreateCt) (rt rg.Rs[string]) {
+func (c *RamIdpBindingService) Create(ctx *gin.Context, ct modRamIdpBinding.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdpBindingEntity
 	copier.Copy(&info, &ct)
@@ -57,7 +57,7 @@ func (c *RamIdpBindingService) Create(ctx *gin.Context, ct modRamIdpBinding.Crea
 }
 
 // Update 更新
-func (c *RamIdpBindingService) Update(ctx *gin.Context, ct modRamIdpBinding.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamIdpBindingService) Update(ctx *gin.Context, ct modRamIdpBinding.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdpBindingEntity
 	copier.Copy(&info, &ct)

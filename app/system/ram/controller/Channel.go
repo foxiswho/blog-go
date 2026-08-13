@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamChannel"
+	modRamChannel2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamChannel"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -35,7 +35,7 @@ type ChannelController struct {
 //	@receiver c
 //	@param ctx
 func (c *ChannelController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamChannel.CreateUpdateCt
+	var ct modRamChannel2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -129,7 +129,7 @@ func (c *ChannelController) Disable(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *ChannelController) Query(ctx *gin.Context) {
-	var ct modRamChannel.QueryCt
+	var ct modRamChannel2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -137,7 +137,7 @@ func (c *ChannelController) Query(ctx *gin.Context) {
 }
 
 func (c *ChannelController) selectNodeAll(ctx *gin.Context) {
-	var ct modRamChannel.QueryPublicCt
+	var ct modRamChannel2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -145,7 +145,7 @@ func (c *ChannelController) selectNodeAll(ctx *gin.Context) {
 }
 
 func (c *ChannelController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamChannel.QueryPublicCt
+	var ct modRamChannel2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicTagsCategory"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/model/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"

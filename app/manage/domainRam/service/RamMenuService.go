@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMenu"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMenu"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -48,7 +48,7 @@ type RamMenuService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg.Rs[string]) {
+func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamMenuEntity
 	err := copier.Copy(&info, &ct)
@@ -130,7 +130,7 @@ func (c *RamMenuService) Create(ctx *gin.Context, ct modRamMenu.CreateCt) (rt rg
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamMenuService) Update(ctx *gin.Context, ct modRamMenu.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamMenuEntity
 	err := copier.Copy(&info, &ct)

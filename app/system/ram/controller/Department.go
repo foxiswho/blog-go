@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamDepartment"
+	modRamDepartment2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDepartment"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -46,7 +46,7 @@ func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *DepartmentController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamDepartment.CreateUpdateCt
+	var ct modRamDepartment2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -109,7 +109,7 @@ func (c *DepartmentController) Disable(ctx *gin.Context) {
 }
 
 func (c *DepartmentController) Query(ctx *gin.Context) {
-	var ct modRamDepartment.QueryCt
+	var ct modRamDepartment2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -117,7 +117,7 @@ func (c *DepartmentController) Query(ctx *gin.Context) {
 }
 
 func (c *DepartmentController) QueryAll(ctx *gin.Context) {
-	var ct modRamDepartment.QueryCt
+	var ct modRamDepartment2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -125,7 +125,7 @@ func (c *DepartmentController) QueryAll(ctx *gin.Context) {
 }
 
 func (c *DepartmentController) SelectNodeAll(ctx *gin.Context) {
-	var ct modRamDepartment.QueryPublicCt
+	var ct modRamDepartment2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -133,7 +133,7 @@ func (c *DepartmentController) SelectNodeAll(ctx *gin.Context) {
 }
 
 func (c *DepartmentController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamDepartment.QueryPublicCt
+	var ct modRamDepartment2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -142,7 +142,7 @@ func (c *DepartmentController) SelectNodeAllPublic(ctx *gin.Context) {
 }
 
 func (c *DepartmentController) ExportExcel(ctx *gin.Context) {
-	ct := modRamDepartment.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamDepartment2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	c.sv.ExportExcel(ctx, ct)
 }
 

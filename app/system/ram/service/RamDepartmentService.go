@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamDepartment"
+	modRamDepartment2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDepartment"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -51,7 +51,7 @@ type RamDepartmentService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	err := copier.Copy(&info, &ct)
@@ -124,7 +124,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	copier.Copy(&info, &ct)
@@ -273,7 +273,7 @@ func (c *RamDepartmentService) CacheOverride(ctx *gin.Context) {
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamDepartmentService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamDepartment.Vo]) {
+func (c *RamDepartmentService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamDepartment2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -281,7 +281,7 @@ func (c *RamDepartmentService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modR
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamDepartment.Vo
+	var info modRamDepartment2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -434,11 +434,11 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment.Vo]]) {
+func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamDepartment.Vo, 0)
+	slice := make([]modRamDepartment2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -459,10 +459,10 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamDepartment.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamDepartment2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamDepartment.Vo
+			var vo modRamDepartment2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -479,16 +479,16 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment.Query
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment.QueryCt) (rt rg.Rs[[]modRamDepartment.Vo]) {
+func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment2.QueryCt) (rt rg.Rs[[]modRamDepartment2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamDepartment.Vo, 0)
+	slice := make([]modRamDepartment2.Vo, 0)
 	rt.Data = slice
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamDepartment.Vo
+			var vo modRamDepartment2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -502,7 +502,7 @@ func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment.Qu
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartment.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartment2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
@@ -511,7 +511,7 @@ func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartme
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamDepartment.Vo
+			var vo modRamDepartment2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -532,7 +532,7 @@ func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartme
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDepartment.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDepartment2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
@@ -541,7 +541,7 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamDepartment.Vo
+			var vo modRamDepartment2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -562,7 +562,7 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment.QueryCt) {
+func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment2.QueryCt) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
@@ -570,7 +570,7 @@ func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment
 	if len(infos) > 0 {
 		slice := make([]interface{}, 0)
 		for _, item := range infos {
-			var vo modRamDepartment.Vo
+			var vo modRamDepartment2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

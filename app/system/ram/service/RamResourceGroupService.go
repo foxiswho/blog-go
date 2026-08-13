@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceGroup"
+	modRamResourceGroup2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceGroup"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -51,7 +51,7 @@ type RamResourceGroupService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGroup2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err2 := copier.Copy(&info, &ct)
@@ -145,7 +145,7 @@ func (c *RamResourceGroupService) Create(ctx *gin.Context, ct modRamResourceGrou
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGroup2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err := copier.Copy(&info, &ct)
@@ -258,7 +258,7 @@ func (c *RamResourceGroupService) Update(ctx *gin.Context, ct modRamResourceGrou
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) CreateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) CreateCategory(ctx *gin.Context, ct modRamResourceGroup2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err2 := copier.Copy(&info, &ct)
@@ -338,7 +338,7 @@ func (c *RamResourceGroupService) CreateCategory(ctx *gin.Context, ct modRamReso
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamResourceGroupService) UpdateCategory(ctx *gin.Context, ct modRamResourceGroup.CreateUpdateCt) (rt rg.Rs[string]) {
+func (c *RamResourceGroupService) UpdateCategory(ctx *gin.Context, ct modRamResourceGroup2.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamResourceGroupEntity
 	err := copier.Copy(&info, &ct)
@@ -529,7 +529,7 @@ func (c *RamResourceGroupService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamResourceGroup.Vo]) {
+func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamResourceGroup2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -537,7 +537,7 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamResourceGroup.Vo
+	var info modRamResourceGroup2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -547,11 +547,11 @@ func (c *RamResourceGroupService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceGroup.Vo]]) {
+func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceGroup2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResourceGroup.Vo, 0)
+	slice := make([]modRamResourceGroup2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -571,10 +571,10 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamResourceGroup.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamResourceGroup2.Vo](page.Pageable)
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamResourceGroup.Vo
+			var vo modRamResourceGroup2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
@@ -591,7 +591,7 @@ func (c *RamResourceGroupService) Query(ctx *gin.Context, ct modRamResourceGroup
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResourceGroup2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
@@ -600,7 +600,7 @@ func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResou
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamResourceGroup.Vo
+			var vo modRamResourceGroup2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -621,7 +621,7 @@ func (c *RamResourceGroupService) SelectNodeAll(ctx *gin.Context, ct modRamResou
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceGroup.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceGroup2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
@@ -630,7 +630,7 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamResourceGroup.Vo
+			var vo modRamResourceGroup2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -651,7 +651,7 @@ func (c *RamResourceGroupService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamResourceGroup2.QueryCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
@@ -663,7 +663,7 @@ func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamReso
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamResourceGroup.Vo
+			var vo modRamResourceGroup2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:    item.No,
@@ -683,11 +683,11 @@ func (c *RamResourceGroupService) SelectCategory(ctx *gin.Context, ct modRamReso
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamResourceGroupService) QueryAllCategory(ctx *gin.Context, ct modRamResourceGroup.QueryCt) (rt rg.Rs[[]modRamResourceGroup.Vo]) {
+func (c *RamResourceGroupService) QueryAllCategory(ctx *gin.Context, ct modRamResourceGroup2.QueryCt) (rt rg.Rs[[]modRamResourceGroup2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamResourceGroupEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamResourceGroup.Vo, 0)
+	slice := make([]modRamResourceGroup2.Vo, 0)
 	rt.Data = slice
 	//
 	query.TypeAttr = typeAttrPg.CategoryLast.String()
@@ -698,7 +698,7 @@ func (c *RamResourceGroupService) QueryAllCategory(ctx *gin.Context, ct modRamRe
 	}))
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamResourceGroup.Vo
+			var vo modRamResourceGroup2.Vo
 			copier.Copy(&vo, &item)
 			//
 			if strPg.IsNotBlank(item.TerminalCode) {

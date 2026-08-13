@@ -2,13 +2,12 @@ package ramAccount
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sexPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -53,7 +52,7 @@ func NewUpdate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID <= 0 {
 		return rt.ErrorMessage("id不能为空")
@@ -115,7 +114,7 @@ func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	account := c.accountUpdate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
@@ -131,9 +130,9 @@ func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	var ctAccount modRamAccount.UpdateAccountCt
+	var ctAccount modRamAccount.CreateUpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	account := c.accountUpdate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
@@ -145,6 +144,9 @@ func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appMo
 	//赋值
 	var entity entityRam.RamAccountEntity
 	copier.Copy(&entity, &dataCt)
+	//
+	log.Infof(ctx, log.TagBizDef, "entity=%+v", entity)
+	log.Infof(ctx, log.TagBizDef, "dataCt=%+v", dataCt)
 	//
 	r := c.sp.accDb
 	info, query := r.FindByIdAndTypeDomain(ctx, ct.ID.ToInt64(), tp.ToTypeDomain().String())
@@ -302,6 +304,6 @@ func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appMo
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) Process(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) Process(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return c.updateAll(ctx, ct, tp)
 }

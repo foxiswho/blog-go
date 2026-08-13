@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/service/tcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
@@ -59,7 +59,7 @@ func NewTcTenantAccountService() *TcTenantAccountService {
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *TcTenantAccountService) Detail(ctx *gin.Context, id string, tp appModulePg.AppModule) (rt rg.Rs[modRamAccount.DetailVo]) {
+func (c *TcTenantAccountService) Detail(ctx *gin.Context, id string, tp appModulePg.AppModule) (rt rg.Rs[modTcAccount.DetailVo]) {
 	detail := tcAccount.NewDetail(c.log, c.sp, tp)
 	return detail.Process(ctx, id)
 }
@@ -227,13 +227,13 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.Paginator[modRamAccount.Vo]]) {
+func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modTcAccount.QueryCt, tp appModulePg.AppModule) (rt rg.Rs[pagePg.Paginator[modTcAccount.Vo]]) {
 	var query entityRam.RamAccountEntity
 	copier.Copy(&query, &ct)
 	// 创始人
 	query.Founder = enumStatePg.ENABLE.Index()
 	//
-	slice := make([]modRamAccount.Vo, 0)
+	slice := make([]modTcAccount.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	depDb := c.dep
@@ -378,7 +378,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 	}
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
-		pg := pagePg.NewPaginatorByPageable[modRamAccount.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modTcAccount.Vo](page.Pageable)
 		//
 		mapDep := make(map[string]*entityRam.RamDepartmentEntity)
 		mapRole := make(map[string]*entityRam.RamRoleEntity)
@@ -548,7 +548,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 		}
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAccount.Vo
+			var vo modTcAccount.Vo
 			copier.Copy(&vo, &item)
 			//vo.Os.No = item.Os.Data()
 			//部门
@@ -662,7 +662,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryC
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modRamAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modTcAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewCreate(c.log,
 		c.sp, ctx).Process(ctx, ct, tp)
 }
@@ -672,7 +672,7 @@ func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modRamAccount.Creat
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modRamAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modTcAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewCreate(c.log,
 		c.sp, ctx).CreateAccount(ctx, ct, tp)
 }
@@ -682,7 +682,7 @@ func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modRamAccoun
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewUpdate(c.log,
 		c.sp, ctx).Process(ctx, ct, tp)
 }
@@ -692,7 +692,7 @@ func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modRamAccount.Updat
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountService) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *TcTenantAccountService) UpdateAccount(ctx *gin.Context, ct modTcAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return tcAccount.NewUpdate(c.log,
 		c.sp, ctx).UpdateAccount(ctx, ct, tp)
 }

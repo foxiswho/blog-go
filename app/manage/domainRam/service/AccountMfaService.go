@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamMfa"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMfa"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"

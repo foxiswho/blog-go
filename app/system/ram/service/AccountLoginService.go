@@ -8,7 +8,7 @@ import (
 	"github.com/farseer-go/eventBus"
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamLogin"
+	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
@@ -60,7 +60,7 @@ func NewAccountLoginService() *AccountLoginService {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain, tenantNo string) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin2.LoginCt, tp typeDomainPg.TypeDomain, tenantNo string) (rt rg.Rs[modRamLogin2.LoginSuccess]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
 	//
 	client := clientPg.Browser
@@ -120,11 +120,11 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp
 	//记录登录日志
 	c.loginLogSave(ctx, info)
 	//
-	successInfo := modRamLogin.LoginSuccessInfo{
+	successInfo := modRamLogin2.LoginSuccessInfo{
 		Account: info.Account,
 		Name:    info.Name,
 	}
-	success := modRamLogin.LoginSuccess{
+	success := modRamLogin2.LoginSuccess{
 		Info:         successInfo,
 		AccessToken:  dataToken.Access,
 		RefreshToken: dataToken.Refresh,
@@ -230,8 +230,8 @@ func (c *AccountLoginService) Logout(holder holderPg.HolderPg) (rt rg.Rs[string]
 //
 //	@Description:  刷新
 //	@receiver c
-func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin.TokenRefreshCt) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) RefreshToken(ctx *gin.Context, ct modRamLogin2.TokenRefreshCt) (rt rg.Rs[modRamLogin2.LoginSuccess]) {
 	token := ctx.GetHeader("Authorization")
-	rt.Data = modRamLogin.LoginSuccess{Token: token, AccessToken: token}
+	rt.Data = modRamLogin2.LoginSuccess{Token: token, AccessToken: token}
 	return rt.Ok()
 }

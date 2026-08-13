@@ -7,10 +7,10 @@ import (
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/utilsBlog"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"

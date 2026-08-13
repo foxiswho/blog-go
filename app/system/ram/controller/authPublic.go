@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modPublic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modPublic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/cmd"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"

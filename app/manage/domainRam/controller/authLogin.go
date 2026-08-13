@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	modRamLogin2 "github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -40,7 +40,7 @@ func (c *AuthLoginController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AuthLoginController) Login(ctx *gin.Context) {
-	var ct modRamLogin2.LoginCt
+	var ct modRamLogin.LoginManageCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -53,7 +53,7 @@ func (c *AuthLoginController) Login(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AuthLoginController) RefreshToken(ctx *gin.Context) {
-	var ct modRamLogin2.TokenRefreshCt
+	var ct modRamLogin.TokenRefreshCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

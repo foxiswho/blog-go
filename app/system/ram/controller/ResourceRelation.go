@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamResourceRelation"
+	modRamResourceRelation2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -29,7 +29,7 @@ func (c *ResourceRelationController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *ResourceRelationController) Query(ctx *gin.Context) {
-	var ct modRamResourceRelation.QueryCt
+	var ct modRamResourceRelation2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -37,22 +37,22 @@ func (c *ResourceRelationController) Query(ctx *gin.Context) {
 }
 
 func (c *ResourceRelationController) SelectNodePublic(ctx *gin.Context) {
-	ct := modRamResourceRelation.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceRelation2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodePublic(ctx, ct))
 }
 
 func (c *ResourceRelationController) SelectNodeAllPublic(ctx *gin.Context) {
-	ct := modRamResourceRelation.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceRelation2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectNodeAllPublic(ctx, ct))
 }
 
 func (c *ResourceRelationController) SelectPublic(ctx *gin.Context) {
-	ct := modRamResourceRelation.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
+	ct := modRamResourceRelation2.QueryCt{State: enumStatePg.ENABLE.IndexPg()}
 	ctx.JSON(200, c.sv.SelectPublic(ctx, ct))
 }
 
 func (c *ResourceRelationController) Selected(ctx *gin.Context) {
-	var ct modRamResourceRelation.QuerySelectedCt
+	var ct modRamResourceRelation2.QuerySelectedCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

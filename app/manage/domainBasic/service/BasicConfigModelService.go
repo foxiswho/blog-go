@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicConfigModel"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service/configModel"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicConfigModel"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

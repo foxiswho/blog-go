@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamIdentitySourceCallback"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdentitySourceCallback"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
@@ -39,7 +39,7 @@ type RamIdentitySourceCallbackService struct {
 }
 
 // Create 新增
-func (c *RamIdentitySourceCallbackService) Create(ctx *gin.Context, ct modRamIdentitySourceCallback.CreateCt) (rt rg.Rs[string]) {
+func (c *RamIdentitySourceCallbackService) Create(ctx *gin.Context, ct modRamIdentitySourceCallback.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdentitySourceCallbackEntity
 	copier.Copy(&info, &ct)
@@ -60,7 +60,7 @@ func (c *RamIdentitySourceCallbackService) Create(ctx *gin.Context, ct modRamIde
 }
 
 // Update 更新
-func (c *RamIdentitySourceCallbackService) Update(ctx *gin.Context, ct modRamIdentitySourceCallback.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamIdentitySourceCallbackService) Update(ctx *gin.Context, ct modRamIdentitySourceCallback.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamIdentitySourceCallbackEntity
 	copier.Copy(&info, &ct)

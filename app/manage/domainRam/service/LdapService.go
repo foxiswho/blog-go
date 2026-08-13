@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLdap"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLdap"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
@@ -53,12 +53,12 @@ func (s *LdapService) buildLdapConfig(source *entityRam.RamIdentitySourceEntity)
 
 	// 从 BaseConfig 解析 LDAP 特有字段
 	var ldapExtra struct {
-		Filter       string   `json:"filter"`
-		FilterFields []string `json:"filterFields"`
-		BaseDn       string   `json:"baseDn"`
-		Port         int      `json:"port"`
-		EnableSsl    bool     `json:"enableSsl"`
-		AllowSelfSigned bool  `json:"allowSelfSignedCert"`
+		Filter          string   `json:"filter"`
+		FilterFields    []string `json:"filterFields"`
+		BaseDn          string   `json:"baseDn"`
+		Port            int      `json:"port"`
+		EnableSsl       bool     `json:"enableSsl"`
+		AllowSelfSigned bool     `json:"allowSelfSignedCert"`
 	}
 	// 尝试从 SyncStrategyConfig 解析 LDAP 额外配置
 	if strPg.IsNotBlank(source.SyncStrategyConfig) {

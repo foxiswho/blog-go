@@ -3,8 +3,8 @@ package modBlogCollect
 import (
 	"time"
 
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/model/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/typePg"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamAccountDevice"
+	modRamAccountDevice2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccountDevice"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -46,7 +46,7 @@ type RamAccountDeviceService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevice.CreateCt) (rt rg.Rs[string]) {
+func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevice2.CreateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamAccountDeviceEntity
 	copier.Copy(&info, &ct)
@@ -90,7 +90,7 @@ func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevic
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevice.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevice2.UpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	var info entityRam.RamAccountDeviceEntity
 	copier.Copy(&info, &ct)
@@ -129,7 +129,7 @@ func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevic
 //	@Description:
 //	@receiver c
 //	@param id
-func (c *RamAccountDeviceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamAccountDevice.Vo]) {
+func (c *RamAccountDeviceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamAccountDevice2.Vo]) {
 	if id < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -137,7 +137,7 @@ func (c *RamAccountDeviceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 	if !b {
 		return rt.ErrorMessage("数据不存在")
 	}
-	var info modRamAccountDevice.Vo
+	var info modRamAccountDevice2.Vo
 	copier.Copy(&info, &find)
 	return rt.OkData(info)
 }
@@ -284,11 +284,11 @@ func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountDevice.Vo]]) {
+func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountDevice2.Vo]]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
-	slice := make([]modRamAccountDevice.Vo, 0)
+	slice := make([]modRamAccountDevice2.Vo, 0)
 	rt.Data.Data = slice
 	r := c.sv
 	page, err := r.FindAllPage(ctx, query, optionsPg.WithOption(func(arg *optionsPg.OptionParams) {
@@ -308,7 +308,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 
 	if page.Total > 0 && page.Data != nil && len(page.Data) > 0 {
 
-		pg := pagePg.NewPaginatorByPageable[modRamAccountDevice.Vo](page.Pageable)
+		pg := pagePg.NewPaginatorByPageable[modRamAccountDevice2.Vo](page.Pageable)
 		idsAcc := make([]string, 0)
 		mapAcc := make(map[string]*entityRam.RamAccountEntity)
 		for _, item := range page.Data {
@@ -329,7 +329,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 		}
 		//字段赋值
 		for _, item := range page.Data {
-			var vo modRamAccountDevice.Vo
+			var vo modRamAccountDevice2.Vo
 			copier.Copy(&vo, &item)
 			//
 			vo.ExtraMap = make(map[string]interface{})
@@ -358,7 +358,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAccountDevice.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAccountDevice2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
@@ -367,7 +367,7 @@ func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAc
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAccountDevice.Vo
+			var vo modRamAccountDevice2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -387,7 +387,7 @@ func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAc
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRamAccountDevice.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
+func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRamAccountDevice2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
@@ -396,7 +396,7 @@ func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
 		for _, item := range infos {
-			var vo modRamAccountDevice.Vo
+			var vo modRamAccountDevice2.Vo
 			copier.Copy(&vo, &item)
 			code := model.BaseNodeNo{
 				Value:  item.No,
@@ -416,16 +416,16 @@ func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *RamAccountDeviceService) SelectPublic(ctx *gin.Context, ct modRamAccountDevice.QueryCt) (rt rg.Rs[[]modRamAccountDevice.Vo]) {
+func (c *RamAccountDeviceService) SelectPublic(ctx *gin.Context, ct modRamAccountDevice2.QueryCt) (rt rg.Rs[[]modRamAccountDevice2.Vo]) {
 	c.log.Infof("ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
-	rt.Data = []modRamAccountDevice.Vo{}
+	rt.Data = []modRamAccountDevice2.Vo{}
 	infos := c.sv.FindAll(ctx, query)
 	if len(infos) > 0 {
-		slice := make([]modRamAccountDevice.Vo, 0)
+		slice := make([]modRamAccountDevice2.Vo, 0)
 		for _, item := range infos {
-			var vo modRamAccountDevice.Vo
+			var vo modRamAccountDevice2.Vo
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}

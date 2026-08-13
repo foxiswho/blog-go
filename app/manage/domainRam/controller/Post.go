@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamPost"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamPost"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
@@ -71,7 +71,7 @@ func (c *PostController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *PostController) Update(ctx *gin.Context) {
-	var ct modRamPost.UpdateCt
+	var ct modRamPost.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

@@ -4,8 +4,8 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/cacheTc"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/dtoTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/cacheTc"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/dtoTenantDomain"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

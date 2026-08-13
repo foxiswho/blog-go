@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainTc/model/cacheTc"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/cacheTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"

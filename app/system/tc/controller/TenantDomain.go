@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcTenantDomain"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcTenantDomain"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"

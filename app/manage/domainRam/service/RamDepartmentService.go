@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamDepartment"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDepartment"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -49,7 +49,7 @@ type RamDepartmentService struct {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.CreateCt) (rt rg.Rs[string]) {
+func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	err := copier.Copy(&info, &ct)
@@ -122,7 +122,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment.Crea
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.UpdateCt) (rt rg.Rs[string]) {
+func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment.CreateUpdateCt) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	copier.Copy(&info, &ct)

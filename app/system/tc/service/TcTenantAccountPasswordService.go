@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
@@ -44,7 +44,7 @@ func NewTcTenantAccountPasswordService() *TcTenantAccountPasswordService {
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct modRamAccount.PasswordCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *TcTenantAccountPasswordService) UpdatePassword(ctx *gin.Context, ct modTcAccount.PasswordCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
 	if ct.ID == 0 {
 		return rt.ErrorMessage("id错误")

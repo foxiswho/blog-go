@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/model/modRamIdentitySourceCallback"
+	modRamIdentitySourceCallback2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdentitySourceCallback"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
@@ -43,7 +43,7 @@ func (c *RamIdentitySourceCallbackController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *RamIdentitySourceCallbackController) CreateUpdate(ctx *gin.Context) {
-	var ct modRamIdentitySourceCallback.CreateUpdateCt
+	var ct modRamIdentitySourceCallback2.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -102,7 +102,7 @@ func (c *RamIdentitySourceCallbackController) Disable(ctx *gin.Context) {
 }
 
 func (c *RamIdentitySourceCallbackController) Query(ctx *gin.Context) {
-	var ct modRamIdentitySourceCallback.QueryCt
+	var ct modRamIdentitySourceCallback2.QueryCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -110,7 +110,7 @@ func (c *RamIdentitySourceCallbackController) Query(ctx *gin.Context) {
 }
 
 func (c *RamIdentitySourceCallbackController) SelectNodeAll(ctx *gin.Context) {
-	var ct modRamIdentitySourceCallback.QueryPublicCt
+	var ct modRamIdentitySourceCallback2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -118,7 +118,7 @@ func (c *RamIdentitySourceCallbackController) SelectNodeAll(ctx *gin.Context) {
 }
 
 func (c *RamIdentitySourceCallbackController) SelectNodeAllPublic(ctx *gin.Context) {
-	var ct modRamIdentitySourceCallback.QueryPublicCt
+	var ct modRamIdentitySourceCallback2.QueryPublicCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

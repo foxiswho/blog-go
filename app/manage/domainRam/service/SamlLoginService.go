@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamSaml"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamSaml"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
@@ -43,15 +43,15 @@ type samlSourceConfig struct {
 
 // SamlLoginService SAML 登录 Service
 type SamlLoginService struct {
-	daoAccount      *repositoryRam.RamAccountRepository          `autowire:"?"`
-	daoSource       *repositoryRam.RamIdentitySourceRepository   `autowire:"?"`
-	daoCredential   *repositoryRam.RamIdpCredentialRepository    `autowire:"?"`
-	daoMetadata     *repositoryRam.RamIdpMetadataCacheRepository `autowire:"?"`
-	daoBinding      *repositoryRam.RamIdpBindingRepository       `autowire:"?"`
-	daoSessionLog   *repositoryRam.RamAccountSessionLogRepository `autowire:"?"`
-	loginService    *AccountLoginService                         `autowire:"?"`
-	mfaService      *AccountMfaService                           `autowire:"?"`
-	log             *log2.Logger                                 `autowire:"?"`
+	daoAccount    *repositoryRam.RamAccountRepository           `autowire:"?"`
+	daoSource     *repositoryRam.RamIdentitySourceRepository    `autowire:"?"`
+	daoCredential *repositoryRam.RamIdpCredentialRepository     `autowire:"?"`
+	daoMetadata   *repositoryRam.RamIdpMetadataCacheRepository  `autowire:"?"`
+	daoBinding    *repositoryRam.RamIdpBindingRepository        `autowire:"?"`
+	daoSessionLog *repositoryRam.RamAccountSessionLogRepository `autowire:"?"`
+	loginService  *AccountLoginService                          `autowire:"?"`
+	mfaService    *AccountMfaService                            `autowire:"?"`
+	log           *log2.Logger                                  `autowire:"?"`
 }
 
 func NewSamlLoginService() *SamlLoginService {
@@ -224,8 +224,8 @@ func (c *SamlLoginService) buildSpFromSource(ctx *gin.Context, source *entityRam
 // mapSamlAttributes 将 SAML 属性映射为 UserInfo
 func (c *SamlLoginService) mapSamlAttributes(samlInfo *samlPkg.SpUserInfo, mappingJson string) *idp.UserInfo {
 	userInfo := &idp.UserInfo{
-		Id:     samlInfo.NameID,
-		Extra:  make(map[string]string),
+		Id:    samlInfo.NameID,
+		Extra: make(map[string]string),
 	}
 
 	// 默认属性映射

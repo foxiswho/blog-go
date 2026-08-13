@@ -10,8 +10,8 @@ import (
 	"github.com/farseer-go/eventBus"
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modPublic"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/model/modRamLogin"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modPublic"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/authTokenPg"
@@ -63,7 +63,7 @@ func NewAccountLoginService() *AccountLoginService {
 //	@receiver c
 //	@param ct
 //	@return rt
-func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginCt, tp typeDomainPg.TypeDomain) (rt rg.Rs[modRamLogin.LoginSuccess]) {
+func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin.LoginManageCt, tp typeDomainPg.TypeDomain) (rt rg.Rs[modRamLogin.LoginSuccess]) {
 	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
 	//
 	client := clientPg.Browser

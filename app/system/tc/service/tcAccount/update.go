@@ -2,7 +2,7 @@ package tcAccount
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/system/tc/model/modTcAccount"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sexPg"
@@ -53,7 +53,7 @@ func NewUpdate(
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) accountUpdate(ctx *gin.Context, ct modTcAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
 	if ct.ID <= 0 {
 		return rt.ErrorMessage("id不能为空")
@@ -117,7 +117,7 @@ func (c *Update) accountUpdate(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) UpdateAccount(ctx *gin.Context, ct modTcAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	account := c.accountUpdate(ctx, ct, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
@@ -133,16 +133,16 @@ func (c *Update) UpdateAccount(ctx *gin.Context, ct modRamAccount.UpdateAccountC
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) updateAll(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	c.log.Infof("ct=%+v", ct)
-	var ctAccount modRamAccount.UpdateAccountCt
+	var ctAccount modTcAccount.UpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	account := c.accountUpdate(ctx, ctAccount, tp)
 	if account.ErrorIs() {
 		return rt.ErrorMessage(account.Message)
 	}
 	//转换
-	var dataCt modRamAccount.UpdateDataCt
+	var dataCt modTcAccount.UpdateDataCt
 	copier.Copy(&dataCt, &ct)
 	//赋值
 	var entity entityRam.RamAccountEntity
@@ -304,6 +304,6 @@ func (c *Update) updateAll(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appMo
 //	@param ct
 //	@param tp
 //	@return rt
-func (c *Update) Process(ctx *gin.Context, ct modRamAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
+func (c *Update) Process(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	return c.updateAll(ctx, ct, tp)
 }
