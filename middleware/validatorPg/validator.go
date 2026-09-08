@@ -1,10 +1,12 @@
 package validatorPg
 
 import (
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin/binding"
 	"os"
 	"reflect"
+
+	"github.com/gin-gonic/gin/binding"
 
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
@@ -49,7 +51,13 @@ func init() {
 func Translate(err error, s interface{}) map[string]string {
 	r := make(map[string]string)
 	t := reflect.TypeOf(s).Elem()
-	for _, err := range err.(validator.ValidationErrors) {
+	// 使用安全类型断言，err 可能是 JSON 反序列化错误而非校验错误
+	var errs validator.ValidationErrors
+	ok := errors.As(err, &errs)
+	if !ok {
+		return r
+	}
+	for _, err := range errs {
 		//使用反射方法获取struct种的json标签作为key
 		var k string
 		if field, ok := t.FieldByName(err.StructField()); ok {

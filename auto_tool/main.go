@@ -58,6 +58,25 @@ func getModuleName() string {
 	return ""
 }
 
+// 获取项目根目录（go.mod 所在目录）
+func getProjectRoot() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return ""
+}
+
 func main() {
 	dirStr := flag.String("dir", ".", "scan directories, comma separated, e.g. -dir=./internal,./pkg,./app")
 	output := flag.String("output", "auto_import.go", "output file")
@@ -75,14 +94,19 @@ func main() {
 		fmt.Println("error: cannot find module name (not in go project or no go.mod)")
 		os.Exit(1)
 	}
+	projectRoot := getProjectRoot()
+	if projectRoot == "" {
+		cwd, _ := os.Getwd()
+		projectRoot = cwd
+	}
 	fmt.Printf("✅ using module: %s\n", moduleName)
 
 	ignoreRules = strings.Split(*ignore, ",")
 	sem := make(chan struct{}, *concurrency)
 	var wg sync.WaitGroup
 
-	dirs := strings.Split(*dirStr, ",")
-	for _, d := range dirs {
+	dirs := strings.SplitSeq(*dirStr, ",")
+	for d := range dirs {
 		rootDir := strings.TrimSpace(d)
 		if rootDir == "" {
 			continue
@@ -116,7 +140,7 @@ func main() {
 
 			sem <- struct{}{}
 			wg.Add(1)
-			go func(filePath string, rootAbs string) {
+			go func(filePath string, rootAbs string, projRoot string) {
 				defer func() { <-sem }()
 				defer wg.Done()
 
@@ -128,12 +152,18 @@ func main() {
 					}
 					rel = filepath.ToSlash(rel)
 
-					baseDir := filepath.Base(rootAbs)
+					// 扫描根目录相对于项目根的相对路径（支持多级目录如 pkg/sdk）
+					rootRel, err := filepath.Rel(projRoot, rootAbs)
+					if err != nil {
+						return
+					}
+					rootRel = filepath.ToSlash(rootRel)
+
 					var pkgPath string
 					if rel == "." {
-						pkgPath = moduleName + "/" + baseDir
+						pkgPath = moduleName + "/" + rootRel
 					} else {
-						pkgPath = moduleName + "/" + baseDir + "/" + rel
+						pkgPath = moduleName + "/" + rootRel + "/" + rel
 					}
 
 					pkgPath = filepath.Clean(pkgPath)
@@ -143,7 +173,7 @@ func main() {
 					packagePaths[pkgPath] = true
 					pkgMutex.Unlock()
 				}
-			}(path, absRootDir)
+			}(path, absRootDir, projectRoot)
 			return nil
 		})
 	}

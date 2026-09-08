@@ -113,9 +113,9 @@ index-coding:
     # 验证索引
     #codegraph stats
     #codegraph validate
-	@echo "===== 初始化：Graphify ====="
+	#@echo "===== 初始化：Graphify ====="
     # 扫描整个仓库构建代码图索引
-	graphify extract .
+	#graphify extract .
     # 启动图服务供智能体调用
     #graphify serve
     # 加载已构建代码图，开启上下文检索服务
