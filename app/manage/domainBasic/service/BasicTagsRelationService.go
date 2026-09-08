@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsCategory"
@@ -15,10 +13,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
-	"reflect"
 	"strings"
 
 	"github.com/go-viper/mapstructure/v2"
@@ -31,9 +27,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(BasicTagsRelationService)).Init(func(s *BasicTagsRelationService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicTagsRelationService))
 }
 
 // BasicTagsRelationService 团队

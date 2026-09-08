@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	modRamMenu2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMenu"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
@@ -16,10 +14,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -30,9 +25,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamMenuService)).Init(func(s *RamMenuService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamMenuService))
 }
 
 // RamMenuService 菜单

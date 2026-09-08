@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"

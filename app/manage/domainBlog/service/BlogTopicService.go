@@ -1,16 +1,14 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"reflect"
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/utilsBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
@@ -28,14 +26,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BlogTopicService)).Init(func(s *BlogTopicService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BlogTopicService))
 }
 
 // BlogTopicService 说明分类,协议，服务

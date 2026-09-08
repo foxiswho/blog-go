@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
@@ -12,19 +10,14 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 )
 
 func init() {
-	gs.Provide(new(RamResourceGroupAuthorizationService)).Init(func(s *RamResourceGroupAuthorizationService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceGroupAuthorizationService))
 }
 
 // RamResourceGroupAuthorizationService 资源组 授权方法动作

@@ -1,11 +1,8 @@
 package service
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogBookmarkCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogBookmarkCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -22,20 +19,17 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BlogBookmarkCategoryService)).Init(func(s *BlogBookmarkCategoryService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BlogBookmarkCategoryService))
 }
 
 // BlogBookmarkCategoryService 书签分类
 // @Description:
 type BlogBookmarkCategoryService struct {
-	log *log2.Logger                                    `autowire:"?"`
+	log *log2.Logger                                   `autowire:"?"`
 	sv  *repositoryBlog.BlogBookmarkCategoryRepository `autowire:"?"`
 }
 

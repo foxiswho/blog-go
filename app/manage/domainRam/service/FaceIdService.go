@@ -1,9 +1,7 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
@@ -11,14 +9,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(FaceIdService)).Init(func(s *FaceIdService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(FaceIdService))
 }
 
 // FaceIdBeginCt Face ID 开始验证请求
@@ -37,9 +32,9 @@ type FaceIdVerifyCt struct {
 
 // FaceIdService Face ID 登录验证
 type FaceIdService struct {
-	daoSource   *repositoryRam.RamIdentitySourceRepository `autowire:"?"`
+	daoSource   *repositoryRam.RamIdentitySourceRepository   `autowire:"?"`
 	daoProvider *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
-	log         *log2.Logger                               `autowire:"?"`
+	log         *log2.Logger                                 `autowire:"?"`
 }
 
 // Begin 开始 Face ID 验证（返回 Face ID 提供商类型及配置信息）

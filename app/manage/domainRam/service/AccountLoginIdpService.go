@@ -1,10 +1,8 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,15 +19,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"golang.org/x/oauth2"
 )
 
 func init() {
-	gs.Provide(NewAccountLoginIdpService).Init(func(s *AccountLoginIdpService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(NewAccountLoginIdpService)
 }
 
 // idpBaseConfig 认证源基础配置（从 BaseConfig JSON 解析）

@@ -1,13 +1,11 @@
 package service
 
 import (
-	"context"
-	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/model/modApiDiplAccessKey"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/api/modApiDiplAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryApi"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheDiplPg"
@@ -23,15 +21,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
 
 func init() {
-	gs.Provide(new(ApiDiplAccessKeyService)).Init(func(s *ApiDiplAccessKeyService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(ApiDiplAccessKeyService))
 }
 
 // ApiDiplAccessKeyService 团队

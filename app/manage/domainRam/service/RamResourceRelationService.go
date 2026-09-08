@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
@@ -12,10 +10,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -24,9 +19,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamResourceRelationService)).Init(func(s *RamResourceRelationService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceRelationService))
 }
 
 // RamResourceRelationService 资源关系

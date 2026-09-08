@@ -1,25 +1,16 @@
 package repositoryRam
 
 import (
-	"context"
-
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 )
 
 func init() {
-	gs.Provide(new(RamPositionRepository)).Init(func(s *RamPositionRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamPositionRepository))
 
-	gs.Provide(new(support.BaseService[RamPositionRepository])).Init(func(s *support.BaseService[RamPositionRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamPositionRepository]))
 }
 
 type RamPositionRepository struct {

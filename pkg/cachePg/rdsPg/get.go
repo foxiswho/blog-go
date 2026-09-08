@@ -4,21 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"reflect"
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constBlogPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"github.com/redis/go-redis/v9"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(Get)).Init(func(s *Get) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(Get))
 }
 
 // Get

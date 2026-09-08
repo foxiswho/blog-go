@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"reflect"
 	"time"
 
 	"github.com/farseer-go/eventBus"
@@ -33,9 +32,7 @@ import (
 )
 
 func init() {
-	gs.Provide(NewAccountLoginService).Init(func(s *AccountLoginService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(NewAccountLoginService)
 }
 
 // AccountLoginService 登录

@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,15 +18,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/datatypes"
 )
 
 func init() {
-	gs.Provide(new(BasicConfigEventFieldsService)).Init(func(s *BasicConfigEventFieldsService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicConfigEventFieldsService))
 }
 
 // BasicConfigEventFieldsService 省市区

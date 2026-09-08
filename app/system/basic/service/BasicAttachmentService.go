@@ -2,7 +2,6 @@ package service
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -21,14 +20,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 
 	"io"
 	"net/http"
 	"path"
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -36,9 +33,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(BasicAttachmentService)).Init(func(s *BasicAttachmentService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicAttachmentService))
 }
 
 // BasicAttachmentService 附件上传

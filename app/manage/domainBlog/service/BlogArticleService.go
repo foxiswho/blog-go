@@ -1,17 +1,15 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"reflect"
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticle"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/utilsBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogTopic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
@@ -29,14 +27,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BlogArticleService)).Init(func(s *BlogArticleService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BlogArticleService))
 }
 
 // BlogArticleService 说明分类,协议，服务

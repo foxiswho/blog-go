@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/cache/cacheRam"
 	modPublic2 "github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modPublic"
@@ -14,10 +12,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/numberPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -26,9 +21,7 @@ import (
 )
 
 func init() {
-	gs.Provide(NewRamAccountPublicService).Init(func(s *RamAccountPublicService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(NewRamAccountPublicService)
 }
 
 // RamAccountPublicService 账户公共动作

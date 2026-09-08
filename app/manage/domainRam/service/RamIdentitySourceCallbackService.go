@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamIdentitySourceCallback"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
@@ -14,10 +12,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
@@ -26,9 +21,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamIdentitySourceCallbackService)).Init(func(s *RamIdentitySourceCallbackService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamIdentitySourceCallbackService))
 }
 
 // RamIdentitySourceCallbackService 认证源回调白名单

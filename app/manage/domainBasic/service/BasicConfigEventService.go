@@ -1,9 +1,6 @@
 package service
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBasic/service/configEvent"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicConfigEvent"
@@ -20,15 +17,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
 
 func init() {
-	gs.Provide(new(BasicConfigEventService)).Init(func(s *BasicConfigEventService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicConfigEventService))
 }
 
 type BasicConfigEventService struct {

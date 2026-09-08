@@ -13,13 +13,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamAccountDenyListRepository)).Init(func(s *RamAccountDenyListRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamAccountDenyListRepository))
 
-	gs.Provide(new(support.BaseService[RamAccountDenyListRepository])).Init(func(s *support.BaseService[RamAccountDenyListRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamAccountDenyListRepository]))
 }
 
 type RamAccountDenyListRepository struct {

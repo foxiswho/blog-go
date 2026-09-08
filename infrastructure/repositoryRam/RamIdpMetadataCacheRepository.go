@@ -6,20 +6,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 )
 
 func init() {
-	gs.Provide(new(RamIdpMetadataCacheRepository)).Init(func(s *RamIdpMetadataCacheRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamIdpMetadataCacheRepository))
 
-	gs.Provide(new(support.BaseService[RamIdpMetadataCacheRepository])).Init(func(s *support.BaseService[RamIdpMetadataCacheRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamIdpMetadataCacheRepository]))
 }
 
 type RamIdpMetadataCacheRepository struct {

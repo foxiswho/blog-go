@@ -1,25 +1,16 @@
 package repositoryRam
 
 import (
-	"context"
-
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 )
 
 func init() {
-	gs.Provide(new(RamTeamRepository)).Init(func(s *RamTeamRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamTeamRepository))
 
-	gs.Provide(new(support.BaseService[RamTeamRepository])).Init(func(s *support.BaseService[RamTeamRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamTeamRepository]))
 }
 
 type RamTeamRepository struct {

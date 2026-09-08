@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -18,14 +16,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicModelRulesService)).Init(func(s *BasicModelRulesService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicModelRulesService))
 }
 
 type BasicModelRulesService struct {

@@ -1,11 +1,8 @@
 package service
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/model/modApiDiplCategory"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/api/modApiDiplCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryApi"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
@@ -23,14 +20,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(ApiDiplCategoryService)).Init(func(s *ApiDiplCategoryService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(ApiDiplCategoryService))
 }
 
 // ApiDiplCategoryService 分类

@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/model/modApiDiplAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainApi/service"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/api/modApiDiplAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"

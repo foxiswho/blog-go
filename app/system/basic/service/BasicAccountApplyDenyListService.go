@@ -1,9 +1,6 @@
 package service
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAccountApplyDenyList"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
@@ -24,14 +21,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicAccountApplyDenyListService)).Init(func(s *BasicAccountApplyDenyListService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicAccountApplyDenyListService))
 }
 
 // BasicAccountApplyDenyListService 账号申请禁用列表

@@ -29,9 +29,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(BasicDataDictionaryService)).Init(func(s *BasicDataDictionaryService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicDataDictionaryService))
 }
 
 // BasicDataDictionaryService 数据字典

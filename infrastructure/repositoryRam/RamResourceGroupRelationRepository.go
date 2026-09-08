@@ -6,20 +6,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 )
 
 func init() {
-	gs.Provide(new(RamResourceGroupRelationRepository)).Init(func(s *RamResourceGroupRelationRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceGroupRelationRepository))
 
-	gs.Provide(new(support.BaseService[RamResourceGroupRelationRepository])).Init(func(s *support.BaseService[RamResourceGroupRelationRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamResourceGroupRelationRepository]))
 }
 
 type RamResourceGroupRelationRepository struct {

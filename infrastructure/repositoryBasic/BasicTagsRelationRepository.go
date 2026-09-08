@@ -2,23 +2,17 @@ package repositoryBasic
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicTagsRelationRepository)).Init(func(s *BasicTagsRelationRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicTagsRelationRepository))
 
-	gs.Provide(new(support.BaseService[BasicTagsRelationRepository])).Init(func(s *support.BaseService[BasicTagsRelationRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[BasicTagsRelationRepository]))
 }
 
 type BasicTagsRelationRepository struct {

@@ -7,7 +7,7 @@ import (
 	"github.com/farseer-go/eventBus"
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicTags"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticle"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"

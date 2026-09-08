@@ -2,23 +2,17 @@ package repositoryBasic
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicConfigEventFieldsRepository)).Init(func(s *BasicConfigEventFieldsRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicConfigEventFieldsRepository))
 
-	gs.Provide(new(support.BaseService[BasicConfigEventFieldsRepository])).Init(func(s *support.BaseService[BasicConfigEventFieldsRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[BasicConfigEventFieldsRepository]))
 }
 
 type BasicConfigEventFieldsRepository struct {

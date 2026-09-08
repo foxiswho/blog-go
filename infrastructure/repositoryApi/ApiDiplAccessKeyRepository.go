@@ -6,20 +6,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 )
 
 func init() {
-	gs.Provide(new(ApiDiplAccessKeyRepository)).Init(func(s *ApiDiplAccessKeyRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(ApiDiplAccessKeyRepository))
 
-	gs.Provide(new(support.BaseService[ApiDiplAccessKeyRepository])).Init(func(s *support.BaseService[ApiDiplAccessKeyRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[ApiDiplAccessKeyRepository]))
 }
 
 type ApiDiplAccessKeyRepository struct {

@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service/ramResource"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
@@ -17,10 +15,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
-	"reflect"
 	"strings"
 	"time"
 
@@ -31,9 +27,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamResourceAuthorityService)).Init(func(s *RamResourceAuthorityService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceAuthorityService))
 }
 
 // RamResourceAuthorityService 资源授权

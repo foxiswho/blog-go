@@ -12,13 +12,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(BlogTopicCategoryRepository)).Init(func(s *BlogTopicCategoryRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BlogTopicCategoryRepository))
 
-	gs.Provide(new(support.BaseService[BlogTopicCategoryRepository])).Init(func(s *support.BaseService[BlogTopicCategoryRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[BlogTopicCategoryRepository]))
 }
 
 type BlogTopicCategoryRepository struct {

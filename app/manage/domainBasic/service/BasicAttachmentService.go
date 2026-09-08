@@ -2,12 +2,10 @@ package service
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"path"
-	"reflect"
 	"strings"
 
 	"github.com/duke-git/lancet/v2/strutil"
@@ -33,9 +31,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(BasicAttachmentService)).Init(func(s *BasicAttachmentService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicAttachmentService))
 }
 
 // BasicAttachmentService 附件上传

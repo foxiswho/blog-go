@@ -1,16 +1,14 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/core/blog/serviceCore"
-	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/model/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service/blogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicTagsRelation"
+	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/blog/model/modBlogArticle"
 	"github.com/hongmengzhu/xianfu-blog-go/app/web/utils/webPg"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
@@ -29,15 +27,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"golang.org/x/exp/slices"
 )
 
 func init() {
-	gs.Provide(new(ArticleService)).Init(func(s *ArticleService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(ArticleService))
 }
 
 type ArticleService struct {

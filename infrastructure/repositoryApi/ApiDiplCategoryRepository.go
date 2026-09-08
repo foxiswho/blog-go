@@ -2,23 +2,17 @@ package repositoryApi
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityApi"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(ApiDiplCategoryRepository)).Init(func(s *ApiDiplCategoryRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(ApiDiplCategoryRepository))
 
-	gs.Provide(new(support.BaseService[ApiDiplCategoryRepository])).Init(func(s *support.BaseService[ApiDiplCategoryRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[ApiDiplCategoryRepository]))
 }
 
 type ApiDiplCategoryRepository struct {

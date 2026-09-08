@@ -2,24 +2,18 @@ package repositoryBasic
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
 	"github.com/pangu-2/go-tools/tools/jsonPg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicDataSnapshotRepository)).Init(func(s *BasicDataSnapshotRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicDataSnapshotRepository))
 
-	gs.Provide(new(support.BaseService[BasicDataSnapshotRepository])).Init(func(s *support.BaseService[BasicDataSnapshotRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[BasicDataSnapshotRepository]))
 }
 
 type BasicDataSnapshotRepository struct {

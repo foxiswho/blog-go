@@ -13,13 +13,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamAccountDeviceRepository)).Init(func(s *RamAccountDeviceRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamAccountDeviceRepository))
 
-	gs.Provide(new(support.BaseService[RamAccountDeviceRepository])).Init(func(s *support.BaseService[RamAccountDeviceRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamAccountDeviceRepository]))
 }
 
 type RamAccountDeviceRepository struct {

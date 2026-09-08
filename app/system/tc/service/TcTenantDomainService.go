@@ -1,9 +1,6 @@
 package service
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcTenantDomain"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
@@ -22,14 +19,11 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(TcTenantDomainService)).Init(func(s *TcTenantDomainService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(TcTenantDomainService))
 }
 
 // TcTenantDomainService 租户

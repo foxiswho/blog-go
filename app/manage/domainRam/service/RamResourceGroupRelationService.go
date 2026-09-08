@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceGroupRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceRelation"
@@ -10,10 +8,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -22,9 +17,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamResourceGroupRelationService)).Init(func(s *RamResourceGroupRelationService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceGroupRelationService))
 }
 
 // RamResourceGroupRelationService 资源关系

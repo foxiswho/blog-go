@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/utilsRam"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/modTcAccount"
@@ -11,10 +9,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
-
-	"reflect"
 
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
@@ -22,9 +17,7 @@ import (
 )
 
 func init() {
-	gs.Provide(NewTcTenantAccountPasswordService).Init(func(s *TcTenantAccountPasswordService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(NewTcTenantAccountPasswordService)
 }
 
 // TcTenantAccountPasswordService 密码修改

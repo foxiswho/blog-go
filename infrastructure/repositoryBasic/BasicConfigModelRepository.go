@@ -2,23 +2,17 @@ package repositoryBasic
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(BasicConfigModelRepository)).Init(func(s *BasicConfigModelRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(BasicConfigModelRepository))
 
-	gs.Provide(new(support.BaseService[BasicConfigModelRepository])).Init(func(s *support.BaseService[BasicConfigModelRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[BasicConfigModelRepository]))
 }
 
 type BasicConfigModelRepository struct {

@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
@@ -11,10 +9,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
-	"reflect"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -23,9 +19,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamResourceAuthorizationService)).Init(func(s *RamResourceAuthorizationService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamResourceAuthorizationService))
 }
 
 // RamResourceAuthorizationService 资源授权动作 公共调用

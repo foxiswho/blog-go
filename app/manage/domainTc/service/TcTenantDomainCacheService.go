@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/cacheTc"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/dtoTenantDomain"
@@ -16,9 +15,7 @@ import (
 )
 
 func init() {
-	gs.Provide(new(TcTenantDomainCacheService)).Init(func(s *TcTenantDomainCacheService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(TcTenantDomainCacheService))
 }
 
 type TcTenantDomainCacheService struct {

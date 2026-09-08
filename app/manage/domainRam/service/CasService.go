@@ -1,10 +1,8 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"net/url"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +13,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(CasService)).Init(func(s *CasService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(CasService))
 }
 
 // CasService CAS ST 管理 Service

@@ -2,23 +2,17 @@ package repositoryTc
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/support"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(new(TcTenantDomainRepository)).Init(func(s *TcTenantDomainRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(TcTenantDomainRepository))
 
-	gs.Provide(new(support.BaseService[TcTenantDomainRepository])).Init(func(s *support.BaseService[TcTenantDomainRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[TcTenantDomainRepository]))
 }
 
 type TcTenantDomainRepository struct {

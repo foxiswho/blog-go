@@ -1,13 +1,11 @@
 package service
 
 import (
-	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
 	"math/rand"
-	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -21,14 +19,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
 func init() {
-	gs.Provide(NewWechatOaService).Init(func(s *WechatOaService) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(NewWechatOaService)
 }
 
 // wechatOaBaseConfig 微信公众号认证源基础配置（从 BaseConfig JSON 解析）

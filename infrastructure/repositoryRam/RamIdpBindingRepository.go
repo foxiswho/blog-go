@@ -13,13 +13,9 @@ import (
 )
 
 func init() {
-	gs.Provide(new(RamIdpBindingRepository)).Init(func(s *RamIdpBindingRepository) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(RamIdpBindingRepository))
 
-	gs.Provide(new(support.BaseService[RamIdpBindingRepository])).Init(func(s *support.BaseService[RamIdpBindingRepository]) {
-		log.Debugf(context.Background(), log.TagAppDef, "%+v initialized successfully", reflect.TypeOf(s).String())
-	})
+	gs.Provide(new(support.BaseService[RamIdpBindingRepository]))
 }
 
 type RamIdpBindingRepository struct {
