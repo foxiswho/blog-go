@@ -8,17 +8,17 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"gorm.io/datatypes"
 )
 
 type CreateUpdate struct {
-	Sp       *Sp          `autowire:"?"`
-	log      *log2.Logger `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	ct       modBasicModelRules.CreateUpdateCt
 	model    *entityBasic.BasicConfigModelEntity
 	event    *entityBasic.BasicConfigEventEntity
@@ -30,7 +30,6 @@ func NewCreateUpdate(sp *Sp,
 	ct modBasicModelRules.CreateUpdateCt, isUpdate bool) *CreateUpdate {
 	return &CreateUpdate{
 		Sp:       sp,
-		log:      sp.log,
 		isUpdate: isUpdate,
 		ct:       ct,
 		fields:   make([]*entityBasic.BasicModelRulesEntity, 0),
@@ -43,7 +42,7 @@ func (c *CreateUpdate) Process(ctx *gin.Context) (rt rg.Rs[string]) {
 }
 
 func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", c.ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", c.ct)
 	ct := c.ct
 	if strPg.IsBlank(ct.FieldNo) {
 		return rt.ErrorMessage("字段编号不能为空")
@@ -74,7 +73,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	obj := entityBasic.BasicModelRulesEntity{}
 	err := copier.Copy(&obj, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	obj.Name = strings.TrimSpace(obj.Name)
 	obj.RuleMode = strings.TrimSpace(obj.RuleMode)
@@ -99,7 +98,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		obj.ValueNo = ""
 		err := c.Sp.repRules.Update(ctx, obj, info.ID)
 		if err != nil {
-			c.log.Errorf("save err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "save err=%+v", err)
 			return rt.ErrorMessage("保存失败：")
 		}
 	} else {
@@ -113,7 +112,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		obj.TypeModel = typeModel
 		err, _ := c.Sp.repRules.Create(ctx, &obj)
 		if err != nil {
-			c.log.Errorf("save err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "save err=%+v", err)
 			return rt.ErrorMessage("保存失败：")
 		}
 	}

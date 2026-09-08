@@ -1,6 +1,7 @@
 package drive
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -20,6 +21,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 )
 
 var _ types.FileProvider = (*Local)(nil)
@@ -97,7 +99,7 @@ func (s *Local) PutObject(r io.Reader, put modAttachment.PutFileDto, ext modAtta
 	attachment.Url = domain + out
 	_, err = io.Copy(dst, r)
 	if err != nil {
-		s.log.Errorf("err=%+v\n", err)
+		log.Errorf(context.Background(), log.TagAppDef, "err=%+v\n", err)
 		return attachment, errors.New("文件保存失败")
 	}
 	buf, _ := os.ReadFile(out_root)

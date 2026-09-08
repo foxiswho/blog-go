@@ -9,8 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -24,8 +22,7 @@ func init() {
 type DepartmentController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
-	sv  *service.RamDepartmentService `autowire:"?"`
-	log *log2.Logger                  `autowire:"?"`
+	sv *service.RamDepartmentService `autowire:"?"`
 }
 
 func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {

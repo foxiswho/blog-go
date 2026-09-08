@@ -11,7 +11,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model/modelBasePg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -19,11 +18,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/validatePg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 )
 
 type CreateUpdate struct {
-	Sp       *Sp          `autowire:"?"`
-	log      *log2.Logger `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	ct       modBasicConfigModel.CreateUpdateCt
 	model    *entityBasic.BasicConfigModelEntity
 	module   *entityBasic.BasicModuleEntity
@@ -35,7 +35,6 @@ func NewCreateUpdate(sp *Sp,
 	ct modBasicConfigModel.CreateUpdateCt, isUpdate bool) *CreateUpdate {
 	return &CreateUpdate{
 		Sp:       sp,
-		log:      sp.log,
 		isUpdate: isUpdate,
 		ct:       ct,
 		fields:   make([]*entityBasic.BasicConfigModelFieldsEntity, 0),
@@ -53,7 +52,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	//
 	err := copier.Copy(c.model, &header)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	c.model.Name = strings.TrimSpace(c.model.Name)
 	c.model.Model = strings.TrimSpace(c.model.Model)
@@ -105,7 +104,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			var field entityBasic.BasicConfigModelFieldsEntity
 			err := copier.Copy(&field, &item)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 				errs = append(errs, modelBasePg.ItemResult{
 					Col:   i,
 					Field: "col",
@@ -198,7 +197,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			{
 				tx := c.Sp.repField.DbModel().CreateInBatches(c.fields, 1000000)
 				if tx.Error != nil {
-					c.log.Errorf("save err=%+v", tx.Error)
+					log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
 				}
 				//if 0 == tx.RowsAffected {
@@ -217,13 +216,13 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		{
 			err := copier.Copy(&save, info)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 			}
 		}
 		{
 			err := copier.Copy(&save, &header)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 			}
 		}
 		save.No = ""
@@ -266,7 +265,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		//
 		err := c.Sp.repModel.Update(ctx, save, info.ID)
 		if err != nil {
-			c.log.Infof("copier.Copy error: %+v", err)
+			log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 		}
 		//
 		if nil != c.ct.BodyDelIds && len(c.ct.BodyDelIds) > 0 {
@@ -284,7 +283,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			{
 				tx := c.Sp.repField.DbModel().CreateInBatches(dataInsert, 1000000)
 				if tx.Error != nil {
-					c.log.Errorf("save err=%+v", tx.Error)
+					log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
 				}
 				//if 0 == tx.RowsAffected {

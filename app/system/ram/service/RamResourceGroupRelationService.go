@@ -6,8 +6,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -25,7 +25,7 @@ func init() {
 type RamResourceGroupRelationService struct {
 	sv *repositoryRam.RamResourceGroupRelationRepository `autowire:"?"`
 	//
-	log *log2.Logger `autowire:"?"`
+
 }
 
 // SelectNodePublic 查询
@@ -34,7 +34,7 @@ type RamResourceGroupRelationService struct {
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupRelationService) SelectNodePublic(ctx *gin.Context, ct modRamResourceGroupRelation2.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceGroupRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
@@ -59,7 +59,7 @@ func (c *RamResourceGroupRelationService) SelectNodePublic(ctx *gin.Context, ct 
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupRelationService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceGroupRelation2.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceGroupRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
@@ -87,7 +87,7 @@ func (c *RamResourceGroupRelationService) SelectNodeAllPublic(ctx *gin.Context, 
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupRelationService) SelectPublic(ctx *gin.Context, ct modRamResourceGroupRelation2.QueryCt) (rt rg.Rs[[]modRamResourceRelation.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceGroupRelationEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceRelation.Vo{}
@@ -110,7 +110,7 @@ func (c *RamResourceGroupRelationService) SelectPublic(ctx *gin.Context, ct modR
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupRelationService) Selected(ctx *gin.Context, ct modRamResourceGroupRelation2.QueryByTypeValueCt) (rt rg.Rs[[]string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if strPg.IsBlank(ct.TypeValue) {
 		return rt.ErrorMessage("资源组类型id 不能为空")
 	}

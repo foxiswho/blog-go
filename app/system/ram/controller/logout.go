@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -15,8 +14,7 @@ func init() {
 
 type LogoutController struct {
 	routerPg.RouteRegistrar
-	sv  *service.AccountLogoutService `autowire:"?"`
-	log *log2.Logger                  `autowire:"?"`
+	sv *service.AccountLogoutService `autowire:"?"`
 }
 
 func (c *LogoutController) RegisterRoutes(e *gin.Engine) {

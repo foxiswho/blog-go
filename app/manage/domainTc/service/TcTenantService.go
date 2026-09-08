@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/noPg2"
@@ -19,6 +18,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -29,8 +29,8 @@ func init() {
 // TcTenantService 租户
 // @Description:
 type TcTenantService struct {
-	sv  *repositoryTc.TcTenantRepository    `autowire:"?"`
-	log *log2.Logger                        `autowire:"?"`
+	sv *repositoryTc.TcTenantRepository `autowire:"?"`
+
 	acc *repositoryRam.RamAccountRepository `autowire:"?"`
 }
 
@@ -41,7 +41,7 @@ type TcTenantService struct {
 //	@param ct
 //	@return rt
 func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -87,12 +87,12 @@ func (c *TcTenantService) Create(ctx *gin.Context, ct modTcTenant.CreateCt) (rt 
 		info.Code = info.No
 	}
 	info.CreateBy = holder.GetAccountNo()
-	c.log.Infof("info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info=%+v", info)
 	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rt.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -142,7 +142,7 @@ func (c *TcTenantService) Update(ctx *gin.Context, ct modTcTenant.UpdateCt) (rt 
 	copier.Copy(&info, &ct)
 	//编号，不参与更新
 	info.No = ""
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage("更新失败:" + err.Error())
@@ -236,7 +236,7 @@ func (c *TcTenantService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -292,7 +292,7 @@ func (c *TcTenantService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt r
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, 0)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {

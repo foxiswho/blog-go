@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -19,6 +18,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -30,7 +30,6 @@ func init() {
 // @Description:
 type TcTenantDomainService struct {
 	sv  *repositoryTc.TcTenantDomainRepository `autowire:"?"`
-	log *log2.Logger                           `autowire:"?"`
 	acc *repositoryRam.RamAccountRepository    `autowire:"?"`
 	ten *repositoryTc.TcTenantRepository       `autowire:"?"`
 }
@@ -42,7 +41,7 @@ type TcTenantDomainService struct {
 //	@param ct
 //	@return rt
 func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -81,12 +80,12 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 	}
 	info.CreateBy = holder.GetAccountNo()
 	info.TenantNo = ten.No
-	c.log.Infof("info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info=%+v", info)
 	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	// 设置默认
 	c.setDefaulted(ctx, ten.No, info.ID)
 	return rt.OkData(numberPg.Int64ToString(info.ID))
@@ -99,7 +98,7 @@ func (c *TcTenantDomainService) Create(ctx *gin.Context, ct modTcTenantDomain.Cr
 //	@param ct
 //	@return rt
 func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -132,7 +131,7 @@ func (c *TcTenantDomainService) Update(ctx *gin.Context, ct modTcTenantDomain.Cr
 	//编号，不参与更新
 	info.No = ""
 	info.TenantNo = ten.No
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	err := r.Update(ctx, info, info.ID)
 	if err != nil {
 		return rt.ErrorMessage("更新失败:" + err.Error())
@@ -206,7 +205,7 @@ func (c *TcTenantDomainService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[mod
 //	@receiver c
 //	@param ct
 func (c *TcTenantDomainService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ct2 := model.BaseStateIdsCt[string]{
 		Ids: ct.Ids,
 	}
@@ -220,7 +219,7 @@ func (c *TcTenantDomainService) Enable(ctx *gin.Context, ct model.BaseIdsCt[stri
 //	@receiver c
 //	@param ct
 func (c *TcTenantDomainService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ct2 := model.BaseStateIdsCt[string]{
 		Ids: ct.Ids,
 	}
@@ -234,7 +233,7 @@ func (c *TcTenantDomainService) Disable(ctx *gin.Context, ct model.BaseIdsCt[str
 //	@receiver c
 //	@param ct
 func (c *TcTenantDomainService) State(ctx *gin.Context, ct model.BaseStateIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ids := ct.Ids
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
@@ -284,7 +283,7 @@ func (c *TcTenantDomainService) LogicalDeletion(ctx *gin.Context, ids []string) 
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -340,7 +339,7 @@ func (c *TcTenantDomainService) PhysicalDeletion(ctx *gin.Context, ids []string)
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, 0)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -547,7 +546,7 @@ func (c *TcTenantDomainService) ExistNo(ctx *gin.Context, ct model.BaseExistWdCt
 //	@receiver c
 //	@param ct
 func (c *TcTenantDomainService) SetDefaulted(ctx *gin.Context, ct model.BaseStateIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ids := ct.Ids
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
@@ -571,7 +570,7 @@ func (c *TcTenantDomainService) SetDefaulted(ctx *gin.Context, ct model.BaseStat
 	for _, info := range finds {
 		err := r.Update(ctx, entityTc.TcTenantDomainEntity{Defaulted: state.IndexInt8()}, info.ID)
 		if err != nil {
-			c.log.Error("更新失败", "id:", info.ID, "err", err)
+			log.Errorf(ctx, log.TagAppDef, "更新失败 id:%+v,err=%+v", info.ID, err)
 		}
 	}
 	return rt.Ok()

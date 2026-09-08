@@ -7,7 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryApi"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/cachePg/cacheDiplPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
 	_ "go-spring.org/spring/gs"
@@ -17,12 +16,11 @@ import (
 // ZInitDiplCache
 // @Description: 初始化 dipl 缓存
 type ZInitDiplCache struct {
-	log *log2.Logger                              `autowire:"?"`
-	sv  *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
+	sv *repositoryApi.ApiDiplAccessKeyRepository `autowire:"?"`
 }
 
 func (b *ZInitDiplCache) Run(ctx context.Context) error {
-	b.log.Infof("初始化 => 接口密钥")
+	log.Infof(ctx, log.TagAppDef, "初始化 => 接口密钥")
 	var query entityApi.ApiDiplAccessKeyEntity
 	query.State = enumStatePg.ENABLE.Index()
 	infos := b.sv.FindAll(context.Background(), query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {

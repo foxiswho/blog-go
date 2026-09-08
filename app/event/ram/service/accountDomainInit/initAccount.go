@@ -13,11 +13,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeIdentityPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
+	"go-spring.org/log"
 	"gorm.io/datatypes"
 )
 
@@ -31,14 +31,12 @@ var domain = []string{
 // InitAccount
 // @Description: 初始化账号
 type InitAccount struct {
-	sp  *Sp          `autowire:"?"`
-	log *log2.Logger `autowire:"?"`
+	sp *Sp `autowire:"?"`
 }
 
-func NewInitAccount(log *log2.Logger, sp *Sp) *InitAccount {
+func NewInitAccount(sp *Sp) *InitAccount {
 	return &InitAccount{
-		log: log,
-		sp:  sp,
+		sp: sp,
 	}
 }
 
@@ -73,7 +71,7 @@ func (t *InitAccount) Processor(ctx context.Context) error {
 				t.manageAccount(ctx, item)
 			}
 		} else {
-			t.log.Debugf("[init].[账号初始化] %+v 已存在,无需初始化", item)
+			log.Debugf(ctx, log.TagAppDef, "[init].[账号初始化] %+v 已存在,无需初始化", item)
 		}
 	}
 	return nil

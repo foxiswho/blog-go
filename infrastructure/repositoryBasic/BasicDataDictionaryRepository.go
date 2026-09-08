@@ -80,7 +80,7 @@ func (b *BasicDataDictionaryRepository) FindAllByCodeIn(ctx context.Context, ids
 func (c *BasicDataDictionaryRepository) FindByNameAndIdNot(ctx context.Context, name string, id int64) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -92,7 +92,7 @@ func (c *BasicDataDictionaryRepository) FindByNameAndIdNot(ctx context.Context, 
 func (c *BasicDataDictionaryRepository) FindByValueAndIdNotAndOwnerNo(ctx context.Context, name, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("owner_no=?", ownerId).Where("value=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -103,7 +103,7 @@ func (c *BasicDataDictionaryRepository) FindByValueAndIdNotAndOwnerNo(ctx contex
 func (c *BasicDataDictionaryRepository) FindByCodeAndIdNotAndOwnerNo(ctx context.Context, code, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("code=?", code).Where("owner_no=?", ownerId).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -116,7 +116,7 @@ func (c *BasicDataDictionaryRepository) FindByCodeAndIdNotAndOwnerNo(ctx context
 func (c *BasicDataDictionaryRepository) FindAllByTypeUniqueMd5AndOwnerNo(ctx context.Context, code, id, ownerId string) (info []*entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("owner_no=?", ownerId).Where("type_unique_md5=?", code).Where("id <> ?", id).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -128,7 +128,7 @@ func (c *BasicDataDictionaryRepository) FindAllByTypeUniqueMd5AndOwnerNo(ctx con
 func (c *BasicDataDictionaryRepository) FindByCodeAndTypeCodeAndIdNotAndOwnerNo(ctx context.Context, code, typeCode, id, ownerId string) (info *entityBasic.BasicDataDictionaryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("code=?", code).Where("type_code=?", typeCode).Where("owner_no=?", ownerId).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

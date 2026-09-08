@@ -9,7 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"go-spring.org/log"
 	_ "go-spring.org/spring/gs"
 )
@@ -17,7 +16,6 @@ import (
 // AttachmentListener 附件处理
 // @Description:
 type AttachmentListener struct {
-	log *log2.Logger                               `autowire:"?"`
 	dao *repositoryBasic.BasicAttachmentRepository `autowire:"?"`
 }
 
@@ -34,7 +32,7 @@ func (c *AttachmentListener) Run(ctx context.Context) error {
 		if len(dto.File) > 0 {
 			err := attachment.NewCreate(c.dao, dto).Processor(context.Background())
 			if nil != err {
-				c.log.Error("", err)
+				log.Errorf(ctx, log.TagAppDef, "", err)
 			}
 			message = nil
 		}

@@ -24,7 +24,7 @@ type RamAccountAuthorizationRepository struct {
 func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(ctx context.Context, code string) (info *entityRam.RamAccountAuthorizationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type=?", "password").Where("ano=?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -36,7 +36,7 @@ func (c *RamAccountAuthorizationRepository) FindByTypePasswordANo(ctx context.Co
 func (c *RamAccountAuthorizationRepository) DeleteByAno(ctx context.Context, code string) (result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("ano=?", code).Delete(&entityRam.RamAccountAuthorizationEntity{})
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return false
 	}
 	if 0 == tx.RowsAffected {

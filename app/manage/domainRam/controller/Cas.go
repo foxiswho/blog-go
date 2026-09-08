@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamCas"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
@@ -19,8 +18,7 @@ func init() {
 // CasController CAS 协议端点
 type CasController struct {
 	routerPg.RouteRegistrar
-	sv  *service.CasService `autowire:"?"`
-	log *log2.Logger        `autowire:"?"`
+	sv *service.CasService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

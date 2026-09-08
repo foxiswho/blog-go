@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"gorm.io/gorm"
 )
@@ -18,19 +17,17 @@ import (
 // InitSessionPubPrive
 // @Description: 加载密钥
 type InitSessionPubPrive struct {
-	log                  *log2.Logger                                        `autowire:"?"`
 	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
 	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?"`
 	tenant               *repositoryTc.TcTenantRepository                    `autowire:"?"`
 }
 
-func NewInitSessionPubPrive(log *log2.Logger,
+func NewInitSessionPubPrive(
 	sessionAk *repositoryRam.RamAccountSessionAccessKeyRepository,
 	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive,
 	tenant *repositoryTc.TcTenantRepository,
 ) *InitSessionPubPrive {
 	return &InitSessionPubPrive{
-		log:                  log,
 		sessionAk:            sessionAk,
 		cacheSessionPubPrive: cacheSessionPubPrive,
 		tenant:               tenant,

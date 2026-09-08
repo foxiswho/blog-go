@@ -11,7 +11,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -20,6 +19,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -41,7 +41,6 @@ type TcTenantAccountService struct {
 	postDb     *repositoryRam.RamPostRepository                 `autowire:"?"`
 	tenDb      *repositoryTc.TcTenantRepository                 `autowire:"?"`
 	sp         *tcAccount.Sp                                    `autowire:"?"`
-	log        *log2.Logger                                     `autowire:"?"`
 }
 
 func NewTcTenantAccountService() *TcTenantAccountService {
@@ -54,7 +53,7 @@ func NewTcTenantAccountService() *TcTenantAccountService {
 //	@receiver c
 //	@param id
 func (c *TcTenantAccountService) Detail(ctx *gin.Context, id string, tp appModulePg.AppModule) (rt rg.Rs[modTcAccount.DetailVo]) {
-	detail := tcAccount.NewDetail(c.log, c.sp, tp)
+	detail := tcAccount.NewDetail(c.sp, tp)
 	return detail.Process(ctx, id)
 }
 
@@ -137,7 +136,7 @@ func (c *TcTenantAccountService) LogicalDeletion(ctx *gin.Context, ids []string,
 				continue
 			}
 			idsNow = append(idsNow, info.ID)
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
 			r.DeleteByIds(ctx, idsNow)
@@ -208,7 +207,7 @@ func (c *TcTenantAccountService) PhysicalDeletion(ctx *gin.Context, ids []string
 		if yesNoIntPg.Yes.IsEqual(info.Founder) {
 			continue
 		}
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
 		r.DeleteByIds(ctx, idsNow)
@@ -657,8 +656,7 @@ func (c *TcTenantAccountService) Query(ctx *gin.Context, ct modTcAccount.QueryCt
 //	@receiver c
 //	@param ct
 func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modTcAccount.CreateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return tcAccount.NewCreate(c.log,
-		c.sp, ctx).Process(ctx, ct, tp)
+	return tcAccount.NewCreate(c.sp, ctx).Process(ctx, ct, tp)
 }
 
 // CreateAccount 创建
@@ -667,8 +665,7 @@ func (c *TcTenantAccountService) Create(ctx *gin.Context, ct modTcAccount.Create
 //	@receiver c
 //	@param ct
 func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modTcAccount.CreateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return tcAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccount(ctx, ct, tp)
+	return tcAccount.NewCreate(c.sp, ctx).CreateAccount(ctx, ct, tp)
 }
 
 // Update 更新
@@ -677,8 +674,7 @@ func (c *TcTenantAccountService) CreateAccount(ctx *gin.Context, ct modTcAccount
 //	@receiver c
 //	@param ct
 func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return tcAccount.NewUpdate(c.log,
-		c.sp, ctx).Process(ctx, ct, tp)
+	return tcAccount.NewUpdate(c.sp, ctx).Process(ctx, ct, tp)
 }
 
 // UpdateAccount 更新
@@ -687,8 +683,7 @@ func (c *TcTenantAccountService) Update(ctx *gin.Context, ct modTcAccount.Update
 //	@receiver c
 //	@param ct
 func (c *TcTenantAccountService) UpdateAccount(ctx *gin.Context, ct modTcAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	return tcAccount.NewUpdate(c.log,
-		c.sp, ctx).UpdateAccount(ctx, ct, tp)
+	return tcAccount.NewUpdate(c.sp, ctx).UpdateAccount(ctx, ct, tp)
 }
 
 // ExistAccount 查重

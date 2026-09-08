@@ -22,7 +22,7 @@ type ApiDiplCategoryRepository struct {
 func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(ctx context.Context, code string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("id_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *ApiDiplCategoryRepository) FindAllByParentIdLink(ctx context.Context, c
 func (c *ApiDiplCategoryRepository) FindAllByCodeLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityApi.ApiDiplCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

@@ -57,7 +57,7 @@ func (c *TagsCategoryController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *TagsCategoryController) Create(ctx *gin.Context) {
-	var ct modBasicTagsCategory.CreateCt
+	var ct modBasicTagsCategory.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -70,7 +70,7 @@ func (c *TagsCategoryController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *TagsCategoryController) Update(ctx *gin.Context) {
-	var ct modBasicTagsCategory.UpdateCt
+	var ct modBasicTagsCategory.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

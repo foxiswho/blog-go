@@ -3,13 +3,11 @@ package cronMidPg
 import (
 	"context"
 	"fmt"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 )
 
 // Listener 启动
 // @Description:
 type Listener struct {
-	log *log2.Logger `autowire:"?"`
 }
 
 // OnAppStart 启动加载

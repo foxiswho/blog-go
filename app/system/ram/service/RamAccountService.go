@@ -14,7 +14,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamDepartmentPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamGroupPg"
@@ -31,6 +30,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -59,7 +59,6 @@ type RamAccountService struct {
 	positionCache *cacheRamPositionPg.Cache   `autowire:"?"`
 	postCache     *cacheRamPostPg.Cache       `autowire:"?"`
 	sp            *ramAccount.Sp              `autowire:"?"`
-	log           *log2.Logger                `autowire:"?"`
 }
 
 func NewRamAccountService() *RamAccountService {
@@ -72,7 +71,7 @@ func NewRamAccountService() *RamAccountService {
 //	@receiver c
 //	@param id
 func (c *RamAccountService) Detail(ctx *gin.Context, id string, tp appModulePg.AppModule) (rt rg.Rs[modRamAccount.DetailVo]) {
-	detail := ramAccount.NewDetail(c.log, c.sp, tp)
+	detail := ramAccount.NewDetail(c.sp, tp)
 	return detail.Process(ctx, id)
 }
 
@@ -155,7 +154,7 @@ func (c *RamAccountService) LogicalDeletion(ctx *gin.Context, ids []string, tp a
 				continue
 			}
 			idsNow = append(idsNow, info.ID)
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
 			r.DeleteByIds(ctx, idsNow)
@@ -226,7 +225,7 @@ func (c *RamAccountService) PhysicalDeletion(ctx *gin.Context, ids []string, tp 
 		if yesNoIntPg.Yes.IsEqual(info.Founder) {
 			continue
 		}
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
 		r.DeleteByIds(ctx, idsNow)
@@ -580,10 +579,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 //	@param ct
 func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	if ct.ID.ToInt64() > 0 {
-		return ramAccount.NewUpdate(c.log,
-			c.sp, ctx).Process(ctx, ct, tp)
+		return ramAccount.NewUpdate(c.sp, ctx).Process(ctx, ct, tp)
 	}
-	return ramAccount.NewCreate(c.log,
+	return ramAccount.NewCreate(
 		c.sp, ctx).Process(ctx, ct, tp)
 }
 
@@ -594,11 +592,9 @@ func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.Crea
 //	@param ct
 func (c *RamAccountService) CreateUpdateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	if ct.ID.ToInt64() > 0 {
-		return ramAccount.NewUpdate(c.log,
-			c.sp, ctx).UpdateAccount(ctx, ct, tp)
+		return ramAccount.NewUpdate(c.sp, ctx).UpdateAccount(ctx, ct, tp)
 	}
-	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
+	return ramAccount.NewCreate(c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
 }
 
 // ExistAccount 查重
@@ -704,7 +700,7 @@ func (c *RamAccountService) ExistRealName(ctx *gin.Context, ct model.BaseExistWd
 //	@param ctx
 //	@return rt
 func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if !c.sv.Config().Domain.System {
 		return rt.ErrorMessage("系统管理模块已禁用，不允许操作")
 	}
@@ -721,25 +717,25 @@ func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWd
 	err := os.Mkdir(dirName, 0755)
 	if err != nil {
 		if !os.IsExist(err) {
-			c.log.Errorf("创建目录失败: %v", err)
+			log.Errorf(ctx, log.TagAppDef, "创建目录失败: %v", err)
 		}
 	}
 	// 打开文件（如果不存在则创建，如果存在则截断）
 	//file, err := os.OpenFile(fileTxt, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	//if err != nil {
-	//	c.log.Errorf("无法打开文件: %v", err)
+	//	log.Errorf(ctx, log.TagAppDef, "无法打开文件: %v", err)
 	//}
 	//defer file.Close()
 	//
 	//// 写入字符串
 	//_, err = file.WriteString("Hello, World!\n")
 	//if err != nil {
-	//	c.log.Errorf("写入文件失败: %v", err)
+	//	log.Errorf(ctx, log.TagAppDef, "写入文件失败: %v", err)
 	//}
 	// 打开文件
 	file, err := os.Open(fileTxt)
 	if err != nil {
-		c.log.Errorf("无法打开文件: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "无法打开文件: %v", err)
 		return rt.ErrorMessage("无法打开文件")
 	}
 	defer file.Close()
@@ -747,7 +743,7 @@ func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWd
 	// 获取文件大小
 	fileInfo, err := file.Stat()
 	if err != nil {
-		c.log.Errorf("获取文件信息失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "获取文件信息失败: %v", err)
 		return rt.ErrorMessage("获取文件信息失败")
 	}
 
@@ -757,7 +753,7 @@ func (c *RamAccountService) ResetPassword(ctx *gin.Context, ct model.BaseExistWd
 	// 读取整个文件
 	_, err = io.ReadFull(file, buffer)
 	if err != nil {
-		c.log.Errorf("读取文件失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "读取文件失败: %v", err)
 		return rt.ErrorMessage("读取文件失败")
 	}
 

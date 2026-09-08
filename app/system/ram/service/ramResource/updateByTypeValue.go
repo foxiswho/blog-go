@@ -10,7 +10,7 @@ import (
 	iamConstant2 "github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -27,7 +27,6 @@ type UpdateByTypeValue struct {
 	groupRelationDb *repositoryRam.RamResourceGroupRelationRepository `autowire:"?"`
 	relationDb      *repositoryRam.RamResourceRelationRepository      `autowire:"?"`
 	typeCategory    resourceTypeCategoryPg.ResourceTypeCategory
-	log             *log2.Logger `autowire:"?"`
 	ct              modRamResourceAuthority.UpdateByTypeValueCt
 	ctx             *gin.Context
 	//
@@ -49,7 +48,6 @@ type UpdateByTypeValue struct {
 //	@param ctx
 //	@return *UpdateByTypeValue
 func NewUpdateByTypeValue(
-	log *log2.Logger,
 	roleDb *repositoryRam.RamRoleRepository,
 	authDb *repositoryRam.RamResourceAuthorityRepository,
 	resDb *repositoryRam.RamResourceRepository,
@@ -60,7 +58,6 @@ func NewUpdateByTypeValue(
 	ct modRamResourceAuthority.UpdateByTypeValueCt,
 	ctx *gin.Context) *UpdateByTypeValue {
 	return &UpdateByTypeValue{
-		log:             log,
 		groupDb:         groupDb,
 		authDb:          authDb,
 		roleDb:          roleDb,
@@ -148,7 +145,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 	//删除 角色 对应的资源组
 	c.groupRelationDb.DeleteByTypeCategoryAndTypeValue(c.ctx, c.typeCategory.Index(), numberPg.Int64ToString(c.role.ID))
 	//
-	c.log.Infof("c.groupData=%+v", len(c.groupData))
+	log.Infof(c.ctx, log.TagAppDef, "c.groupData=%+v", len(c.groupData))
 	//插入数据
 	for _, item := range c.groupData {
 		//不是资源属性，跳过
@@ -174,12 +171,12 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 			continue
 		}
 		//
-		c.log.Infof("info%+v", info)
+		log.Infof(c.ctx, log.TagAppDef, "info%+v", info)
 		err, _ := c.groupRelationDb.Create(c.ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(c.ctx, log.TagAppDef, "save=%+v", info)
 	}
 	return rt.Ok()
 }
@@ -190,7 +187,7 @@ func (c *UpdateByTypeValue) roleProcess() (rt rg.Rs[string]) {
 //	@receiver c
 //	@return rt
 func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
-	c.log.Infof("c.groupAuthData=%+v", len(c.groupAuthData))
+	log.Infof(c.ctx, log.TagAppDef, "c.groupAuthData=%+v", len(c.groupAuthData))
 	if len(c.groupAuthData) > 0 {
 		ids := make([]string, 0)
 		for _, item := range c.groupAuthData {
@@ -225,12 +222,12 @@ func (c *UpdateByTypeValue) saveResourceRelationByRole() (rt rg.Rs[string]) {
 				continue
 			}
 			//
-			c.log.Debugf("info%+v", info)
+			log.Debugf(c.ctx, log.TagAppDef, "info%+v", info)
 			err, _ := c.relationDb.Create(c.ctx, &info)
 			if err != nil {
 				return rt.ErrorMessage("保存失败")
 			}
-			c.log.Infof("save=%+v", info)
+			log.Infof(c.ctx, log.TagAppDef, "save=%+v", info)
 		}
 	}
 

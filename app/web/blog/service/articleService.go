@@ -20,13 +20,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/attachmentTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumApprovedPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/blog/key/blogKeyPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"golang.org/x/exp/slices"
 )
@@ -40,7 +40,6 @@ type ArticleService struct {
 	statDb    *repositoryBlog.BlogArticleStatisticsRepository `autowire:"?"`
 	catDb     *repositoryBlog.BlogArticleCategoryRepository   `autowire:"?"`
 	sp        *blogArticle.Sp                                 `autowire:"?"`
-	log       *log2.Logger                                    `autowire:"?"`
 	tagsRelat *repositoryBasic.BasicTagsRelationRepository    `autowire:"?"`
 	rdu       *rdsPg.BatchString                              `autowire:"?"`
 	catCore   *serviceCore.CoreArticleCategory                `autowire:"?"`
@@ -74,7 +73,7 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 			}
 		}
 	}
-	c.log.Infof("find=%+v", find)
+	log.Infof(ctx, log.TagAppDef, "find=%+v", find)
 	var info modBlogArticle.DetailVo
 	copier.Copy(&info, find)
 	//
@@ -152,14 +151,14 @@ func (c *ArticleService) Detail(ctx *gin.Context, id string) (rt rg.Rs[modBlogAr
 						if strPg.IsNotBlank(item.Attribute) {
 							err := json.Unmarshal([]byte(item.Attribute), &vo.AttributeMap)
 							if err != nil {
-								c.log.Errorf("json解析失败 %+v", err)
+								log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 							}
 							if obj, ok := vo.AttributeMap["color"]; ok {
 								color := make(map[string]interface{})
 								if strPg.IsNotBlank(obj.(string)) {
 									err := json.Unmarshal([]byte(obj.(string)), &color)
 									if err != nil {
-										c.log.Errorf("json解析失败 %+v", err)
+										log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 									}
 								}
 								vo.AttributeMap["color"] = color
@@ -353,14 +352,14 @@ func (c *ArticleService) Query(ctx *gin.Context, ct modBlogArticle.QueryCt) (rt 
 						if strPg.IsNotBlank(item.Attribute) {
 							err := json.Unmarshal([]byte(item.Attribute), &vo.AttributeMap)
 							if err != nil {
-								c.log.Errorf("json解析失败 %+v", err)
+								log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 							}
 							if obj, ok := vo.AttributeMap["color"]; ok {
 								color := make(map[string]interface{})
 								if strPg.IsNotBlank(obj.(string)) {
 									err := json.Unmarshal([]byte(obj.(string)), &color)
 									if err != nil {
-										c.log.Errorf("json解析失败 %+v", err)
+										log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 									}
 								}
 								vo.AttributeMap["color"] = color

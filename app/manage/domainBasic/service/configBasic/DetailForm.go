@@ -11,23 +11,22 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/basic/key/basicEventKey"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 )
 
 type DetailForm struct {
-	Sp  *Sp                `autowire:"?"`
-	log *log2.Logger       `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	rdt *rdsPg.BatchString `autowire:"?"`
 }
 
 func NewDetailForm(sp *Sp) *DetailForm {
 	return &DetailForm{
 		Sp:  sp,
-		log: sp.log,
 		rdt: sp.rdt,
 	}
 }
@@ -72,7 +71,7 @@ func (c *DetailForm) Process(ctx *gin.Context, ct modBasicConfigList.DetailFormC
 			var obj modCacheBasicEvent.FieldCache
 			err := json.Unmarshal([]byte(v), &obj)
 			if err != nil {
-				c.log.Errorf("json.Unmarshal.err:%+v", err)
+				log.Errorf(ctx, log.TagAppDef, "json.Unmarshal.err:%+v", err)
 			} else {
 				copier.Copy(&obj, v)
 				//

@@ -8,25 +8,22 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
+	"go-spring.org/log"
 )
 
 type AccountLoginLog struct {
-	log      *log2.Logger                                `autowire:"?"`
 	acc      *repositoryRam.RamAccountRepository         `autowire:"?"`
 	loginLog *repositoryRam.RamAccountLoginLogRepository `autowire:"?"`
 	session  *repositoryRam.RamAccountSessionRepository  `autowire:"?"`
 }
 
 func NewAccountLoginLog(
-	log *log2.Logger,
 	acc *repositoryRam.RamAccountRepository,
 	loginLog *repositoryRam.RamAccountLoginLogRepository,
 	session *repositoryRam.RamAccountSessionRepository,
 ) *AccountLoginLog {
 	return &AccountLoginLog{
-		log:      log,
 		acc:      acc,
 		loginLog: loginLog,
 		session:  session,
@@ -66,7 +63,7 @@ func (c *AccountLoginLog) Processor(ctx context.Context, data modRamAccount.Logi
 		}
 		err, _ := c.session.Create(ctx, &session)
 		if err != nil {
-			c.log.Error("", err)
+			log.Errorf(ctx, log.TagAppDef, "", err)
 		}
 	}
 	//登录日志
@@ -82,7 +79,7 @@ func (c *AccountLoginLog) Processor(ctx context.Context, data modRamAccount.Logi
 	}
 	err, _ := c.loginLog.Create(ctx, &save)
 	if err != nil {
-		c.log.Error("", err)
+		log.Errorf(ctx, log.TagAppDef, "", err)
 	}
 	return err
 }

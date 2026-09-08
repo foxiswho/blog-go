@@ -15,8 +15,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/ldap"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
@@ -34,7 +32,6 @@ type LdapService struct {
 	daoBinding    *repositoryRam.RamIdpBindingRepository        `autowire:"?"`
 	daoSessionLog *repositoryRam.RamAccountSessionLogRepository `autowire:"?"`
 	loginService  *AccountLoginService                          `autowire:"?"`
-	log           *log2.Logger                                  `autowire:"?"`
 }
 
 // buildLdapConfig 从认证源配置构建 LDAP 连接配置
@@ -221,11 +218,11 @@ func (s *LdapService) Login(ctx *gin.Context, ct modRamLdap.LdapLoginCt) (rt rg.
 	// 验证用户密码
 	ldapUser, err := conn.CheckUserPassword(cfg, ct.Username, ct.Password)
 	if err != nil {
-		s.log.Errorf("LDAP 用户 %s 认证失败: %v", ct.Username, err)
+		log.Errorf(ctx, log.TagAppDef, "LDAP 用户 %s 认证失败: %v", ct.Username, err)
 		return rt.ErrorMessage("LDAP 认证失败: " + err.Error())
 	}
 
-	s.log.Infof("LDAP 用户认证成功: uid=%s, cn=%s", ldapUser.Uid, ldapUser.Cn)
+	log.Infof(ctx, log.TagAppDef, "LDAP 用户认证成功: uid=%s, cn=%s", ldapUser.Uid, ldapUser.Cn)
 
 	// 查找绑定
 	binding, bindingFound := s.daoBinding.FindByIdpAndExternalSub(ctx, source.Idp, ldapUser.GetLdapUuid())
@@ -332,10 +329,10 @@ func (s *LdapService) createAccountFromLdap(
 	}
 	errBind, _ := s.daoBinding.Create(ctx, binding)
 	if errBind != nil {
-		s.log.Errorf("创建 LDAP 绑定记录失败: %v", errBind)
+		log.Errorf(ctx, log.TagAppDef, "创建 LDAP 绑定记录失败: %v", errBind)
 	}
 
-	s.log.Infof("LDAP 自动创建账号: no=%s, account=%s", account.No, account.Account)
+	log.Infof(ctx, log.TagAppDef, "LDAP 自动创建账号: no=%s, account=%s", account.No, account.Account)
 	return account, nil
 }
 
@@ -382,7 +379,7 @@ func (s *LdapService) loginSuccess(
 	}
 	errLog, _ := s.daoSessionLog.Create(ctx, logEntity)
 	if errLog != nil {
-		s.log.Errorf("保存 LDAP 登录审计日志失败: %v", errLog)
+		log.Errorf(ctx, log.TagAppDef, "保存 LDAP 登录审计日志失败: %v", errLog)
 	}
 
 	success := modRamLogin.IdpLoginSuccess{

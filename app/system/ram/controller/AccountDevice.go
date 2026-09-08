@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
@@ -19,8 +18,7 @@ func init() {
 type AccountDeviceController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
-	sv  *service.RamAccountDeviceService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	sv *service.RamAccountDeviceService `autowire:"?"`
 }
 
 func (c *AccountDeviceController) RegisterRoutes(e *gin.Engine) {

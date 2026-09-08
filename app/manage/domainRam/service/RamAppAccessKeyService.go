@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -20,6 +19,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/userPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
@@ -33,7 +33,6 @@ func init() {
 type RamAppAccessKeyService struct {
 	sv  *repositoryRam.RamAppAccessKeyRepository `autowire:"?"`
 	app *repositoryRam.RamAppRepository          `autowire:"?"`
-	log *log2.Logger                             `autowire:"?"`
 }
 
 // MakeNewRecord
@@ -44,7 +43,7 @@ type RamAppAccessKeyService struct {
 //	@param ct
 //	@return rt
 func (c *RamAppAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseIdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	save := entityRam.RamAppAccessKeyEntity{}
 	save.AppNo = strings.TrimSpace(ct.Id)
 	if strPg.IsBlank(save.AppNo) {
@@ -62,7 +61,7 @@ func (c *RamAppAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseId
 	save.KindUnique = userPg.SaltMake(save.Key, save.Secret+save.ExpiryDate.String())
 	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
-		c.log.Error("", err)
+		log.Errorf(ctx, log.TagAppDef, "", err)
 		return rt.ErrorMessage("保存失败")
 	}
 	return rt.Ok()
@@ -74,7 +73,7 @@ func (c *RamAppAccessKeyService) MakeNewRecord(ctx *gin.Context, ct model.BaseId
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ct2 := model.BaseStateIdsCt[string]{
 		Ids: ct.Ids,
 	}
@@ -88,7 +87,7 @@ func (c *RamAppAccessKeyService) Enable(ctx *gin.Context, ct model.BaseIdsCt[str
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ct2 := model.BaseStateIdsCt[string]{
 		Ids: ct.Ids,
 	}
@@ -102,7 +101,7 @@ func (c *RamAppAccessKeyService) Disable(ctx *gin.Context, ct model.BaseIdsCt[st
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) State(ctx *gin.Context, ct model.BaseStateIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	ids := ct.Ids
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
@@ -157,7 +156,7 @@ func (c *RamAppAccessKeyService) StateEnableDisable(ctx *gin.Context, ct model.B
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -168,7 +167,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -189,7 +188,7 @@ func (c *RamAppAccessKeyService) LogicalDeletion(ctx *gin.Context, ids []string)
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -214,7 +213,7 @@ func (c *RamAppAccessKeyService) LogicalRecovery(ctx *gin.Context, ids []string)
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -225,7 +224,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -240,7 +239,7 @@ func (c *RamAppAccessKeyService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAppAccessKey2.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAppAccessKeyEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAppAccessKey2.Vo, 0)
@@ -284,7 +283,7 @@ func (c *RamAppAccessKeyService) Query(ctx *gin.Context, ct modRamAppAccessKey2.
 //	@receiver c
 //	@param ct
 func (c *RamAppAccessKeyService) SelectPublic(ctx *gin.Context, ct modRamAppAccessKey2.QueryCt) (rt rg.Rs[[]modRamAppAccessKey2.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAppAccessKeyEntity
 	copier.Copy(&query, &ct)
 	if strPg.IsBlank(ct.AppNo) {

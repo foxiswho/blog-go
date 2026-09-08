@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/api/modApiDiplAccessKey"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
@@ -21,8 +20,7 @@ func init() {
 type DiplAccessKeyController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpManageAuth
-	sv  *service.ApiDiplAccessKeyService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	sv *service.ApiDiplAccessKeyService `autowire:"?"`
 }
 
 func (c *DiplAccessKeyController) RegisterRoutes(e *gin.Engine) {

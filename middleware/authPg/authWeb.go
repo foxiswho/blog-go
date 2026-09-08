@@ -7,8 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/tc/cacheTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 

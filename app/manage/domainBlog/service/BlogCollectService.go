@@ -18,7 +18,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constTags"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -26,6 +25,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -43,8 +43,8 @@ type BlogCollectService struct {
 	tagsRelat *repositoryBasic.BasicTagsRelationRepository  `autowire:"?"`
 	ten       *repositoryTc.TcTenantRepository              `autowire:"?"`
 	sp        *blogCollect.Sp                               `autowire:"?"`
-	log       *log2.Logger                                  `autowire:"?"`
-	rdu       *rdsPg.BatchString                            `autowire:"?"`
+
+	rdu *rdsPg.BatchString `autowire:"?"`
 }
 
 // Create 新增
@@ -123,14 +123,14 @@ func (c *BlogCollectService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modBlo
 						if strPg.IsNotBlank(item.Attribute) {
 							err := json.Unmarshal([]byte(item.Attribute), &vo.AttributeMap)
 							if err != nil {
-								c.log.Errorf("json解析失败 %+v", err)
+								log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 							}
 							if obj, ok := vo.AttributeMap["color"]; ok {
 								color := make(map[string]interface{})
 								if strPg.IsNotBlank(obj.(string)) {
 									err := json.Unmarshal([]byte(obj.(string)), &color)
 									if err != nil {
-										c.log.Errorf("json解析失败 %+v", err)
+										log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 									}
 								}
 								vo.AttributeMap["color"] = color
@@ -253,7 +253,7 @@ func (c *BlogCollectService) LogicalDeletion(ctx *gin.Context, ids []string) (rt
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -309,7 +309,7 @@ func (c *BlogCollectService) PhysicalDeletion(ctx *gin.Context, ids []string) (r
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -439,14 +439,14 @@ func (c *BlogCollectService) Query(ctx *gin.Context, ct modBlogCollect.QueryCt) 
 						if strPg.IsNotBlank(item.Attribute) {
 							err := json.Unmarshal([]byte(item.Attribute), &vo.AttributeMap)
 							if err != nil {
-								c.log.Errorf("json解析失败 %+v", err)
+								log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 							}
 							if obj, ok := vo.AttributeMap["color"]; ok {
 								color := make(map[string]interface{})
 								if strPg.IsNotBlank(obj.(string)) {
 									err := json.Unmarshal([]byte(obj.(string)), &color)
 									if err != nil {
-										c.log.Errorf("json解析失败 %+v", err)
+										log.Errorf(ctx, log.TagAppDef, "json解析失败 %+v", err)
 									}
 								}
 								vo.AttributeMap["color"] = color

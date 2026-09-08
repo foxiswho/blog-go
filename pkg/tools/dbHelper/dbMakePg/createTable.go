@@ -6,7 +6,6 @@ import (
 
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/tablePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -19,7 +18,6 @@ import (
 
 type CreateTable struct {
 	Database  configPg.Database `value:"database"`
-	Log       *log2.Logger      `autowire:"?"`
 	db        *gorm.DB
 	tableList []string
 }
@@ -62,11 +60,11 @@ func (c *CreateTable) SetDb(db *gorm.DB) {
 func (c *CreateTable) TableCreateOne(entity interface{}) (rt rg.Rs[string]) {
 	isExists := c.db.Migrator().HasTable(entity)
 	if isExists {
-		c.Log.Infof("表存在")
+		log.Infof(context.Background(), log.TagAppDef, "表存在")
 	} else {
 		err2 := c.db.AutoMigrate(entity)
 		if err2 != nil {
-			c.Log.Errorf("创建表异常", err2)
+			log.Errorf(context.Background(), log.TagAppDef, "创建表异常", err2)
 			return
 		}
 	}
@@ -78,12 +76,12 @@ func (c *CreateTable) TableCreateOne(entity interface{}) (rt rg.Rs[string]) {
 func (c *CreateTable) dbRun(tmp interface{}, tableName, tableComment string) {
 	// 判断表是否已创建
 	if !slice.Contain(c.tableList, tableName) {
-		c.Log.Infof("创建表 %s", tableName)
+		log.Infof(context.Background(), log.TagAppDef, "创建表 %s", tableName)
 		MakeTable(c.db, tmp, tableName, tableComment)
 
-		c.Log.Infof("创建表 %s [完成]", tableName)
+		log.Infof(context.Background(), log.TagAppDef, "创建表 %s [完成]", tableName)
 	} else {
-		c.Log.Infof("表已存在 %s", tableName)
+		log.Infof(context.Background(), log.TagAppDef, "表已存在 %s", tableName)
 	}
 }
 

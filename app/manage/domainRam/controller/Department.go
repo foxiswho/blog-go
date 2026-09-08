@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDepartment"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -24,9 +23,8 @@ func init() {
 // @Description:
 type DepartmentController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
-	sv  *service.RamDepartmentService   `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv *service.RamDepartmentService   `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -59,7 +57,7 @@ func (c *DepartmentController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *DepartmentController) Create(ctx *gin.Context) {
-	var ct modRamDepartment.CreateCt
+	var ct modRamDepartment.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

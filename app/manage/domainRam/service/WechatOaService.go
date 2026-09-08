@@ -16,9 +16,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/idp"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -56,7 +56,6 @@ var (
 type WechatOaService struct {
 	daoSource   *repositoryRam.RamIdentitySourceRepository   `autowire:"?"`
 	daoProvider *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
-	log         *log2.Logger                                 `autowire:"?"`
 }
 
 // NewWechatOaService 构造函数
@@ -83,7 +82,7 @@ func (s *WechatOaService) GetQRCode(ctx *gin.Context, sourceNo string) (rt rg.Rs
 	var cfg wechatOaBaseConfig
 	if strPg.IsNotBlank(source.BaseConfig) {
 		if err := json.Unmarshal([]byte(source.BaseConfig), &cfg); err != nil {
-			s.log.Errorf("解析 BaseConfig 失败: %v", err)
+			log.Errorf(ctx, log.TagAppDef, "解析 BaseConfig 失败: %v", err)
 			return rt.ErrorMessage("认证源配置解析失败")
 		}
 	}
@@ -97,7 +96,7 @@ func (s *WechatOaService) GetQRCode(ctx *gin.Context, sourceNo string) (rt rg.Rs
 	// 调用微信 API 创建二维码
 	qrResult, err := idp.WechatOaCreateQRCode(cfg.ClientId2, cfg.ClientSecret2, sceneStr)
 	if err != nil {
-		s.log.Errorf("创建公众号二维码失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "创建公众号二维码失败: %v", err)
 		return rt.ErrorMessage("创建二维码失败: " + err.Error())
 	}
 
@@ -150,7 +149,7 @@ func (s *WechatOaService) HandleEvent(ctx *gin.Context, bodyBytes []byte, source
 	// 解析 XML
 	var eventData wechatEventXML
 	if err := xml.Unmarshal(bodyBytes, &eventData); err != nil {
-		s.log.Errorf("解析微信事件 XML 失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "解析微信事件 XML 失败: %v", err)
 		return rt.ErrorMessage("解析事件失败")
 	}
 
@@ -192,8 +191,7 @@ func (s *WechatOaService) HandleEvent(ctx *gin.Context, bodyBytes []byte, source
 		IsScanned:     true,
 		WechatUnionId: eventData.FromUserName,
 	})
-
-	s.log.Infof("微信扫码事件: ticket=%s, unionId=%s, event=%s", eventData.Ticket, eventData.FromUserName, event)
+	log.Infof(ctx, log.TagAppDef, "微信扫码事件: ticket=%s, unionId=%s, event=%s", eventData.Ticket, eventData.FromUserName, event)
 
 	// 同时写入 idp 包的全局缓存（兼容已有的 wechat.go GetUserInfo 逻辑）
 	idp.Lock.Lock()

@@ -6,8 +6,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -23,7 +23,6 @@ func init() {
 type RamAccountMiddlewareService struct {
 	sv    *repositoryRam.RamAccountRepository              `autowire:"?"`
 	aAuth *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	log   *log2.Logger                                     `autowire:"?"`
 }
 
 func NewRamAccountMiddlewareService() *RamAccountMiddlewareService {
@@ -37,7 +36,7 @@ func NewRamAccountMiddlewareService() *RamAccountMiddlewareService {
 //	@param jwt
 //	@return rt
 func (c *RamAccountMiddlewareService) FindByLoginNo(ctx *gin.Context, no, tenantNo string) (rt rg.Rs[holderPg.HolderPg]) {
-	c.log.Debugf("jwt=%+v", no)
+	log.Debugf(ctx, log.TagAppDef, "jwt=%+v", no)
 	if strPg.IsBlank(no) {
 		return rt.ErrorMessage("账号登陆失败")
 	}

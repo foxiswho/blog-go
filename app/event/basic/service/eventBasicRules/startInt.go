@@ -6,18 +6,15 @@ import (
 	"github.com/farseer-go/eventBus"
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicRules"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 )
 
 // StartInit 启动后初始化 所有租户 分类缓存
 type StartInit struct {
-	log *log2.Logger `autowire:"?"`
 }
 
-func NewStartInit(log *log2.Logger) *StartInit {
-	return &StartInit{
-		log: log,
-	}
+func NewStartInit() *StartInit {
+	return &StartInit{}
 }
 
 func (c *StartInit) Processor(ctx context.Context) error {
@@ -26,7 +23,7 @@ func (c *StartInit) Processor(ctx context.Context) error {
 		IsAll: true,
 	})
 	if err != nil {
-		c.log.Errorf("copier.Copy error: %+v", err)
+		log.Errorf(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 		return nil
 	}
 	return nil

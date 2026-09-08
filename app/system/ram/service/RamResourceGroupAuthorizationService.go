@@ -7,8 +7,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/pangu-2/go-tools/tools/numberPg"
@@ -25,7 +25,6 @@ type RamResourceGroupAuthorizationService struct {
 	sv     *repositoryRam.RamResourceGroupRepository     `autowire:"?"`
 	authDb *repositoryRam.RamResourceAuthorityRepository `autowire:"?"`
 	ra     *RamResourceAuthorizationService              `autowire:"?"`
-	log    *log2.Logger                                  `autowire:"?"`
 }
 
 // Enable 启用
@@ -97,7 +96,7 @@ func (c *RamResourceGroupAuthorizationService) StateEnableDisable(ctx *gin.Conte
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -109,7 +108,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 	//物理删除
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 
 			//删除授权及权限规则
 			//c.ra.Delete(ctx, utilsRam.ResourceAuthorityMarkByInt64(iamConstant.GroupResourceTypeCategory, info.ID))
@@ -138,7 +137,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalDeletion(ctx *gin.Context,
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -166,7 +165,7 @@ func (c *RamResourceGroupAuthorizationService) LogicalRecovery(ctx *gin.Context,
 //	@receiver c
 //	@param ct
 func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -179,7 +178,7 @@ func (c *RamResourceGroupAuthorizationService) PhysicalDeletion(ctx *gin.Context
 	idsNew := make([]int64, 0)
 	idsCategory := make([]string, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		//判断 是否是 分类
 		if typeAttrPg.CategoryLast.IsEqual(info.TypeAttr) || typeAttrPg.Category.IsEqual(info.TypeAttr) {
 			link, b := r.FindAllByIdLink(ctx, numberPg.Int64ToString(info.ID))

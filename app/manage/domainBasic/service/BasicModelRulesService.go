@@ -9,13 +9,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -24,9 +24,8 @@ func init() {
 }
 
 type BasicModelRulesService struct {
-	log *log2.Logger                               `autowire:"?"`
-	sv  *repositoryBasic.BasicModelRulesRepository `autowire:"?"`
-	sp  *modelRules.Sp                             `autowire:"?"`
+	sv *repositoryBasic.BasicModelRulesRepository `autowire:"?"`
+	sp *modelRules.Sp                             `autowire:"?"`
 }
 
 func (c *BasicModelRulesService) CreateUpdateData(ctx *gin.Context, ct modBasicModelRules.CreateUpdateDataCt) (rt rg.Rs[string]) {
@@ -129,7 +128,7 @@ func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ct model.Base
 	if c.sv.Config().Data.Delete {
 		idsInt := make([]int64, 0)
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 			if info.FieldNo == fieldNo {
 				idsInt = append(idsInt, info.ID)
 			}
@@ -159,7 +158,7 @@ func (c *BasicModelRulesService) LogicalDeletion(ctx *gin.Context, ct model.Base
 //	@receiver c
 //	@param ct
 func (c *BasicModelRulesService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -184,7 +183,7 @@ func (c *BasicModelRulesService) LogicalRecovery(ctx *gin.Context, ids []string)
 //	@receiver c
 //	@param ct
 func (c *BasicModelRulesService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -195,7 +194,7 @@ func (c *BasicModelRulesService) PhysicalDeletion(ctx *gin.Context, ids []string
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -210,7 +209,7 @@ func (c *BasicModelRulesService) PhysicalDeletion(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *BasicModelRulesService) Query(ctx *gin.Context, ct modBasicModelRules.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicModelRules.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicModelRulesEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicModelRules.Vo, 0)

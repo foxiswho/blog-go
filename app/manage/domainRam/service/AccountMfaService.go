@@ -17,10 +17,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/mfa"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -49,7 +48,7 @@ func (c *AccountMfaService) Setup(ctx *gin.Context, ct modRamMfa.SetupCt) (rt rg
 	// 初始化 MFA（生成 secret 和 URL）
 	props, err := mfaUtil.Initiate(ano, "XianfuBlog")
 	if err != nil {
-		c.log.Errorf("MFA Initiate 失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "MFA Initiate 失败: %v", err)
 		return rt.ErrorMessage("初始化 MFA 失败: " + err.Error())
 	}
 
@@ -119,7 +118,7 @@ func (c *AccountMfaService) Enable(ctx *gin.Context, ct modRamMfa.EnableCt) (rt 
 
 	errCreate, _ := c.daoMfa.Create(ctx, entity)
 	if errCreate != nil {
-		c.log.Errorf("创建 MFA 记录失败: %v", errCreate)
+		log.Errorf(ctx, log.TagAppDef, "创建 MFA 记录失败: %v", errCreate)
 		return rt.ErrorMessage("启用 MFA 失败: " + errCreate.Error())
 	}
 
@@ -157,7 +156,7 @@ func (c *AccountMfaService) Disable(ctx *gin.Context, ct modRamMfa.DisableCt) (r
 	// 删除所有 MFA 记录
 	err := c.daoMfa.DeleteByAno(ctx, ano)
 	if err != nil {
-		c.log.Errorf("删除 MFA 记录失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "删除 MFA 记录失败: %v", err)
 		return rt.ErrorMessage("禁用 MFA 失败: " + err.Error())
 	}
 

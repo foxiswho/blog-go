@@ -9,7 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constNodePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/excelPg"
@@ -20,6 +19,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -30,8 +30,7 @@ func init() {
 // BasicCountryService 国家
 // @Description:
 type BasicCountryService struct {
-	sv  *repositoryBasic.BasicCountryRepository `autowire:"?"`
-	log *log2.Logger                            `autowire:""`
+	sv *repositoryBasic.BasicCountryRepository `autowire:"?"`
 }
 
 // Create 新增
@@ -41,11 +40,11 @@ type BasicCountryService struct {
 //	@param ct
 //	@return rt
 func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -79,7 +78,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = strPg.GenerateNumberId22()
 	}
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
@@ -110,7 +109,7 @@ func (c *BasicCountryService) Create(ctx *gin.Context, ct modBasicCountry.Create
 //	@param ct
 //	@return rt
 func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicCountryEntity
 	copier.Copy(&info, &ct)
 	if ct.ID < 1 {
@@ -152,7 +151,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Create
 			result2 := false
 			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
-				//c.log.Infof("data=%+v \n", childData)
+				//log.Infof(ctx, log.TagAppDef,"data=%+v \n", childData)
 				for _, item := range childData {
 					if item.No == parent.No {
 						return rt.ErrorMessage("无法保存，不能设置为自己的子集")
@@ -176,13 +175,13 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Create
 		info.ParentId = ""
 	}
 	info.No = ""
-	c.log.Infof("info.IdLink=%+v", info.IdLink)
+	log.Infof(ctx, log.TagAppDef, "info.IdLink=%+v", info.IdLink)
 	err := r.Update(ctx, info, info.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
-	c.log.Infof("save.info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save.info=%+v", info)
 	//更改上级后，相关子集修改
 	if strPg.IsNotBlank(ct.ParentNo) && nil != childData {
 		maps := slicePg.ToMapArray(childData, func(t *entityBasic.BasicCountryEntity) (string, *entityBasic.BasicCountryEntity) {
@@ -199,7 +198,7 @@ func (c *BasicCountryService) Update(ctx *gin.Context, ct modBasicCountry.Create
 			item.NoLink = constNodePg.NoLinkAssemble(info.NoLink, item.No)
 			c.childParentIdLink(maps, item)
 		}
-		c.log.Infof("maps=%+v", maps)
+		log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 		for _, val := range maps {
 			for _, item := range val {
 				if item.ID == find.ID {
@@ -255,7 +254,7 @@ func (c *BasicCountryService) CacheOverride(ctx *gin.Context) {
 		item.NoLink = constNodePg.NoLinkDefault(item.No)
 		c.childParentIdLink(maps, item)
 	}
-	c.log.Infof("maps=%+v", maps)
+	log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
 			r.Update(ctx, entityBasic.BasicCountryEntity{
@@ -343,7 +342,7 @@ func (c *BasicCountryService) StateEnableDisable(ctx *gin.Context, ids []string,
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -354,7 +353,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -376,7 +375,7 @@ func (c *BasicCountryService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -401,7 +400,7 @@ func (c *BasicCountryService) LogicalRecovery(ctx *gin.Context, ids []string) (r
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -412,7 +411,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -427,7 +426,7 @@ func (c *BasicCountryService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) Query(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicCountry.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
@@ -529,7 +528,7 @@ func (c *BasicCountryService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicC
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) SelectPublic(ctx *gin.Context, ct modBasicCountry.QueryCt) (rt rg.Rs[[]modBasicCountry.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicCountry.Vo, 0)
@@ -552,7 +551,7 @@ func (c *BasicCountryService) SelectPublic(ctx *gin.Context, ct modBasicCountry.
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) SelectPublicCountryCode(ctx *gin.Context, ct modBasicCountry.QueryPublicCt) (rt rg.Rs[[]model.BaseSelectVo[string]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	//
@@ -582,7 +581,7 @@ func (c *BasicCountryService) SelectPublicCountryCode(ctx *gin.Context, ct modBa
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) SelectNodePublicCountryCode(ctx *gin.Context, ct modBasicCountry.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	//
@@ -611,7 +610,7 @@ func (c *BasicCountryService) SelectNodePublicCountryCode(ctx *gin.Context, ct m
 //	@receiver c
 //	@param ct
 func (c *BasicCountryService) ExportExcel(ctx *gin.Context, ct modBasicCountry.QueryCt) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicCountryEntity
 	copier.Copy(&query, &ct)
 	infos := c.sv.FindAll(ctx, query)
@@ -622,7 +621,7 @@ func (c *BasicCountryService) ExportExcel(ctx *gin.Context, ct modBasicCountry.Q
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
-		c.log.Infof("导出数据 %+v", slice)
+		log.Infof(ctx, log.TagAppDef, "导出数据 %+v", slice)
 		strings := []string{"ID", "名称", "名称外文",
 			"编号代号",
 			"全称",

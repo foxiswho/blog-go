@@ -22,7 +22,7 @@ type BasicConfigListRepository struct {
 func (c *BasicConfigListRepository) FindByEventNo(ctx context.Context, eventNo string) (info *entityBasic.BasicConfigListEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("event_no=?", eventNo).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *BasicConfigListRepository) FindByEventNo(ctx context.Context, eventNo s
 func (c *BasicConfigListRepository) FindByTenantNoAndEventNoAndIdNot(ctx context.Context, tenantNo, eventNo string, id string) (info *entityBasic.BasicConfigListEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tenantNo).Where("event_no=?", eventNo).Where("id != ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

@@ -23,7 +23,7 @@ type RamResourceAuthorityRepository struct {
 func (c *RamResourceAuthorityRepository) FindByMark(ctx context.Context, code string) (info *entityRam.RamResourceAuthorityEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -35,7 +35,7 @@ func (c *RamResourceAuthorityRepository) FindByMark(ctx context.Context, code st
 func (c *RamResourceAuthorityRepository) FindAllByGroupIdStringIn(ctx context.Context, code []string) (info []*entityRam.RamResourceAuthorityEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("group_id in ?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -46,7 +46,7 @@ func (c *RamResourceAuthorityRepository) FindAllByGroupIdStringIn(ctx context.Co
 func (c *RamResourceAuthorityRepository) FindAllByTypeCategoryAndGroupIdStringIn(ctx context.Context, typeCategory string, code []string) (info []*entityRam.RamResourceAuthorityEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_category = ?", typeCategory).Where("group_id in ?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -58,7 +58,7 @@ func (c *RamResourceAuthorityRepository) FindAllByTypeCategoryAndGroupIdStringIn
 func (c *RamResourceAuthorityRepository) DeleteByMark(ctx context.Context, code string) error {
 	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).Delete(&entityRam.RamResourceAuthorityEntity{})
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return tx.Error
 	}
 	return nil

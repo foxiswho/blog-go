@@ -7,7 +7,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -19,8 +18,7 @@ func init() {
 type ResourceGroupRelationController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
-	sv  *service.RamResourceGroupRelationService `autowire:"?"`
-	log *log2.Logger                             `autowire:"?"`
+	sv *service.RamResourceGroupRelationService `autowire:"?"`
 }
 
 func (c *ResourceGroupRelationController) RegisterRoutes(e *gin.Engine) {

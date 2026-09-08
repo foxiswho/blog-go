@@ -15,12 +15,12 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeReadingPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/blog/typeSourcePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/holderApiPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model/modelBasePg"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/datatypes"
 )
@@ -33,7 +33,6 @@ type CollectService struct {
 	sv    *repositoryBlog.BlogCollectRepository         `autowire:"?"`
 	catDb *repositoryBlog.BlogCollectCategoryRepository `autowire:"?"`
 	sp    *blogCollect.Sp                               `autowire:"?"`
-	log   *log2.Logger                                  `autowire:"?"`
 }
 
 // Push
@@ -41,7 +40,7 @@ type CollectService struct {
 //	@Description: 推送文章连接
 //	@receiver c
 func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 
 	if strPg.IsBlank(ct.Title) {
 		return rt.ErrorMessage("标题不能为空")
@@ -124,7 +123,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 	//
 	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
-		c.log.Debugf("save err=%+v", err)
+		log.Debugf(ctx, log.TagAppDef, "save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
 	}
 	return rt.Ok()
@@ -135,7 +134,7 @@ func (c *CollectService) Push(ctx *gin.Context, ct modBlogCollect.PushCt) (rt rg
 //	@Description: 推送文章连接
 //	@receiver c
 func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if nil == ct.Data || len(ct.Data) <= 0 {
 		return rt.ErrorMessage("数据不能为空")
 	}
@@ -270,7 +269,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 					item.CategoryNo = ""
 				}
 			}
-			c.log.Infof("item=%+v", item)
+			log.Infof(ctx, log.TagAppDef, "item=%+v", item)
 			//
 			save = append(save, item)
 		}
@@ -279,7 +278,7 @@ func (c *CollectService) PushAll(ctx *gin.Context, ct modBlogCollect.PushAll) (r
 		{
 			tx := c.sv.DbModel().CreateInBatches(save, 1000000)
 			if tx.Error != nil {
-				c.log.Errorf("save err=%+v", tx.Error)
+				log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 				return rt.ErrorMessage("保存失败：")
 			}
 			if 0 == tx.RowsAffected {

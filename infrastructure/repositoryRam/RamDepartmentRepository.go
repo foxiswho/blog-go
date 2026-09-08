@@ -30,7 +30,7 @@ func (c *RamDepartmentRepository) FindAllByNoLinkArr(ctx context.Context, code [
 	}
 	tx := db.Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

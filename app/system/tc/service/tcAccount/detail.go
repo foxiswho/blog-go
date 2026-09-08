@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/slicePg"
@@ -15,16 +14,14 @@ import (
 )
 
 type Detail struct {
-	log *log2.Logger `autowire:"?"`
-	sp  *Sp          `autowire:"?"`
-	tp  appModulePg.AppModule
+	sp *Sp `autowire:"?"`
+	tp appModulePg.AppModule
 }
 
-func NewDetail(log *log2.Logger, sp *Sp, tp appModulePg.AppModule) *Detail {
+func NewDetail(sp *Sp, tp appModulePg.AppModule) *Detail {
 	return &Detail{
-		log: log,
-		sp:  sp,
-		tp:  tp,
+		sp: sp,
+		tp: tp,
 	}
 }
 

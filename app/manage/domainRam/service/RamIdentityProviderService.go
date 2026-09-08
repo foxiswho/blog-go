@@ -7,11 +7,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -27,13 +27,12 @@ func init() {
 // RamIdentityProviderService 身份提供商
 // @Description:
 type RamIdentityProviderService struct {
-	sv  *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
-	log *log2.Logger                                 `autowire:"?"`
+	sv *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
 }
 
 // Create 新增
 func (c *RamIdentityProviderService) Create(ctx *gin.Context, ct modRamIdentityProvider.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var info entityRam.RamIdentityProviderEntity
 	copier.Copy(&info, &ct)
 	if "" == ct.Name {
@@ -43,18 +42,18 @@ func (c *RamIdentityProviderService) Create(ctx *gin.Context, ct modRamIdentityP
 	holder := holderPg.GetContextAccount(ctx)
 	info.TenantNo = holder.GetTenantNo()
 	info.No = noPg.No()
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
 
 // Update 更新
 func (c *RamIdentityProviderService) Update(ctx *gin.Context, ct modRamIdentityProvider.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var info entityRam.RamIdentityProviderEntity
 	copier.Copy(&info, &ct)
 	r := c.sv
@@ -70,10 +69,10 @@ func (c *RamIdentityProviderService) Update(ctx *gin.Context, ct modRamIdentityP
 	}
 	info.ID = 0
 	info.No = ""
-	c.log.Infof("info.save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info.save=%+v", info)
 	err := r.Update(ctx, info, find.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
 	return rt.Ok()
@@ -95,13 +94,13 @@ func (c *RamIdentityProviderService) Detail(ctx *gin.Context, id int64) (rt rg.R
 
 // Enable 启用
 func (c *RamIdentityProviderService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
 }
 
 // Disable 禁用
 func (c *RamIdentityProviderService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
 }
 
@@ -133,7 +132,7 @@ func (c *RamIdentityProviderService) StateEnableDisable(ctx *gin.Context, ids []
 
 // LogicalDeletion 逻辑删除
 func (c *RamIdentityProviderService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -144,7 +143,7 @@ func (c *RamIdentityProviderService) LogicalDeletion(ctx *gin.Context, ids []str
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -160,7 +159,7 @@ func (c *RamIdentityProviderService) LogicalDeletion(ctx *gin.Context, ids []str
 
 // LogicalRecovery 逻辑删除恢复
 func (c *RamIdentityProviderService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -180,7 +179,7 @@ func (c *RamIdentityProviderService) LogicalRecovery(ctx *gin.Context, ids []str
 
 // PhysicalDeletion 物理删除
 func (c *RamIdentityProviderService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -191,7 +190,7 @@ func (c *RamIdentityProviderService) PhysicalDeletion(ctx *gin.Context, ids []st
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -202,7 +201,7 @@ func (c *RamIdentityProviderService) PhysicalDeletion(ctx *gin.Context, ids []st
 
 // Query 查询
 func (c *RamIdentityProviderService) Query(ctx *gin.Context, ct modRamIdentityProvider.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamIdentityProvider.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamIdentityProviderEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamIdentityProvider.Vo, 0)
@@ -239,7 +238,7 @@ func (c *RamIdentityProviderService) Query(ctx *gin.Context, ct modRamIdentityPr
 
 // SelectPublic 查询
 func (c *RamIdentityProviderService) SelectPublic(ctx *gin.Context, ct modRamIdentityProvider.QueryCt) (rt rg.Rs[[]modRamIdentityProvider.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamIdentityProviderEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamIdentityProvider.Vo{}
@@ -258,7 +257,7 @@ func (c *RamIdentityProviderService) SelectPublic(ctx *gin.Context, ct modRamIde
 
 // ExistName 查重
 func (c *RamIdentityProviderService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}

@@ -22,13 +22,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoString"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/versionPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/datatypes"
 )
@@ -43,13 +43,11 @@ type Sp struct {
 	catDb         *repositoryBlog.BlogArticleCategoryRepository   `autowire:"?"`
 	topicRel      *repositoryBlog.BlogTopicRelationRepository     `autowire:"?"`
 	AttachmentDao *repositoryBasic.BasicAttachmentRepository      `autowire:"?"`
-	log           *log2.Logger                                    `autowire:"?"`
 }
 
 func New(sp *Sp, holder holderPg.HolderPg, ct modBlogArticle.CreateUpdateCt, isUpdate bool) *CreateUpdate {
 	return &CreateUpdate{
 		sp:       sp,
-		log:      sp.log,
 		holder:   holder,
 		ct:       ct,
 		isUpdate: isUpdate,
@@ -60,9 +58,9 @@ func New(sp *Sp, holder holderPg.HolderPg, ct modBlogArticle.CreateUpdateCt, isU
 }
 
 type CreateUpdate struct {
-	sp       *Sp          `autowire:"?"`
-	log      *log2.Logger `autowire:"?"`
-	isUpdate bool         //是否更新
+	sp *Sp `autowire:"?"`
+
+	isUpdate bool //是否更新
 	ct       modBlogArticle.CreateUpdateCt
 	holder   holderPg.HolderPg
 	//
@@ -81,7 +79,7 @@ type CreateUpdate struct {
 //	@param ctx
 //	@return rt
 func (c *CreateUpdate) Process(ctx *gin.Context) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", c.ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", c.ct)
 	c.entitySave = &entityBlog.BlogArticleEntity{}
 	ret := c.verify(ctx)
 	if ret.ErrorIs() {
@@ -249,19 +247,19 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		var info entityBlog.BlogArticleEntity
 		copier.Copy(&info, c.entitySave)
 		info.ID = 0
-		c.log.Infof("info=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "info=%+v", info)
 		err := r.Update(ctx, info, c.ct.ID.ToInt64())
 		if err != nil {
-			c.log.Debugf("save err=%+v", err.Error())
+			log.Debugf(ctx, log.TagAppDef, "save err=%+v", err.Error())
 			return rt.ErrorMessage("保存失败：" + err.Error())
 		}
 		//
 		err = c.sp.statisticsDb.Update(ctx, statistics, c.ct.ID.ToInt64())
 		if err != nil {
-			c.log.Errorf("save statistics err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "save statistics err=%+v", err)
 		}
 	} else {
-		c.log.Infof("info=%+v", c.entitySave)
+		log.Infof(ctx, log.TagAppDef, "info=%+v", c.entitySave)
 		c.entitySave.TenantNo = c.holder.GetTenantNo()
 		c.entitySave.No = noPg.No()
 		if automatedPg.IsCreateCode(c.entitySave.Code) {
@@ -269,17 +267,17 @@ func (c CreateUpdate) save(ctx *gin.Context) (rt rg.Rs[string]) {
 		}
 		err, _ := r.Create(ctx, c.entitySave)
 		if err != nil {
-			c.log.Debugf("save err=%+v", err)
+			log.Debugf(ctx, log.TagAppDef, "save err=%+v", err)
 			return rt.ErrorMessage("保存失败：" + err.Error())
 		}
-		c.log.Infof("save=%+v", c.entitySave)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", c.entitySave)
 		c.record = c.entitySave
 		//
 		statistics.ID = c.entitySave.ID
 		statistics.ArticleNo = c.entitySave.No
 		err, _ = c.sp.statisticsDb.Create(ctx, &statistics)
 		if err != nil {
-			c.log.Errorf("save statistics err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "save statistics err=%+v", err)
 		}
 	}
 	//话题

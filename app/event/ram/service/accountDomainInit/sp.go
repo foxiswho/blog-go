@@ -4,7 +4,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"go-spring.org/spring/gs"
 )
 
@@ -13,7 +12,6 @@ func init() {
 }
 
 type Sp struct {
-	log      *log2.Logger                                     `autowire:"?"`
 	accDb    *repositoryRam.RamAccountRepository              `autowire:"?"`
 	authDb   *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
 	depDb    *repositoryRam.RamDepartmentRepository           `autowire:"?"`

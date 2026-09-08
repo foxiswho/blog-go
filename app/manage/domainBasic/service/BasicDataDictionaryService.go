@@ -1,10 +1,7 @@
 package service
 
 import (
-	"context"
 	"strings"
-
-	"reflect"
 
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/duke-git/lancet/v2/strutil"
@@ -13,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -35,8 +31,7 @@ func init() {
 // BasicDataDictionaryService 数据字典
 // @Description:
 type BasicDataDictionaryService struct {
-	sv  *repositoryBasic.BasicDataDictionaryRepository `autowire:"?"`
-	log *log2.Logger                                   `autowire:"?"`
+	sv *repositoryBasic.BasicDataDictionaryRepository `autowire:"?"`
 }
 
 // CreateUpdate 新增
@@ -46,7 +41,7 @@ type BasicDataDictionaryService struct {
 //	@param ct
 //	@return rt
 func (c *BasicDataDictionaryService) CreateUpdate(ctx *gin.Context, ct modBasicDataDictionary.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -69,19 +64,19 @@ func (c *BasicDataDictionaryService) CreateUpdate(ctx *gin.Context, ct modBasicD
 		if result {
 			return rt.ErrorMessage("码值已存在")
 		}
-		c.log.Infof("info%+v", info)
+		log.Infof(ctx, log.TagAppDef, "info%+v", info)
 		info.No = noPg.No()
 		err, _ := r.Create(ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	} else {
 		_, result := c.sv.FindByCodeAndIdNotAndOwnerNo(ctx, info.Code, ct.ID.ToString(), info.OwnerNo)
 		if result {
 			return rt.ErrorMessage("码值已存在")
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 		r.Update(ctx, info, info.ID)
 	}
 
@@ -176,7 +171,7 @@ func (c *BasicDataDictionaryService) LogicalDeletion(ctx *gin.Context, ids []str
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -231,7 +226,7 @@ func (c *BasicDataDictionaryService) PhysicalDeletion(ctx *gin.Context, ids []st
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 	}
 	cn.DeleteByIdsString(ctx, ids)
 	return rt.Ok()
@@ -309,7 +304,7 @@ func (c *BasicDataDictionaryService) Query(ctx *gin.Context, ct modBasicDataDict
 //	@receiver c
 //	@param ct
 func (c *BasicDataDictionaryService) SelectNodeAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[[]model.BaseNode]) {
-	c.log.Infof("ct=%v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%v", ct)
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	//

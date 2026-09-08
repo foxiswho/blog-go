@@ -12,10 +12,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constContextPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constHeaderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -30,9 +28,8 @@ func init() {
 
 // 中间件 服务
 type GroupSystemMiddlewareSp struct {
-	sv  *service.RamAccountMiddlewareService `autowire:"?"`
-	pg  configPg.Pg                          `value:"${pg}"`
-	log *log2.Logger                         `autowire:"?"`
+	sv *service.RamAccountMiddlewareService `autowire:"?"`
+	pg configPg.Pg                          `value:"${pg}"`
 }
 
 // 权限验证 中间件

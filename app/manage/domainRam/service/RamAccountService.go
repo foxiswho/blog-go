@@ -9,7 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -18,6 +17,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -38,7 +38,6 @@ type RamAccountService struct {
 	positionDb *repositoryRam.RamPositionRepository             `autowire:"?"`
 	postDb     *repositoryRam.RamPostRepository                 `autowire:"?"`
 	sp         *ramAccount.Sp                                   `autowire:"?"`
-	log        *log2.Logger                                     `autowire:"?"`
 }
 
 func NewRamAccountService() *RamAccountService {
@@ -51,7 +50,7 @@ func NewRamAccountService() *RamAccountService {
 //	@receiver c
 //	@param id
 func (c *RamAccountService) Detail(ctx *gin.Context, id string, tp appModulePg.AppModule) (rt rg.Rs[modRamAccount.DetailVo]) {
-	detail := ramAccount.NewDetail(c.log, c.sp, tp)
+	detail := ramAccount.NewDetail(c.sp, tp)
 	return detail.Process(ctx, id)
 }
 
@@ -134,7 +133,7 @@ func (c *RamAccountService) LogicalDeletion(ctx *gin.Context, ids []string, tp a
 				continue
 			}
 			idsNow = append(idsNow, info.ID)
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		if len(idsNow) > 0 {
 			r.DeleteByIds(ctx, idsNow)
@@ -205,7 +204,7 @@ func (c *RamAccountService) PhysicalDeletion(ctx *gin.Context, ids []string, tp 
 		if yesNoIntPg.Yes.IsEqual(info.Founder) {
 			continue
 		}
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 	}
 	if len(idsNow) > 0 {
 		r.DeleteByIds(ctx, idsNow)
@@ -614,11 +613,9 @@ func (c *RamAccountService) Query(ctx *gin.Context, ct modRamAccount.QueryCt, tp
 //	@param ct
 func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	if ct.ID.ToInt64() > 0 {
-		return ramAccount.NewUpdate(c.log,
-			c.sp, ctx).Process(ctx, ct, tp)
+		return ramAccount.NewUpdate(c.sp, ctx).Process(ctx, ct, tp)
 	}
-	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).Process(ctx, ct, tp)
+	return ramAccount.NewCreate(c.sp, ctx).Process(ctx, ct, tp)
 }
 
 // CreateUpdateAccountSimple 更新
@@ -628,11 +625,9 @@ func (c *RamAccountService) CreateUpdate(ctx *gin.Context, ct modRamAccount.Crea
 //	@param ct
 func (c *RamAccountService) CreateUpdateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
 	if ct.ID.ToInt64() > 0 {
-		return ramAccount.NewUpdate(c.log,
-			c.sp, ctx).UpdateAccount(ctx, ct, tp)
+		return ramAccount.NewUpdate(c.sp, ctx).UpdateAccount(ctx, ct, tp)
 	}
-	return ramAccount.NewCreate(c.log,
-		c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
+	return ramAccount.NewCreate(c.sp, ctx).CreateAccountSimple(ctx, ct, tp)
 }
 
 // ExistAccount 查重

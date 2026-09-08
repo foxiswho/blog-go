@@ -24,7 +24,7 @@ type RamAccountAuthWebauthnRepository struct {
 func (c *RamAccountAuthWebauthnRepository) FindByAno(ctx context.Context, ano string, opts ...optionsPg.Option) (infos []*entityRam.RamAccountAuthWebauthnEntity, found bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("ano = ? AND enabled = 1", ano).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {

@@ -7,9 +7,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccountLoginLog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -26,7 +26,6 @@ func init() {
 type RamAccountLoginLogService struct {
 	sv    *repositoryRam.RamAccountLoginLogRepository `autowire:"?"`
 	accDb *repositoryRam.RamAccountRepository         `autowire:"?"`
-	log   *log2.Logger                                `autowire:"?"`
 }
 
 // PhysicalDeletion 物理删除
@@ -35,7 +34,7 @@ type RamAccountLoginLogService struct {
 //	@receiver c
 //	@param ct
 func (c *RamAccountLoginLogService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -46,7 +45,7 @@ func (c *RamAccountLoginLogService) PhysicalDeletion(ctx *gin.Context, ids []str
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -61,7 +60,7 @@ func (c *RamAccountLoginLogService) PhysicalDeletion(ctx *gin.Context, ids []str
 //	@receiver c
 //	@param ct
 func (c *RamAccountLoginLogService) Query(ctx *gin.Context, ct modRamAccountLoginLog.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountLoginLog.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountLoginLogEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAccountLoginLog.Vo, 0)

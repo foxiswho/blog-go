@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamMfa"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamSaml"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
@@ -29,7 +28,6 @@ type AuthLoginIdpController struct {
 	mfaService    *service.AccountMfaService      `autowire:"?"`
 	faceIdService *service.FaceIdService          `autowire:"?"`
 	casService    *service.CasService             `autowire:"?"`
-	log           *log2.Logger                    `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

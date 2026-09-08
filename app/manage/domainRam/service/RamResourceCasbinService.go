@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"strconv"
 	"sync"
@@ -11,8 +12,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamCasbin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -23,8 +24,7 @@ func init() {
 // RamResourceCasbinService Casbin中间件
 // @Description:
 type RamResourceCasbinService struct {
-	sv  *repositoryRam.RamCasbinRepository `autowire:"?"`
-	log *log2.Logger                       `autowire:"?"`
+	sv *repositoryRam.RamCasbinRepository `autowire:"?"`
 }
 
 // UpdateCasbin 更新Casbin 内权限规则
@@ -121,7 +121,7 @@ func (c *RamResourceCasbinService) Casbin() *casbin.SyncedCachedEnforcer {
 	once.Do(func() {
 		a, err := gormadapter.NewAdapterByDB(c.sv.Db())
 		if err != nil {
-			c.log.Errorf("适配数据库失败请检查casbin表是否为InnoDB引擎! %+v", err)
+			log.Errorf(context.Background(), log.TagAppDef, "适配数据库失败请检查casbin表是否为InnoDB引擎! %+v", err)
 			return
 		}
 		text := `
@@ -142,7 +142,7 @@ func (c *RamResourceCasbinService) Casbin() *casbin.SyncedCachedEnforcer {
 		`
 		m, err := model.NewModelFromString(text)
 		if err != nil {
-			c.log.Errorf("字符串加载模型失败! %+v", err)
+			log.Errorf(context.Background(), log.TagAppDef, "字符串加载模型失败! %+v", err)
 			return
 		}
 		syncedCachedEnforcer, _ = casbin.NewSyncedCachedEnforcer(m, a)

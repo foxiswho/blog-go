@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/resourceTypeCategoryPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -25,8 +24,7 @@ func init() {
 type ResourceAuthorityController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
-	sv  *service.RamResourceAuthorityService `autowire:"?"`
-	log *log2.Logger                         `autowire:"?"`
+	sv *service.RamResourceAuthorityService `autowire:"?"`
 }
 
 func (c *ResourceAuthorityController) RegisterRoutes(e *gin.Engine) {

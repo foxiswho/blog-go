@@ -3,21 +3,19 @@ package configModel
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicConfigModel"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 )
 
 type Detail struct {
-	Sp  *Sp          `autowire:"?"`
-	log *log2.Logger `autowire:"?"`
+	Sp *Sp `autowire:"?"`
 }
 
 func NewDetail(sp *Sp) *Detail {
 	return &Detail{
-		Sp:  sp,
-		log: sp.log,
+		Sp: sp,
 	}
 }
 
@@ -33,7 +31,7 @@ func (c *Detail) Process(ctx *gin.Context, id string) (rt rg.Rs[modBasicConfigMo
 	}
 	err := copier.Copy(&vo.Header, info)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	//
 	vo.Body = make([]modBasicConfigModel.ItemVo, 0)

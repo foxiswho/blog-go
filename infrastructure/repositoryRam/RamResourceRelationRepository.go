@@ -27,7 +27,7 @@ func (c *RamResourceRelationRepository) DeleteByAuthorityId(ctx context.Context,
 func (c *RamResourceRelationRepository) FindByMark(ctx context.Context, code string) (info *entityRam.RamResourceRelationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

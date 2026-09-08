@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -29,7 +28,6 @@ type ResourceGroupController struct {
 	sva *service.RamResourceGroupAuthorizationService `autowire:"?"`
 	ra  *service.RamResourceAuthorizationService      `autowire:"?"`
 	rr  *service.RamResourceRelationService           `autowire:"?"`
-	log *log2.Logger                                  `autowire:"?"`
 }
 
 func (c *ResourceGroupController) RegisterRoutes(e *gin.Engine) {

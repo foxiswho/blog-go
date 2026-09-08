@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamDeviceAuth"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -17,8 +16,7 @@ func init() {
 // @Description:
 type DeviceAuthController struct {
 	routerPg.RouteRegistrar
-	sv  *service.DeviceAuthService `autowire:"?"`
-	log *log2.Logger               `autowire:"?"`
+	sv *service.DeviceAuthService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

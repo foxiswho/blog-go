@@ -7,11 +7,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -26,8 +26,7 @@ func init() {
 // RamIdentitySourceCallbackService 认证源回调白名单
 // @Description:
 type RamIdentitySourceCallbackService struct {
-	sv  *repositoryRam.RamIdentitySourceCallbackRepository `autowire:"?"`
-	log *log2.Logger                                       `autowire:"?"`
+	sv *repositoryRam.RamIdentitySourceCallbackRepository `autowire:"?"`
 }
 
 // CreateUpdate 新增更新
@@ -37,7 +36,7 @@ type RamIdentitySourceCallbackService struct {
 //	@param ct
 //	@return rt
 func (c *RamIdentitySourceCallbackService) CreateUpdate(ctx *gin.Context, ct modRamIdentitySourceCallback2.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	//
 	holder := holderPg.GetContextAccount(ctx)
 	//
@@ -72,11 +71,11 @@ func (c *RamIdentitySourceCallbackService) CreateUpdate(ctx *gin.Context, ct mod
 		info.State = enumStatePg.ENABLE.Index()
 	}
 
-	c.log.Infof("info.save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info.save=%+v", info)
 	if isUpdate {
 		err := r.Update(ctx, info, find.ID)
 		if err != nil {
-			c.log.Errorf("update error=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 			return rt.ErrorMessage(err.Error())
 		}
 	} else {
@@ -84,7 +83,7 @@ func (c *RamIdentitySourceCallbackService) CreateUpdate(ctx *gin.Context, ct mod
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	}
 
 	return rt.Ok()
@@ -114,7 +113,7 @@ func (c *RamIdentitySourceCallbackService) Detail(ctx *gin.Context, id int64) (r
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
 }
 
@@ -124,7 +123,7 @@ func (c *RamIdentitySourceCallbackService) Enable(ctx *gin.Context, ct model.Bas
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
 }
 
@@ -156,7 +155,7 @@ func (c *RamIdentitySourceCallbackService) State(ctx *gin.Context, ids []string,
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -167,7 +166,7 @@ func (c *RamIdentitySourceCallbackService) LogicalDeletion(ctx *gin.Context, ids
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -188,7 +187,7 @@ func (c *RamIdentitySourceCallbackService) LogicalDeletion(ctx *gin.Context, ids
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -213,7 +212,7 @@ func (c *RamIdentitySourceCallbackService) LogicalRecovery(ctx *gin.Context, ids
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -224,7 +223,7 @@ func (c *RamIdentitySourceCallbackService) PhysicalDeletion(ctx *gin.Context, id
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -239,7 +238,7 @@ func (c *RamIdentitySourceCallbackService) PhysicalDeletion(ctx *gin.Context, id
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) Query(ctx *gin.Context, ct modRamIdentitySourceCallback2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamIdentitySourceCallback2.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamIdentitySourceCallbackEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamIdentitySourceCallback2.Vo, 0)
@@ -283,7 +282,7 @@ func (c *RamIdentitySourceCallbackService) Query(ctx *gin.Context, ct modRamIden
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) SelectNodeAll(ctx *gin.Context, ct modRamIdentitySourceCallback2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamIdentitySourceCallbackEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -311,7 +310,7 @@ func (c *RamIdentitySourceCallbackService) SelectNodeAll(ctx *gin.Context, ct mo
 //	@receiver c
 //	@param ct
 func (c *RamIdentitySourceCallbackService) SelectNodeAllPublic(ctx *gin.Context, ct modRamIdentitySourceCallback2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamIdentitySourceCallbackEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)

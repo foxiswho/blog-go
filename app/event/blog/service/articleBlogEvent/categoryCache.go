@@ -13,6 +13,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"gorm.io/gorm"
 )
 
@@ -100,7 +101,7 @@ func (c *CategoryCache) thisAll(ctx context.Context) error {
 				keysAll := blogKeyPg.ArticleCategoryTenantNoKeys(c.dto.TenantNo)
 				err := c.sp.rdt.GetRdb().SAdd(ctx, keysAll, keysAdd).Err()
 				if err != nil {
-					c.sp.Log.Error("缓存失败:", err)
+					log.Errorf(ctx, log.TagAppDef, "缓存失败:", err)
 				}
 			}
 			//
@@ -177,7 +178,7 @@ func (c *CategoryCache) all(ctx context.Context) error {
 					keysAll := blogKeyPg.ArticleCategoryTenantNoKeys(tenantNo)
 					err := c.sp.rdt.GetRdb().SAdd(ctx, keysAll, keys).Err()
 					if err != nil {
-						c.sp.Log.Error("缓存失败:", err)
+						log.Errorf(ctx, log.TagAppDef, "缓存失败:", err)
 					}
 				}
 			}
@@ -254,7 +255,7 @@ func (c *CategoryCache) custom(ctx context.Context) error {
 				keysAll := blogKeyPg.ArticleCategoryTenantNoKeys(c.dto.TenantNo)
 				err := c.sp.rdt.GetRdb().SAdd(ctx, keysAll, keysAdd).Err()
 				if err != nil {
-					c.sp.Log.Error("缓存失败:", err)
+					log.Errorf(ctx, log.TagAppDef, "缓存失败:", err)
 				}
 			}
 

@@ -7,16 +7,15 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constContextPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/genericPg"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
+	"go-spring.org/log"
 	"gorm.io/gorm"
 )
 
 type BaseOrgRepository[T any, ID genericPg.ID] struct {
 	Entity *T
-	log    *log2.Logger `autowire:"?"`
 	//从内部
 	db *gorm.DB    `autowire:"?"`
 	Pg configPg.Pg `value:"${pg}"`
@@ -36,10 +35,6 @@ func (b *BaseOrgRepository[T, ID]) DbSource() *gorm.DB {
 func (b *BaseOrgRepository[T, ID]) DbModel() *gorm.DB {
 	return b.DbScopes().Model(b.Entity)
 }
-func (b *BaseOrgRepository[T, ID]) Log() *log2.Logger {
-	return b.log
-}
-
 func (b *BaseOrgRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...optionsPg.Option) *gorm.DB {
 	if nil == opts || len(opts) == 0 {
 		return db
@@ -52,7 +47,7 @@ func (b *BaseOrgRepository[T, ID]) SetOptionScopes(db *gorm.DB, opts ...optionsP
 	}
 	if nil != arg.Ctx {
 		_, exists := arg.Ctx.Get(constContextPg.CTX_MULITI_TENANT)
-		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
+		//log.Errorf(ctx, log.TagAppDef,"exists=xxxxxxx=%+v", exists)
 		if exists {
 			//解析表名称
 			arg.Db.Statement.Parse(b.Entity)
@@ -74,7 +69,7 @@ func (b *BaseOrgRepository[T, ID]) SetOptionPgScopes(db *gorm.DB, opts ...option
 	}
 	if nil != arg.Ctx {
 		_, exists := arg.Ctx.Get(constContextPg.CTX_MULITI_TENANT)
-		//b.log.Errorf("exists=xxxxxxx=%+v", exists)
+		//log.Errorf(ctx, log.TagAppDef,"exists=xxxxxxx=%+v", exists)
 		if exists {
 			//解析表名称
 			arg.Db.Statement.Parse(b.Entity)
@@ -236,7 +231,7 @@ func (b *BaseOrgRepository[T, ID]) DeleteByNo(ctx context.Context, no string, op
 func (b *BaseOrgRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -256,7 +251,7 @@ func (b *BaseOrgRepository[T, ID]) FindById(ctx context.Context, id ID, opts ...
 func (b *BaseOrgRepository[T, ID]) FindByIdString(ctx context.Context, id string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("id=?", id).First(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -349,7 +344,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllPage(ctx context.Context, t T, opts ..
 	}
 	var infos []*T
 	tx := countTx.Scopes(optionsPg.WithScopes(pageable)).Find(&infos)
-	//b.log.Infof("sql=%+v", tx.Statement.SQL.String())
+	//log.Infof(ctx, log.TagAppDef,"sql=%+v", tx.Statement.SQL.String())
 	if tx.Error != nil {
 		return pg, tx.Error
 	}
@@ -382,7 +377,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllPageQuery(ctx context.Context, t T, op
 	}
 	var infos []*T
 	tx := countTx.Scopes(optionsPg.WithScopes(pageable)).Find(&infos)
-	//b.log.Infof("sql=%+v", tx.Statement.SQL.String())
+	//log.Infof(ctx, log.TagAppDef,"sql=%+v", tx.Statement.SQL.String())
 	if tx.Error != nil {
 		return pg, tx.Error
 	}
@@ -477,7 +472,7 @@ func (b *BaseOrgRepository[T, ID]) Count(ctx context.Context, arg ...interface{}
 func (b *BaseOrgRepository[T, ID]) FindByNo(ctx context.Context, no string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no=?", no).First(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -497,7 +492,7 @@ func (b *BaseOrgRepository[T, ID]) FindByNo(ctx context.Context, no string, opts
 func (b *BaseOrgRepository[T, ID]) FindAllByNoIn(ctx context.Context, no []string, opts ...optionsPg.Option) (info []*T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("no in ?", no).Find(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -517,7 +512,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllByNoIn(ctx context.Context, no []strin
 func (b *BaseOrgRepository[T, ID]) FindAllByNameIn(ctx context.Context, no []string, opts ...optionsPg.Option) (info []*T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name in ?", no).Find(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -537,7 +532,7 @@ func (b *BaseOrgRepository[T, ID]) FindAllByNameIn(ctx context.Context, no []str
 func (b *BaseOrgRepository[T, ID]) FindByName(ctx context.Context, no string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name=?", no).First(&info)
 	if tx.Error != nil {
-		b.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -557,7 +552,7 @@ func (b *BaseOrgRepository[T, ID]) FindByName(ctx context.Context, no string, op
 func (b *BaseOrgRepository[T, ID]) FindByNameAndIdNot(ctx context.Context, name string, id string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		b.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -577,7 +572,7 @@ func (b *BaseOrgRepository[T, ID]) FindByNameAndIdNot(ctx context.Context, name 
 func (c *BaseOrgRepository[T, ID]) FindByNoAndIdNot(ctx context.Context, name string, id string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -596,7 +591,7 @@ func (c *BaseOrgRepository[T, ID]) FindByNoAndIdNot(ctx context.Context, name st
 func (c *BaseOrgRepository[T, ID]) FindAllByNoLink(ctx context.Context, code string, opts ...optionsPg.Option) (info []*T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no_link like ?", "%|"+code+"|%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -616,7 +611,7 @@ func (c *BaseOrgRepository[T, ID]) FindAllByNoLink(ctx context.Context, code str
 func (c *BaseOrgRepository[T, ID]) FindByCode(ctx context.Context, no string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("code=?", no).First(&info)
 	if tx.Error != nil {
-		c.log.Errorf("error=%+v", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "error=%+v", tx.Error)
 		return nil, false
 	}
 	if tx.RowsAffected == 0 {
@@ -636,7 +631,7 @@ func (c *BaseOrgRepository[T, ID]) FindByCode(ctx context.Context, no string, op
 func (b *BaseOrgRepository[T, ID]) FindByCodeAndIdNot(ctx context.Context, name string, id string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("code=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		b.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -656,7 +651,7 @@ func (b *BaseOrgRepository[T, ID]) FindByCodeAndIdNot(ctx context.Context, name 
 func (b *BaseOrgRepository[T, ID]) FindByCodeAndNoNot(ctx context.Context, name string, no string, opts ...optionsPg.Option) (info *T, result bool) {
 	tx := b.SetOptionScopes(b.DbModel().WithContext(ctx), opts...).Where("code=?", name).Where("no != ?", no).First(&info)
 	if tx.Error != nil {
-		b.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

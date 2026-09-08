@@ -13,7 +13,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/cmd"
 	_ "github.com/hongmengzhu/xianfu-blog-go/middleware"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/serverPg/StarterGin"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/templatePg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
@@ -40,7 +39,6 @@ func init() {
 		}
 	}
 	//
-	gs.Provide(log2.New(log2.LevelDebug, false))
 	//指定环境
 	//gs.SetActiveProfiles("dev")
 }

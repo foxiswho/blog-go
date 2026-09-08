@@ -5,7 +5,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainBlog/service"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogTopicRelation"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
@@ -19,9 +18,8 @@ func init() {
 // @Description:
 type TopicRelationController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp   `autowire:""`
-	sv  *service.BlogTopicRelationService `autowire:"?"`
-	log *log2.Logger                      `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp   `autowire:""`
+	sv *service.BlogTopicRelationService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

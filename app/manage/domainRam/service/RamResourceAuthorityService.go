@@ -11,10 +11,10 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"strings"
@@ -40,7 +40,7 @@ type RamResourceAuthorityService struct {
 	grDb       *repositoryRam.RamResourceGroupRelationRepository `autowire:"?"`
 	relationDb *repositoryRam.RamResourceRelationRepository      `autowire:"?"`
 	//
-	log *log2.Logger `autowire:"?"`
+
 }
 
 // Create 新增
@@ -55,9 +55,9 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 	}
 	var info entityRam.RamResourceAuthorityEntity
 	copier.Copy(&info, &ct)
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	c.sv.Create(ctx, &info)
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -69,7 +69,7 @@ func (c *RamResourceAuthorityService) Create(ctx *gin.Context, ct modRamResource
 //	@param ct
 //	@return rt
 func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamResourceAuthority.CreatByGroupCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if strPg.IsBlank(ct.GroupNo) {
 		return rt.ErrorMessage("请选择资源组")
 	}
@@ -122,12 +122,12 @@ func (c *RamResourceAuthorityService) CreatByGroup(ctx *gin.Context, ct modRamRe
 			continue
 		}
 		//
-		c.log.Infof("info%+v", info)
+		log.Infof(ctx, log.TagAppDef, "info%+v", info)
 		err, _ := auth.Create(ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	}
 	return rg.OkData("操作成功")
 }
@@ -232,7 +232,7 @@ func (c *RamResourceAuthorityService) StateEnableDisable(ctx *gin.Context, ids [
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -243,7 +243,7 @@ func (c *RamResourceAuthorityService) LogicalDeletion(ctx *gin.Context, ids []st
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, " info.TenantNo")
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, " info.TenantNo")
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -265,7 +265,7 @@ func (c *RamResourceAuthorityService) LogicalDeletion(ctx *gin.Context, ids []st
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -290,7 +290,7 @@ func (c *RamResourceAuthorityService) LogicalRecovery(ctx *gin.Context, ids []st
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -301,7 +301,7 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, 0)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -316,7 +316,7 @@ func (c *RamResourceAuthorityService) PhysicalDeletion(ctx *gin.Context, ids []s
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamResourceAuthority.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamResourceAuthority.Vo, 0)
@@ -360,7 +360,7 @@ func (c *RamResourceAuthorityService) Query(ctx *gin.Context, ct modRamResourceA
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
@@ -385,7 +385,7 @@ func (c *RamResourceAuthorityService) SelectNodePublic(ctx *gin.Context, ct modR
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]model.BaseNode]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNode, 0)
@@ -413,7 +413,7 @@ func (c *RamResourceAuthorityService) SelectNodeAllPublic(ctx *gin.Context, ct m
 //	@receiver c
 //	@param ct
 func (c *RamResourceAuthorityService) SelectPublic(ctx *gin.Context, ct modRamResourceAuthority.QueryCt) (rt rg.Rs[[]modRamResourceAuthority.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamResourceAuthorityEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamResourceAuthority.Vo{}
@@ -465,6 +465,6 @@ func (c *RamResourceAuthorityService) CreateByResourceGroup(ctx *gin.Context, va
 //	@param ct
 //	@return rt
 func (c *RamResourceAuthorityService) UpdateByRole(ctx *gin.Context, ct modRamResourceAuthority.UpdateByTypeValueCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
-	return ramResource.NewUpdateByTypeValue(c.log, c.roleDb, c.sv, c.resDb, c.groupDb, c.grDb, c.relationDb, resourceTypeCategoryPg.Role, ct, ctx).Process()
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
+	return ramResource.NewUpdateByTypeValue(c.roleDb, c.sv, c.resDb, c.groupDb, c.grDb, c.relationDb, resourceTypeCategoryPg.Role, ct, ctx).Process()
 }

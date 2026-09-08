@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -20,8 +19,7 @@ func init() {
 type AuthPublicController struct {
 	routerPg.RouteRegistrar
 	controllerPg.SpSystemAuth
-	sv  *service.RamAccountPublicService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	sv *service.RamAccountPublicService `autowire:"?"`
 }
 
 func (c *AuthPublicController) RegisterRoutes(e *gin.Engine) {
@@ -33,10 +31,10 @@ func (c *AuthPublicController) RegisterRoutes(e *gin.Engine) {
 }
 
 func (c *AuthPublicController) Public(ctx *gin.Context) {
-	ctx.JSON(200, c.sv.Public(holderPg.GetContextAccount(ctx)))
+	ctx.JSON(200, c.sv.Public(ctx, holderPg.GetContextAccount(ctx)))
 }
 func (c *AuthPublicController) InfoPublic(ctx *gin.Context) {
-	ctx.JSON(200, c.sv.InfoPublic(holderPg.GetContextAccount(ctx)))
+	ctx.JSON(200, c.sv.InfoPublic(ctx, holderPg.GetContextAccount(ctx)))
 }
 
 func (c *AuthPublicController) UpdatePassword(ctx *gin.Context) {

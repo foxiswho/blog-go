@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicEvent"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/basic/key/basicEventKey"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -17,16 +16,14 @@ import (
 )
 
 type EventMakeCache struct {
-	Log *log2.Logger `autowire:"?"`
-	Sp  *Sp          `autowire:"?"`
-	ct  modEventBasicEvent.EventDto
+	Sp *Sp `autowire:"?"`
+	ct modEventBasicEvent.EventDto
 }
 
 func NewEventMakeCache(sp *Sp, ct modEventBasicEvent.EventDto) *EventMakeCache {
 	return &EventMakeCache{
-		Sp:  sp,
-		Log: sp.Log,
-		ct:  ct,
+		Sp: sp,
+		ct: ct,
 	}
 }
 
@@ -76,7 +73,7 @@ func (c *EventMakeCache) ThisTenantAll(ctx context.Context) error {
 			//	keysAll := basicEventKey.EventTenantNoKeys(c.ct.TenantNo)
 			//	err := c.Sp.rdt.GetRdb().SAdd(ctx, keysAll, keysAdd).Err()
 			//	if err != nil {
-			//		c.Sp.Log.Error("缓存失败:", err)
+			//		log.Errorf(ctx,log.TagAppDef,"缓存失败:", err)
 			//	}
 			//}
 		}
@@ -117,7 +114,7 @@ func (c *EventMakeCache) All(ctx context.Context) error {
 			//		keysAll := basicEventKey.EventTenantNoKeys(tenantNo)
 			//		err := c.Sp.rdt.GetRdb().SAdd(ctx, keysAll, keys).Err()
 			//		if err != nil {
-			//			c.Sp.Log.Error("缓存失败:", err)
+			//			log.Errorf(ctx,log.TagAppDef,"缓存失败:", err)
 			//		}
 			//	}
 			//}
@@ -170,7 +167,7 @@ func (c *EventMakeCache) Nos(ctx context.Context) error {
 			//	keysAll := basicEventKey.EventTenantNoKeys(c.ct.TenantNo)
 			//	err := c.Sp.rdt.GetRdb().SAdd(ctx, keysAll, keysAdd).Err()
 			//	if err != nil {
-			//		c.Sp.Log.Error("缓存失败:", err)
+			//		log.Errorf(ctx,log.TagAppDef,"缓存失败:", err)
 			//	}
 			//}
 		}

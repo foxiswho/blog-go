@@ -9,10 +9,10 @@ import (
 
 	modAttachment2 "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/modAttachment"
 	_ "github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/minio/minio-go/v7"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
 	"github.com/pangu-2/go-tools/tools/datetimePg"
+	"go-spring.org/log"
 )
 
 type Minio struct {
@@ -21,8 +21,7 @@ type Minio struct {
 	// 存储桶
 	Bucket string `value:"${minio.bucket}"`
 	// 存储路径
-	Dir string       `value:"${file.dir}"`
-	Log *log2.Logger `autowire:"?"`
+	Dir string `value:"${file.dir}"`
 }
 
 func (s *Minio) PutObject(r io.Reader, put modAttachment2.PutFileDto, ext modAttachment2.Ext) (modAttachment2.Attachment, error) {
@@ -46,7 +45,7 @@ func (s *Minio) PutObject(r io.Reader, put modAttachment2.PutFileDto, ext modAtt
 
 	_, err := s.Client.PutObject(context.Background(), s.Bucket, out, r, put.Size, minio.PutObjectOptions{})
 	if err != nil {
-		s.Log.Errorf("minio upload error: %v", err)
+		log.Errorf(context.Background(), log.TagAppDef, "minio upload error: %v", err)
 		return attachment, errors.New("文件上传失败")
 	}
 
@@ -56,7 +55,7 @@ func (s *Minio) PutObject(r io.Reader, put modAttachment2.PutFileDto, ext modAtt
 func (s *Minio) ExistsObject(name string) bool {
 	_, err := s.Client.StatObject(context.Background(), s.Bucket, name, minio.StatObjectOptions{})
 	if err != nil {
-		s.Log.Error("", err)
+		log.Errorf(context.Background(), log.TagAppDef, "err=%+v", err)
 		if err.Error() == "The specified key does not exist." {
 			return false
 		}

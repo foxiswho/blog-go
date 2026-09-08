@@ -22,7 +22,7 @@ type BlogBookmarkRepository struct {
 func (c *BlogBookmarkRepository) FindAllByUrlSourceMd5(ctx context.Context, code string) (infos []*entityBlog.BlogBookmarkEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 = ?", code).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *BlogBookmarkRepository) FindAllByUrlSourceMd5(ctx context.Context, code
 func (c *BlogBookmarkRepository) FindAllByUrlSourceMd5In(ctx context.Context, code []string) (infos []*entityBlog.BlogBookmarkEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("url_source_md5 in ?", code).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

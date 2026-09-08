@@ -8,7 +8,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeAttrPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"time"
@@ -31,7 +31,6 @@ type RamResourceAuthorizationService struct {
 	resourceRel   *repositoryRam.RamResourceRelationRepository  `autowire:"?"`
 	resource      *repositoryRam.RamResourceRepository          `autowire:"?"`
 	casbin        *RamResourceCasbinService                     `autowire:"?"`
-	log           *log2.Logger                                  `autowire:"?"`
 }
 
 // UpdateByResourceGroup 更新权限
@@ -52,7 +51,7 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 	if !b {
 		return rt.ErrorMessage("创建资源权限失败")
 	}
-	c.log.Infof("authPg=%+v", auth)
+	log.Infof(ctx, log.TagAppDef, "authPg=%+v", auth)
 	holder := holderPg.GetContextAccount(ctx)
 	c.resourceRel.DeleteByAuthorityId(ctx, auth.ID)
 	if len(ct.Ids) > 0 {
@@ -82,10 +81,10 @@ func (c *RamResourceAuthorizationService) UpdateByResourceGroup(ctx *gin.Context
 				info.AuthorityId = auth.ID
 				info.TypeValue = ct.SourceId.ToString()
 				info.ResourceId = item.ID
-				c.log.Infof("info%+v", info)
+				log.Infof(ctx, log.TagAppDef, "info%+v", info)
 				info.TenantNo = holder.GetTenantNo()
 				c.resourceRel.Create(ctx, &info)
-				c.log.Infof("save=%+v", info)
+				log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 
 				slice = append(slice, &info)
 			}

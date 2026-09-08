@@ -23,7 +23,7 @@ type RamAccountRepository struct {
 func (c *RamAccountRepository) FindByTypeDomainIn(ctx context.Context, typeDomain []string, opts ...optionsPg.Option) (info []*entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("type_domain in ?", typeDomain).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -35,7 +35,7 @@ func (c *RamAccountRepository) FindByTypeDomainIn(ctx context.Context, typeDomai
 func (c *RamAccountRepository) FindByAccount(ctx context.Context, code string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account=?", code).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -47,7 +47,7 @@ func (c *RamAccountRepository) FindByAccount(ctx context.Context, code string, o
 func (c *RamAccountRepository) FindByAccountMd5(ctx context.Context, code string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account_md5=?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -58,7 +58,7 @@ func (c *RamAccountRepository) FindByAccountMd5(ctx context.Context, code string
 func (c *RamAccountRepository) FindByAccountAndTypeDomain(ctx context.Context, code, typeDomain string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account=?", code).Where("type_domain=?", typeDomain).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -70,7 +70,7 @@ func (c *RamAccountRepository) FindByAccountAndTypeDomain(ctx context.Context, c
 func (c *RamAccountRepository) FindByAccountAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -82,7 +82,7 @@ func (c *RamAccountRepository) FindByAccountAndTypeDomainAndIdNot(ctx context.Co
 func (c *RamAccountRepository) FindByPhoneAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("phone=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -93,7 +93,7 @@ func (c *RamAccountRepository) FindByPhoneAndTypeDomainAndIdNot(ctx context.Cont
 func (c *RamAccountRepository) FindByPhoneMd5AndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("phone_md5=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -104,7 +104,7 @@ func (c *RamAccountRepository) FindByPhoneMd5AndTypeDomainAndIdNot(ctx context.C
 func (c *RamAccountRepository) FindByMailAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("mail=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -115,7 +115,7 @@ func (c *RamAccountRepository) FindByMailAndTypeDomainAndIdNot(ctx context.Conte
 func (c *RamAccountRepository) FindByCodeAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -126,7 +126,7 @@ func (c *RamAccountRepository) FindByCodeAndTypeDomainAndIdNot(ctx context.Conte
 func (c *RamAccountRepository) FindByIdentityCodeAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("identity_code=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -137,7 +137,7 @@ func (c *RamAccountRepository) FindByIdentityCodeAndTypeDomainAndIdNot(ctx conte
 func (c *RamAccountRepository) FindByRealNameAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("real_name=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -148,7 +148,7 @@ func (c *RamAccountRepository) FindByRealNameAndTypeDomainAndIdNot(ctx context.C
 func (c *RamAccountRepository) FindByAccountMd5AndTypeDomain(ctx context.Context, code, typeDomain string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("account_md5=?", code).Where("type_domain=?", typeDomain).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -162,7 +162,7 @@ func (c *RamAccountRepository) FindByAccountMd5AndTypeDomainAndTenantNo(ctx cont
 		Where("account_md5=?", code).
 		Where("type_domain=?", typeDomain).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -174,7 +174,7 @@ func (c *RamAccountRepository) FindByAccountMd5AndTypeDomainAndTenantNo(ctx cont
 func (c *RamAccountRepository) FindByNoAndTypeDomainAndIdNot(ctx context.Context, code, typeDomain, id string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -186,7 +186,7 @@ func (c *RamAccountRepository) FindByNoAndTypeDomainAndIdNot(ctx context.Context
 func (c *RamAccountRepository) FindByPhone(ctx context.Context, code string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("phone=?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -198,7 +198,7 @@ func (c *RamAccountRepository) FindByPhone(ctx context.Context, code string, opt
 func (c *RamAccountRepository) FindByMail(ctx context.Context, code string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("mail=?", code).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {
@@ -210,7 +210,7 @@ func (c *RamAccountRepository) FindByMail(ctx context.Context, code string, opts
 func (c *RamAccountRepository) FindByIdAndTypeDomain(ctx context.Context, code int64, typeDomain string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("id=?", code).Where("type_domain=?", typeDomain).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -222,7 +222,7 @@ func (c *RamAccountRepository) FindByIdAndTypeDomain(ctx context.Context, code i
 func (c *RamAccountRepository) FindByNoAndTypeDomain(ctx context.Context, code int64, typeDomain string, opts ...optionsPg.Option) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no=?", code).Where("type_domain=?", typeDomain).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -234,7 +234,7 @@ func (c *RamAccountRepository) FindByNoAndTypeDomain(ctx context.Context, code i
 func (c *RamAccountRepository) FindAllByIdStringInAndTypeDomain(ctx context.Context, ids []string, typeDomain string, opts ...optionsPg.Option) (infos []*entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("id in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -245,7 +245,7 @@ func (c *RamAccountRepository) FindAllByIdStringInAndTypeDomain(ctx context.Cont
 func (c *RamAccountRepository) FindAllByNoInAndTypeDomain(ctx context.Context, ids []string, typeDomain string, opts ...optionsPg.Option) (infos []*entityRam.RamAccountEntity, query bool) {
 	tx := c.SetOptionScopes(c.DbModel().WithContext(ctx), opts...).Where("no in (?)", ids).Where("type_domain=?", typeDomain).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -257,7 +257,7 @@ func (c *RamAccountRepository) FindAllByNoInAndTypeDomain(ctx context.Context, i
 func (c *RamAccountRepository) FindByTenantNoAccountAndTypeDomainAndIdNot(ctx context.Context, tenantNo, code, typeDomain, id string) (info *entityRam.RamAccountEntity, query bool) {
 	tx := c.DbModel().WithContext(ctx).Where("tenant_no=?", tenantNo).Where("account=?", code).Where("type_domain=?", typeDomain).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -268,7 +268,7 @@ func (c *RamAccountRepository) FindByTenantNoAccountAndTypeDomainAndIdNot(ctx co
 func (c *RamAccountRepository) FindByTenantNoAccountMd5AndTypeDomain(ctx context.Context, tenantNo, code, typeDomain string) (info *entityRam.RamAccountEntity, query bool, err error) {
 	tx := c.DbModel().Where("tenant_no=?", tenantNo).Where("account_md5=?", code).Where("type_domain=?", typeDomain).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false, tx.Error
 	}
 	if 0 == tx.RowsAffected {

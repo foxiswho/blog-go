@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogArticleCategory"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/blog/key/blogKeyPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -20,7 +19,6 @@ func init() {
 }
 
 type CoreArticleCategory struct {
-	log *log2.Logger                                  `autowire:"?"`
 	sv  *repositoryBlog.BlogArticleCategoryRepository `autowire:"?"`
 	rdt *rdsPg.BatchString                            `autowire:"?"`
 }

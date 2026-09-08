@@ -22,7 +22,7 @@ type BasicTagsCategoryRepository struct {
 func (c *BasicTagsCategoryRepository) FindAllByNoLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityBasic.BasicTagsCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

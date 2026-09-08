@@ -15,11 +15,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/components/attachmentPg/types"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 
@@ -41,8 +41,8 @@ func init() {
 type BasicAttachmentService struct {
 	sv          *repositoryBasic.BasicAttachmentRepository `autowire:"?"`
 	FileService types.FileProvider                         `autowire:"?"`
-	log         *log2.Logger                               `autowire:"?"`
-	server      configPg.Server                            `value:"${server}"`
+	
+	server configPg.Server `value:"${server}"`
 }
 
 // Upload 上传
@@ -61,9 +61,9 @@ func (c *BasicAttachmentService) Upload(ctx *gin.Context) (rt rg.Rs[modBasicAtta
 		_ = f.Close()
 	}()
 
-	c.log.Infof("file.Filename=%+v, file.Size = %+v", file.Filename, file.Size)
+	log.Infof(ctx, log.TagAppDef, "file.Filename=%+v, file.Size = %+v", file.Filename, file.Size)
 	atta, err := c.FileService.PutObject(f, modAttachment.PutFile(file.Filename, file.Size), nil)
-	c.log.Infof("atta=%#v", atta)
+	log.Infof(ctx, log.TagAppDef, "atta=%#v", atta)
 	if err == nil {
 		var vo modBasicAttachment.OkVo
 		copier.Copy(&vo, &atta)
@@ -96,7 +96,7 @@ func (c *BasicAttachmentService) UploadMore(ctx *gin.Context) (rt rg.Rs[map[int]
 			data[i+1] = modBasicAttachment.OkVo{Error: file.Filename + " 上传文件错误:" + err.Error()}
 			continue
 		}
-		c.log.Infof("file.Filename=%+v, file.Size = %+v", file.Filename, file.Size)
+		log.Infof(ctx, log.TagAppDef, "file.Filename=%+v, file.Size = %+v", file.Filename, file.Size)
 		atta, err := c.FileService.PutObject(f, modAttachment.PutFile(file.Filename, file.Size), nil)
 		if err == nil {
 			var vo modBasicAttachment.OkVo
@@ -113,7 +113,7 @@ func (c *BasicAttachmentService) UploadMore(ctx *gin.Context) (rt rg.Rs[map[int]
 
 // UploadLink 多url文件上传
 func (c *BasicAttachmentService) UploadLink(ctx *gin.Context, ct modBasicAttachment.WebUrlCt) (rt rg.Rs[map[int]modBasicAttachment.OkVo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if nil == ct.Url || len(ct.Url) == 0 {
 		return rt.ErrorMessage("上传文件不能为空")
 	}
@@ -139,7 +139,7 @@ func (c *BasicAttachmentService) UploadLink(ctx *gin.Context, ct modBasicAttachm
 		reader := bytes.NewReader(content)
 		filename := path.Base(url)
 		size := int64(len(content))
-		c.log.Infof("file.Filename=%+v, file.Size = %+v", filename, size)
+		log.Infof(ctx, log.TagAppDef, "file.Filename=%+v, file.Size = %+v", filename, size)
 		atta, err := c.FileService.PutObject(reader, modAttachment.PutFile(filename, size), nil)
 		if err == nil {
 			var vo modBasicAttachment.OkVo

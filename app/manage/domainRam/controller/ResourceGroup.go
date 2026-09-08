@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamResourceGroup"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -24,9 +23,8 @@ func init() {
 // @Description:
 type ResourceGroupController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp  `autowire:""`
-	sv  *service.RamResourceGroupService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp  `autowire:""`
+	sv *service.RamResourceGroupService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

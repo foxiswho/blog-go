@@ -9,7 +9,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -18,6 +17,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -30,7 +30,6 @@ func init() {
 type BlogBookmarkService struct {
 	sv    *repositoryBlog.BlogBookmarkRepository         `autowire:"?"`
 	catDb *repositoryBlog.BlogBookmarkCategoryRepository `autowire:"?"`
-	log   *log2.Logger                                   `autowire:"?"`
 }
 
 // Create 新增
@@ -40,11 +39,11 @@ type BlogBookmarkService struct {
 //	@param ct
 //	@return rt
 func (c *BlogBookmarkService) Create(ctx *gin.Context, ct modBlogBookmark.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBlog.BlogBookmarkEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -71,11 +70,11 @@ func (c *BlogBookmarkService) Create(ctx *gin.Context, ct modBlogBookmark.Create
 //	@param ct
 //	@return rt
 func (c *BlogBookmarkService) Update(ctx *gin.Context, ct modBlogBookmark.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBlog.BlogBookmarkEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if ct.ID < 1 {
 		return rt.ErrorMessage("id错误")
@@ -211,7 +210,7 @@ func (c *BlogBookmarkService) LogicalDeletion(ctx *gin.Context, ids []string) (r
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -264,7 +263,7 @@ func (c *BlogBookmarkService) PhysicalDeletion(ctx *gin.Context, ids []string) (
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {

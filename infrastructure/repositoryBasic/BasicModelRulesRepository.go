@@ -22,7 +22,7 @@ type BasicModelRulesRepository struct {
 func (c *BasicModelRulesRepository) DeleteAllByValueNoAndIds(ctx context.Context, no string, ids []string) (info []*entityBasic.BasicModelRulesEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("id in ?", ids).Where("value_no=?", no).Delete(&c.Entity)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

@@ -5,7 +5,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicAttachment"
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -16,9 +15,8 @@ func init() {
 
 type FilePubController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupSystemMiddlewareSp `autowire:""`
-	sv  *service.BasicAttachmentService `autowire:""`
-	log *log2.Logger                    `autowire:"?"`
+	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`
+	sv *service.BasicAttachmentService `autowire:""`
 }
 
 func (c *FilePubController) RegisterRoutes(e *gin.Engine) {

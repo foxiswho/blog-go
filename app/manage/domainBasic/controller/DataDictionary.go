@@ -211,7 +211,7 @@ func (c *DataDictionaryController) ExistCode(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *DataDictionaryController) CodeValueAllPublic(ctx *gin.Context) {
-	var ct modBasicDataDictionary.SelectNodeCt
+	var ct modBasicDataDictionary.SelectNodeAllCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

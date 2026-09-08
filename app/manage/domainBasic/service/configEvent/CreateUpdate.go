@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model/modelBasePg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -16,11 +15,12 @@ import (
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/validatePg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 )
 
 type CreateUpdate struct {
-	Sp       *Sp          `autowire:"?"`
-	log      *log2.Logger `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	ct       modBasicConfigEvent.CreateUpdateCt
 	model    *entityBasic.BasicConfigModelEntity
 	event    *entityBasic.BasicConfigEventEntity
@@ -33,7 +33,6 @@ func NewCreateUpdate(sp *Sp,
 	ct modBasicConfigEvent.CreateUpdateCt, isUpdate bool) *CreateUpdate {
 	return &CreateUpdate{
 		Sp:       sp,
-		log:      sp.log,
 		isUpdate: isUpdate,
 		ct:       ct,
 		fields:   make([]*entityBasic.BasicConfigEventFieldsEntity, 0),
@@ -48,12 +47,12 @@ func (c *CreateUpdate) Process(ctx *gin.Context) (rt rg.Rs[string]) {
 }
 
 func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", c.ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", c.ct)
 	header := c.ct.Header
 	//
 	err := copier.Copy(c.event, &header)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	c.event.Name = strings.TrimSpace(c.event.Name)
 	c.event.Model = strings.TrimSpace(c.event.Model)
@@ -94,7 +93,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			var field entityBasic.BasicConfigEventFieldsEntity
 			err := copier.Copy(&field, &item)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 				errs = append(errs, modelBasePg.ItemResult{
 					Col:   i,
 					Field: "col",
@@ -190,7 +189,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			{
 				tx := c.Sp.repEventField.DbModel().CreateInBatches(c.fields, 1000000)
 				if tx.Error != nil {
-					c.log.Errorf("save err=%+v", tx.Error)
+					log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
 				}
 				//if 0 == tx.RowsAffected {
@@ -209,13 +208,13 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		{
 			err := copier.Copy(&save, info)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 			}
 		}
 		{
 			err := copier.Copy(&save, &header)
 			if err != nil {
-				c.log.Infof("copier.Copy error: %+v", err)
+				log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 			}
 		}
 		save.KindUnique = cryptPg.Md5(save.Field)
@@ -261,7 +260,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		//
 		err := c.Sp.repEvent.Update(ctx, save, info.ID)
 		if err != nil {
-			c.log.Infof("copier.Copy error: %+v", err)
+			log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 		}
 		//
 		if nil != c.ct.BodyDelIds && len(c.ct.BodyDelIds) > 0 {
@@ -279,7 +278,7 @@ func (c *CreateUpdate) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 			{
 				tx := c.Sp.repEventField.DbModel().CreateInBatches(dataInsert, 1000000)
 				if tx.Error != nil {
-					c.log.Errorf("save err=%+v", tx.Error)
+					log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 					return rt.ErrorMessage("保存失败：")
 				}
 				//if 0 == tx.RowsAffected {

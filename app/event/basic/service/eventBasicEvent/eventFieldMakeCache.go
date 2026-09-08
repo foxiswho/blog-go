@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicEvent"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/basic/key/basicEventKey"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -17,16 +16,14 @@ import (
 )
 
 type EventFieldMakeCache struct {
-	Log *log2.Logger `autowire:"?"`
-	Sp  *Sp          `autowire:"?"`
-	ct  modEventBasicEvent.FieldDto
+	Sp *Sp `autowire:"?"`
+	ct modEventBasicEvent.FieldDto
 }
 
 func NewEventFieldMakeCache(sp *Sp, ct modEventBasicEvent.FieldDto) *EventFieldMakeCache {
 	return &EventFieldMakeCache{
-		Sp:  sp,
-		Log: sp.Log,
-		ct:  ct,
+		Sp: sp,
+		ct: ct,
 	}
 }
 

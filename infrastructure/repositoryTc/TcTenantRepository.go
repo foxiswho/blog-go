@@ -22,7 +22,7 @@ type TcTenantRepository struct {
 func (c *TcTenantRepository) FindByFounder(ctx context.Context, no string) (info *entityTc.TcTenantEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *TcTenantRepository) FindByFounder(ctx context.Context, no string) (info
 func (c *TcTenantRepository) FindByFounderAndNotIdString(ctx context.Context, no string, id string) (info *entityTc.TcTenantEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).Where("id<>?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -46,7 +46,7 @@ func (c *TcTenantRepository) FindByFounderAndNotIdString(ctx context.Context, no
 func (c *TcTenantRepository) FindByTenantAndFounder(ctx context.Context, no string) (info *entityTc.TcTenantEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("founder=?", no).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

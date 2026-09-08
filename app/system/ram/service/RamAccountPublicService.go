@@ -10,8 +10,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/configPg/pg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/numberPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -29,7 +29,6 @@ func init() {
 type RamAccountPublicService struct {
 	sv                   *repositoryRam.RamAccountRepository              `autowire:"?"`
 	aAuth                *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	log                  *log2.Logger                                     `autowire:"?"`
 	authLogin            pg.Auth                                          `value:"${pg.auth}"`
 	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                   `autowire:"?" `
 }
@@ -39,9 +38,9 @@ func NewRamAccountPublicService() *RamAccountPublicService {
 }
 
 // Public 登陆用户信息
-func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[modRamAccount.AccountPub]) {
-	c.log.Infof("holder=%+v", holder)
-	c.log.Infof("HolderData=%+v", holder.HolderData)
+func (c *RamAccountPublicService) Public(ctx *gin.Context, holder holderPg.HolderPg) (rt rg.Rs[modRamAccount.AccountPub]) {
+	log.Infof(ctx, log.TagAppDef, "holder=%+v", holder)
+	log.Infof(ctx, log.TagAppDef, "HolderData=%+v", holder.HolderData)
 	if nil == holder.HolderData {
 		return rt.ErrorMessage("账号登陆失败")
 	}
@@ -61,9 +60,9 @@ func (c *RamAccountPublicService) Public(holder holderPg.HolderPg) (rt rg.Rs[mod
 }
 
 // InfoPublic 登陆用户信息
-func (c *RamAccountPublicService) InfoPublic(holder holderPg.HolderPg) (rt rg.Rs[modPublic2.InfoPublicVo]) {
-	c.log.Infof("holder=%+v", holder)
-	c.log.Infof("HolderData=%+v", holder.HolderData)
+func (c *RamAccountPublicService) InfoPublic(ctx *gin.Context, holder holderPg.HolderPg) (rt rg.Rs[modPublic2.InfoPublicVo]) {
+	log.Infof(ctx, log.TagAppDef, "holder=%+v", holder)
+	log.Infof(ctx, log.TagAppDef, "HolderData=%+v", holder.HolderData)
 	if nil == holder.HolderData {
 		return rt.ErrorMessage("账号登陆失败")
 	}

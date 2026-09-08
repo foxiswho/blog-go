@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicRules"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/basic/key/basicEventKey"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -17,16 +16,14 @@ import (
 )
 
 type RulesMakeCache struct {
-	Log *log2.Logger `autowire:"?"`
-	Sp  *Sp          `autowire:"?"`
-	ct  modEventBasicRules.RulesDto
+	Sp *Sp `autowire:"?"`
+	ct modEventBasicRules.RulesDto
 }
 
 func NewRulesMakeCache(sp *Sp, ct modEventBasicRules.RulesDto) *RulesMakeCache {
 	return &RulesMakeCache{
-		Sp:  sp,
-		Log: sp.Log,
-		ct:  ct,
+		Sp: sp,
+		ct: ct,
 	}
 }
 

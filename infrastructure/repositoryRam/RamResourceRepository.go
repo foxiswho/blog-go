@@ -23,7 +23,7 @@ type RamResourceRepository struct {
 func (c *RamResourceRepository) FindByParentNoRoot(ctx context.Context) (info []*entityRam.RamResourceEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("parent_no='' or parent_no is null ").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -35,7 +35,7 @@ func (c *RamResourceRepository) FindByParentNoRoot(ctx context.Context) (info []
 func (c *RamResourceRepository) FindByParentIdRoot(ctx context.Context) (info []*entityRam.RamResourceEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("parent_id='' ").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -54,7 +54,7 @@ func (c *RamResourceRepository) FindByParentIdRoot(ctx context.Context) (info []
 func (c *RamResourceRepository) CountByParentIdString(ctx context.Context, pid string) (total int64, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("parent_id= ? ", pid).Count(&total)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return 0, false
 	}
 	if 0 == tx.RowsAffected {

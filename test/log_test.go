@@ -1,7 +1,6 @@
 package test
 
 import (
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"testing"
 )
 

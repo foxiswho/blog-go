@@ -5,9 +5,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccountSession"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityRam"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -24,7 +24,6 @@ func init() {
 type RamAccountSessionService struct {
 	sv    *repositoryRam.RamAccountSessionRepository `autowire:"?"`
 	accDb *repositoryRam.RamAccountRepository        `autowire:"?"`
-	log   *log2.Logger                               `autowire:"?"`
 }
 
 // PhysicalDeletion 物理删除
@@ -33,7 +32,7 @@ type RamAccountSessionService struct {
 //	@receiver c
 //	@param ct
 func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -44,7 +43,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -59,7 +58,7 @@ func (c *RamAccountSessionService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@receiver c
 //	@param ct
 func (c *RamAccountSessionService) Query(ctx *gin.Context, ct modRamAccountSession.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountSession.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountSessionEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAccountSession.Vo, 0)

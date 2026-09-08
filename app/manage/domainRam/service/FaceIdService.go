@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/faceid"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
-	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
 	"go-spring.org/spring/gs"
 )
@@ -34,7 +32,6 @@ type FaceIdVerifyCt struct {
 type FaceIdService struct {
 	daoSource   *repositoryRam.RamIdentitySourceRepository   `autowire:"?"`
 	daoProvider *repositoryRam.RamIdentityProviderRepository `autowire:"?"`
-	log         *log2.Logger                                 `autowire:"?"`
 }
 
 // Begin 开始 Face ID 验证（返回 Face ID 提供商类型及配置信息）
@@ -102,7 +99,7 @@ func (s *FaceIdService) Verify(ctx *gin.Context, ct FaceIdVerifyCt) (rt rg.Rs[bo
 	// 执行人脸对比
 	matched, err := provider.Check(ct.ImageA, ct.ImageB)
 	if err != nil {
-		s.log.Errorf("Face ID 验证失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "Face ID 验证失败: %v", err)
 		return rt.ErrorMessage("人脸对比失败: " + err.Error())
 	}
 

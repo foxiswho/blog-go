@@ -11,7 +11,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/excelPg"
@@ -21,6 +20,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -31,8 +31,7 @@ func init() {
 // BasicAccountApplyDenyListService 账号申请禁用列表
 // @Description:
 type BasicAccountApplyDenyListService struct {
-	sv  *repositoryBasic.BasicAccountApplyDenyListEntityRepository `autowire:"?"`
-	log *log2.Logger                                               `autowire:"?"`
+	sv *repositoryBasic.BasicAccountApplyDenyListEntityRepository `autowire:"?"`
 }
 
 // Create 新增
@@ -42,11 +41,11 @@ type BasicAccountApplyDenyListService struct {
 //	@param ct
 //	@return rt
 func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicAccountApplyDenyList.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicAccountApplyDenyListEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -89,7 +88,7 @@ func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicA
 	holder := holderPg.GetContextAccount(ctx)
 	info.No = noPg.No()
 	info.TenantNo = holder.GetTenantNo()
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
@@ -104,7 +103,7 @@ func (c *BasicAccountApplyDenyListService) Create(ctx *gin.Context, ct modBasicA
 //	@param ct
 //	@return rt
 func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicAccountApplyDenyList.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&info, &ct)
 	if ct.ID < 1 {
@@ -154,10 +153,10 @@ func (c *BasicAccountApplyDenyListService) Update(ctx *gin.Context, ct modBasicA
 	info.No = ""
 	err := r.Update(ctx, info, find.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
-	c.log.Infof("save.info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save.info=%+v", info)
 	return rt.Ok()
 }
 
@@ -244,7 +243,7 @@ func (c *BasicAccountApplyDenyListService) StateEnableDisable(ctx *gin.Context, 
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -255,7 +254,7 @@ func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -277,7 +276,7 @@ func (c *BasicAccountApplyDenyListService) LogicalDeletion(ctx *gin.Context, ids
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -302,7 +301,7 @@ func (c *BasicAccountApplyDenyListService) LogicalRecovery(ctx *gin.Context, ids
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -313,7 +312,7 @@ func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, id
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -328,7 +327,7 @@ func (c *BasicAccountApplyDenyListService) PhysicalDeletion(ctx *gin.Context, id
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) Query(ctx *gin.Context, ct modBasicAccountApplyDenyList.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicAccountApplyDenyList.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
@@ -427,7 +426,7 @@ func (c *BasicAccountApplyDenyListService) SelectNodeAllPublic(ctx *gin.Context,
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) SelectPublic(ctx *gin.Context, ct modBasicAccountApplyDenyList.QueryPublicCt) (rt rg.Rs[[]modBasicAccountApplyDenyList.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicAccountApplyDenyList.Vo, 0)
@@ -450,7 +449,7 @@ func (c *BasicAccountApplyDenyListService) SelectPublic(ctx *gin.Context, ct mod
 //	@receiver c
 //	@param ct
 func (c *BasicAccountApplyDenyListService) ExportExcel(ctx *gin.Context, ct modBasicAccountApplyDenyList.QueryCt) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicAccountApplyDenyListEntity
 	copier.Copy(&query, &ct)
 	infos := c.sv.FindAll(ctx, query)
@@ -461,7 +460,7 @@ func (c *BasicAccountApplyDenyListService) ExportExcel(ctx *gin.Context, ct modB
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
-		c.log.Infof("导出数据 %+v", slice)
+		log.Infof(ctx, log.TagAppDef, "导出数据 %+v", slice)
 		strings := []string{"ID", "名称", "名称外文",
 			"编号代号",
 			"全称",

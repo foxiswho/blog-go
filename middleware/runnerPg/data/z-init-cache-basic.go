@@ -5,28 +5,27 @@ import (
 
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/service/eventBasicEvent"
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/service/eventBasicRules"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 	_ "go-spring.org/spring/gs"
 )
 
 // ZInitCacheBasic
 // @Description: 启动后初始化一些数据
 type ZInitCacheBasic struct {
-	log *log2.Logger `autowire:"?"`
 }
 
 func (c *ZInitCacheBasic) Run(ctx context.Context) error {
-	c.log.Infof("[init].[启动初始化.基础.缓存]===================")
+	log.Infof(ctx, log.TagAppDef, "[init].[启动初始化.基础.缓存]===================")
 	{
-		err := eventBasicEvent.NewStartInit(c.log).Processor(context.Background())
+		err := eventBasicEvent.NewStartInit().Processor(context.Background())
 		if err != nil {
-			c.log.Error("error:", err)
+			log.Errorf(ctx, log.TagAppDef, "error:", err)
 		}
 	}
 	{
-		err := eventBasicRules.NewStartInit(c.log).Processor(context.Background())
+		err := eventBasicRules.NewStartInit().Processor(context.Background())
 		if err != nil {
-			c.log.Error("error:", err)
+			log.Errorf(ctx, log.TagAppDef, "error:", err)
 		}
 	}
 	return nil

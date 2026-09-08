@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"go-spring.org/log"
 	"go-spring.org/spring/gs"
@@ -19,7 +18,6 @@ func init() {
 }
 
 type TcTenantDomainCacheService struct {
-	log   *log2.Logger                           `autowire:"?"`
 	sv    *repositoryTc.TcTenantDomainRepository `autowire:"?"`
 	tenDb *repositoryTc.TcTenantRepository       `autowire:"?"`
 	ca    *cacheTc.TenantDomainCache             `autowire:"?"`

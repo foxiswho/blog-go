@@ -8,11 +8,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -30,7 +30,6 @@ func init() {
 type RamAccountDeviceService struct {
 	sv  *repositoryRam.RamAccountDeviceRepository `autowire:"?"`
 	acc *repositoryRam.RamAccountRepository       `autowire:"?"`
-	log *log2.Logger                              `autowire:"?"`
 }
 
 // Create 新增
@@ -40,7 +39,7 @@ type RamAccountDeviceService struct {
 //	@param ct
 //	@return rt
 func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevice2.CreateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var info entityRam.RamAccountDeviceEntity
 	copier.Copy(&info, &ct)
 	if "" == ct.Name {
@@ -68,12 +67,12 @@ func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevic
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = info.No
 	}
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	err, _ := r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
 	}
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -84,7 +83,7 @@ func (c *RamAccountDeviceService) Create(ctx *gin.Context, ct modRamAccountDevic
 //	@param ct
 //	@return rt
 func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevice2.UpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var info entityRam.RamAccountDeviceEntity
 	copier.Copy(&info, &ct)
 	r := c.sv
@@ -108,10 +107,10 @@ func (c *RamAccountDeviceService) Update(ctx *gin.Context, ct modRamAccountDevic
 	}
 	info.ID = 0
 	info.No = ""
-	c.log.Infof("info.save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info.save=%+v", info)
 	err := r.Update(ctx, info, find.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
 	return rt.Ok()
@@ -141,7 +140,7 @@ func (c *RamAccountDeviceService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[m
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
 }
 
@@ -151,7 +150,7 @@ func (c *RamAccountDeviceService) Enable(ctx *gin.Context, ct model.BaseIdsCt[st
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
 }
 
@@ -195,7 +194,7 @@ func (c *RamAccountDeviceService) StateEnableDisable(ctx *gin.Context, ids []str
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -206,7 +205,7 @@ func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -227,7 +226,7 @@ func (c *RamAccountDeviceService) LogicalDeletion(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -252,7 +251,7 @@ func (c *RamAccountDeviceService) LogicalRecovery(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -263,7 +262,7 @@ func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []strin
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -278,7 +277,7 @@ func (c *RamAccountDeviceService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamAccountDevice2.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamAccountDevice2.Vo, 0)
@@ -352,7 +351,7 @@ func (c *RamAccountDeviceService) Query(ctx *gin.Context, ct modRamAccountDevice
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAccountDevice2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -381,7 +380,7 @@ func (c *RamAccountDeviceService) SelectNodePublic(ctx *gin.Context, ct modRamAc
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRamAccountDevice2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -410,7 +409,7 @@ func (c *RamAccountDeviceService) SelectNodeAllPublic(ctx *gin.Context, ct modRa
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) SelectPublic(ctx *gin.Context, ct modRamAccountDevice2.QueryCt) (rt rg.Rs[[]modRamAccountDevice2.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamAccountDeviceEntity
 	copier.Copy(&query, &ct)
 	rt.Data = []modRamAccountDevice2.Vo{}
@@ -433,7 +432,7 @@ func (c *RamAccountDeviceService) SelectPublic(ctx *gin.Context, ct modRamAccoun
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
@@ -454,7 +453,7 @@ func (c *RamAccountDeviceService) ExistName(ctx *gin.Context, ct model.BaseExist
 //	@receiver c
 //	@param ct
 func (c *RamAccountDeviceService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}

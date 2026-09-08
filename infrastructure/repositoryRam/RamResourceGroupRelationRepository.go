@@ -23,7 +23,7 @@ type RamResourceGroupRelationRepository struct {
 func (c *RamResourceGroupRelationRepository) FindByMark(ctx context.Context, code string) (info *entityRam.RamResourceGroupRelationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("mark=?", code).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -35,7 +35,7 @@ func (c *RamResourceGroupRelationRepository) FindByMark(ctx context.Context, cod
 func (c *RamResourceGroupRelationRepository) DeleteByTypeCategoryAndTypeValue(ctx context.Context, typeCategory, typeValue string) error {
 	tx := c.DbModel().WithContext(ctx).Where("type_category = ?", typeCategory).Where("type_value = ?", typeValue).Delete(&entityRam.RamResourceGroupRelationEntity{})
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return tx.Error
 	}
 	return nil

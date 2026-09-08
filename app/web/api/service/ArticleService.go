@@ -7,10 +7,10 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -23,7 +23,6 @@ type ArticleService struct {
 	catDb *repositoryBlog.BlogArticleCategoryRepository   `autowire:"?"`
 	sata  *repositoryBlog.BlogArticleStatisticsRepository `autowire:"?"`
 	sp    *blogArticle.Sp                                 `autowire:"?"`
-	log   *log2.Logger                                    `autowire:"?"`
 }
 
 // Push
@@ -31,7 +30,7 @@ type ArticleService struct {
 //	@Description: 推送文章连接
 //	@receiver c
 func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if strPg.IsBlank(ct.CategoryNo) {
 		return rt.ErrorMessage("请选择分类")
 	}
@@ -58,12 +57,12 @@ func (c *ArticleService) Push(ctx *gin.Context, ct modBlogArticle.PushCt) (rt rg
 	save.Ano = holder.GetAccountNo()
 	err, _ := c.sv.Create(ctx, &save)
 	if err != nil {
-		c.log.Debugf("save err=%+v", err)
+		log.Debugf(ctx, log.TagAppDef, "save err=%+v", err)
 		return rt.ErrorMessage("保存失败：" + err.Error())
 	}
 	err, _ = c.sata.Create(ctx, &entityBlog.BlogArticleStatisticsEntity{ID: save.ID, ArticleNo: save.No})
 	if err != nil {
-		c.log.Debugf("save err=%+v", err)
+		log.Debugf(ctx, log.TagAppDef, "save err=%+v", err)
 	}
 	return rt.Ok()
 }

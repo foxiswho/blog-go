@@ -22,7 +22,7 @@ type BlogArticleStatisticsRepository struct {
 func (c *BlogArticleStatisticsRepository) FindByArticleNo(ctx context.Context, no string) (info *entityBlog.BlogArticleStatisticsEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("article_no=?", no).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *BlogArticleStatisticsRepository) FindByArticleNo(ctx context.Context, n
 func (c *BlogArticleStatisticsRepository) FindAllByArticleNoIn(ctx context.Context, no []string) (info []*entityBlog.BlogArticleStatisticsEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("article_no in ?", no).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

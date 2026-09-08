@@ -8,23 +8,22 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 )
 
 // SaveByCategory
 // @Description: 标签处理
 type SaveByCategory struct {
-	sp  *Sp
-	log *log2.Logger `autowire:"?"`
+	sp *Sp
+
 	dto modEventBasicTags.TagsRelation
 }
 
 func NewSaveByCategory(sp *Sp, dto modEventBasicTags.TagsRelation) *SaveByCategory {
 	return &SaveByCategory{
 		sp:  sp,
-		log: sp.log,
 		dto: dto,
 	}
 }
@@ -137,6 +136,6 @@ func (t *SaveByCategory) cache(categoryRoot []string) {
 	//缓存更新
 	err := NewCachePush(t.sp, dto).Processor(context.Background())
 	if err != nil {
-		t.log.Error("tags.push.error:=", err)
+		log.Errorf(context.Background(), log.TagAppDef, "tags.push.error:=", err)
 	}
 }

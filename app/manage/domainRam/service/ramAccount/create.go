@@ -12,8 +12,8 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sexPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/noPg"
+	"go-spring.org/log"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -24,8 +24,7 @@ import (
 )
 
 type Create struct {
-	log *log2.Logger `autowire:"?"`
-	sp  *Sp          `autowire:"?"`
+	sp  *Sp `autowire:"?"`
 	ctx *gin.Context
 	//
 	entity *entityRam.RamAccountEntity
@@ -43,11 +42,9 @@ type Create struct {
 //	@param ctx
 //	@return *Create
 func NewCreate(
-	log *log2.Logger,
 	sp *Sp,
 	ctx *gin.Context) *Create {
 	return &Create{
-		log:    log,
 		sp:     sp,
 		ctx:    ctx,
 		entity: &entityRam.RamAccountEntity{},
@@ -60,7 +57,7 @@ func NewCreate(
 //	@receiver c
 //	@param ct
 func (c *Create) accountCreateSimple(ctx *gin.Context, ct modRamAccount.CreateUpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if len(ct.Account) <= 0 {
 		return rt.ErrorMessage("账户不能为空")
 	}
@@ -130,7 +127,7 @@ func (c *Create) accountCreateSimple(ctx *gin.Context, ct modRamAccount.CreateUp
 	}
 	c.entity.No = noPg.No()
 	c.entity.TenantNo = holder.GetTenantNo()
-	c.log.Infof("save=%#v", c.entity)
+	log.Infof(ctx, log.TagAppDef, "save=%#v", c.entity)
 	err, _ := r.Create(c.ctx, c.entity)
 	if err != nil {
 		return rt.ErrorMessage("创建用户失败")
@@ -168,7 +165,7 @@ func (c *Create) CreateAccountSimple(ctx *gin.Context, ct modRamAccount.CreateUp
 //	@param tp
 //	@return rt
 func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var ctAccount modRamAccount.CreateUpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	ctAccount.ID = 0
@@ -316,7 +313,7 @@ func (c *Create) createAll(ctx *gin.Context, ct modRamAccount.CreateUpdateCt, tp
 	//
 	entity.Os = datatypes.NewJSONType(os)
 	//
-	c.log.Infof("save=%#v", entity)
+	log.Infof(ctx, log.TagAppDef, "save=%#v", entity)
 	err := c.sp.accDb.Update(c.ctx, entity, c.entity.ID)
 	if err != nil {
 		return rt.ErrorMessage("创建用户失败")

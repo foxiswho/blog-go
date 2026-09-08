@@ -7,7 +7,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/identityPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/sexPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -18,8 +18,7 @@ import (
 )
 
 type Update struct {
-	log *log2.Logger `autowire:"?"`
-	sp  *Sp          `autowire:"?"`
+	sp  *Sp `autowire:"?"`
 	ctx *gin.Context
 	//
 	entity *entityRam.RamAccountEntity
@@ -37,11 +36,9 @@ type Update struct {
 //	@param ctx
 //	@return *Update
 func NewUpdate(
-	log *log2.Logger,
 	sp *Sp,
 	ctx *gin.Context) *Update {
 	return &Update{
-		log:    log,
 		sp:     sp,
 		ctx:    ctx,
 		entity: &entityRam.RamAccountEntity{},
@@ -54,7 +51,7 @@ func NewUpdate(
 //	@receiver c
 //	@param ct
 func (c *Update) accountUpdate(ctx *gin.Context, ct modTcAccount.UpdateAccountCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if ct.ID <= 0 {
 		return rt.ErrorMessage("id不能为空")
 	}
@@ -103,10 +100,10 @@ func (c *Update) accountUpdate(ctx *gin.Context, ct modTcAccount.UpdateAccountCt
 	entity.AccountMd5 = cryptPg.Md5(entity.Account)
 	//
 	entity.No = ""
-	c.log.Info("update=%+v", entity)
+	log.Infof(ctx, log.TagAppDef, "update=%+v", entity)
 	err := r.Update(c.ctx, entity, entity.ID)
 	if err != nil {
-		c.log.Errorf("save.error=%#v", err)
+		log.Errorf(ctx, log.TagAppDef, "save.error=%#v", err)
 		return rt.ErrorMessage("保存失败")
 	}
 	return rt.Ok()
@@ -134,7 +131,7 @@ func (c *Update) UpdateAccount(ctx *gin.Context, ct modTcAccount.UpdateAccountCt
 //	@param tp
 //	@return rt
 func (c *Update) updateAll(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var ctAccount modTcAccount.UpdateAccountCt
 	copier.Copy(&ctAccount, &ct)
 	account := c.accountUpdate(ctx, ctAccount, tp)
@@ -287,10 +284,10 @@ func (c *Update) updateAll(ctx *gin.Context, ct modTcAccount.UpdateCt, tp appMod
 	entity.Os = datatypes.NewJSONType(os)
 	entity.ID = 0
 	entity.No = ""
-	c.log.Info("update=%+v", entity)
+	log.Infof(ctx, log.TagAppDef, "update=%+v", entity)
 	err := r.Update(c.ctx, entity, info.ID)
 	if err != nil {
-		c.log.Errorf("save.error=%#v", err)
+		log.Errorf(ctx, log.TagAppDef, "save.error=%#v", err)
 		return rt.ErrorMessage("保存失败")
 	}
 	return rt.OkData(numberPg.Int64ToString(info.ID))

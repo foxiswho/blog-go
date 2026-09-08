@@ -22,7 +22,7 @@ type BlogTopicRelationRepository struct {
 func (c *BlogTopicRelationRepository) FindAllByTopicNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", no).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *BlogTopicRelationRepository) FindAllByTopicNo(ctx context.Context, no s
 func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(ctx context.Context, topicNo, no string) (info *entityBlog.BlogTopicRelationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("topic_no=?", topicNo).Where("article_no=?", no).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -45,7 +45,7 @@ func (c *BlogTopicRelationRepository) FindByTopicNoAndArticleNo(ctx context.Cont
 func (c *BlogTopicRelationRepository) FindAllByArticleNo(ctx context.Context, no string) (info []*entityBlog.BlogTopicRelationEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("article_no=?", no).Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

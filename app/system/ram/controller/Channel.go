@@ -8,11 +8,9 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/ram/service"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/common/controllerPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
-
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 
 	"github.com/pangu-2/go-tools/tools/strPg"
 )
@@ -25,8 +23,7 @@ func init() {
 // @Description:
 type ChannelController struct {
 	controllerPg.SpSystemAuth
-	sv  *service.RamChannelService `autowire:"?"`
-	log *log2.Logger               `autowire:"?"`
+	sv *service.RamChannelService `autowire:"?"`
 }
 
 // CreateUpdate 创建/更新

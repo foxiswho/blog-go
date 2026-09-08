@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -15,8 +14,7 @@ func init() {
 // TestController test
 type TestController struct {
 	routerPg.RouteRegistrar
-	log *log2.Logger                          `autowire:"?"`
-	sv  *repositoryBlog.BlogArticleRepository `autowire:"?"`
+	sv *repositoryBlog.BlogArticleRepository `autowire:"?"`
 }
 
 // RegisterRoutes
@@ -31,7 +29,7 @@ func (c *TestController) RegisterRoutes(e *gin.Engine) {
 func (c *TestController) Cache(ctx *gin.Context) {
 	//err := articleBlogEvent.NewStartInit(c.log).Processor(context.Background())
 	//if err != nil {
-	//	c.log.Error("error:", err)
+	//	log.Errorf(ctx, log.TagAppDef,"error:", err)
 	//}
 	// 模版
 	ctx.JSON(200, gin.H{"data": "ok"})

@@ -2,14 +2,12 @@ package optionsPg
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"gorm.io/gorm"
 )
 
 type OptionParams struct {
 	Ctx       *gin.Context
-	Log       *log2.Logger
 	Db        *gorm.DB
 	Condition Condition
 	Pageable  *pagePg.Pageable

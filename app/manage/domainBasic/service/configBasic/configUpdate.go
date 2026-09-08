@@ -13,18 +13,18 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/cachePg/rdsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/configModelPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/basic/key/basicEventKey"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 )
 
 // ConfigUpdate 配置更新
 // @Description:
 type ConfigUpdate struct {
-	Sp  *Sp                `autowire:"?"`
-	log *log2.Logger       `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	rdt *rdsPg.BatchString `autowire:"?"`
 }
 
@@ -36,7 +36,6 @@ type ConfigUpdate struct {
 func NewConfigUpdate(sp *Sp) *ConfigUpdate {
 	return &ConfigUpdate{
 		Sp:  sp,
-		log: sp.log,
 		rdt: sp.rdt,
 	}
 }
@@ -49,7 +48,7 @@ func NewConfigUpdate(sp *Sp) *ConfigUpdate {
 //	@param ct
 //	@return rt
 func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if strPg.IsBlank(ct.EventNo) {
 		return rt.ErrorMessage("配置编号不能为空")
 	}
@@ -76,7 +75,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 			var obj modCacheBasicEvent.FieldCache
 			err := json.Unmarshal([]byte(v), &obj)
 			if err != nil {
-				c.log.Errorf("json.Unmarshal.err:%+v", err)
+				log.Errorf(ctx, log.TagAppDef, "json.Unmarshal.err:%+v", err)
 			} else {
 				copier.Copy(&obj, v)
 				//
@@ -100,7 +99,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 						var obj modCacheBasicRules.RulesCache
 						err := json.Unmarshal([]byte(v2), &obj)
 						if err != nil {
-							c.log.Errorf("json.Unmarshal.err:%+v", err)
+							log.Errorf(ctx, log.TagAppDef, "json.Unmarshal.err:%+v", err)
 						} else {
 							mapRules[k] = append(mapRules[k], &obj)
 						}
@@ -188,7 +187,7 @@ func (c *ConfigUpdate) Process(ctx *gin.Context, ct modBasicConfigList.ConfigUpd
 		}
 	}
 	// 更新数据库
-	c.log.Infof("dbUpdate=%+v", dbUpdate)
+	log.Infof(ctx, log.TagAppDef, "dbUpdate=%+v", dbUpdate)
 	if len(dbUpdate) > 0 {
 		for key, val := range dbUpdate {
 			if no, ok := dbFields[key]; ok {

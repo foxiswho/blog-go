@@ -50,7 +50,7 @@ func (c *AreaController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *AreaController) Create(ctx *gin.Context) {
-	var ct modBasicArea.CreateCt
+	var ct modBasicArea.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -63,7 +63,7 @@ func (c *AreaController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *AreaController) Update(ctx *gin.Context) {
-	var ct modBasicArea.UpdateCt
+	var ct modBasicArea.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

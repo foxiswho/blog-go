@@ -10,7 +10,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/excelPg"
@@ -21,6 +20,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/slicePg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -31,8 +31,7 @@ func init() {
 // BasicTagsCategoryService 模块
 // @Description:
 type BasicTagsCategoryService struct {
-	log *log2.Logger                                 `autowire:"?"`
-	sv  *repositoryBasic.BasicTagsCategoryRepository `autowire:"?"`
+	sv *repositoryBasic.BasicTagsCategoryRepository `autowire:"?"`
 }
 
 // Create 新增
@@ -42,11 +41,11 @@ type BasicTagsCategoryService struct {
 //	@param ct
 //	@return rt
 func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCategory.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicTagsCategoryEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -82,7 +81,7 @@ func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCateg
 		info.Code = strPg.GenerateNumberId22()
 	}
 	info.TenantNo = holder.GetTenantNo()
-	c.log.Infof("info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info=%+v", info)
 	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
@@ -113,7 +112,7 @@ func (c *BasicTagsCategoryService) Create(ctx *gin.Context, ct modBasicTagsCateg
 //	@param ct
 //	@return rt
 func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCategory.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&info, &ct)
 	if ct.ID < 1 {
@@ -155,7 +154,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 			result2 := false
 			childData, result2 = r.FindAllByNoLink(ctx, find.No)
 			if result2 {
-				//c.log.Infof("data=%+v \n", childData)
+				//log.Infof(ctx, log.TagAppDef,"data=%+v \n", childData)
 				for _, item := range childData {
 					if item.No == parent.No {
 						return rt.ErrorMessage("无法保存，不能设置为自己的子集")
@@ -179,13 +178,13 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 		info.ParentId = ""
 	}
 	info.No = ""
-	c.log.Infof("info.IdLink=%+v", info.IdLink)
+	log.Infof(ctx, log.TagAppDef, "info.IdLink=%+v", info.IdLink)
 	err := r.Update(ctx, info, info.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
-	c.log.Infof("save.info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save.info=%+v", info)
 	//更改上级后，相关子集修改
 	if strPg.IsNotBlank(ct.ParentNo) && nil != childData {
 		maps := slicePg.ToMapArray(childData, func(t *entityBasic.BasicTagsCategoryEntity) (string, *entityBasic.BasicTagsCategoryEntity) {
@@ -202,7 +201,7 @@ func (c *BasicTagsCategoryService) Update(ctx *gin.Context, ct modBasicTagsCateg
 			item.NoLink = constNodePg.NoLinkAssemble(info.NoLink, item.No)
 			c.childParentIdLink(maps, item)
 		}
-		c.log.Infof("maps=%+v", maps)
+		log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 		for _, val := range maps {
 			for _, item := range val {
 				if item.ID == find.ID {
@@ -255,7 +254,7 @@ func (c *BasicTagsCategoryService) CacheOverride(ctx *gin.Context) {
 		item.NoLink = constNodePg.NoLinkDefault(item.No)
 		c.childParentIdLink(maps, item)
 	}
-	c.log.Infof("maps=%+v", maps)
+	log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
 			r.Update(ctx, entityBasic.BasicTagsCategoryEntity{
@@ -343,7 +342,7 @@ func (c *BasicTagsCategoryService) StateEnableDisable(ctx *gin.Context, ids []st
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -354,7 +353,7 @@ func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, "")
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, "")
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -376,7 +375,7 @@ func (c *BasicTagsCategoryService) LogicalDeletion(ctx *gin.Context, ids []strin
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -401,7 +400,7 @@ func (c *BasicTagsCategoryService) LogicalRecovery(ctx *gin.Context, ids []strin
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -412,7 +411,7 @@ func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, "")
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, "")
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -427,7 +426,7 @@ func (c *BasicTagsCategoryService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) Query(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicTagsCategory.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsCategory.Vo, 0)
@@ -572,7 +571,7 @@ func (c *BasicTagsCategoryService) SelectNodeAllPublic(ctx *gin.Context, ct modB
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) SelectPublic(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) (rt rg.Rs[[]modBasicTagsCategory.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicTagsCategory.Vo, 0)
@@ -595,7 +594,7 @@ func (c *BasicTagsCategoryService) SelectPublic(ctx *gin.Context, ct modBasicTag
 //	@receiver c
 //	@param ct
 func (c *BasicTagsCategoryService) ExportExcel(ctx *gin.Context, ct modBasicTagsCategory.QueryCt) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicTagsCategoryEntity
 	copier.Copy(&query, &ct)
 	infos := c.sv.FindAll(ctx, query)
@@ -606,7 +605,7 @@ func (c *BasicTagsCategoryService) ExportExcel(ctx *gin.Context, ct modBasicTags
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
-		c.log.Infof("导出数据 %+v", slice)
+		log.Infof(ctx, log.TagAppDef, "导出数据 %+v", slice)
 		strings := []string{"ID", "名称", "名称外文",
 			"编号代号",
 			"全称",

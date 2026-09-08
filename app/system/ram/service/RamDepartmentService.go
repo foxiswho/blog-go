@@ -10,13 +10,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/typeSysPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/sdk-common-cache/cacheRamDepartmentPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/excelPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -33,9 +33,9 @@ func init() {
 // RamDepartmentService 部门
 // @Description:
 type RamDepartmentService struct {
-	sv  *repositoryRam.RamDepartmentRepository `autowire:"?"`
-	log *log2.Logger                           `autowire:"?"`
-	chd *cacheRamDepartmentPg.Cache            `autowire:"?"`
+	sv *repositoryRam.RamDepartmentRepository `autowire:"?"`
+	
+	chd *cacheRamDepartmentPg.Cache `autowire:"?"`
 }
 
 // Create 新增
@@ -45,11 +45,11 @@ type RamDepartmentService struct {
 //	@param ct
 //	@return rt
 func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment2.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	err := copier.Copy(&info, &ct)
 	if err != nil {
-		c.log.Infof("copier.Copy error: %+v", err)
+		log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 	}
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
@@ -86,7 +86,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment2.Cre
 	if automatedPg.IsCreateCode(info.Code) {
 		info.Code = strPg.GenerateNumberId22()
 	}
-	c.log.Infof("info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info=%+v", info)
 	err, _ = r.Create(ctx, &info)
 	if err != nil {
 		return rt.ErrorMessage("保存失败 " + err.Error())
@@ -107,7 +107,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment2.Cre
 	if err != nil {
 		return rt.ErrorMessage(err.Error())
 	}
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -118,7 +118,7 @@ func (c *RamDepartmentService) Create(ctx *gin.Context, ct modRamDepartment2.Cre
 //	@param ct
 //	@return rt
 func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment2.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	var info entityRam.RamDepartmentEntity
 	copier.Copy(&info, &ct)
 	if ct.ID < 1 {
@@ -157,7 +157,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment2.Cre
 			result2 := false
 			childData, result2 = r.FindAllByNoLink(ctx, find.No, optionsPg.WithCtx(ctx))
 			if result2 {
-				//c.log.Infof("data=%+v \n", childData)
+				//log.Infof(ctx, log.TagAppDef,"data=%+v \n", childData)
 				for _, item := range childData {
 					if item.No == parent.No {
 						return rt.ErrorMessage("无法保存，不能设置为自己的子集")
@@ -181,13 +181,13 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment2.Cre
 		info.ParentId = ""
 	}
 	info.No = ""
-	c.log.Infof("info.IdLink=%+v", info.IdLink)
+	log.Infof(ctx, log.TagAppDef, "info.IdLink=%+v", info.IdLink)
 	err := r.Update(ctx, info, info.ID)
 	if err != nil {
-		c.log.Errorf("update error=%+v", err)
+		log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 		return rt.ErrorMessage(err.Error())
 	}
-	c.log.Infof("save.info=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save.info=%+v", info)
 	//更改上级后，相关子集修改
 	if strPg.IsNotBlank(ct.ParentNo) && nil != childData {
 		maps := slicePg.ToMapArray(childData, func(t *entityRam.RamDepartmentEntity) (string, *entityRam.RamDepartmentEntity) {
@@ -201,7 +201,7 @@ func (c *RamDepartmentService) Update(ctx *gin.Context, ct modRamDepartment2.Cre
 			item.NoLink = constNodePg.NoLinkAssemble(info.NoLink, item.No)
 			c.childParentIdLink(maps, item)
 		}
-		c.log.Infof("maps=%+v", maps)
+		log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 		for _, val := range maps {
 			for _, item := range val {
 				if item.ID == find.ID {
@@ -252,7 +252,7 @@ func (c *RamDepartmentService) CacheOverride(ctx *gin.Context) {
 		item.NoLink = constNodePg.NoLinkDefault(item.No)
 		c.childParentIdLink(maps, item)
 	}
-	c.log.Infof("maps=%+v", maps)
+	log.Infof(ctx, log.TagAppDef, "maps=%+v", maps)
 	for _, val := range maps {
 		for _, item := range val {
 			r.Update(ctx, entityRam.RamDepartmentEntity{IdLink: item.IdLink, NoLink: item.NoLink}, item.ID)
@@ -337,7 +337,7 @@ func (c *RamDepartmentService) StateEnableDisable(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -348,7 +348,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 		//
@@ -372,7 +372,7 @@ func (c *RamDepartmentService) LogicalDeletion(ctx *gin.Context, ids []string) (
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -397,7 +397,7 @@ func (c *RamDepartmentService) LogicalRecovery(ctx *gin.Context, ids []string) (
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -409,7 +409,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 	idsNew := make([]int64, 0)
 	keys := make([]string, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 		//
 		keys = append(keys, info.No)
@@ -428,7 +428,7 @@ func (c *RamDepartmentService) PhysicalDeletion(ctx *gin.Context, ids []string) 
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamDepartment2.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment2.Vo, 0)
@@ -473,7 +473,7 @@ func (c *RamDepartmentService) Query(ctx *gin.Context, ct modRamDepartment2.Quer
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment2.QueryCt) (rt rg.Rs[[]modRamDepartment2.Vo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamDepartment2.Vo, 0)
@@ -496,7 +496,7 @@ func (c *RamDepartmentService) QueryAll(ctx *gin.Context, ct modRamDepartment2.Q
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartment2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -526,7 +526,7 @@ func (c *RamDepartmentService) SelectNodeAll(ctx *gin.Context, ct modRamDepartme
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDepartment2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -556,7 +556,7 @@ func (c *RamDepartmentService) SelectNodeAllPublic(ctx *gin.Context, ct modRamDe
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment2.QueryCt) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamDepartmentEntity
 	copier.Copy(&query, &ct)
 	infos := c.sv.FindAll(ctx, query)
@@ -567,7 +567,7 @@ func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment
 			copier.Copy(&vo, &item)
 			slice = append(slice, vo)
 		}
-		c.log.Infof("导出数据 %+v", slice)
+		log.Infof(ctx, log.TagAppDef, "导出数据 %+v", slice)
 		strings := []string{"ID", "名称", "名称外文",
 			"编号代号",
 			"全称",
@@ -596,7 +596,7 @@ func (c *RamDepartmentService) ExportExcel(ctx *gin.Context, ct modRamDepartment
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
@@ -617,7 +617,7 @@ func (c *RamDepartmentService) ExistName(ctx *gin.Context, ct model.BaseExistWdC
 //	@receiver c
 //	@param ct
 func (c *RamDepartmentService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryRam"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/passwordTypePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -24,7 +24,6 @@ func init() {
 type RamAccountPasswordService struct {
 	sv    *repositoryRam.RamAccountRepository              `autowire:"?"`
 	aAuth *repositoryRam.RamAccountAuthorizationRepository `autowire:"?"`
-	log   *log2.Logger                                     `autowire:"?"`
 }
 
 func NewRamAccountPasswordService() *RamAccountPasswordService {
@@ -37,7 +36,7 @@ func NewRamAccountPasswordService() *RamAccountPasswordService {
 //	@receiver c
 //	@param ct
 func (c *RamAccountPasswordService) UpdatePassword(ctx *gin.Context, ct modRamAccount.PasswordCt, tp appModulePg.AppModule) (rt rg.Rs[string]) {
-	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
+	log.Infof(ctx, log.TagAppDef, "tp=%+v,ct=%+v", tp, ct)
 	if ct.ID == 0 {
 		return rt.ErrorMessage("id错误")
 	}

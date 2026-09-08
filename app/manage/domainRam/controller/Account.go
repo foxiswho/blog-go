@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamAccount"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/enumCommonPg/appModulePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
@@ -25,7 +24,6 @@ type AccountController struct {
 	sv        *service.RamAccountService         `autowire:"?"`
 	ap        *service.RamAccountPasswordService `autowire:"?"`
 	appModule appModulePg.AppModule
-	log       *log2.Logger `autowire:"?"`
 }
 
 // SetAppModule 设置模块

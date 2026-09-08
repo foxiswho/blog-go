@@ -51,7 +51,7 @@ func (c *CountryController) RegisterRoutes(e *gin.Engine) {
 //	@receiver c
 //	@param ctx
 func (c *CountryController) Create(ctx *gin.Context) {
-	var ct modBasicCountry.CreateCt
+	var ct modBasicCountry.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}
@@ -64,7 +64,7 @@ func (c *CountryController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *CountryController) Update(ctx *gin.Context) {
-	var ct modBasicCountry.UpdateCt
+	var ct modBasicCountry.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

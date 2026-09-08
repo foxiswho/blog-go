@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -20,8 +20,7 @@ func init() {
 // @Description:
 type WechatOaController struct {
 	routerPg.RouteRegistrar
-	sv  *service.WechatOaService `autowire:"?"`
-	log *log2.Logger             `autowire:"?"`
+	sv *service.WechatOaService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -58,7 +57,7 @@ func (c *WechatOaController) WebhookVerify(ctx *gin.Context) {
 	// 如果配置了 token 则验证签名
 	if wechatToken != "" {
 		if !c.sv.VerifySignature(wechatToken, nonce, timestamp, signature) {
-			c.log.Warnf("微信 webhook 签名验证失败: sourceNo=%s", sourceNo)
+			log.Warnf(ctx, log.TagAppDef, "微信 webhook 签名验证失败: sourceNo=%s", sourceNo)
 			ctx.String(http.StatusOK, "invalid signature")
 			return
 		}
@@ -81,7 +80,7 @@ func (c *WechatOaController) WebhookVerify(ctx *gin.Context) {
 func (c *WechatOaController) WebhookEvent(ctx *gin.Context) {
 	bodyBytes, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
-		c.log.Errorf("读取微信 webhook body 失败: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "读取微信 webhook body 失败: %v", err)
 		ctx.String(http.StatusOK, "")
 		return
 	}
@@ -89,7 +88,7 @@ func (c *WechatOaController) WebhookEvent(ctx *gin.Context) {
 	sourceNo := ctx.Query("sourceNo")
 	result := c.sv.HandleEvent(ctx, bodyBytes, sourceNo)
 	if result.ErrorIs() {
-		c.log.Errorf("处理微信事件失败: %s", result.Message)
+		log.Errorf(ctx, log.TagAppDef, "处理微信事件失败: %s", result.Message)
 	}
 
 	// 微信要求返回空字符串表示成功
@@ -116,4 +115,3 @@ func (c *WechatOaController) PollScanStatus(ctx *gin.Context) {
 	result := c.sv.PollScanStatus(ctx, ticket)
 	ctx.JSON(http.StatusOK, result)
 }
-

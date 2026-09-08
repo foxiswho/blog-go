@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/system/basic/service"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -20,9 +19,8 @@ func init() {
 
 type BasicModuleController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupSystemMiddlewareSp `autowire:""`
-	sv  *service.BasicModuleService     `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	Sp *authPg.GroupSystemMiddlewareSp `autowire:""`
+	sv *service.BasicModuleService     `autowire:"?"`
 }
 
 func (c *BasicModuleController) RegisterRoutes(e *gin.Engine) {

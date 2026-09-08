@@ -8,11 +8,11 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/automatedPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 
 	"github.com/jinzhu/copier"
@@ -27,8 +27,7 @@ func init() {
 // RamChannelService 渠道
 // @Description:
 type RamChannelService struct {
-	sv  *repositoryRam.RamChannelRepository `autowire:"?"`
-	log *log2.Logger                        `autowire:"?"`
+	sv *repositoryRam.RamChannelRepository `autowire:"?"`
 }
 
 // CreateUpdate 新增更新
@@ -38,7 +37,7 @@ type RamChannelService struct {
 //	@param ct
 //	@return rt
 func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel2.CreateUpdateCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	//
 	holder := holderPg.GetContextAccount(ctx)
 	//
@@ -96,11 +95,11 @@ func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel2.Cre
 		info.State = enumStatePg.ENABLE.Index()
 	}
 
-	c.log.Infof("info.save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info.save=%+v", info)
 	if isUpdate {
 		err := r.Update(ctx, info, find.ID)
 		if err != nil {
-			c.log.Errorf("update error=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "update error=%+v", err)
 			return rt.ErrorMessage(err.Error())
 		}
 	} else {
@@ -108,7 +107,7 @@ func (c *RamChannelService) CreateUpdate(ctx *gin.Context, ct modRamChannel2.Cre
 		if err != nil {
 			return rt.ErrorMessage("保存失败 " + err.Error())
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	}
 
 	return rt.Ok()
@@ -138,7 +137,7 @@ func (c *RamChannelService) Detail(ctx *gin.Context, id int64) (rt rg.Rs[modRamC
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.ENABLE)
 }
 
@@ -148,7 +147,7 @@ func (c *RamChannelService) Enable(ctx *gin.Context, ct model.BaseIdsCt[string])
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) Disable(ctx *gin.Context, ct model.BaseIdsCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	return c.State(ctx, ct.Ids, enumStatePg.GetType(enumStatePg.DISABLE))
 }
 
@@ -192,7 +191,7 @@ func (c *RamChannelService) StateEnableDisable(ctx *gin.Context, ids []string, s
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -203,7 +202,7 @@ func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt 
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -224,7 +223,7 @@ func (c *RamChannelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt 
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -249,7 +248,7 @@ func (c *RamChannelService) LogicalRecovery(ctx *gin.Context, ids []string) (rt 
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -260,7 +259,7 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -275,7 +274,7 @@ func (c *RamChannelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel2.QueryCt) (rt rg.Rs[pagePg.Paginator[modRamChannel2.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modRamChannel2.Vo, 0)
@@ -319,7 +318,7 @@ func (c *RamChannelService) Query(ctx *gin.Context, ct modRamChannel2.QueryCt) (
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -347,7 +346,7 @@ func (c *RamChannelService) SelectNodeAll(ctx *gin.Context, ct modRamChannel2.Qu
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChannel2.QueryPublicCt) (rt rg.Rs[[]model.BaseNodeNo]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityRam.RamChannelEntity
 	copier.Copy(&query, &ct)
 	slice := make([]model.BaseNodeNo, 0)
@@ -375,7 +374,7 @@ func (c *RamChannelService) SelectNodeAllPublic(ctx *gin.Context, ct modRamChann
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}
@@ -396,7 +395,7 @@ func (c *RamChannelService) ExistName(ctx *gin.Context, ct model.BaseExistWdCt[s
 //	@receiver c
 //	@param ct
 func (c *RamChannelService) ExistCode(ctx *gin.Context, ct model.BaseExistWdCt[string]) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if "" == ct.Wd {
 		return rt.ErrorMessage("查询内容不能为空")
 	}

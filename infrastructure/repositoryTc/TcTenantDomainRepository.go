@@ -22,7 +22,7 @@ type TcTenantDomainRepository struct {
 func (c *TcTenantDomainRepository) FindAllByTenantNo(ctx context.Context, no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
 	tx := c.Db().WithContext(ctx).Where("tenant_no=?", no).Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -34,7 +34,7 @@ func (c *TcTenantDomainRepository) FindAllByTenantNo(ctx context.Context, no str
 func (c *TcTenantDomainRepository) SetDefaultedByTenantNo(ctx context.Context, def int8, no string) (infos []*entityTc.TcTenantDomainEntity, query bool) {
 	tx := c.Db().WithContext(ctx).Where("tenant_no=?", no).Update("defaulted", def)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

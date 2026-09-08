@@ -22,7 +22,7 @@ type BasicCountryRepository struct {
 func (c *BasicCountryRepository) FindByCountryCode(ctx context.Context, code string) (info *entityBasic.BasicCountryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("state=1").Where("country_code=?", code).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -33,7 +33,7 @@ func (c *BasicCountryRepository) FindByCountryCode(ctx context.Context, code str
 func (c *BasicCountryRepository) FindByCountryCodeAndIdNot(ctx context.Context, code, id string) (info *entityBasic.BasicCountryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("state=1").Where("country_code=?", code).Where("id!=?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

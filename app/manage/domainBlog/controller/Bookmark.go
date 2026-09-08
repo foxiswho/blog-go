@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/blog/modBlogBookmark"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -22,9 +21,8 @@ func init() {
 // @Description:
 type BookmarkController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
-	sv  *service.BlogBookmarkService    `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv *service.BlogBookmarkService    `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

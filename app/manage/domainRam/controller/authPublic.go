@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modPublic"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -19,9 +18,8 @@ func init() {
 // @Description:
 type PublicController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp  `autowire:""`
-	sv  *service.RamAccountPublicService `autowire:"?"`
-	log *log2.Logger                     `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp  `autowire:""`
+	sv *service.RamAccountPublicService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

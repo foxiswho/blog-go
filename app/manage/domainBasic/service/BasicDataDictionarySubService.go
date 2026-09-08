@@ -11,7 +11,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -20,6 +19,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
@@ -31,8 +31,7 @@ func init() {
 // BasicDataDictionarySubService 数据字典
 // @Description:
 type BasicDataDictionarySubService struct {
-	sv  *repositoryBasic.BasicDataDictionaryRepository `autowire:"?"`
-	log *log2.Logger                                   `autowire:"?"`
+	sv *repositoryBasic.BasicDataDictionaryRepository `autowire:"?"`
 }
 
 // CreateUpdate 新增
@@ -42,7 +41,7 @@ type BasicDataDictionarySubService struct {
 //	@param ct
 //	@return rt
 func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBasicDataDictionary.CreateUpdateSubCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%#v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%#v", ct)
 	if "" == ct.Name {
 		return rt.ErrorMessage("名称不能为空")
 	}
@@ -78,12 +77,12 @@ func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBas
 			}
 		}
 		info.No = noPg.No()
-		c.log.Infof("info%+v", info)
+		log.Infof(ctx, log.TagAppDef, "info%+v", info)
 		err, _ := r.Create(ctx, &info)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	} else {
 		{
 			_, result := c.sv.FindByCodeAndTypeCodeAndIdNotAndOwnerNo(ctx, info.Code, info.TypeCode, ct.ID.ToString(), info.OwnerNo)
@@ -91,7 +90,7 @@ func (c *BasicDataDictionarySubService) CreateUpdate(ctx *gin.Context, ct modBas
 				return rt.ErrorMessage("码值已存在")
 			}
 		}
-		c.log.Infof("save=%+v", info)
+		log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 		err := r.Update(ctx, info, info.ID)
 		if err != nil {
 			return rt.ErrorMessage("保存失败")
@@ -189,7 +188,7 @@ func (c *BasicDataDictionarySubService) LogicalDeletion(ctx *gin.Context, ids []
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -244,7 +243,7 @@ func (c *BasicDataDictionarySubService) PhysicalDeletion(ctx *gin.Context, ids [
 		return rt.ErrorMessage("数据不存在")
 	}
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 	}
 	cn.DeleteByIdsString(ctx, ids)
 	return rt.Ok()
@@ -354,83 +353,91 @@ func (c *BasicDataDictionarySubService) SelectNodeAllPublic(ctx *gin.Context, ct
 	return rt.Ok()
 }
 
+// CodeValuePublic 码值
+//
+//	@Description:
+//	@receiver c
+//	@param ct
+func (c *BasicDataDictionarySubService) CodeValuePublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[any]) {
+	var query entityBasic.BasicDataDictionaryEntity
+	copier.Copy(&query, &ct)
+	query.State = enumStatePg.ENABLE.Index()
+	//
+	//
+	values := make([]model.BaseNodeKeyValue, 0)
+	rt.Data = values
+	infos := c.sv.FindAll(ctx, query)
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicDataDictionary.SelectNodeVo
+			copier.Copy(&vo, &item)
+			//
+			if len(item.Range) > 0 {
+				vo.Range = strutil.SplitAndTrim(item.Range, ",")
+			}
+			//
+			code := model.BaseNodeKeyValue{
+				Value:  item.Code,
+				Label:  item.Name,
+				Extend: vo,
+			}
+			values = append(values, code)
+		}
+		rt.Data = values
+	}
+	return rt.Ok()
+}
+
 // CodeValueAllPublic 码值
 //
 //	@Description:
 //	@receiver c
 //	@param ct
-func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeCt) (rt rg.Rs[any]) {
-	if strPg.IsBlank(ct.TypeCode) {
-		if nil == ct.TypeCodeArr || len(ct.TypeCodeArr) <= 0 {
-			return rt.ErrorMessage("上级码值[typeCode]不能为空")
-		}
+func (c *BasicDataDictionarySubService) CodeValueAllPublic(ctx *gin.Context, ct modBasicDataDictionary.SelectNodeAllCt) (rt rg.Rs[any]) {
+	if nil == ct.TypeCodes || len(ct.TypeCodes) <= 0 {
+		return rt.ErrorMessage("上级码值[typeCode]不能为空")
 	}
 	var query entityBasic.BasicDataDictionaryEntity
 	copier.Copy(&query, &ct)
 	query.State = enumStatePg.ENABLE.Index()
 	//
-	if nil != ct.TypeCodeArr && len(ct.TypeCodeArr) > 0 {
-		query.TypeCode = ""
-		ids := make([]string, 0)
-		for _, item := range ct.TypeCodeArr {
-			if strPg.IsNotBlank(item) {
-				ids = append(ids, strings.TrimSpace(item))
+	query.TypeCode = ""
+	ids := make([]string, 0)
+	for _, item := range ct.TypeCodes {
+		if strPg.IsNotBlank(item) {
+			ids = append(ids, strings.TrimSpace(item))
+		}
+	}
+	//
+	rt.Data = struct{}{}
+	if len(ids) <= 0 {
+		return rt.Ok()
+	}
+	values := make(map[string][]model.BaseNodeKeyValue)
+	infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
+		db.Where("type_code in ?", ids)
+		return db
+	}))
+	if len(infos) > 0 {
+		for _, item := range infos {
+			var vo modBasicDataDictionary.SelectNodeVo
+			copier.Copy(&vo, &item)
+			//
+			if len(item.Range) > 0 {
+				vo.Range = strutil.SplitAndTrim(item.Range, ",")
 			}
-		}
-		//
-		rt.Data = struct{}{}
-		if len(ids) <= 0 {
-			return rt.Ok()
-		}
-		values := make(map[string][]model.BaseNodeKeyValue)
-		infos := c.sv.FindAll(ctx, query, optionsPg.WithCondition(func(db *gorm.DB) *gorm.DB {
-			db.Where("type_code in ?", ids)
-			return db
-		}))
-		if len(infos) > 0 {
-			for _, item := range infos {
-				var vo modBasicDataDictionary.SelectNodeVo
-				copier.Copy(&vo, &item)
-				//
-				if len(item.Range) > 0 {
-					vo.Range = strutil.SplitAndTrim(item.Range, ",")
-				}
-				//
-				code := model.BaseNodeKeyValue{
-					Value:  item.Code,
-					Label:  item.Name,
-					Extend: vo,
-				}
-				if _, ok := values[item.TypeCode]; !ok {
-					values[item.TypeCode] = make([]model.BaseNodeKeyValue, 0)
-				}
-				values[item.TypeCode] = append(values[item.TypeCode], code)
+			//
+			code := model.BaseNodeKeyValue{
+				Value:  item.Code,
+				Label:  item.Name,
+				Extend: vo,
 			}
-			rt.Data = values
+			if _, ok := values[item.TypeCode]; !ok {
+				values[item.TypeCode] = make([]model.BaseNodeKeyValue, 0)
+			}
+			values[item.TypeCode] = append(values[item.TypeCode], code)
 		}
-	} else {
-		//
-		values := make([]model.BaseNodeKeyValue, 0)
 		rt.Data = values
-		infos := c.sv.FindAll(ctx, query)
-		if len(infos) > 0 {
-			for _, item := range infos {
-				var vo modBasicDataDictionary.SelectNodeVo
-				copier.Copy(&vo, &item)
-				//
-				if len(item.Range) > 0 {
-					vo.Range = strutil.SplitAndTrim(item.Range, ",")
-				}
-				//
-				code := model.BaseNodeKeyValue{
-					Value:  item.Code,
-					Label:  item.Name,
-					Extend: vo,
-				}
-				values = append(values, code)
-			}
-			rt.Data = values
-		}
 	}
 	return rt.Ok()
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hongmengzhu/xianfu-blog-go/app/manage/domainRam/service"
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLdap"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -16,8 +15,7 @@ func init() {
 // LdapController LDAP 管理
 type LdapController struct {
 	routerPg.RouteRegistrar
-	sv  *service.LdapService `autowire:"?"`
-	log *log2.Logger         `autowire:"?"`
+	sv *service.LdapService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

@@ -8,17 +8,17 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/yesNoPg/yesNoIntPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/noPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"gorm.io/datatypes"
 )
 
 type CreateUpdateData struct {
-	Sp       *Sp          `autowire:"?"`
-	log      *log2.Logger `autowire:"?"`
+	Sp *Sp `autowire:"?"`
+
 	ct       modBasicModelRules.CreateUpdateDataCt
 	model    *entityBasic.BasicConfigModelEntity
 	event    *entityBasic.BasicConfigEventEntity
@@ -30,7 +30,6 @@ func NewCreateUpdateData(sp *Sp,
 	ct modBasicModelRules.CreateUpdateDataCt, isUpdate bool) *CreateUpdateData {
 	return &CreateUpdateData{
 		Sp:       sp,
-		log:      sp.log,
 		isUpdate: isUpdate,
 		ct:       ct,
 		fields:   make([]*entityBasic.BasicModelRulesEntity, 0),
@@ -44,7 +43,7 @@ func (c *CreateUpdateData) Process(ctx *gin.Context) (rt rg.Rs[string]) {
 }
 
 func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", c.ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", c.ct)
 	ct := c.ct
 	if nil == ct.Body || len(ct.Body) < 1 {
 		return rt.ErrorMessage("规则不能为空")
@@ -95,7 +94,7 @@ func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 		obj := entityBasic.BasicModelRulesEntity{}
 		err := copier.Copy(&obj, &item)
 		if err != nil {
-			c.log.Infof("copier.Copy error: %+v", err)
+			log.Infof(ctx, log.TagAppDef, "copier.Copy error: %+v", err)
 		}
 		obj.Name = strings.TrimSpace(obj.Name)
 		obj.RuleMode = strings.TrimSpace(obj.RuleMode)
@@ -130,7 +129,7 @@ func (c *CreateUpdateData) verify(ctx *gin.Context) (rt rg.Rs[string]) {
 	if len(dataAdd) > 0 {
 		tx := c.Sp.repRules.DbModel().CreateInBatches(dataAdd, 1000000)
 		if tx.Error != nil {
-			c.log.Errorf("save err=%+v", tx.Error)
+			log.Errorf(ctx, log.TagAppDef, "save err=%+v", tx.Error)
 			return rt.ErrorMessage("保存失败：")
 		}
 	}

@@ -8,7 +8,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBasic"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -17,6 +16,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 	"gorm.io/gorm"
 )
@@ -26,7 +26,6 @@ func init() {
 }
 
 type BasicConfigEventService struct {
-	log       *log2.Logger                                      `autowire:"?"`
 	sv        *repositoryBasic.BasicConfigEventRepository       `autowire:"?"`
 	repoField *repositoryBasic.BasicConfigEventFieldsRepository `autowire:"?"`
 	sp        *configEvent.Sp                                   `autowire:"?"`
@@ -75,7 +74,7 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 
 	err, _ := s.sv.Create(ctx, &eventEntity)
 	if err != nil {
-		s.log.Errorf("Create event error: %v", err)
+		log.Errorf(ctx, log.TagAppDef, "Create event error: %v", err)
 		return rt.ErrorMessage("创建事件失败")
 	}
 
@@ -100,7 +99,7 @@ func (s *BasicConfigEventService) Create(ctx *gin.Context, ct modBasicConfigEven
 
 		err, _ := s.repoField.Create(ctx, &fieldEntity)
 		if err != nil {
-			s.log.Errorf("Create event field error: %v", err)
+			log.Errorf(ctx, log.TagAppDef, "Create event field error: %v", err)
 			continue
 		}
 	}
@@ -185,7 +184,7 @@ func (c *BasicConfigEventService) LogicalDeletion(ctx *gin.Context, ids []string
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v", info.ID)
+			log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -207,7 +206,7 @@ func (c *BasicConfigEventService) LogicalDeletion(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *BasicConfigEventService) LogicalRecovery(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -232,7 +231,7 @@ func (c *BasicConfigEventService) LogicalRecovery(ctx *gin.Context, ids []string
 //	@receiver c
 //	@param ct
 func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -243,7 +242,7 @@ func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []strin
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v", info.ID)
+		log.Infof(ctx, log.TagAppDef, "id=%v", info.ID)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {
@@ -258,7 +257,7 @@ func (c *BasicConfigEventService) PhysicalDeletion(ctx *gin.Context, ids []strin
 //	@receiver c
 //	@param ct
 func (c *BasicConfigEventService) Query(ctx *gin.Context, ct modBasicConfigEvent.QueryCt) (rt rg.Rs[pagePg.Paginator[modBasicConfigEvent.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBasic.BasicConfigEventEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBasicConfigEvent.Vo, 0)

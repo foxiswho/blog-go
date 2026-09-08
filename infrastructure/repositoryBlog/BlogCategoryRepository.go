@@ -22,7 +22,7 @@ type BlogCategoryRepository struct {
 func (c *BlogCategoryRepository) FindAllByParentIdLink(ctx context.Context, code string) (info []*entityBlog.BlogCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("id_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -33,7 +33,7 @@ func (c *BlogCategoryRepository) FindAllByParentIdLink(ctx context.Context, code
 func (c *BlogCategoryRepository) FindAllByNoLink(ctx context.Context, code string) (infos []*entityBlog.BlogCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("no_link like ?", "%"+code+"%").Find(&infos)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {
@@ -44,7 +44,7 @@ func (c *BlogCategoryRepository) FindAllByNoLink(ctx context.Context, code strin
 func (c *BlogCategoryRepository) FindAllByCodeLinkAndTypeSys(ctx context.Context, code string, tpSys string) (info []*entityBlog.BlogCategoryEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("type_sys = ?", tpSys).Where("no_link like ?", "%"+code+"%").Find(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

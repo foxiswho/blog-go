@@ -20,7 +20,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg/multiTenantPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/sdk/ram/model/modRamAccount"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/cryptPg"
@@ -43,7 +42,6 @@ type AccountLoginService struct {
 	sessionAk            *repositoryRam.RamAccountSessionAccessKeyRepository `autowire:"?"`
 	cacheSessionPubPrive *cacheRam.CacheSessionPubPrive                      `autowire:"?" `
 	pg                   configPg.Pg                                         `value:"${pg}"`
-	log                  *log2.Logger                                        `autowire:"?"`
 	authLogin            pg.Auth                                             `value:"${pg.auth}"`
 }
 
@@ -58,7 +56,7 @@ func NewAccountLoginService() *AccountLoginService {
 //	@param ct
 //	@return rt
 func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin2.LoginCt, tp typeDomainPg.TypeDomain, tenantNo string) (rt rg.Rs[modRamLogin2.LoginSuccess]) {
-	c.log.Infof("tp=%+v,ct=%+v", tp, ct)
+	log.Infof(ctx, log.TagAppDef, "tp=%+v,ct=%+v", tp, ct)
 	//
 	client := clientPg.Browser
 	//
@@ -99,7 +97,7 @@ func (c *AccountLoginService) Login(ctx *gin.Context, ct modRamLogin2.LoginCt, t
 		return rt.ErrorMessage("用户密码未设置")
 	}
 	if !userPg.PasswordVerify(pwdInfo.Value, pwd, pwdInfo.ExtraData) {
-		c.log.Debugf("pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", pwd, userPg.PasswordSalt(pwd, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
+		log.Debugf(ctx, log.TagAppDef, "pwd=%+v,[%+v],[value]=%+v,[extra]=%+v", pwd, userPg.PasswordSalt(pwd, pwdInfo.ExtraData), pwdInfo.Value, pwdInfo.ExtraData)
 		return rt.ErrorMessage("账号密码错误")
 	}
 	//

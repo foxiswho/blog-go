@@ -23,7 +23,7 @@ type BasicDataSnapshotRepository struct {
 func (c *BasicDataSnapshotRepository) FindByNameAndIdNot(ctx context.Context, name string, id int64) (info *entityBasic.BasicDataSnapshotEntity, result bool) {
 	tx := c.DbModel().WithContext(ctx).Where("name=?", name).Where("id <> ?", id).First(&info)
 	if tx.Error != nil {
-		c.Log().Error("", tx.Error)
+		log.Errorf(ctx, log.TagAppDef, "", tx.Error)
 		return nil, false
 	}
 	if 0 == tx.RowsAffected {

@@ -7,13 +7,13 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryBlog"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
 	"github.com/pangu-2/go-tools/tools/dbPg/pagePg"
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -25,7 +25,6 @@ type BlogTopicRelationService struct {
 	topic    *repositoryBlog.BlogTopicRepository         `autowire:"?"`
 	article  *repositoryBlog.BlogArticleRepository       `autowire:"?"`
 	relation *repositoryBlog.BlogTopicRelationRepository `autowire:"?"`
-	log      *log2.Logger                                `autowire:"?"`
 }
 
 // AddByTopic
@@ -36,7 +35,7 @@ type BlogTopicRelationService struct {
 //	@param ct
 //	@return rt
 func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicRelation.AddByTopicCt) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	if strPg.IsBlank(ct.TopicNo) {
 		return rt.ErrorMessage("话题编号不能为空")
 	}
@@ -86,7 +85,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 		obj.Description = find.Description
 		err, _ := c.relation.Create(ctx, &obj)
 		if nil != err {
-			c.log.Errorf("save err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "save err=%+v", err)
 		}
 	}
 	return rt.Ok()
@@ -98,7 +97,7 @@ func (c *BlogTopicRelationService) AddByTopic(ctx *gin.Context, ct modBlogTopicR
 //	@receiver c
 //	@param ct
 func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg.Rs[string]) {
-	c.log.Infof("ct=%+v", ids)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ids)
 	if len(ids) < 1 {
 		return rt.ErrorMessage("id错误")
 	}
@@ -111,13 +110,13 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 	tenantNo := holder.GetTenantNo()
 	idsNew := make([]string, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantNo=%v", info.ID, info.TenantNo)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantNo=%v", info.ID, info.TenantNo)
 		idsNew = append(idsNew, numberPg.Int64ToString(info.ID))
 	}
 	if len(idsNew) > 0 {
 		err := cn.DeleteAllByTenantNoAndIdsString(ctx, tenantNo, idsNew)
 		if err != nil {
-			c.log.Errorf("操作 err=%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "操作 err=%+v", err)
 		}
 	}
 	return rt.Ok()
@@ -129,7 +128,7 @@ func (c *BlogTopicRelationService) PhysicalDeletion(ctx *gin.Context, ids []stri
 //	@receiver c
 //	@param ct
 func (c *BlogTopicRelationService) Query(ctx *gin.Context, ct modBlogTopicRelation.QueryCt) (rt rg.Rs[pagePg.Paginator[modBlogTopicRelation.Vo]]) {
-	c.log.Infof("ct=%+v", ct)
+	log.Infof(ctx, log.TagAppDef, "ct=%+v", ct)
 	var query entityBlog.BlogTopicRelationEntity
 	copier.Copy(&query, &ct)
 	slice := make([]modBlogTopicRelation.Vo, 0)

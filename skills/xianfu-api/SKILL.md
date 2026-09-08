@@ -213,7 +213,7 @@ import (
     "github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityXxx"
     "github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryXxx"
     "github.com/hongmengzhu/xianfu-blog-go/pkg/holderPg"
-    "github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+    "go-spring.org/log"
     "github.com/hongmengzhu/xianfu-blog-go/pkg/model"
     "github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
     "github.com/jinzhu/copier"

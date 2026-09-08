@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/entityTc"
 	"github.com/hongmengzhu/xianfu-blog-go/infrastructure/repositoryTc"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/tools/dbHelper/repositoryPg/optionsPg"
 	"github.com/jinzhu/copier"
@@ -14,6 +13,7 @@ import (
 	"github.com/pangu-2/go-tools/tools/numberPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
 	"github.com/pangu-2/go-tools/tools/wrapperPg/rg"
+	"go-spring.org/log"
 	"go-spring.org/spring/gs"
 )
 
@@ -24,8 +24,7 @@ func init() {
 // TcLevelService 级别
 // @Description:
 type TcLevelService struct {
-	sv  *repositoryTc.TcLevelRepository `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	sv *repositoryTc.TcLevelRepository `autowire:"?"`
 }
 
 // Create 新增
@@ -41,10 +40,10 @@ func (c *TcLevelService) Create(ctx *gin.Context, ct modTcLevel.CreateCt) (rt rg
 	//holder := holderPg.GetContextAccount(ctx)
 	var info entityTc.TcLevelEntity
 	copier.Copy(&info, &ct)
-	c.log.Infof("info%+v", info)
+	log.Infof(ctx, log.TagAppDef, "info%+v", info)
 	//info.TenantId = holder.GetTenantNo()
 	c.sv.Create(ctx, &info)
-	c.log.Infof("save=%+v", info)
+	log.Infof(ctx, log.TagAppDef, "save=%+v", info)
 	return rg.OkData(numberPg.Int64ToString(info.ID))
 }
 
@@ -158,7 +157,7 @@ func (c *TcLevelService) LogicalDeletion(ctx *gin.Context, ids []string) (rt rg.
 	}
 	if c.sv.Config().Data.Delete {
 		for _, info := range finds {
-			c.log.Infof("id=%v,TenantId=%v", info.ID, "info.TenantId")
+			log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, "info.TenantId")
 		}
 		repository.DeleteByIdsString(ctx, ids)
 	} else {
@@ -214,7 +213,7 @@ func (c *TcLevelService) PhysicalDeletion(ctx *gin.Context, ids []string) (rt rg
 	}
 	idsNew := make([]int64, 0)
 	for _, info := range finds {
-		c.log.Infof("id=%v,TenantId=%v", info.ID, 0)
+		log.Infof(ctx, log.TagAppDef, "id=%v,TenantId=%v", info.ID, 0)
 		idsNew = append(idsNew, info.ID)
 	}
 	if len(idsNew) > 0 {

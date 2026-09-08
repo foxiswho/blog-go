@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/ram/modRamLogin"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constsRam/typeDomainPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/clientPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"go-spring.org/spring/gs"
 )
@@ -19,8 +18,7 @@ func init() {
 // @Description:
 type AuthLoginController struct {
 	routerPg.RouteRegistrar
-	sv  *service.AccountLoginService `autowire:"?"`
-	log *log2.Logger                 `autowire:"?"`
+	sv *service.AccountLoginService `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由

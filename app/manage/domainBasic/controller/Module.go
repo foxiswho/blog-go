@@ -6,7 +6,6 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/models/basic/modBasicModule"
 	"github.com/hongmengzhu/xianfu-blog-go/middleware/authPg"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/enum/state/enumStatePg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/model"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/routerPg"
 	"github.com/pangu-2/go-tools/tools/strPg"
@@ -22,9 +21,8 @@ func init() {
 // @Description:
 type ModuleController struct {
 	routerPg.RouteRegistrar
-	Sp  *authPg.GroupManageMiddlewareSp `autowire:""`
-	sv  *service.BasicModuleService     `autowire:"?"`
-	log *log2.Logger                    `autowire:"?"`
+	Sp *authPg.GroupManageMiddlewareSp `autowire:""`
+	sv *service.BasicModuleService     `autowire:"?"`
 }
 
 // RegisterRoutes 注册路由
@@ -68,7 +66,7 @@ func (c *ModuleController) Create(ctx *gin.Context) {
 //	@receiver c
 //	@param ctx
 func (c *ModuleController) Update(ctx *gin.Context) {
-	var ct modBasicModule.UpdateCt
+	var ct modBasicModule.CreateUpdateCt
 	if !routerPg.BindJson(ctx, &ct) {
 		return
 	}

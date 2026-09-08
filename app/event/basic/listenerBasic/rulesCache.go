@@ -8,13 +8,12 @@ import (
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/model/modEventBasicRules"
 	"github.com/hongmengzhu/xianfu-blog-go/app/event/basic/service/eventBasicRules"
 	"github.com/hongmengzhu/xianfu-blog-go/pkg/consts/constEventBusPg"
-	"github.com/hongmengzhu/xianfu-blog-go/pkg/log2"
+	"go-spring.org/log"
 	_ "go-spring.org/spring/gs"
 )
 
 type RulesCacheListener struct {
-	log *log2.Logger        `autowire:"?"`
-	sp  *eventBasicRules.Sp `autowire:"?"`
+	sp *eventBasicRules.Sp `autowire:"?"`
 }
 
 // Run 启动加载
@@ -23,15 +22,15 @@ type RulesCacheListener struct {
 //	@receiver c
 //	@param ctx
 func (c *RulesCacheListener) Run(ctx context.Context) error {
-	c.log.Infof("[init].listener.[基础.模型字段规则.缓存]===================")
+	log.Infof(ctx, log.TagAppDef, "[init].listener.[基础.模型字段规则.缓存]===================")
 	//模型事件
 	eventBus.RegisterEvent(constEventBusPg.BasicModelRulesCache).RegisterSubscribe(constEventBusPg.BasicModelRulesCache, func(message any, _ core.EventArgs) {
-		c.log.Infof("listener.[基础.模型字段规则.缓存]22===================")
+		log.Infof(ctx, log.TagAppDef, "listener.[基础.模型字段规则.缓存]22===================")
 		dto := message.(modEventBasicRules.RulesDto)
-		//c.log.Infof("dto=%+v", dto)
+		//log.Infof(ctx, log.TagAppDef,"dto=%+v", dto)
 		err := eventBasicRules.NewRulesMakeCache(c.sp, dto).Processor(context.Background())
 		if nil != err {
-			c.sp.Log.Error("基础.模型事件.缓存:%+v", err)
+			log.Errorf(ctx, log.TagAppDef, "基础.模型事件.缓存:%+v", err)
 		}
 		message = nil
 	})
